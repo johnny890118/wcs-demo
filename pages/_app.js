@@ -4,6 +4,7 @@ import "../styles/for_index_test.css";
 import "../styles/map.scss";
 import "../styles/font.css";
 import "../styles/animation.css";
+import "@/styles/engineeringMode.css"
 import { Ubuntu } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 

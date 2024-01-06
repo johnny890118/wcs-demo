@@ -1,0 +1,29 @@
+.allStopBtn:hover .allStopBtn1 {
+  background-color: rgb(220, 38, 38);
+}
+.allStopBtn:hover p {
+  color: white;
+}
+
+.carControlBtn:hover .carControlBtn1 {
+  background-color: rgb(124, 58, 237);
+}
+.carControlBtn:hover .carControlBtn2 {
+  background-color: rgb(124, 58, 237);
+}
+.carControlBtn:hover .carControlBtn3 {
+  background-color: rgb(124, 58, 237);
+}
+.carControlBtn:hover .carControlBtn4 {
+  background-color: rgb(124, 58, 237);
+}
+.carControlBtn:hover p {
+  color: white;
+}
+
+.carStopBtn:hover .carStopBtn1 {
+  background-color: rgb(219, 39, 119);
+}
+.carStopBtn:hover p {
+  color: white;
+}/*# sourceMappingURL=engineeringMode.css.map */
