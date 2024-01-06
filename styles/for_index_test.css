@@ -1,0 +1,167 @@
+.background-agv {
+  background-image: linear-gradient(
+      rgba(17, 24, 39, 0.95),
+      rgba(17, 24, 39, 0.95)
+    ),
+    url("./agvModal.png");
+
+  background-size: cover;
+  background-position: 60px 80px;
+  background-repeat: no-repeat;
+}
+
+.loading {
+  display: block;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  /* background-color: white; */
+}
+
+.loading div {
+  height: 40%;
+  width: 40%;
+  border-radius: 50%;
+  position: absolute;
+  animation: loading 2s ease infinite;
+}
+.loading :first-child {
+  background: #c299fc;
+}
+.loading :nth-child(2) {
+  background: #ec4899;
+  animation-delay: -0.5s;
+}
+.loading :nth-child(3) {
+  background: #9852f9;
+  animation-delay: -1s;
+}
+.loading :last-child {
+  background: #6807f9;
+  animation-delay: -1.5s;
+}
+
+@keyframes loading {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(150%, 0);
+  }
+  50% {
+    transform: translate(150%, 150%);
+  }
+  75% {
+    transform: translate(0, 150%);
+  }
+}
+/* 
+.map {
+  width: 96%;
+  min-width: 310px;
+  height: 65vh;
+  
+  margin: 3vh 3vw;
+} */
+
+/* .task_status {
+  width: 96%;
+  height: 20vh;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  transition: all 1s;
+
+  
+} */
+/* .task-status-wait {
+  
+  width: 100%;
+
+  width: 32%; 
+  for desktop
+
+  min-width: 310px;
+  margin: 1%;
+  height: 100%;
+  
+} */
+/* .task-status-execute {
+  width: 100%;
+
+  width: 32%; 
+  for desktop
+
+  min-width: 310px;
+  margin: 1%;
+  height: 100%;
+} */
+
+.task-status-detail {
+  /* flex-grow: 1; */
+  height: 100%;
+  width: 100%;
+
+  /* width: 16%;  */
+  /*for desktop*/
+
+  min-width: 310px;
+  margin: 1%;
+  /* border: 1px solid black; */
+}
+
+.task-status-bot {
+  /* flex-grow: 1; */
+  height: 100%;
+  width: 100%;
+
+  /* width: 16%;  */
+  /*for desktop*/
+
+  min-width: 310px;
+  margin: 1%;
+  /* border: 1px solid black; */
+}
+
+@media (min-width: 768px) {
+  .task_status {
+    justify-content: space-between;
+    transition: all 0.3s;
+  }
+  .task-status-detail {
+    width: 46%;
+  }
+  .task-status-bot {
+    width: 46%;
+  }
+}
+
+@media (min-width: 1024px) or (min-width: 1440px) {
+  .task_status {
+    justify-content: space-between;
+    transition: all 0.3s;
+  }
+  .task-status-wait {
+    width: 32%;
+    min-width: 0px;
+    margin: 0 0 2vh 0;
+  }
+  .task-status-execute {
+    width: 32%;
+    min-width: 0px;
+    margin: 0 0 2vh 0;
+  }
+  .task-status-detail {
+    width: 16%;
+    min-width: 0px;
+    margin: 0 0 2vh 0;
+  }
+  .task-status-bot {
+    width: 16%;
+    min-width: 0px;
+    margin: 0 0 2vh 0;
+  }
+}

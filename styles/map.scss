@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+// .map-container {
+//   width: 100%;
+//   height: 100%;
+// }
+
+.map-detail-info {
+  animation: huakai 0.5s ease-in-out;
+  background-color: rgb(31, 41, 55);
+  // width: 10%;
+  padding: 0 10px 0 10px;
+  color: rgb(229, 231, 235);
+  border-radius: 1rem;
+  // -webkit-animation: slideLeft 1s ease-in-out 0s;
+}
+@keyframes huakai {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

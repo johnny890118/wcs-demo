@@ -1,0 +1,38 @@
+.huahuahua {
+  animation: slideLeft 1s ease-in-out 0s;
+  -webkit-animation: slideLeft 1s ease-in-out 0s;
+}
+
+@keyframes slideLeft {
+  0% {
+    transform: translateX(-150%);
+  }
+  50% {
+    transform: translateX(8%);
+  }
+  65% {
+    transform: translateX(-4%);
+  }
+  80% {
+    transform: translateX(4%);
+  }
+  95% {
+    transform: translateX(-2%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.task-info {
+  animation: showInfo 0.5s ease-in-out;
+}
+
+@keyframes showInfo {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
