@@ -5,8 +5,8 @@
     ),
     url("./agvModal.png");
 
-  background-size: cover;
-  background-position: 60px 80px;
+  background-size: auto 180px;
+  background-position: 330px 180px;
   background-repeat: no-repeat;
 }
 
