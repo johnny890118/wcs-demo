@@ -83,7 +83,7 @@ const LogIn = ({ gogo, closeModal }) => {
                             <Image
                               src={userImg}
                               alt=""
-                              className="ml-2 h-8 w-8 bg-gray-700"
+                              className="ml-2 h-8 w-8 bg-gray-700 p-1"
                             ></Image>
                             <input
                               className="h-[5vh] w-[23vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
