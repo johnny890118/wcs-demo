@@ -624,9 +624,7 @@ export default function Home() {
     <Layout>
       <div className="flex h-full w-full flex-col items-center">
         <div className="my-[1vh] flex h-[65vh] w-[96%] min-w-[310px] flex-col justify-between rounded-2xl bg-gray-700 sm:mx-[3vw] sm:my-[3vh]">
-          <div className="h-[4vh] text-white">
-            <h1>Map power</h1>
-          </div>
+          <div className="h-[4vh] text-white"></div>
           <div className="h-[50vh] w-full">
             {/* <div className="h-[50vh]"> */}
             {/* <Map path={path} /> */}

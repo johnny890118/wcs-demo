@@ -1,8 +1,9 @@
 import React, { useState, Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
-import signInImg from "../styles/login.png";
 import { useSession, signIn } from "next-auth/react";
+import userImg from "@/styles/user.png";
+import passwordImg from "@/styles/password.png";
 
 const LogIn = ({ gogo, closeModal }) => {
   const cancelButtonRef = useRef(null);
@@ -62,29 +63,30 @@ const LogIn = ({ gogo, closeModal }) => {
               <Dialog.Panel className="relative transform overflow-hidden rounded-2xl  text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="background-agv bg-gray-900">
                   <div>
-                    <div className="flex items-center justify-between bg-gradient-to-r from-violet-700 to-pink-700 px-4 py-2">
-                      <Image
-                        src={signInImg}
-                        alt=""
-                        className="h-[30px] w-[30px] sm:h-[45px] sm:w-[45px]"
-                      />
+                    {/* <div className="flex items-center justify-between bg-gradient-to-r from-violet-700 to-pink-700 px-4 py-2"> */}
+                    <div className="flex items-center justify-between px-4 py-2">
                       <Dialog.Title
                         as="h1"
-                        className="fontChange text-2xl font-semibold text-gray-200 sm:text-3xl"
+                        className="fontChange bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-xl font-bold text-gray-200 text-transparent sm:text-2xl"
                       >
                         X&X
                       </Dialog.Title>
-                      <div className="h-[30px] w-[30px] sm:h-[45px] sm:w-[45px]"></div>
+                      <h1 className="text-3xl font-bold text-gray-200">
+                        SingIn
+                      </h1>
+                      <div className="h-[28px] w-[43px] sm:h-[45px] sm:w-[51px]"></div>
                     </div>
                     {!session && (
                       <div className="flex h-[300px] justify-evenly">
                         <div className="mx-20 flex flex-col items-center justify-evenly">
-                          <div className="flex items-center justify-center">
-                            <p className="text-lg font-bold text-gray-200">
-                              帳號
-                            </p>
+                          <div className="flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700">
+                            <Image
+                              src={userImg}
+                              alt=""
+                              className="ml-2 h-8 w-8 bg-gray-700"
+                            ></Image>
                             <input
-                              className="m-2 h-8 w-24 rounded-md bg-gray-700 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600"
+                              className="h-[5vh] w-[23vh] bg-gray-700 text-center text-gray-200 outline-none"
                               type="text"
                               name="username"
                               placeholder="請輸入帳號"
@@ -92,12 +94,14 @@ const LogIn = ({ gogo, closeModal }) => {
                               onChange={handleChange}
                             />
                           </div>
-                          <div className="flex items-center justify-center">
-                            <p className="text-lg font-bold text-gray-200">
-                              密碼
-                            </p>
+                          <div className="flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700">
+                            <Image
+                              src={passwordImg}
+                              alt=""
+                              className="ml-2 h-8 w-10 bg-gray-700"
+                            ></Image>
                             <input
-                              className="m-2 h-8 w-24 rounded-md bg-gray-700 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600"
+                              className="h-[5vh] w-[23vh] bg-gray-700 text-center text-gray-200 outline-none"
                               type="password"
                               name="password"
                               placeholder="請輸入密碼"
@@ -105,21 +109,19 @@ const LogIn = ({ gogo, closeModal }) => {
                               onChange={handleChange}
                             />
                           </div>
+                          <button
+                            type="button"
+                            className="mt-10 inline-flex h-[5vh] w-full justify-center rounded-md bg-gradient-to-r from-violet-700 to-pink-700 text-base font-semibold leading-[5vh] text-gray-200 shadow-sm hover:bg-violet-600 hover:from-violet-600 hover:to-pink-600 hover:text-white sm:w-[30vh]"
+                            onClick={handleLogin}
+                          >
+                            登入
+                          </button>
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="border-t-2 border-gray-800 bg-gray-900 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  {!session && (
-                    <button
-                      type="button"
-                      className="inline-flex w-full justify-center rounded-md bg-gradient-to-r from-violet-700 to-pink-700 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm hover:bg-violet-600 hover:from-violet-600 hover:to-pink-600 hover:text-white sm:ml-3 sm:w-auto"
-                      onClick={handleLogin}
-                    >
-                      登入
-                    </button>
-                  )}
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-700 hover:text-white sm:mt-0 sm:w-auto"
