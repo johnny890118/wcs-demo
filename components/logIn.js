@@ -86,7 +86,7 @@ const LogIn = ({ gogo, closeModal }) => {
                               className="ml-2 h-8 w-8 bg-gray-700"
                             ></Image>
                             <input
-                              className="h-[5vh] w-[23vh] bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[5vh] w-[23vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="text"
                               name="username"
                               placeholder="請輸入帳號"
@@ -101,7 +101,7 @@ const LogIn = ({ gogo, closeModal }) => {
                               className="ml-2 h-8 w-10 bg-gray-700"
                             ></Image>
                             <input
-                              className="h-[5vh] w-[23vh] bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[5vh] w-[23vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="password"
                               name="password"
                               placeholder="請輸入密碼"
