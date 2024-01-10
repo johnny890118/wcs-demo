@@ -82,7 +82,7 @@ const LogIn = ({ gogo, closeModal }) => {
                       <div className="flex h-[300px] justify-evenly">
                         <div className="mx-20 flex flex-col items-center justify-evenly">
                           <div
-                            className={`flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700 ${
+                            className={`flex h-[5vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
                               isUsernameFocused
                                 ? "border-2 border-violet-700"
                                 : ""
@@ -91,10 +91,10 @@ const LogIn = ({ gogo, closeModal }) => {
                             <Image
                               src={userImg}
                               alt=""
-                              className="ml-2 h-8 w-[4vh] bg-gray-700 p-1"
+                              className="h-[3.5vh] w-[15%] rounded-lg bg-gray-700 pl-2"
                             />
                             <input
-                              className="h-[4.5vh] w-[25.5vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[4.5vh] w-[85%] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="text"
                               name="username"
                               placeholder="請輸入帳號"
@@ -105,7 +105,7 @@ const LogIn = ({ gogo, closeModal }) => {
                             />
                           </div>
                           <div
-                            className={`flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700 ${
+                            className={`flex h-[5vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
                               isPasswordFocused
                                 ? "border-2 border-violet-700"
                                 : ""
@@ -114,10 +114,10 @@ const LogIn = ({ gogo, closeModal }) => {
                             <Image
                               src={passwordImg}
                               alt=""
-                              className="ml-2 h-8 w-[4vh] bg-gray-700 p-1"
+                              className="h-[4vh] w-[15%] rounded-lg bg-gray-700 pl-2"
                             />
                             <input
-                              className="h-[4.5vh] w-[25.5vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[4.5vh] w-[85%] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="password"
                               name="password"
                               placeholder="請輸入密碼"
