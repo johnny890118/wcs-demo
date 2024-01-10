@@ -29,6 +29,9 @@ const LogIn = ({ gogo, closeModal }) => {
     });
   };
 
+  const [isUsernameFocused, setIsUsernameFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
   return (
     <Transition.Root show={gogo} as={Fragment}>
       <Dialog
@@ -60,10 +63,9 @@ const LogIn = ({ gogo, closeModal }) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl  text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-2xl text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="background-agv bg-gray-900">
                   <div>
-                    {/* <div className="flex items-center justify-between bg-gradient-to-r from-violet-700 to-pink-700 px-4 py-2"> */}
                     <div className="flex items-center justify-between px-4 py-2">
                       <Dialog.Title
                         as="h1"
@@ -72,41 +74,57 @@ const LogIn = ({ gogo, closeModal }) => {
                         X&X
                       </Dialog.Title>
                       <h1 className="text-3xl font-bold text-gray-200">
-                        SingIn
+                        SignIn
                       </h1>
                       <div className="h-[28px] w-[43px] sm:h-[45px] sm:w-[51px]"></div>
                     </div>
                     {!session && (
                       <div className="flex h-[300px] justify-evenly">
                         <div className="mx-20 flex flex-col items-center justify-evenly">
-                          <div className="flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700">
+                          <div
+                            className={`flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700 ${
+                              isUsernameFocused
+                                ? "border-2 border-violet-700"
+                                : ""
+                            }`}
+                          >
                             <Image
                               src={userImg}
                               alt=""
-                              className="ml-2 h-8 w-8 bg-gray-700 p-1"
-                            ></Image>
+                              className="ml-2 h-8 w-[4vh] bg-gray-700 p-1"
+                            />
                             <input
-                              className="h-[5vh] w-[23vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[4.5vh] w-[25.5vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="text"
                               name="username"
                               placeholder="請輸入帳號"
                               value={credentials.username}
                               onChange={handleChange}
+                              onFocus={() => setIsUsernameFocused(true)}
+                              onBlur={() => setIsUsernameFocused(false)}
                             />
                           </div>
-                          <div className="flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700">
+                          <div
+                            className={`flex h-[5vh] w-[30vh] items-center justify-evenly rounded-lg bg-gray-700 ${
+                              isPasswordFocused
+                                ? "border-2 border-violet-700"
+                                : ""
+                            }`}
+                          >
                             <Image
                               src={passwordImg}
                               alt=""
-                              className="ml-2 h-8 w-10 bg-gray-700"
-                            ></Image>
+                              className="ml-2 h-8 w-[4vh] bg-gray-700 p-1"
+                            />
                             <input
-                              className="h-[5vh] w-[23vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[4.5vh] w-[25.5vh] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
                               type="password"
                               name="password"
                               placeholder="請輸入密碼"
                               value={credentials.password}
                               onChange={handleChange}
+                              onFocus={() => setIsPasswordFocused(true)}
+                              onBlur={() => setIsPasswordFocused(false)}
                             />
                           </div>
                           <button
@@ -125,9 +143,7 @@ const LogIn = ({ gogo, closeModal }) => {
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-700 hover:text-white sm:mt-0 sm:w-auto"
-                    onClick={() => {
-                      closeModal();
-                    }}
+                    onClick={() => closeModal()}
                     ref={cancelButtonRef}
                   >
                     取消
