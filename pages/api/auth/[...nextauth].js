@@ -13,7 +13,7 @@ async function authorize(credentials) {
   ) {
     return { id: "1", name: superUser.user };
   } else {
-    throw new Error("Credentials are incorrect");
+    throw new Error("帳號或密碼錯誤");
   }
 }
 
