@@ -5,6 +5,7 @@ export default function Layout({ children }) {
     <div>
       <main>
         <Nav />
+        <div className="h-[8vh]"></div>
         <div>{children}</div>
       </main>
     </div>

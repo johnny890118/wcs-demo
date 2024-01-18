@@ -41,8 +41,8 @@ const Nav = () => {
   }, [router.pathname]);
 
   return (
-    <>
-      <Disclosure as="nav" className="fixed top-0 z-10 w-full bg-gray-800">
+    <div className="fixed top-0 z-10 w-full">
+      <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -129,57 +129,52 @@ const Nav = () => {
                 </div>
               </div>
             </div>
-
-            <Transition
-              show={isOpen}
-              enter="transition-transform duration-300"
-              enterFrom="transform -translate-x-full"
-              enterTo="transform translate-x-0"
-              leave="transition-transform duration-200"
-              leaveFrom="transform translate-x-0"
-              leaveTo="transform -translate-x-full"
-            >
-              <div className="sm:hidden">
-                <div className="space-y-1 px-2 pb-3 pt-2">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={classNames(
-                        item.current
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "flex items-center rounded-md px-3 py-2 text-base font-medium",
-                      )}
-                      aria-current={item.current ? "page" : undefined}
-                    >
-                      {item.name}
-                      {item.name === "工程模式" && session ? (
-                        <Image
-                          src={unlockImg}
-                          className="ml-2 h-5 w-5"
-                          alt="unlock"
-                        />
-                      ) : (
-                        item.name === "工程模式" &&
-                        !session && (
-                          <Image
-                            src={lockImg}
-                            className="ml-2 h-5 w-5"
-                            alt="lock"
-                          />
-                        )
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </Transition>
           </>
         )}
       </Disclosure>
-      <div className="h-[8vh]"></div>
-    </>
+      <Transition
+        show={isOpen}
+        enter="transition-transform duration-300"
+        enterFrom="transform -translate-x-full"
+        enterTo="transform translate-x-0"
+        leave="transition-transform duration-200"
+        leaveFrom="transform translate-x-0"
+        leaveTo="transform -translate-x-full"
+        className="h-screen w-1/2 bg-gray-800"
+      >
+        <div className="sm:hidden">
+          <div className="space-y-1 px-2 pb-3 pt-2">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={classNames(
+                  item.current
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                  "flex items-center rounded-md px-3 py-2 text-base font-medium",
+                )}
+                aria-current={item.current ? "page" : undefined}
+              >
+                {item.name}
+                {item.name === "工程模式" && session ? (
+                  <Image
+                    src={unlockImg}
+                    className="ml-2 h-5 w-5"
+                    alt="unlock"
+                  />
+                ) : (
+                  item.name === "工程模式" &&
+                  !session && (
+                    <Image src={lockImg} className="ml-2 h-5 w-5" alt="lock" />
+                  )
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </Transition>
+    </div>
   );
 };
 
