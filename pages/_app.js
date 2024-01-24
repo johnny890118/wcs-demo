@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     <>
       <Head>
         <title>X&X派車系統</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/female.png" />
       </Head>
       <main className={ubuntu.className}>
         <SessionProvider session={session}>
