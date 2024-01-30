@@ -4,8 +4,9 @@ import Image from "next/image";
 import { useSession, signIn } from "next-auth/react";
 import userImg from "@/styles/user.png";
 import passwordImg from "@/styles/password.png";
+import Link from "next/link";
 
-const LogIn = ({ gogo, closeModal }) => {
+const LogIn = ({ openModal, closeModal }) => {
   const cancelButtonRef = useRef(null);
   const { data: session } = useSession();
   const [credentials, setCredentials] = useState({
@@ -33,7 +34,7 @@ const LogIn = ({ gogo, closeModal }) => {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   return (
-    <Transition.Root show={gogo} as={Fragment}>
+    <Transition.Root show={openModal} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"
@@ -140,14 +141,16 @@ const LogIn = ({ gogo, closeModal }) => {
                   </div>
                 </div>
                 <div className="border-t-2 border-gray-800 bg-gray-900 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  <button
-                    type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-700 hover:text-white sm:mt-0 sm:w-auto"
-                    onClick={() => closeModal()}
-                    ref={cancelButtonRef}
-                  >
-                    取消
-                  </button>
+                  <Link href={"/wait"}>
+                    <button
+                      type="button"
+                      className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-700 hover:text-white sm:mt-0 sm:w-auto"
+                      onClick={() => closeModal()}
+                      ref={cancelButtonRef}
+                    >
+                      取消
+                    </button>
+                  </Link>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

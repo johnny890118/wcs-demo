@@ -122,7 +122,7 @@ const Nav = () => {
                       </button>
                     )}
                     <LogIn
-                      gogo={signInModal}
+                      openModal={signInModal}
                       closeModal={() => setSignInModal(false)}
                     />
                   </div>

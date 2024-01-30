@@ -678,12 +678,12 @@ export default function Home() {
               任務派車
             </button>
             <MapDetail
-              gogo={mapModal}
+              openModal={mapModal}
               closeModal={() => setMapModal(false)}
               deetu={deetu}
             />
             <GoModal
-              gogo={goModal}
+              openModal={goModal}
               setOutBox={setOutBox}
               setInBox={setInBox}
               inBoxTrigger={() => inBoxTrigger(inBox)}
@@ -698,7 +698,7 @@ export default function Home() {
               outBox={outBox}
             />
             <CarInfo
-              gogo={carInfoModal}
+              openModal={carInfoModal}
               closeModal={() => setCarInfoModal(false)}
               position={position}
               carWorking={carWorking}

@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
+    "axios": "^1.6.7",
     "chakra": "^0.0.3",
     "classnames": "^2.3.2",
     "next": "^14.0.4",

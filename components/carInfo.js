@@ -4,7 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
 import carInfo from "../styles/carInfo.png";
 
-const CarInfo = ({ gogo, closeModal, position, carWorking }) => {
+const CarInfo = ({ openModal, closeModal, position, carWorking }) => {
   const cancelButtonRef = useRef(null);
   const carInfoDetail = [
     { name: "車輛編號：", value: 1 },
@@ -14,7 +14,7 @@ const CarInfo = ({ gogo, closeModal, position, carWorking }) => {
   ];
 
   return (
-    <Transition.Root show={gogo} as={Fragment}>
+    <Transition.Root show={openModal} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"

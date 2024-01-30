@@ -4,7 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
 import map from "../styles/map.png";
 
-const MapDetail = ({ gogo, closeModal, deetu }) => {
+const MapDetail = ({ openModal, closeModal, deetu }) => {
   const noUseTrigger = () => {
     let total = 0;
     deetu.forEach((i) => {
@@ -34,7 +34,7 @@ const MapDetail = ({ gogo, closeModal, deetu }) => {
   const cancelButtonRef = useRef(null);
 
   return (
-    <Transition.Root show={gogo} as={Fragment}>
+    <Transition.Root show={openModal} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"

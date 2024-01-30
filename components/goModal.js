@@ -5,7 +5,7 @@ import Image from "next/image";
 import agv from "../styles/agv-robot.png";
 
 const GoModal = ({
-  gogo,
+  openModal,
   closeModal,
   setOutBox,
   setInBox,
@@ -26,7 +26,7 @@ const GoModal = ({
   const cancelButtonRef = useRef(null);
 
   return (
-    <Transition.Root show={gogo} as={Fragment}>
+    <Transition.Root show={openModal} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"
