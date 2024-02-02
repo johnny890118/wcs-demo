@@ -190,9 +190,9 @@ const EngineeringMode = () => {
           />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-evenly lg:h-[92vh]">
           <div>
-            <button className="group m-6 flex flex-col items-center justify-center lg:m-3">
+            <button className="group m-6 flex flex-col items-center justify-center lg:m-0">
               <div
                 className="m-2 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-700 group-hover:bg-red-600 group-active:bg-red-700"
                 onClick={() => {
