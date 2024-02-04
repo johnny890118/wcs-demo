@@ -83,10 +83,8 @@ const LogIn = ({ openModal, closeModal }) => {
                       <div className="flex h-[300px] justify-evenly">
                         <div className="mx-20 flex flex-col items-center justify-evenly">
                           <div
-                            className={`flex h-[5vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
-                              isUsernameFocused
-                                ? "border-2 border-violet-700"
-                                : ""
+                            className={`flex h-[6vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
+                              isUsernameFocused ? "ring-4 ring-violet-700" : ""
                             }`}
                           >
                             <Image
@@ -95,7 +93,7 @@ const LogIn = ({ openModal, closeModal }) => {
                               className="h-[3.5vh] w-[15%] rounded-lg bg-gray-700 pl-2"
                             />
                             <input
-                              className="h-[4.5vh] w-[85%] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[6vh] w-[85%] rounded-lg bg-gray-700 px-2 text-center text-gray-200 outline-none"
                               type="text"
                               name="username"
                               placeholder="請輸入帳號"
@@ -106,10 +104,8 @@ const LogIn = ({ openModal, closeModal }) => {
                             />
                           </div>
                           <div
-                            className={`flex h-[5vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
-                              isPasswordFocused
-                                ? "border-2 border-violet-700"
-                                : ""
+                            className={`flex h-[6vh] w-[30vh] items-center justify-center rounded-lg bg-gray-700 ${
+                              isPasswordFocused ? "ring-4 ring-violet-700" : ""
                             }`}
                           >
                             <Image
@@ -118,7 +114,7 @@ const LogIn = ({ openModal, closeModal }) => {
                               className="h-[4vh] w-[15%] rounded-lg bg-gray-700 pl-2"
                             />
                             <input
-                              className="h-[4.5vh] w-[85%] rounded-lg bg-gray-700 text-center text-gray-200 outline-none"
+                              className="h-[6vh] w-[85%] rounded-lg bg-gray-700 px-2 text-center text-gray-200 outline-none"
                               type="password"
                               name="password"
                               placeholder="請輸入密碼"
@@ -130,7 +126,7 @@ const LogIn = ({ openModal, closeModal }) => {
                           </div>
                           <button
                             type="button"
-                            className="mt-10 inline-flex h-[5vh] w-full justify-center rounded-md bg-gradient-to-r from-violet-700 to-pink-700 text-base font-semibold leading-[5vh] text-gray-200 shadow-sm hover:bg-violet-600 hover:from-violet-600 hover:to-pink-600 hover:text-white sm:w-[30vh]"
+                            className="mt-10 inline-flex h-[6vh] w-full items-center justify-center rounded-md bg-gradient-to-r from-violet-700 to-pink-700 text-base font-semibold leading-[5vh] text-gray-200 shadow-sm hover:bg-violet-600 hover:from-violet-600 hover:to-pink-600 hover:text-white sm:w-[30vh]"
                             onClick={handleLogin}
                           >
                             登入
