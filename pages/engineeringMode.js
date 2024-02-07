@@ -194,12 +194,12 @@ const EngineeringMode = () => {
           <div>
             <button className="group m-6 flex flex-col items-center justify-center lg:m-0">
               <div
-                className="m-2 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-700 group-hover:bg-red-600 group-active:bg-red-700"
+                className="m-2 flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-red-700 group-hover:bg-red-600 group-active:bg-red-700"
                 onClick={() => {
                   allStop();
                 }}
               >
-                <div className="h-8 w-8 bg-gray-200 group-hover:bg-white"></div>
+                <div className="h-[4vh] w-[4vh] bg-gray-200 group-hover:bg-white"></div>
               </div>
               <p className="text-gray-200 group-hover:text-white">
                 全部設備緊急停止
@@ -208,13 +208,13 @@ const EngineeringMode = () => {
           </div>
           <div className="flex w-full flex-col items-center justify-center lg:flex-row lg:justify-evenly">
             <div className="mb-6 flex h-[90vh] w-[90%] flex-col items-center justify-between rounded-2xl bg-gray-700 py-2 lg:m-0 lg:h-[75vh] lg:w-[30%]">
-              <h1 className="h-10 w-[90%] rounded-xl bg-violet-700 text-center text-xl font-bold leading-10 text-gray-100">
+              <h1 className="h-[5vh] w-[90%] rounded-xl bg-violet-700 text-center text-xl font-bold leading-[5vh] text-gray-100">
                 車輛控制
               </h1>
               <div className="m-1 flex items-center">
                 <p className="text-gray-200">車輛選擇</p>
                 <select
-                  className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-violet-700 focus:ring-4"
+                  className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-violet-700 focus:ring-4"
                   onChange={(e) => {
                     setVehicleChoose(e.target.value);
                     setVehicleSpeed(null);
@@ -238,13 +238,13 @@ const EngineeringMode = () => {
                 <p className="text-gray-200">車輛速度</p>
                 <input
                   type="number"
-                  className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600"
+                  className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600"
                   onChange={(e) => {
                     setVehicleSpeed(e.target.value);
                   }}
                 />
                 <button
-                  className="h-8 w-16 rounded-md bg-violet-700 text-gray-200 hover:bg-violet-600 hover:text-white"
+                  className="h-[4.5vh] w-16 rounded-md bg-violet-700 text-gray-200 hover:bg-violet-600 hover:text-white"
                   onClick={() => {
                     carControl("speed");
                   }}
@@ -258,7 +258,7 @@ const EngineeringMode = () => {
                     <p className="text-gray-200">X : </p>
                     <input
                       type="number"
-                      className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600 lg:w-14"
+                      className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600 lg:w-14"
                       onChange={(e) => {
                         setVehiclego({
                           ...vehiclego,
@@ -271,7 +271,7 @@ const EngineeringMode = () => {
                     <p className="text-gray-200">Y : </p>
                     <input
                       type="number"
-                      className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600 lg:w-14"
+                      className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-violet-600 lg:w-14"
                       onChange={(e) => {
                         setVehiclego({
                           ...vehiclego,
@@ -282,7 +282,7 @@ const EngineeringMode = () => {
                   </div>
                 </div>
                 <button
-                  className="h-20 w-20 rounded-2xl bg-violet-700 text-gray-200 hover:bg-violet-600 hover:text-white lg:h-8 lg:w-16 lg:rounded-md"
+                  className="h-[11vh] w-[11vh] rounded-2xl bg-violet-700 text-gray-200 hover:bg-violet-600 hover:text-white lg:h-[4.5vh] lg:w-16 lg:rounded-md"
                   onClick={() => {
                     setVehicleCnS(false);
                     carControl("manual");
@@ -294,28 +294,28 @@ const EngineeringMode = () => {
               <div className="flex w-full flex-col items-center justify-evenly">
                 <div className="flex justify-evenly">
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setVehicleCnS(false);
                       carControl("move", "w");
                     }}
                   >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700">
-                      <div className="h-0 w-0 border-b-[40px] border-l-[25px] border-r-[25px] border-b-gray-200 border-l-transparent border-r-transparent"></div>
+                    <div className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700">
+                      <div className="h-0 w-0 border-b-[5vh] border-l-[3vh] border-r-[3vh] border-b-gray-200 border-l-transparent border-r-transparent"></div>
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       車輛前進
                     </p>
                   </button>
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setVehicleCnS(false);
                       carControl("move", "s");
                     }}
                   >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700">
-                      <div className="h-0 w-0 border-l-[25px] border-r-[25px] border-t-[40px] border-l-transparent border-r-transparent border-t-gray-200"></div>
+                    <div className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700">
+                      <div className="h-0 w-0 border-l-[3vh] border-r-[3vh] border-t-[5vh] border-l-transparent border-r-transparent border-t-gray-200"></div>
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       車輛後退
@@ -323,22 +323,22 @@ const EngineeringMode = () => {
                   </button>
                 </div>
                 <div className="flex justify-evenly">
-                  <button className="group m-3">
+                  <button className="group mx-3 my-1">
                     <div
-                      className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
+                      className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
                       onClick={() => {
                         setVehicleCnS(false);
                         carControl("move", "turn");
                       }}
                     >
-                      <Image src={turn} alt="" className="h-14 w-14" />
+                      <Image src={turn} alt="" className="h-[6vh] w-[6vh]" />
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       車輛轉向
                     </p>
                   </button>
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setVehicleCnS(!vehicleCnS);
                       !vehicleCnS
@@ -351,12 +351,12 @@ const EngineeringMode = () => {
                         !vehicleCnS
                           ? "bg-pink-700 group-hover:bg-pink-600 group-active:bg-pink-700"
                           : "bg-lime-700 group-hover:bg-lime-600 group-active:bg-lime-700",
-                        "flex h-20 w-20 items-center justify-center rounded-2xl",
+                        "flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl",
                       )}
                     >
                       <Image
                         src={!vehicleCnS ? paulseBtnImage : startBtnImage}
-                        className="h-14 w-14"
+                        className="h-[7vh] w-[7vh]"
                         alt=""
                       ></Image>
                     </div>
@@ -368,29 +368,37 @@ const EngineeringMode = () => {
               </div>
               <div>
                 <div className="flex items-center justify-evenly">
-                  <button className="group m-3">
+                  <button className="group mx-3">
                     <div
-                      className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
+                      className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
                       onClick={() => {
                         setVehicleCnS(false);
                         carControl("jack", "up");
                       }}
                     >
-                      <Image src={jackUp} alt="" className="h-14 w-14" />
+                      <Image
+                        src={jackUp}
+                        alt=""
+                        className="h-[5.5vh] w-[5.5vh]"
+                      />
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       貨物頂昇
                     </p>
                   </button>
-                  <button className="group m-3">
+                  <button className="group mx-3">
                     <div
-                      className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
+                      className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
                       onClick={() => {
                         setVehicleCnS(false);
                         carControl("jack", "down");
                       }}
                     >
-                      <Image src={jackDown} alt="" className="h-14 w-14" />
+                      <Image
+                        src={jackDown}
+                        alt=""
+                        className="h-[5.5vh] w-[5.5vh]"
+                      />
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       貨物下降
@@ -400,14 +408,14 @@ const EngineeringMode = () => {
               </div>
             </div>
             <div className="mb-6 flex h-[80vh] w-[90%] flex-col items-center justify-between rounded-2xl bg-gray-700 py-2 lg:m-0 lg:h-[75vh] lg:w-[30%]">
-              <h1 className="h-10 w-[90%] rounded-xl bg-yellow-700 text-center text-xl font-bold leading-10 text-gray-100">
+              <h1 className="h-[5vh] w-[90%] rounded-xl bg-yellow-700 text-center text-xl font-bold leading-[5vh] text-gray-100">
                 輸送帶控制
               </h1>
               <div className="flex w-full flex-col items-center justify-center">
                 <div className="m-1 flex items-center">
                   <p className="text-gray-200">輸送帶選擇</p>
                   <select
-                    className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-yellow-700 focus:ring-4"
+                    className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-yellow-700 focus:ring-4"
                     onChange={(e) => {
                       setConveyorChoose(e.target.value);
                     }}
@@ -424,13 +432,13 @@ const EngineeringMode = () => {
                 <p className="text-gray-200">速度調整</p>
                 <input
                   type="number"
-                  className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-yellow-600"
+                  className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-yellow-600"
                   onChange={(e) => {
                     setConveyorSpeed(e.target.value);
                   }}
                 />
                 <button
-                  className="h-8 w-16 rounded-md bg-yellow-700 text-gray-200 hover:bg-yellow-600 hover:text-white"
+                  className="h-[4.5vh] w-16 rounded-md bg-yellow-700 text-gray-200 hover:bg-yellow-600 hover:text-white"
                   onClick={() => {
                     conveyorControl("speed");
                   }}
@@ -439,21 +447,21 @@ const EngineeringMode = () => {
                 </button>
               </div>
               <div className="flex justify-evenly">
-                <button className="group m-3">
+                <button className="group mx-3 my-1">
                   <div
-                    className="flex h-20 w-20 items-center justify-center rounded-2xl bg-yellow-700 group-hover:bg-yellow-600 group-active:bg-yellow-700"
+                    className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-yellow-700 group-hover:bg-yellow-600 group-active:bg-yellow-700"
                     onClick={() => {
                       conveyorControl("move", "turn");
                     }}
                   >
-                    <Image src={turn} alt="" className="h-14 w-14" />
+                    <Image src={turn} alt="" className="h-[6vh] w-[6vh]" />
                   </div>
                   <p className="text-gray-200 group-hover:text-white">
                     輸送帶轉向
                   </p>
                 </button>
                 <button
-                  className="group m-3"
+                  className="group mx-3 my-1"
                   onClick={() => {
                     setConveyorCnS(!conveyorCnS);
                     !conveyorCnS
@@ -466,12 +474,12 @@ const EngineeringMode = () => {
                       !conveyorCnS
                         ? "bg-pink-700 group-hover:bg-pink-600 group-active:bg-pink-700"
                         : "bg-lime-700 group-hover:bg-lime-600 group-active:bg-lime-700",
-                      "flex h-20 w-20 items-center justify-center rounded-2xl",
+                      "flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl",
                     )}
                   >
                     <Image
                       src={!conveyorCnS ? paulseBtnImage : startBtnImage}
-                      className="h-14 w-14"
+                      className="h-[7vh] w-[7vh]"
                       alt=""
                     ></Image>
                   </div>
@@ -483,14 +491,14 @@ const EngineeringMode = () => {
               <div className="h-[256px]"></div>
             </div>
             <div className="mb-6 flex h-[80vh] w-[90%] flex-col items-center justify-between rounded-2xl bg-gray-700 py-2 lg:m-0 lg:h-[75vh] lg:w-[30%]">
-              <h1 className="h-10 w-[90%] rounded-xl bg-cyan-700 text-center text-xl font-bold leading-10 text-gray-100">
+              <h1 className="h-[5vh] w-[90%] rounded-xl bg-cyan-700 text-center text-xl font-bold leading-[5vh] text-gray-100">
                 升降梯控制
               </h1>
               <div className="flex w-full flex-col items-center justify-center">
                 <div className="m-1 flex items-center">
                   <p className="text-gray-200">升降梯選擇</p>
                   <select
-                    className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-cyan-700 focus:ring-4"
+                    className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-cyan-700 focus:ring-4"
                     onChange={(e) => {
                       setLiftChoose(e.target.value);
                     }}
@@ -505,7 +513,7 @@ const EngineeringMode = () => {
                 <div className="m-1 flex items-center">
                   <p className="text-gray-200">樓層選擇</p>
                   <select
-                    className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-cyan-700 focus:ring-4"
+                    className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none ring-cyan-700 focus:ring-4"
                     onChange={(e) => {
                       setFloor(e.target.value);
                     }}
@@ -516,7 +524,7 @@ const EngineeringMode = () => {
                     <option value="4">樓層 4</option>
                   </select>
                   <button
-                    className="h-8 w-16 rounded-md bg-cyan-700 text-gray-200 hover:bg-cyan-600 hover:text-white active:bg-cyan-700"
+                    className="h-[4.5vh] w-16 rounded-md bg-cyan-700 text-gray-200 hover:bg-cyan-600 hover:text-white active:bg-cyan-700"
                     onClick={() => {
                       setLiftCnS(false);
                       liftControl("floor");
@@ -529,13 +537,13 @@ const EngineeringMode = () => {
                   <p className="text-gray-200">升降速度</p>
                   <input
                     type="number"
-                    className="m-2 h-8 w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-cyan-600"
+                    className="m-2 h-[4.5vh] w-24 rounded-md bg-gray-500 p-1 text-gray-200 outline-none focus:border-b-4 focus:border-cyan-600"
                     onChange={(e) => {
                       setLiftSpeed(e.target.value);
                     }}
                   />
                   <button
-                    className="h-8 w-16 rounded-md bg-cyan-700 text-gray-200 hover:bg-cyan-600 hover:text-white active:bg-cyan-700"
+                    className="h-[4.5vh] w-16 rounded-md bg-cyan-700 text-gray-200 hover:bg-cyan-600 hover:text-white active:bg-cyan-700"
                     onClick={() => {
                       liftControl("speed");
                     }}
@@ -547,28 +555,28 @@ const EngineeringMode = () => {
               <div className="flex w-full flex-col items-center justify-evenly">
                 <div className="flex justify-evenly">
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setLiftCnS(false);
                       liftControl("move", "w");
                     }}
                   >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700">
-                      <div className="h-0 w-0 border-b-[40px] border-l-[25px] border-r-[25px] border-b-gray-200 border-l-transparent border-r-transparent"></div>
+                    <div className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700">
+                      <div className="h-0 w-0 border-b-[5vh] border-l-[3vh] border-r-[3vh] border-b-gray-200 border-l-transparent border-r-transparent"></div>
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       升降梯上升
                     </p>
                   </button>
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setLiftCnS(false);
                       liftControl("move", "s");
                     }}
                   >
-                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700">
-                      <div className="h-0 w-0 border-l-[25px] border-r-[25px] border-t-[40px] border-l-transparent border-r-transparent border-t-gray-200"></div>
+                    <div className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700">
+                      <div className="h-0 w-0 border-l-[3vh] border-r-[3vh] border-t-[5vh] border-l-transparent border-r-transparent border-t-gray-200"></div>
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       升降梯下降
@@ -577,7 +585,7 @@ const EngineeringMode = () => {
                 </div>
                 <div>
                   <button
-                    className="group m-3"
+                    className="group mx-3 my-1"
                     onClick={() => {
                       setLiftCnS(!liftCnS);
                       !liftCnS
@@ -590,12 +598,12 @@ const EngineeringMode = () => {
                         !liftCnS
                           ? "bg-pink-700 group-hover:bg-pink-600 group-active:bg-pink-700"
                           : "bg-lime-700 group-hover:bg-lime-600 group-active:bg-lime-700",
-                        "flex h-20 w-20 items-center justify-center rounded-2xl",
+                        "flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl",
                       )}
                     >
                       <Image
                         src={!liftCnS ? paulseBtnImage : startBtnImage}
-                        className="h-14 w-14"
+                        className="h-[7vh] w-[7vh]"
                         alt=""
                       ></Image>
                     </div>
@@ -607,29 +615,37 @@ const EngineeringMode = () => {
               </div>
               <div>
                 <div className="flex items-center justify-evenly">
-                  <button className="group m-3">
+                  <button className="group mx-3 my-1">
                     <div
-                      className="flex h-20 w-20 items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
+                      className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
                       onClick={() => {
                         setLiftCnS(false);
                         liftControl("door", 1);
                       }}
                     >
-                      <Image src={openDoorImg} alt="" className="h-14 w-14" />
+                      <Image
+                        src={openDoorImg}
+                        alt=""
+                        className="h-[7vh] w-[7vh]"
+                      />
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       升降梯開門
                     </p>
                   </button>
-                  <button className="group m-3">
+                  <button className="group mx-3 my-1">
                     <div
-                      className="flex h-20 w-20 items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
+                      className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
                       onClick={() => {
                         setLiftCnS(false);
                         liftControl("door", 0);
                       }}
                     >
-                      <Image src={closeDoorImg} alt="" className="h-14 w-14" />
+                      <Image
+                        src={closeDoorImg}
+                        alt=""
+                        className="h-[7vh] w-[7vh]"
+                      />
                     </div>
                     <p className="text-gray-200 group-hover:text-white">
                       升降梯關門
