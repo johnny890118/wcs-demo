@@ -22,7 +22,7 @@ const Nav = () => {
       href: "/",
       current: router.pathname === "/",
     },
-    { name: "戰情看板", href: "/wait", current: router.pathname === "/wait" },
+    { name: "戰情看板", href: "/fdp", current: router.pathname === "/fdp" },
     {
       name: "工程模式",
       href: "/engineeringMode",

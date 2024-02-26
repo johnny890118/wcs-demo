@@ -36,3 +36,40 @@
     opacity: 1;
   }
 }
+
+.flow {
+  animation:
+    widthGrow 0.8s ease-in-out,
+    flow 10s linear infinite;
+}
+
+@keyframes widthGrow {
+  0% {
+    width: 0;
+  }
+}
+
+@keyframes flow {
+  0% {
+    background-position: 600% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.flow {
+  position: relative;
+  background: linear-gradient(90deg, orange, yellow, yellow, orange);
+  border-radius: 8px;
+  background-size: 600%;
+}
+
+.flow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, orange, yellow, yellow, orange);
+  background-size: 600%;
+  filter: blur(20px);
+}
