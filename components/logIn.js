@@ -137,7 +137,7 @@ const LogIn = ({ openModal, closeModal }) => {
                   </div>
                 </div>
                 <div className="border-t-2 border-gray-800 bg-gray-900 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  <Link href={"/wait"}>
+                  <Link href={"/fdp"}>
                     <button
                       type="button"
                       className="mt-3 inline-flex w-full justify-center rounded-md bg-gray-800 px-4 py-2 text-base font-semibold text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-700 hover:text-white sm:mt-0 sm:w-auto"
