@@ -39,7 +39,7 @@ const FDP = () => {
 
   return (
     <Layout>
-      <div className="flex h-[93vh] w-full flex-col">
+      <div className="flex h-[92vh] w-full flex-col">
         <div className="flex h-[7%] items-center justify-evenly">
           <DateTime />
           <h1 className="text-2xl font-semibold tracking-widest text-white">
