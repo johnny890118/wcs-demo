@@ -48,7 +48,7 @@ const FDP = () => {
           <p className="w-[193px] text-white"></p>
         </div>
         <div className="flex h-[92%] w-full justify-evenly">
-          <div className="flex h-full w-[20%] flex-col justify-between 2xl:w-[15%]">
+          <div className="flex h-full w-[20%] flex-col justify-between">
             <div className="h-[21%] w-full rounded-2xl bg-gray-700 py-1">
               <WarehouseUseChart className="h-full w-full" />
             </div>
@@ -56,7 +56,7 @@ const FDP = () => {
               <WarehouseUseDetail />
             </div>
           </div>
-          <div className="flex h-full w-[78%] flex-col justify-between 2xl:w-[83%]">
+          <div className="flex h-full w-[78%] flex-col justify-between">
             <div className="flex h-[8%] w-full items-center justify-evenly rounded-2xl bg-gray-700 text-white">
               <div>
                 <span>入庫數量：</span>
