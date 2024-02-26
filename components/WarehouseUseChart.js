@@ -11,7 +11,7 @@ const WarehouseUseChart = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "right",
+        position: "top",
         labels: {
           color: "white",
           font: {
