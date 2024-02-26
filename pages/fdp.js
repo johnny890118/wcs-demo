@@ -43,7 +43,7 @@ const FDP = () => {
         <div className="flex h-[7%] items-center justify-evenly">
           <DateTime />
           <h1 className="text-2xl font-semibold tracking-widest text-white">
-            Rosati 立體倉庫看板系統
+            X&X 立體倉庫看板系統
           </h1>
           <p className="w-[193px] text-white"></p>
         </div>
