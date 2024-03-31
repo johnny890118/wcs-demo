@@ -294,7 +294,7 @@ const EngineeringMode = () => {
               <div className="flex w-full flex-col items-center justify-evenly">
                 <div className="flex justify-evenly">
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setVehicleCnS(false);
                       carControl("move", "w");
@@ -308,7 +308,7 @@ const EngineeringMode = () => {
                     </p>
                   </button>
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setVehicleCnS(false);
                       carControl("move", "s");
@@ -323,7 +323,7 @@ const EngineeringMode = () => {
                   </button>
                 </div>
                 <div className="flex justify-evenly">
-                  <button className="group mx-3 my-1">
+                  <button className="group mx-3 my-1 flex flex-col items-center justify-center">
                     <div
                       className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-violet-700 group-hover:bg-violet-600 group-active:bg-violet-700"
                       onClick={() => {
@@ -338,7 +338,7 @@ const EngineeringMode = () => {
                     </p>
                   </button>
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setVehicleCnS(!vehicleCnS);
                       !vehicleCnS
@@ -447,7 +447,7 @@ const EngineeringMode = () => {
                 </button>
               </div>
               <div className="flex justify-evenly">
-                <button className="group mx-3 my-1">
+                <button className="group mx-3 my-1 flex flex-col items-center justify-center">
                   <div
                     className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-yellow-700 group-hover:bg-yellow-600 group-active:bg-yellow-700"
                     onClick={() => {
@@ -461,7 +461,7 @@ const EngineeringMode = () => {
                   </p>
                 </button>
                 <button
-                  className="group mx-3 my-1"
+                  className="group mx-3 my-1 flex flex-col items-center justify-center"
                   onClick={() => {
                     setConveyorCnS(!conveyorCnS);
                     !conveyorCnS
@@ -555,7 +555,7 @@ const EngineeringMode = () => {
               <div className="flex w-full flex-col items-center justify-evenly">
                 <div className="flex justify-evenly">
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setLiftCnS(false);
                       liftControl("move", "w");
@@ -569,7 +569,7 @@ const EngineeringMode = () => {
                     </p>
                   </button>
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setLiftCnS(false);
                       liftControl("move", "s");
@@ -585,7 +585,7 @@ const EngineeringMode = () => {
                 </div>
                 <div>
                   <button
-                    className="group mx-3 my-1"
+                    className="group mx-3 my-1 flex flex-col items-center justify-center"
                     onClick={() => {
                       setLiftCnS(!liftCnS);
                       !liftCnS
@@ -615,7 +615,7 @@ const EngineeringMode = () => {
               </div>
               <div>
                 <div className="flex items-center justify-evenly">
-                  <button className="group mx-3 my-1">
+                  <button className="group mx-3 my-1 flex flex-col items-center justify-center">
                     <div
                       className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
                       onClick={() => {
@@ -633,7 +633,7 @@ const EngineeringMode = () => {
                       升降梯開門
                     </p>
                   </button>
-                  <button className="group mx-3 my-1">
+                  <button className="group mx-3 my-1 flex flex-col items-center justify-center">
                     <div
                       className="flex h-[10vh] w-[10vh] items-center justify-center rounded-2xl bg-cyan-700 group-hover:bg-cyan-600 group-active:bg-cyan-700"
                       onClick={() => {
