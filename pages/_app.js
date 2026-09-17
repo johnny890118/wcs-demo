@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         />
         <link rel="icon" href="/female.png" />
       </Head>
-      <main className={ubuntu.className}>
+      <div className={ubuntu.className}>
         <SessionProvider session={session}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <LocaleProvider>
@@ -35,7 +35,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
             </LocaleProvider>
           </ThemeProvider>
         </SessionProvider>
-      </main>
+      </div>
     </>
   );
 }

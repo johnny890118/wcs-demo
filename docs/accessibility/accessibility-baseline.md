@@ -20,3 +20,7 @@ Automated checks are necessary but do not replace keyboard, zoom, screen-reader,
 Vitest renders the public entry and populated/unavailable operations projections in jsdom, then runs axe-core. The gate rejects detectable semantic and ARIA violations. The `color-contrast` rule is disabled only in this jsdom suite because jsdom has no layout engine; contrast remains a required browser/manual check and may not be marked complete from this gate alone.
 
 A separate token-level gate calculates WCAG relative luminance and rejects normal-text foreground/background pairs below 4.5:1 in both light and dark themes. This includes muted surfaces, status colors, accent text, and the semantic `on-accent` foreground used by primary controls.
+
+Playwright runs the production build in Chromium against an isolated WCS fixture. It verifies keyboard skip navigation, axe results in the real layout engine, a 640 CSS px viewport representing 200% zoom from a 1280 px baseline without horizontal page overflow, and accessible landmark/table semantics on authenticated focused projections. The browser gate discovered and now prevents nested main landmarks and unfocusable horizontal table regions.
+
+This automated semantic coverage does not claim parity with every assistive-technology/browser pairing. Periodic VoiceOver, NVDA, and real-device checks remain a release activity even when the repository gate is green.

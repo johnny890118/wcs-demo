@@ -175,7 +175,12 @@ export default function OperationsProjectionsPage({ details }: PageProps) {
             {t("inventory")} · {liveDetails?.inventory.length ?? 0}
           </h2>
           {liveDetails?.inventory.length ? (
-            <div className="overflow-x-auto">
+            <div
+              role="region"
+              aria-label={t("inventory")}
+              tabIndex={0}
+              className="overflow-x-auto"
+            >
               <table className="w-full min-w-[560px] text-left text-sm">
                 <caption className="sr-only">{t("inventory")}</caption>
                 <thead className="text-xs text-[var(--text-muted)]">

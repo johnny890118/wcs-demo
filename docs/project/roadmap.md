@@ -56,13 +56,14 @@ Status: Complete
 
 ## M3 — Operator console foundation
 
-Status: In progress
+Status: Complete
 
 - [x] Next.js TypeScript web shell, public product entry, and protected operations overview
 - [x] Design tokens, light/dark/system, `zh-TW`/`en`, and responsive navigation
 - [x] Accessible task, equipment, inventory, and topology projections with authenticated realtime refresh boundaries
 - [x] Emil design review reported in required Before/After table format
-- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (axe gate, token-level WCAG contrast gate, manual keyboard, reduced-motion CSS, and 390 px responsive review complete; zoom and screen-reader verification remain)
+- [x] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks, including browser-level keyboard, 200%-equivalent reflow, accessible-tree semantics, and axe coverage
+- [x] Authenticated Chromium E2E proving focused projections from an isolated WCS fixture
 
 ## M4 — Outbound and fault recovery
 
@@ -88,4 +89,4 @@ Status: In progress
 
 ## Immediate next task
 
-Complete M3 zoom and screen-reader verification, then add browser E2E coverage. Warehouse visualization must consume topology projections and must not define routes or domain state.
+Begin M4 with inventory allocation and an outbound application flow, preserving the transactional, idempotent, capability-based execution boundaries established by inbound. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

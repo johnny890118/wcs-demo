@@ -154,7 +154,12 @@ export default function OperationsPage({ summary }: PageProps) {
           </p>
         </div>
         {liveSummary?.recentTasks.length ? (
-          <div className="overflow-x-auto">
+          <div
+            role="region"
+            aria-label={t("recentTasks")}
+            tabIndex={0}
+            className="overflow-x-auto"
+          >
             <table className="w-full min-w-[720px] border-collapse text-left text-sm">
               <caption className="sr-only">{t("recentTasks")}</caption>
               <thead className="text-xs text-[var(--text-muted)]">

@@ -18,3 +18,5 @@ Checked 2026-09-18. These sources inform boundaries and requirements; they do no
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/): normative accessibility target.
 - [Deque axe-core](https://www.npmjs.com/package/axe-core): maintained automated accessibility engine with WCAG 2.2 rules; used as an early semantic/ARIA gate, not a substitute for manual review.
 - [React Testing Library](https://www.npmjs.com/package/@testing-library/react): DOM-focused component testing guidance that favors user-observable behavior over implementation details.
+- [Playwright accessibility testing](https://playwright.dev/docs/accessibility-testing): browser-level axe guidance and the explicit limitation that automated checks require complementary manual assessment.
+- [Playwright web server](https://playwright.dev/docs/test-webserver): supported production-like startup of multiple local web servers for deterministic E2E tests.

@@ -47,7 +47,7 @@ The reset command is intentionally unavailable for unmarked production databases
 npm run verify
 ```
 
-The repository gate checks formatting, secret hygiene, high/critical production dependency findings, lint, strict TypeScript, unit/API tests, real PostgreSQL migrations and integration tests in an ephemeral container, and a production web build. Accessibility, responsive, and E2E checks are added as their milestone infrastructure lands; current gaps remain visible in the [verification strategy](docs/engineering/verification-strategy.md).
+The repository gate checks formatting, secret hygiene, high/critical production dependency findings, lint, strict TypeScript, unit/API tests, real PostgreSQL migrations and integration tests in an ephemeral container, a production web build, and authenticated Chromium E2E accessibility/responsive scenarios. Install the Playwright Chromium runtime once with `npx playwright install chromium` before running the local gate; CI installs it automatically. Current gaps remain visible in the [verification strategy](docs/engineering/verification-strategy.md).
 
 ## Documentation
 

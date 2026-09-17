@@ -13,12 +13,13 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "npm run build && playwright test",
     "test:postgres": "node scripts/test-postgres-integration.mjs",
     "typecheck": "tsc --noEmit",
-    "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.mjs\" AGENTS.md README.md package.json tsconfig.json",
+    "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",
     "security:dependencies": "npm audit --omit=dev --audit-level=high",
     "security:secrets": "node scripts/check-secrets.mjs",
-    "verify": "npm run format:check && npm run security:secrets && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run build"
+    "verify": "npm run format:check && npm run security:secrets && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -42,8 +43,10 @@
     "sass": "^1.69.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@babel/preset-react": "^7.23.3",
     "@nestjs/testing": "^12.0.3",
+    "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/express": "^5.0.5",

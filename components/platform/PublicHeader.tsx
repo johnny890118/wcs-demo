@@ -7,31 +7,41 @@ export function PublicHeader() {
   const { t } = useLocale();
 
   return (
-    <header className="border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)]">
-      <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/platform"
-          className="ui-pressable flex items-center gap-3 rounded-lg"
-        >
-          <span
-            className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
-            aria-hidden="true"
-          >
-            W
-          </span>
-          <span className="text-sm font-bold tracking-tight">{t("brand")}</span>
-        </Link>
-        <div className="flex items-center gap-2">
+    <>
+      <a
+        href="#main-content"
+        className="absolute left-3 top-3 z-50 -translate-y-20 rounded-md bg-[var(--text)] px-3 py-2 text-sm font-semibold text-[var(--surface)] focus:translate-y-0"
+      >
+        {t("skipToContent")}
+      </a>
+      <header className="border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)]">
+        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
-            href="/operations"
-            className="ui-pressable hidden rounded-lg border border-[var(--border-strong)] px-3 py-2 text-xs font-semibold text-[var(--text)] sm:inline-flex"
+            href="/platform"
+            className="ui-pressable flex items-center gap-3 rounded-lg"
           >
-            {t("openOperations")}
+            <span
+              className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
+              aria-hidden="true"
+            >
+              W
+            </span>
+            <span className="text-sm font-bold tracking-tight">
+              {t("brand")}
+            </span>
           </Link>
-          <LocaleControl />
-          <ThemeControl />
+          <div className="flex items-center gap-2">
+            <Link
+              href="/operations"
+              className="ui-pressable hidden rounded-lg border border-[var(--border-strong)] px-3 py-2 text-xs font-semibold text-[var(--text)] sm:inline-flex"
+            >
+              {t("openOperations")}
+            </Link>
+            <LocaleControl />
+            <ThemeControl />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
