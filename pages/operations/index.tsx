@@ -156,12 +156,19 @@ export default function OperationsPage({ summary }: PageProps) {
         {liveSummary?.recentTasks.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+              <caption className="sr-only">{t("recentTasks")}</caption>
               <thead className="text-xs text-[var(--text-muted)]">
                 <tr>
-                  <th className="px-5 py-3 font-semibold">{t("taskId")}</th>
-                  <th className="px-5 py-3 font-semibold">{t("route")}</th>
-                  <th className="px-5 py-3 font-semibold">{t("status")}</th>
-                  <th className="px-5 py-3 font-semibold">
+                  <th scope="col" className="px-5 py-3 font-semibold">
+                    {t("taskId")}
+                  </th>
+                  <th scope="col" className="px-5 py-3 font-semibold">
+                    {t("route")}
+                  </th>
+                  <th scope="col" className="px-5 py-3 font-semibold">
+                    {t("status")}
+                  </th>
+                  <th scope="col" className="px-5 py-3 font-semibold">
                     {t("equipmentLabel")}
                   </th>
                 </tr>

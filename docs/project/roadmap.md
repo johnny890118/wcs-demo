@@ -60,9 +60,9 @@ Status: In progress
 
 - [x] Next.js TypeScript web shell, public product entry, and protected operations overview
 - [x] Design tokens, light/dark/system, `zh-TW`/`en`, and responsive navigation
-- [ ] Accessible task, equipment, inventory, and topology projections with realtime updates (summary projection and authenticated 10-second refresh boundary complete; focused detail projections remain)
+- [x] Accessible task, equipment, inventory, and topology projections with authenticated realtime refresh boundaries
 - [x] Emil design review reported in required Before/After table format
-- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (manual keyboard, reduced-motion CSS, and 390 px responsive review complete)
+- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (axe gate, manual keyboard, reduced-motion CSS, and 390 px responsive review complete; zoom, screen-reader, and formal contrast verification remain)
 
 ## M4 — Outbound and fault recovery
 
@@ -88,4 +88,4 @@ Status: In progress
 
 ## Immediate next task
 
-Add focused operations projections and realtime refresh behavior, then automate accessibility checks. Warehouse visualization must consume topology projections and must not define routes or domain state.
+Complete M3 zoom, screen-reader, and formal contrast verification, then add browser E2E coverage. Warehouse visualization must consume topology projections and must not define routes or domain state.

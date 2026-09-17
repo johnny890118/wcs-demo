@@ -4,11 +4,16 @@ vi.mock("next-auth/next", () => ({ getServerSession: vi.fn() }));
 vi.mock("../../pages/api/auth/[...nextauth]", () => ({ authOptions: {} }));
 vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   fetchOperationsSummary: vi.fn(),
+  fetchOperationsDetails: vi.fn(),
 }));
 
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/summary";
-import { fetchOperationsSummary } from "../../src/infrastructure/http/wcs-api-client";
+import detailsHandler from "../../pages/api/operations/details";
+import {
+  fetchOperationsDetails,
+  fetchOperationsSummary,
+} from "../../src/infrastructure/http/wcs-api-client";
 
 function createResponse() {
   const response = {
@@ -84,5 +89,34 @@ describe("operations summary browser boundary", () => {
       code: "OPERATIONS_API_UNAVAILABLE",
       message: "Operations data is temporarily unavailable.",
     });
+  });
+});
+
+describe("focused operations projection browser boundary", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("requires a session before fetching details", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const response = createResponse();
+    await detailsHandler({ method: "GET" } as never, response as never);
+    expect(response.statusCode).toBe(401);
+    expect(fetchOperationsDetails).not.toHaveBeenCalled();
+  });
+
+  it("returns validated server-fetched detail projections", async () => {
+    vi.mocked(getServerSession).mockResolvedValue({
+      user: { name: "operator" },
+    });
+    vi.mocked(fetchOperationsDetails).mockResolvedValue({
+      tasks: [],
+      equipment: [],
+      inventory: [],
+      topology: null,
+      generatedAt: "2026-09-18T00:00:00.000Z",
+    });
+    const response = createResponse();
+    await detailsHandler({ method: "GET" } as never, response as never);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toMatchObject({ tasks: [], topology: null });
   });
 });

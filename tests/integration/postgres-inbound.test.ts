@@ -188,7 +188,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).rejects.toBeInstanceOf(IdempotencyConflictError);
   });
 
-  it("returns a data-backed operations projection without inferring missing state", async () => {
+  it("returns data-backed operations projections without inferring missing state", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const summary = await new OperationsSummaryService(pool).getSummary();
 
@@ -206,6 +206,39 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       recentTasks: [],
     });
     expect(Number.isNaN(Date.parse(summary.generatedAt))).toBe(false);
+
+    const details = await new OperationsSummaryService(pool).getDetails();
+    expect(details).toMatchObject({
+      tasks: [],
+      inventory: [],
+      equipment: [
+        {
+          equipmentId: "AMR-01",
+          adapterKey: "simulator.mobile-transport",
+          active: true,
+        },
+      ],
+      topology: {
+        topologyId: "90000000-0000-4000-8000-000000000001",
+        revision: 1,
+        nodes: [
+          { nodeId: "RECEIVING-01", kind: "transfer" },
+          { nodeId: "STORAGE-A-01", kind: "storage" },
+        ],
+        edges: [
+          {
+            edgeId: "RECEIVING-TO-STORAGE",
+            fromNodeId: "RECEIVING-01",
+            toNodeId: "STORAGE-A-01",
+          },
+          {
+            edgeId: "STORAGE-TO-RECEIVING",
+            fromNodeId: "STORAGE-A-01",
+            toNodeId: "RECEIVING-01",
+          },
+        ],
+      },
+    });
   });
 
   it("loads persisted capabilities and atomically activates a valid topology revision", async () => {

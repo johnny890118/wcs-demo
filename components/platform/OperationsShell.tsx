@@ -2,6 +2,7 @@ import {
   ArrowLeftIcon,
   ArrowRightStartOnRectangleIcon,
   BuildingStorefrontIcon,
+  QueueListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
@@ -11,7 +12,13 @@ import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
 
-export function OperationsShell({ children }: { children: ReactNode }) {
+export function OperationsShell({
+  children,
+  current = "overview",
+}: {
+  children: ReactNode;
+  current?: "overview" | "projections";
+}) {
   const { t } = useLocale();
 
   return (
@@ -33,14 +40,30 @@ export function OperationsShell({ children }: { children: ReactNode }) {
             </span>
             <span className="font-bold tracking-tight">{t("brand")}</span>
           </Link>
-          <nav aria-label={t("operations")} className="space-y-1">
+          <nav aria-label={t("desktopNavigation")} className="space-y-1">
             <Link
               href="/operations"
-              aria-current="page"
-              className="flex items-center gap-3 rounded-lg bg-[var(--accent-soft)] px-3 py-2.5 text-sm font-semibold text-[var(--accent-strong)]"
+              aria-current={current === "overview" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "overview"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
             >
               <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
               {t("overview")}
+            </Link>
+            <Link
+              href="/operations/projections"
+              aria-current={current === "projections" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "projections"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <QueueListIcon className="h-5 w-5" aria-hidden="true" />
+              {t("projections")}
             </Link>
             <Link
               href="/"
@@ -87,15 +110,30 @@ export function OperationsShell({ children }: { children: ReactNode }) {
               </div>
             </div>
             <nav
-              aria-label={t("operations")}
+              aria-label={t("mobileNavigation")}
               className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
             >
               <Link
                 href="/operations"
-                aria-current="page"
-                className="rounded-md bg-[var(--accent-soft)] px-3 py-2 text-xs font-semibold text-[var(--accent-strong)]"
+                aria-current={current === "overview" ? "page" : undefined}
+                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "overview"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
               >
                 {t("overview")}
+              </Link>
+              <Link
+                href="/operations/projections"
+                aria-current={current === "projections" ? "page" : undefined}
+                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "projections"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("projections")}
               </Link>
               <Link
                 href="/"

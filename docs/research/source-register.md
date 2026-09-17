@@ -16,3 +16,5 @@ Checked 2026-09-18. These sources inform boundaries and requirements; they do no
 - [NIST SP 800-82 Rev. 3](https://csrc.nist.gov/pubs/sp/800/82/r3/final): OT security guidance balancing cyber controls with performance, reliability, and safety.
 - [ISA/IEC 62443 overview](https://www.isa.org/standards-and-publications/isa-standards/isa-iec-62443-series-of-standards): IACS cybersecurity lifecycle, risk assessment, and system security concepts.
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/): normative accessibility target.
+- [Deque axe-core](https://www.npmjs.com/package/axe-core): maintained automated accessibility engine with WCAG 2.2 rules; used as an early semantic/ARIA gate, not a substitute for manual review.
+- [React Testing Library](https://www.npmjs.com/package/@testing-library/react): DOM-focused component testing guidance that favors user-observable behavior over implementation details.

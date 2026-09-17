@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>.
 
-The new product entry is available at `/platform`. The session-protected operations overview is at `/operations`; the original `/`, `/fdp`, and `/engineeringMode` routes remain migration references rather than target architecture.
+The new product entry is available at `/platform`. The session-protected operations overview is at `/operations`, with focused read-only projections at `/operations/projections`; the original `/`, `/fdp`, and `/engineeringMode` routes remain migration references rather than target architecture.
 
 ### API and database
 

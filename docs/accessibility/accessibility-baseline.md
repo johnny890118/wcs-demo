@@ -14,3 +14,7 @@ Target: WCAG 2.2 AA for public and authenticated web surfaces.
 - Desktop, tablet, and mobile retain task, alarm, equipment, status, and safe primary actions.
 
 Automated checks are necessary but do not replace keyboard, zoom, screen-reader, and real-device review.
+
+## Automated gate
+
+Vitest renders the public entry and populated/unavailable operations projections in jsdom, then runs axe-core. The gate rejects detectable semantic and ARIA violations. The `color-contrast` rule is disabled only in this jsdom suite because jsdom has no layout engine; contrast remains a required browser/manual check and may not be marked complete from this gate alone.
