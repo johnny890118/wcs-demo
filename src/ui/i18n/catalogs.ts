@@ -1,0 +1,93 @@
+export const en = {
+  brand: "Warehouse OS",
+  productTagline: "One operational truth, from dock to device.",
+  productDescription:
+    "A hardware-independent warehouse execution platform for controlled inventory movement, deterministic simulation, and accountable operations.",
+  openOperations: "Open operations",
+  viewLegacyDemo: "View legacy demo",
+  platform: "Platform",
+  operations: "Operations",
+  overview: "Overview",
+  inbound: "Inbound",
+  tasks: "Transport tasks",
+  equipment: "Equipment",
+  inventory: "Inventory",
+  alarms: "Alarms",
+  audit: "Audit",
+  systemStatus: "System status",
+  connected: "Connected",
+  unavailable: "Unavailable",
+  activeTasks: "Active tasks",
+  storedInventory: "Stored inventory",
+  openReceipts: "Open receipts",
+  activeAlarms: "Active alarms",
+  recentTasks: "Recent transport tasks",
+  noTasks: "No transport tasks yet.",
+  locale: "Language",
+  theme: "Theme",
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+  signOut: "Sign out",
+  skipToContent: "Skip to content",
+  simulator: "Deterministic simulator",
+  traceable: "Traceable by default",
+  hardwareIndependent: "Hardware independent",
+  simulatorDescription:
+    "Reproduce movement, faults, timeouts, and recovery without random behavior.",
+  traceableDescription:
+    "Commands, state changes, audit facts, and outbox events share one transaction boundary.",
+  hardwareDescription:
+    "Business rules depend on equipment ports—not vendor protocols or browser state.",
+  protectedArea: "Protected operations area",
+  refreshedAt: "Refreshed",
+} as const;
+
+export type MessageKey = keyof typeof en;
+export type Locale = "zh-TW" | "en";
+export type Catalog = Record<MessageKey, string>;
+
+export const zhTW: Catalog = {
+  brand: "Warehouse OS",
+  productTagline: "從月台到設備，共享單一營運事實。",
+  productDescription:
+    "硬體獨立的倉儲執行平台，整合受控庫存移動、決定性模擬與可追溯作業。",
+  openOperations: "開啟操作台",
+  viewLegacyDemo: "查看舊版展示",
+  platform: "平台",
+  operations: "操作台",
+  overview: "總覽",
+  inbound: "入庫",
+  tasks: "搬運任務",
+  equipment: "設備",
+  inventory: "庫存",
+  alarms: "警報",
+  audit: "稽核",
+  systemStatus: "系統狀態",
+  connected: "已連線",
+  unavailable: "無法連線",
+  activeTasks: "進行中任務",
+  storedInventory: "已入庫存",
+  openReceipts: "未完成收貨",
+  activeAlarms: "作用中警報",
+  recentTasks: "最近搬運任務",
+  noTasks: "目前沒有搬運任務。",
+  locale: "語言",
+  theme: "主題",
+  light: "淺色",
+  dark: "深色",
+  system: "跟隨系統",
+  signOut: "登出",
+  skipToContent: "跳至主要內容",
+  simulator: "決定性模擬器",
+  traceable: "預設可追溯",
+  hardwareIndependent: "硬體獨立",
+  simulatorDescription: "可重現搬運、故障、逾時與復原，不依賴隨機行為。",
+  traceableDescription:
+    "命令、狀態變更、稽核事實與 outbox 事件共享同一交易邊界。",
+  hardwareDescription: "商業規則依賴設備介面，而非廠商協定或瀏覽器狀態。",
+  protectedArea: "受保護的操作區",
+  refreshedAt: "更新時間",
+};
+
+export const catalogs: Record<Locale, Catalog> = { "zh-TW": zhTW, en };

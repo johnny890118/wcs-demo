@@ -7,7 +7,9 @@ import "../styles/animation.css";
 import "@/styles/engineeringMode.css";
 import { Ubuntu } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "next-themes";
 import Head from "next/head";
+import { LocaleProvider } from "@/src/ui/i18n/locale-provider";
 
 const ubuntu = Ubuntu({
   subsets: ["latin"],
@@ -18,12 +20,20 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <>
       <Head>
-        <title>X&X派車系統</title>
+        <title>Warehouse OS</title>
+        <meta
+          name="description"
+          content="Hardware-independent warehouse execution, deterministic simulation, and accountable inventory movement."
+        />
         <link rel="icon" href="/female.png" />
       </Head>
       <main className={ubuntu.className}>
         <SessionProvider session={session}>
-          <Component {...pageProps} />
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <LocaleProvider>
+              <Component {...pageProps} />
+            </LocaleProvider>
+          </ThemeProvider>
         </SessionProvider>
       </main>
     </>
