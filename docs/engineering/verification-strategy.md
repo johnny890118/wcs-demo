@@ -30,7 +30,7 @@
 
 - `npm run lint`: passes; 15 warnings isolate the effect-driven legacy map/task state machine.
 - `npm run typecheck`: strict TypeScript checks the new domain/application/infrastructure modules.
-- `npm run test`: 43 fast tests pass across legacy API safety, Nest inbound HTTP contracts, request correlation, outbox retry behavior, route characterization, application services, deterministic domain/simulator behavior, topology routing, capability rejection, and topology activation.
+- `npm run test`: 47 fast tests pass across legacy API safety, Nest inbound HTTP contracts, authenticated operations refresh proxy behavior, request correlation, outbox retry behavior, route characterization, application services, deterministic domain/simulator behavior, topology routing, capability rejection, and topology activation.
 - `npm run build`: passes on Next.js 16.3 after install.
 - Production and full audits currently report no known findings; the gate rejects high/critical production findings.
 - Five ephemeral PostgreSQL integration tests pass, including migrations through `0003_configurable_topology.sql`, the operations read projection, persisted capability configuration, atomic topology activation, inbound transactions, outbox delivery, and safe demo reset. They run inside `npm run verify` locally and in CI.

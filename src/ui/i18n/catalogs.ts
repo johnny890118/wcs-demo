@@ -62,6 +62,8 @@ export const en = {
   legacyWorkspace: "Legacy workspace",
   securedSession: "Secured session",
   revision: "Revision",
+  liveData: "Live",
+  staleData: "Last known snapshot",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -129,6 +131,8 @@ export const zhTW: Catalog = {
   legacyWorkspace: "舊版工作區",
   securedSession: "受保護工作階段",
   revision: "版本",
+  liveData: "即時",
+  staleData: "最後已知快照",
 };
 
 export const catalogs: Record<Locale, Catalog> = { "zh-TW": zhTW, en };
