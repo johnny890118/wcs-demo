@@ -1,40 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Smart Warehouse Platform
 
-## Getting Started
+Smart Warehouse Platform is evolving from a legacy visual prototype into a hardware-independent warehouse management, control, and simulation product. The source is private and proprietary.
 
-First, run the development server:
+The current UI demonstrates early dispatch, map, dashboard, and engineering-control concepts. It is not yet approved for public deployment or connection to physical equipment. See the [current-state assessment](docs/architecture/current-state-assessment.md) and [roadmap](docs/project/roadmap.md) before extending it.
+
+## Local development
+
+Requirements: Node.js 22, npm, and Docker Desktop (for the PostgreSQL verification gate).
 
 ```bash
+cp .env.example .env
+# Replace every placeholder in .env with local-only values.
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+### API and database
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+The M2 API requires PostgreSQL and never synchronizes schemas implicitly. After setting `DATABASE_URL`, `API_SERVICE_ID`, and a strong `API_SERVICE_TOKEN` in the local `.env`:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+npm run db:migrate
+npm run db:seed:demo
+npm run dev:api
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+The API listens on <http://127.0.0.1:3001> by default. Liveness is exposed at `/api/v1/health/live`; readiness additionally verifies PostgreSQL at `/api/v1/health/ready`. Inbound mutations require both a bearer service token and an `Idempotency-Key` header.
 
-## Learn More
+The first vertical slice accepts inbound receipts at `POST /api/v1/inbound-receipts` and executes their queued transport task through the deterministic simulator at `POST /api/v1/transport-tasks/:taskId/execute`. Inventory becomes available only after unloading and the final database transaction succeed.
 
-To learn more about Next.js, take a look at the following resources:
+Demo transactional data can be cleared only when both the command switch and an in-database `deployment_mode=demo` marker agree:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+ALLOW_DEMO_RESET=true npm run db:reset:demo
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The reset command is intentionally unavailable for unmarked production databases.
 
-## Deploy on Vercel
+## Verification
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run verify
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+The repository gate checks formatting, secret hygiene, high/critical production dependency findings, lint, strict TypeScript, unit/API tests, real PostgreSQL migrations and integration tests in an ephemeral container, and a production web build. Accessibility, responsive, and E2E checks are added as their milestone infrastructure lands; current gaps remain visible in the [verification strategy](docs/engineering/verification-strategy.md).
+
+## Documentation
+
+- [Product definition](docs/product/product-definition-v1.md)
+- [Domain and system boundaries](docs/domain/system-boundaries-v1.md)
+- [Target architecture](docs/architecture/target-architecture-v1.md)
+- [Roadmap](docs/project/roadmap.md)
+- [Agent guide](AGENTS.md)
+- [Git and progress persistence policy](docs/engineering/git-progress-policy.md)
+
+Public contact for the future product surface: [johnny0929560027@gmail.com](mailto:johnny0929560027@gmail.com).
