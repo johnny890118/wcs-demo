@@ -35,7 +35,7 @@ export function OperationsShell({
             href="/platform"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]">
               W
             </span>
             <span className="font-bold tracking-tight">{t("brand")}</span>

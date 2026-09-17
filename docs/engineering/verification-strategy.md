@@ -30,11 +30,11 @@
 
 - `npm run lint`: passes; 15 warnings isolate the effect-driven legacy map/task state machine.
 - `npm run typecheck`: strict TypeScript checks the new domain/application/infrastructure modules.
-- `npm run test`: 52 fast tests pass across legacy API safety, Nest inbound HTTP contracts, authenticated operations projection proxies, axe-core UI checks, request correlation, outbox retry behavior, route characterization, application services, deterministic domain/simulator behavior, topology routing, capability rejection, and topology activation.
+- `npm run test`: 76 fast tests pass across legacy API safety, Nest inbound HTTP contracts, authenticated operations projection proxies, axe-core UI checks, WCAG token contrast checks, request correlation, outbox retry behavior, route characterization, application services, deterministic domain/simulator behavior, topology routing, capability rejection, and topology activation.
 - `npm run build`: passes on Next.js 16.3 after install.
 - Production and full audits currently report no known findings; the gate rejects high/critical production findings.
 - Five ephemeral PostgreSQL integration tests pass, including migrations through `0003_configurable_topology.sql`, the operations read projection, persisted capability configuration, atomic topology activation, inbound transactions, outbox delivery, and safe demo reset. They run inside `npm run verify` locally and in CI.
 - Production build covers the static bilingual `/platform` entry plus SSR-protected `/operations` and `/operations/projections` routes.
-- Manual browser review covers locale and theme switching, server-side auth redirect, desktop layout, and a 390 × 844 mobile viewport. The axe-core gate checks the public page plus populated and unavailable projection states; it caught and prevented duplicate navigation landmarks. Browser E2E, zoom, screen-reader, and formal contrast coverage remain open.
+- Manual browser review covers locale and theme switching, server-side auth redirect, desktop layout, and a 390 × 844 mobile viewport. The axe-core gate checks the public page plus populated and unavailable projection states; it caught and prevented duplicate navigation landmarks. The design-token gate enforces the 4.5:1 WCAG AA normal-text threshold for both themes and caught an invalid dark-mode primary-control foreground. Browser E2E, zoom, and screen-reader coverage remain open.
 
 This baseline is recorded to make debt visible; it is not an acceptable public-deployment gate.

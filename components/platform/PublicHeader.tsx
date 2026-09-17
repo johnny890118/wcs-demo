@@ -14,7 +14,7 @@ export function PublicHeader() {
           className="ui-pressable flex items-center gap-3 rounded-lg"
         >
           <span
-            className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-white"
+            className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
             aria-hidden="true"
           >
             W

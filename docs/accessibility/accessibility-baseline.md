@@ -18,3 +18,5 @@ Automated checks are necessary but do not replace keyboard, zoom, screen-reader,
 ## Automated gate
 
 Vitest renders the public entry and populated/unavailable operations projections in jsdom, then runs axe-core. The gate rejects detectable semantic and ARIA violations. The `color-contrast` rule is disabled only in this jsdom suite because jsdom has no layout engine; contrast remains a required browser/manual check and may not be marked complete from this gate alone.
+
+A separate token-level gate calculates WCAG relative luminance and rejects normal-text foreground/background pairs below 4.5:1 in both light and dark themes. This includes muted surfaces, status colors, accent text, and the semantic `on-accent` foreground used by primary controls.

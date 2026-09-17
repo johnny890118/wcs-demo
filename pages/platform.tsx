@@ -46,7 +46,7 @@ export default function PlatformPage() {
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 href="/operations"
-                className="ui-pressable inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-bold text-white shadow-sm"
+                className="ui-pressable inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-bold text-[var(--on-accent)] shadow-sm"
               >
                 {t("openOperations")}
                 <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />

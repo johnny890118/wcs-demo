@@ -62,7 +62,7 @@ Status: In progress
 - [x] Design tokens, light/dark/system, `zh-TW`/`en`, and responsive navigation
 - [x] Accessible task, equipment, inventory, and topology projections with authenticated realtime refresh boundaries
 - [x] Emil design review reported in required Before/After table format
-- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (axe gate, manual keyboard, reduced-motion CSS, and 390 px responsive review complete; zoom, screen-reader, and formal contrast verification remain)
+- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (axe gate, token-level WCAG contrast gate, manual keyboard, reduced-motion CSS, and 390 px responsive review complete; zoom and screen-reader verification remain)
 
 ## M4 — Outbound and fault recovery
 
@@ -88,4 +88,4 @@ Status: In progress
 
 ## Immediate next task
 
-Complete M3 zoom, screen-reader, and formal contrast verification, then add browser E2E coverage. Warehouse visualization must consume topology projections and must not define routes or domain state.
+Complete M3 zoom and screen-reader verification, then add browser E2E coverage. Warehouse visualization must consume topology projections and must not define routes or domain state.
