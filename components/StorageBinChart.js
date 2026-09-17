@@ -9,7 +9,6 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import faker from "faker";
 
 ChartJS.register(
   CategoryScale,
@@ -77,7 +76,8 @@ export const data = {
   datasets: [
     {
       label: "儲位使用",
-      data: labels().map(() => faker.datatype.number({ min: 0, max: 1000 })),
+      // Stable display fixture until this chart reads a WMS projection.
+      data: labels().map((_, index) => (index * 83 + 211) % 1001),
       backgroundColor: "rgb(168 162 158)",
     },
   ],

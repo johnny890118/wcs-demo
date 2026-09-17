@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
@@ -9,6 +9,10 @@ import lockImg from "../styles/lock.png";
 import Image from "next/image";
 import LogIn from "./logIn";
 import { useSession, signOut } from "next-auth/react";
+import {
+  isLegacyRouteCurrent,
+  legacyNavigationRoutes,
+} from "../src/application/navigation/legacy-routes";
 
 const Nav = () => {
   const [signInModal, setSignInModal] = useState(false);
@@ -16,29 +20,10 @@ const Nav = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [navigation, setNavigation] = useState([
-    {
-      name: "派車系統",
-      href: "/",
-      current: router.pathname === "/",
-    },
-    { name: "戰情看板", href: "/fdp", current: router.pathname === "/fdp" },
-    {
-      name: "工程模式",
-      href: "/engineeringMode",
-      current: router.pathname === "/engineeringMode",
-    },
-  ]);
-
-  useEffect(() => {
-    setNavigation((prevNavigation) => {
-      return prevNavigation.map((item) => ({
-        ...item,
-        current: item.href === router.pathname,
-        isUnlock: false,
-      }));
-    });
-  }, [router.pathname]);
+  const navigation = legacyNavigationRoutes.map((item) => ({
+    ...item,
+    current: isLegacyRouteCurrent(item.href, router.pathname),
+  }));
 
   return (
     <div className="fixed top-0 z-10 w-full">

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import faker from "faker";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -30,13 +29,9 @@ const WarehouseUseChart = () => {
     },
   };
 
-  const [using, setUsing] = useState(0);
-  const [notUsing, setNotUsing] = useState(0);
-
-  useEffect(() => {
-    setUsing(faker.datatype.number({ min: 0, max: 10000 }));
-    setNotUsing(faker.datatype.number({ min: 0, max: 10000 }));
-  }, []);
+  // Stable display fixture until this chart reads a WMS projection.
+  const using = 6240;
+  const notUsing = 3760;
 
   const data = {
     labels: [`使用中 : ${using}`, `未使用 : ${notUsing}`],

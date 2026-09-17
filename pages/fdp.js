@@ -4,8 +4,13 @@ import StorageBinChart from "@/components/StorageBinChart";
 import WarehouseUseChart from "@/components/WarehouseUseChart";
 import WarehouseUseDetail from "@/components/WarehouseUseDetail";
 import DateTime from "@/components/DateTime";
-import faker from "faker";
-import { useEffect, useState } from "react";
+
+// Stable sample series keep the legacy dashboard reproducible until its cards
+// are replaced by WMS/WCS projections. They are display fixtures, not telemetry.
+const demoSeries = (count, seed) =>
+  Array.from({ length: count }, (_, index) =>
+    Math.round(((index * 73 + seed * 41) % 101) * 9.7),
+  );
 
 const FDP = () => {
   const labels = (n) => {
@@ -18,24 +23,15 @@ const FDP = () => {
     return labelsList;
   };
 
-  const [data, setData] = useState({
-    data1: 0,
-    data2: 0,
-    data3: 0,
-    data4: 0,
-    data5: 0,
-    data6: 0,
-  });
-
-  useEffect(() => {
-    const data1 = Math.round(Math.random() * 10000);
-    const data2 = Math.round(Math.random() * 1000);
-    const data3 = Math.round(Math.random() * 10000);
-    const data4 = Math.round(Math.random() * 1000);
-    const data5 = Math.round(Math.random() * 100);
-    const data6 = Math.round(Math.random() * 100);
-    setData({ ...ProgressEvent, data1, data2, data3, data4, data5, data6 });
-  }, []);
+  // Stable display fixture until the dashboard reads WMS/WCS projections.
+  const data = {
+    data1: 8420,
+    data2: 486,
+    data3: 7910,
+    data4: 451,
+    data5: 37,
+    data6: 29,
+  };
 
   return (
     <Layout>
@@ -92,12 +88,8 @@ const FDP = () => {
                 xdata={labels(31)}
                 barColor1="rgb(124 58 237)"
                 barColor2="rgb(219 39 119)"
-                barData1={labels(31).map(() =>
-                  faker.datatype.number({ min: 0, max: 1000 }),
-                )}
-                barData2={labels(31).map(() =>
-                  faker.datatype.number({ min: 0, max: 1000 }),
-                )}
+                barData1={demoSeries(31, 1)}
+                barData2={demoSeries(31, 2)}
               />
             </div>
             <div className="h-[29%] w-full rounded-2xl bg-gray-700 p-1">
@@ -113,12 +105,8 @@ const FDP = () => {
                   xdata={labels(12)}
                   barColor1="rgb(2 132 199)"
                   barColor2="rgb(234 179 8)"
-                  barData1={labels(12).map(() =>
-                    faker.datatype.number({ min: 0, max: 1000 }),
-                  )}
-                  barData2={labels(12).map(() =>
-                    faker.datatype.number({ min: 0, max: 1000 }),
-                  )}
+                  barData1={demoSeries(12, 3)}
+                  barData2={demoSeries(12, 4)}
                 />
               </div>
               <div className="h-full w-[49.6%] rounded-2xl bg-gray-700 p-1">
@@ -143,12 +131,8 @@ const FDP = () => {
                   ]}
                   barColor1="rgb(132 204 22)"
                   barColor2="rgb(234 88 12)"
-                  barData1={labels(12).map(() =>
-                    faker.datatype.number({ min: 0, max: 1000 }),
-                  )}
-                  barData2={labels(12).map(() =>
-                    faker.datatype.number({ min: 0, max: 1000 }),
-                  )}
+                  barData1={demoSeries(12, 5)}
+                  barData2={demoSeries(12, 6)}
                 />
               </div>
             </div>

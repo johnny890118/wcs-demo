@@ -1,16 +1,8 @@
-import { useEffect, useState } from "react";
 import WarehouseUseDetailData from "./WarehouseUseDetailData";
 
 const WarehouseUseDetail = () => {
-  const [data, setData] = useState({ data1: 0, data2: 0, data3: 0, data4: 0 });
-
-  useEffect(() => {
-    const data1 = Math.round(Math.random() * 100);
-    const data2 = Math.round(Math.random() * 100);
-    const data3 = Math.round(Math.random() * 100);
-    const data4 = Math.round(Math.random() * 100);
-    setData({ ...ProgressEvent, data1, data2, data3, data4 });
-  }, []);
+  // Stable display fixture until this panel reads a WMS projection.
+  const data = { data1: 68, data2: 54, data3: 72, data4: 61 };
 
   return (
     <div className="p-3">

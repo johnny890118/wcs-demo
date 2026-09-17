@@ -2,22 +2,23 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 async function authorize(credentials) {
-  const superUser = {
-    user: "xx",
-    password: "xandx",
-  };
+  const username = process.env.DEMO_ADMIN_USERNAME;
+  const password = process.env.DEMO_ADMIN_PASSWORD;
 
-  if (
-    credentials.username === superUser.user &&
-    credentials.password === superUser.password
-  ) {
-    return { id: "1", name: superUser.user };
-  } else {
-    null;
+  // This credentials provider exists only to protect the legacy local demo
+  // during migration. The target identity/RBAC design will replace it.
+  if (!username || !password || !credentials) {
+    return null;
   }
+
+  if (credentials.username === username && credentials.password === password) {
+    return { id: "legacy-demo-admin", name: username };
+  }
+
+  return null;
 }
 
-export default NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -28,7 +29,9 @@ export default NextAuth({
       authorize,
     }),
   ],
-  jwt: {
-    secret: process.env.JWT_SECRET,
-  },
-});
+  // JWT_SECRET is read only as a local migration fallback for the legacy .env.
+  // New environments must use NEXTAUTH_SECRET.
+  secret: process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET,
+};
+
+export default NextAuth(authOptions);
