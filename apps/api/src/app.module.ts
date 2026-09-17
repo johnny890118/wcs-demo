@@ -6,6 +6,7 @@ import { InboundModule } from "./inbound/inbound.module";
 import { LoggingModule } from "./logging/logging.module";
 import { RequestContextMiddleware } from "./logging/request-context.middleware";
 import { OutboxModule } from "./outbox/outbox.module";
+import { OperationsModule } from "./operations/operations.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OutboxModule } from "./outbox/outbox.module";
     InboundModule,
     ExecutionModule,
     OutboxModule,
+    OperationsModule,
   ],
   controllers: [HealthController],
 })

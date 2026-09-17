@@ -41,6 +41,27 @@ export const en = {
     "Business rules depend on equipment ports—not vendor protocols or browser state.",
   protectedArea: "Protected operations area",
   refreshedAt: "Refreshed",
+  heroEyebrow: "Warehouse execution, without the hardware lock-in",
+  heroTitle: "One operational truth from dock to device.",
+  heroBody:
+    "Model each site, route work through current constraints, and keep operators aligned with what physically happened.",
+  platformProof: "Built for operational clarity",
+  operationsOverview: "Operations overview",
+  overviewDescription:
+    "A concise view of work, inventory, equipment configuration, and the active warehouse model.",
+  activeTopology: "Active topology",
+  configuredEquipment: "Configured equipment",
+  serviceUnavailable: "Operations data is temporarily unavailable.",
+  serviceUnavailableDescription:
+    "The console is safe to view, but the internal WCS API did not answer. No operational state was inferred.",
+  taskId: "Task",
+  route: "Route",
+  status: "Status",
+  equipmentLabel: "Equipment",
+  unassigned: "Unassigned",
+  legacyWorkspace: "Legacy workspace",
+  securedSession: "Secured session",
+  revision: "Revision",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -88,6 +109,26 @@ export const zhTW: Catalog = {
   hardwareDescription: "商業規則依賴設備介面，而非廠商協定或瀏覽器狀態。",
   protectedArea: "受保護的操作區",
   refreshedAt: "更新時間",
+  heroEyebrow: "不被硬體綁定的倉儲執行平台",
+  heroTitle: "從月台到設備，共享單一營運事實。",
+  heroBody:
+    "依每個場域建立模型，根據即時限制安排工作，讓操作人員掌握實際發生的物流狀態。",
+  platformProof: "為清楚營運而打造",
+  operationsOverview: "營運總覽",
+  overviewDescription: "集中查看作業、庫存、設備設定與目前啟用的倉庫模型。",
+  activeTopology: "啟用中的拓撲",
+  configuredEquipment: "已設定設備",
+  serviceUnavailable: "營運資料暫時無法取得。",
+  serviceUnavailableDescription:
+    "操作台仍可安全瀏覽，但內部 WCS API 未回應；系統不會臆測任何營運狀態。",
+  taskId: "任務",
+  route: "路徑",
+  status: "狀態",
+  equipmentLabel: "設備",
+  unassigned: "尚未指派",
+  legacyWorkspace: "舊版工作區",
+  securedSession: "受保護工作階段",
+  revision: "版本",
 };
 
 export const catalogs: Record<Locale, Catalog> = { "zh-TW": zhTW, en };

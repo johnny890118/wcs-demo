@@ -1,0 +1,15 @@
+# M3 Operator Console UI Review
+
+Reviewed against the Emil design-engineering guidance on 2026-09-18. Manual browser checks covered the desktop layout, a 390 × 844 mobile viewport, `zh-TW` and `en`, light and dark/system themes, and the unauthenticated operations redirect.
+
+| Before                                                    | After                                                                                                                                 | Why                                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Legacy dispatch page was the only product entry           | Added a focused bilingual `/platform` entry with one primary operations action and a clearly secondary legacy link                    | Establishes hierarchy without pretending the legacy map is the product model                    |
+| Navigation and dashboard chrome were tied to legacy pages | Added a responsive `/operations` shell with semantic navigation, skip link, visible focus treatment, and mobile overflow handling     | Gives operators a stable, keyboard-accessible frame before deeper workflows are added           |
+| Dashboard samples could look like live operational facts  | Operations cards and task table consume a server-side WCS projection; unavailable data renders as `—` with an explicit status message | Never infer or fabricate safety-relevant warehouse state                                        |
+| Styling assumed one dark presentation                     | Added shared semantic tokens plus light, dark, and system controls                                                                    | Keeps state meaning consistent across themes and prepares reusable components                   |
+| Locale was fixed per legacy screen                        | Added parity-checked `zh-TW` and `en` catalogs with an immediate locale control                                                       | Language is a product setting rather than duplicated page copy                                  |
+| Interactive controls had inconsistent feedback            | Pressable controls use an exact 160 ms transform transition and `scale(0.97)` active state; reduced-motion removes movement           | Crisp feedback follows the skill guidance without animating frequent navigation or data updates |
+| Operations access relied on client presentation           | `/operations` checks the NextAuth session during SSR, and the backend projection independently requires a service token               | Prevents protected content flash and preserves the browser → backend safety boundary            |
+
+No `transition: all`, `ease-in`, entry from `scale(0)`, long UI animation, or ungated hover transform was introduced. The slice intentionally has no animated dashboard data because operators may see updates frequently.

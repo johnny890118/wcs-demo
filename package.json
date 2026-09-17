@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:postgres": "node scripts/test-postgres-integration.mjs",
     "typecheck": "tsc --noEmit",
-    "format:check": "prettier --check \"apps/**/*.ts\" \"docs/**/*.md\" \"src/**/*.ts\" \"tests/**/*.{js,ts}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.mjs\" AGENTS.md README.md package.json tsconfig.json",
+    "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.mjs\" AGENTS.md README.md package.json tsconfig.json",
     "security:dependencies": "npm audit --omit=dev --audit-level=high",
     "security:secrets": "node scripts/check-secrets.mjs",
     "verify": "npm run format:check && npm run security:secrets && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run build"

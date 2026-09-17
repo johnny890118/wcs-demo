@@ -5,6 +5,7 @@ import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-in
 import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.errors";
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
+import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { PgTopologyRepository } from "../../apps/api/src/topology/pg-topology.repository";
 import type {
   CreateInboundReceipt,
@@ -185,6 +186,26 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await expect(
       repository.create(changed, identifiers, requestHash(changed)),
     ).rejects.toBeInstanceOf(IdempotencyConflictError);
+  });
+
+  it("returns a data-backed operations projection without inferring missing state", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const summary = await new OperationsSummaryService(pool).getSummary();
+
+    expect(summary).toMatchObject({
+      counts: {
+        activeTasks: 0,
+        storedInventory: 0,
+        openReceipts: 0,
+        configuredEquipment: 1,
+      },
+      topology: {
+        topologyId: "90000000-0000-4000-8000-000000000001",
+        revision: 1,
+      },
+      recentTasks: [],
+    });
+    expect(Number.isNaN(Date.parse(summary.generatedAt))).toBe(false);
   });
 
   it("loads persisted capabilities and atomically activates a valid topology revision", async () => {

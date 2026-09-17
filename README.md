@@ -17,6 +17,8 @@ npm run dev
 
 Open <http://localhost:3000>.
 
+The new product entry is available at `/platform`. The session-protected operations overview is at `/operations`; the original `/`, `/fdp`, and `/engineeringMode` routes remain migration references rather than target architecture.
+
 ### API and database
 
 The M2 API requires PostgreSQL and never synchronizes schemas implicitly. After setting `DATABASE_URL`, `API_SERVICE_ID`, and a strong `API_SERVICE_TOKEN` in the local `.env`:

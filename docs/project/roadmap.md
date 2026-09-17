@@ -58,11 +58,11 @@ Status: Complete
 
 Status: In progress
 
-- Next.js TypeScript web shell, public product entry, protected operations area
-- Design tokens, light/dark/system, `zh-TW`/`en`, responsive navigation
-- Accessible task/equipment/warehouse projections and realtime updates
-- Emil design review reported in required Before/After table format
-- Keyboard, reduced-motion, contrast, responsive, and automated a11y checks
+- [x] Next.js TypeScript web shell, public product entry, and protected operations overview
+- [x] Design tokens, light/dark/system, `zh-TW`/`en`, and responsive navigation
+- [ ] Accessible task, equipment, inventory, and topology projections with realtime updates (initial summary projection complete)
+- [x] Emil design review reported in required Before/After table format
+- [ ] Keyboard, reduced-motion, contrast, responsive, and automated a11y checks (manual keyboard, reduced-motion CSS, and 390 px responsive review complete)
 
 ## M4 — Outbound and fault recovery
 
@@ -88,4 +88,4 @@ Status: In progress
 
 ## Immediate next task
 
-Create the verified M0-M2.5 Git checkpoint series, then resume the M3 operator console. Warehouse visualization must consume topology projections and must not define routes or domain state.
+Add focused operations projections and realtime refresh behavior, then automate accessibility checks. Warehouse visualization must consume topology projections and must not define routes or domain state.
