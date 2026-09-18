@@ -33,6 +33,8 @@ The API listens on <http://127.0.0.1:3001> by default. Liveness is exposed at `/
 
 The first vertical slice accepts inbound receipts at `POST /api/v1/inbound-receipts` and executes their queued transport task through the deterministic simulator at `POST /api/v1/transport-tasks/:taskId/execute`. Inventory becomes available only after unloading and the final database transaction succeed.
 
+The M4 outbound foundation accepts authenticated, idempotent allocation requests at `POST /api/v1/outbound-orders`. It reserves persisted SKU quantities transactionally, validates an available destination with the `outbound.stage` capability, creates outbound-owned transport tasks, and records outbox/audit evidence. Outbound physical execution and inventory consumption remain the next milestone slice.
+
 Demo transactional data can be cleared only when both the command switch and an in-database `deployment_mode=demo` marker agree:
 
 ```bash

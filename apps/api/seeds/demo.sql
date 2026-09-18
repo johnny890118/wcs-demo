@@ -10,7 +10,8 @@ ON CONFLICT (id) DO UPDATE SET code = EXCLUDED.code, name = EXCLUDED.name;
 INSERT INTO locations (id, warehouse_id, code, kind, capabilities)
 VALUES
   ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'RECEIVING-01', 'receiving', ARRAY['load.pickup']),
-  ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'STORAGE-A-01', 'storage', ARRAY['load.dropoff', 'inventory.store'])
+  ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'STORAGE-A-01', 'storage', ARRAY['load.dropoff', 'inventory.store']),
+  ('20000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'SHIPPING-01', 'shipping', ARRAY['load.dropoff', 'outbound.stage'])
 ON CONFLICT (id) DO UPDATE
 SET warehouse_id = EXCLUDED.warehouse_id,
   code = EXCLUDED.code,
@@ -38,7 +39,8 @@ INSERT INTO topology_nodes
   (topology_id, topology_revision, node_id, kind, capabilities, position)
 VALUES
   ('90000000-0000-4000-8000-000000000001', 1, 'RECEIVING-01', 'transfer', ARRAY['load.pickup'], '{"coordinateSystem":"demo","x":0,"y":0}'::jsonb),
-  ('90000000-0000-4000-8000-000000000001', 1, 'STORAGE-A-01', 'storage', ARRAY['load.dropoff', 'inventory.store'], '{"coordinateSystem":"demo","x":10,"y":0}'::jsonb)
+  ('90000000-0000-4000-8000-000000000001', 1, 'STORAGE-A-01', 'storage', ARRAY['load.dropoff', 'inventory.store'], '{"coordinateSystem":"demo","x":10,"y":0}'::jsonb),
+  ('90000000-0000-4000-8000-000000000001', 1, 'SHIPPING-01', 'shipping', ARRAY['load.dropoff', 'outbound.stage'], '{"coordinateSystem":"demo","x":20,"y":0}'::jsonb)
 ON CONFLICT (topology_id, topology_revision, node_id) DO UPDATE
 SET kind = EXCLUDED.kind,
   capabilities = EXCLUDED.capabilities,
@@ -48,7 +50,9 @@ INSERT INTO topology_edges
   (topology_id, topology_revision, edge_id, from_node_id, to_node_id, cost, status)
 VALUES
   ('90000000-0000-4000-8000-000000000001', 1, 'RECEIVING-TO-STORAGE', 'RECEIVING-01', 'STORAGE-A-01', 10, 'available'),
-  ('90000000-0000-4000-8000-000000000001', 1, 'STORAGE-TO-RECEIVING', 'STORAGE-A-01', 'RECEIVING-01', 10, 'available')
+  ('90000000-0000-4000-8000-000000000001', 1, 'STORAGE-TO-RECEIVING', 'STORAGE-A-01', 'RECEIVING-01', 10, 'available'),
+  ('90000000-0000-4000-8000-000000000001', 1, 'STORAGE-TO-SHIPPING', 'STORAGE-A-01', 'SHIPPING-01', 10, 'available'),
+  ('90000000-0000-4000-8000-000000000001', 1, 'SHIPPING-TO-STORAGE', 'SHIPPING-01', 'STORAGE-A-01', 10, 'available')
 ON CONFLICT (topology_id, topology_revision, edge_id) DO UPDATE
 SET from_node_id = EXCLUDED.from_node_id,
   to_node_id = EXCLUDED.to_node_id,

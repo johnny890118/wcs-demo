@@ -6,6 +6,12 @@ import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.err
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
+import { InsufficientInventoryError } from "../../apps/api/src/outbound/outbound.errors";
+import { PgOutboundRepository } from "../../apps/api/src/outbound/pg-outbound.repository";
+import type {
+  CreateOutboundOrder,
+  OutboundIdentifiers,
+} from "../../apps/api/src/outbound/outbound.types";
 import { PgTopologyRepository } from "../../apps/api/src/topology/pg-topology.repository";
 import type {
   CreateInboundReceipt,
@@ -48,7 +54,22 @@ const identifiers: InboundIdentifiers = {
   auditEventId: "70000000-0000-4000-8000-000000000001",
 };
 
-function requestHash(value: CreateInboundReceipt): string {
+const outboundCommand: CreateOutboundOrder = {
+  idempotencyKey: "integration-outbound-0001",
+  actorId: "integration-test",
+  externalReference: "SO-INTEGRATION-0001",
+  sku: command.load.sku,
+  quantity: 10,
+  destinationLocationId: "20000000-0000-4000-8000-000000000003",
+};
+
+const outboundIdentifiers: OutboundIdentifiers = {
+  outboundOrderId: "a0000000-0000-4000-8000-000000000001",
+  outboxEventId: "a0000000-0000-4000-8000-000000000002",
+  auditEventId: "a0000000-0000-4000-8000-000000000003",
+};
+
+function requestHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
@@ -61,8 +82,9 @@ function idFactory(): () => string {
 describeIntegration("PostgreSQL inbound vertical slice", () => {
   beforeEach(async () => {
     await pool?.query(
-      `TRUNCATE route_plan_edges, route_plans, audit_events, outbox_events, inventory_units,
-        transport_tasks, loads, inbound_receipts`,
+      `TRUNCATE route_plan_edges, route_plans, audit_events, outbox_events,
+        inventory_allocations, transport_tasks, outbound_orders, inventory_units,
+        loads, inbound_receipts`,
     );
   });
 
@@ -223,6 +245,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         revision: 1,
         nodes: [
           { nodeId: "RECEIVING-01", kind: "transfer" },
+          { nodeId: "SHIPPING-01", kind: "shipping" },
           { nodeId: "STORAGE-A-01", kind: "storage" },
         ],
         edges: [
@@ -232,9 +255,19 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
             toNodeId: "STORAGE-A-01",
           },
           {
+            edgeId: "SHIPPING-TO-STORAGE",
+            fromNodeId: "SHIPPING-01",
+            toNodeId: "STORAGE-A-01",
+          },
+          {
             edgeId: "STORAGE-TO-RECEIVING",
             fromNodeId: "STORAGE-A-01",
             toNodeId: "RECEIVING-01",
+          },
+          {
+            edgeId: "STORAGE-TO-SHIPPING",
+            fromNodeId: "STORAGE-A-01",
+            toNodeId: "SHIPPING-01",
           },
         ],
       },
@@ -295,5 +328,147 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       { revision: 1, status: "retired" },
       { revision: 2, status: "active" },
     ]);
+  });
+
+  it("atomically allocates outbound inventory and rejects over-allocation", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const inbound = new PgInboundRepository(pool);
+    await inbound.create(command, identifiers, requestHash(command));
+
+    const equipment = new SimulatorEquipmentAdapter();
+    equipment.register(createMobileTransportDescriptor("AMR-01"), "idle");
+    await new DeterministicInboundExecutor(
+      new PgInboundExecutionRepository(pool),
+      equipment,
+      new ManualClock(1_000),
+      idFactory(),
+    ).execute({
+      taskId: identifiers.transportTaskId,
+      equipmentId: "AMR-01",
+      actorId: command.actorId,
+    });
+
+    const outbound = new PgOutboundRepository(pool);
+    const allocated = await outbound.create(
+      outboundCommand,
+      outboundIdentifiers,
+      requestHash(outboundCommand),
+    );
+    expect(allocated).toMatchObject({
+      outboundOrderId: outboundIdentifiers.outboundOrderId,
+      status: "allocated",
+      duplicate: false,
+      allocationIds: [expect.any(String)],
+      transportTaskIds: [expect.any(String)],
+    });
+
+    const replay = await outbound.create(
+      outboundCommand,
+      {
+        outboundOrderId: "a0000000-0000-4000-8000-000000000011",
+        outboxEventId: "a0000000-0000-4000-8000-000000000012",
+        auditEventId: "a0000000-0000-4000-8000-000000000013",
+      },
+      requestHash(outboundCommand),
+    );
+    expect(replay).toEqual({ ...allocated, duplicate: true });
+
+    const unavailable = {
+      ...outboundCommand,
+      idempotencyKey: "integration-outbound-0002",
+      externalReference: "SO-INTEGRATION-0002",
+      quantity: 15,
+    };
+    await expect(
+      outbound.create(
+        unavailable,
+        {
+          outboundOrderId: "a0000000-0000-4000-8000-000000000021",
+          outboxEventId: "a0000000-0000-4000-8000-000000000022",
+          auditEventId: "a0000000-0000-4000-8000-000000000023",
+        },
+        requestHash(unavailable),
+      ),
+    ).rejects.toBeInstanceOf(InsufficientInventoryError);
+
+    const state = await pool.query<{
+      order_count: string;
+      allocation_quantity: string;
+      task_count: string;
+      outbound_event_count: string;
+      outbound_audit_count: string;
+    }>(
+      `SELECT
+        (SELECT count(*) FROM outbound_orders) AS order_count,
+        (SELECT sum(quantity) FROM inventory_allocations WHERE status = 'reserved') AS allocation_quantity,
+        (SELECT count(*) FROM transport_tasks WHERE outbound_order_id IS NOT NULL) AS task_count,
+        (SELECT count(*) FROM outbox_events WHERE aggregate_type = 'OutboundOrder') AS outbound_event_count,
+        (SELECT count(*) FROM audit_events WHERE aggregate_type = 'OutboundOrder') AS outbound_audit_count`,
+    );
+    expect(state.rows[0]).toEqual({
+      order_count: "1",
+      allocation_quantity: "10",
+      task_count: "1",
+      outbound_event_count: "1",
+      outbound_audit_count: "1",
+    });
+
+    await expect(
+      new PgInboundExecutionRepository(pool).getTask(
+        allocated.transportTaskIds[0]!,
+      ),
+    ).resolves.toBeNull();
+
+    const concurrentCommands: CreateOutboundOrder[] = [1, 2].map(
+      (sequence) => ({
+        ...outboundCommand,
+        idempotencyKey: `integration-outbound-concurrent-${sequence}`,
+        externalReference: `SO-INTEGRATION-CONCURRENT-${sequence}`,
+        quantity: 8,
+      }),
+    );
+    const concurrentResults = await Promise.allSettled(
+      concurrentCommands.map((concurrentCommand, index) =>
+        outbound.create(
+          concurrentCommand,
+          {
+            outboundOrderId: `b0000000-0000-4000-8000-${String(
+              index + 1,
+            ).padStart(12, "0")}`,
+            outboxEventId: `b0000000-0000-4000-8001-${String(
+              index + 1,
+            ).padStart(12, "0")}`,
+            auditEventId: `b0000000-0000-4000-8002-${String(index + 1).padStart(
+              12,
+              "0",
+            )}`,
+          },
+          requestHash(concurrentCommand),
+        ),
+      ),
+    );
+    expect(
+      concurrentResults.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    const rejected = concurrentResults.find(
+      (result) => result.status === "rejected",
+    );
+    expect(rejected).toMatchObject({
+      status: "rejected",
+      reason: expect.any(InsufficientInventoryError),
+    });
+
+    const concurrencyState = await pool.query<{
+      order_count: string;
+      reserved_quantity: string;
+    }>(
+      `SELECT
+        (SELECT count(*) FROM outbound_orders) AS order_count,
+        (SELECT sum(quantity) FROM inventory_allocations WHERE status = 'reserved') AS reserved_quantity`,
+    );
+    expect(concurrencyState.rows[0]).toEqual({
+      order_count: "2",
+      reserved_quantity: "18",
+    });
   });
 });

@@ -25,8 +25,9 @@ async function main(): Promise<void> {
     try {
       await client.query(`
         TRUNCATE route_plan_edges, route_plans,
-          audit_events, outbox_events, inventory_units,
-          transport_tasks, loads, inbound_receipts
+          audit_events, outbox_events, inventory_allocations,
+          transport_tasks, outbound_orders, inventory_units,
+          loads, inbound_receipts
       `);
       await client.query("COMMIT");
       process.stdout.write("Demo transactional data reset completed.\n");

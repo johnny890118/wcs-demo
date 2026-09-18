@@ -67,10 +67,14 @@ Status: Complete
 
 ## M4 — Outbound and fault recovery
 
-- Inventory allocation and outbound flow
-- Fault injection, alarm lifecycle, recovery/reassignment, uncertain-state handling
-- Three deterministic end-to-end scenarios in Playwright
-- RBAC and high-risk action confirmation/audit
+Status: In progress
+
+- [x] Transactional, idempotent outbound order allocation across persisted inventory units
+- [x] Capability-based shipping destination validation, SKU-scoped concurrency serialization, queued transport tasks, outbox, and audit evidence
+- [ ] Outbound equipment execution, inventory consumption, and shipping confirmation
+- [ ] Fault injection, alarm lifecycle, recovery/reassignment, uncertain-state handling
+- [ ] Three deterministic end-to-end operational scenarios in Playwright
+- [ ] RBAC and high-risk action confirmation/audit
 
 ## M5 — Deployment and public demo
 
@@ -89,4 +93,4 @@ Status: Complete
 
 ## Immediate next task
 
-Begin M4 with inventory allocation and an outbound application flow, preserving the transactional, idempotent, capability-based execution boundaries established by inbound. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Complete outbound equipment execution and atomic inventory consumption/shipping confirmation, including unknown-outcome reconciliation. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

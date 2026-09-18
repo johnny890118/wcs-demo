@@ -43,7 +43,7 @@ export class PgInboundExecutionRepository
 
   async getTask(taskId: string): Promise<PersistedInboundTask | null> {
     const result = await this.pool.query<TaskRow>(
-      `${this.taskSelection()} WHERE id = $1`,
+      `${this.taskSelection()} WHERE id = $1 AND receipt_id IS NOT NULL`,
       [taskId],
     );
     return result.rows[0] ? toTask(result.rows[0]) : null;
