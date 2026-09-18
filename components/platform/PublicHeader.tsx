@@ -31,6 +31,23 @@ export function PublicHeader() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <nav
+              aria-label={t("publicNavigation")}
+              className="mr-1 hidden items-center gap-1 md:flex"
+            >
+              <Link
+                href="/about"
+                className="ui-pressable rounded-lg px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
+              >
+                {t("about")}
+              </Link>
+              <Link
+                href="/contact"
+                className="ui-pressable rounded-lg px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
+              >
+                {t("contact")}
+              </Link>
+            </nav>
             <Link
               href="/operations"
               className="ui-pressable hidden rounded-lg border border-[var(--border-strong)] px-3 py-2 text-xs font-semibold text-[var(--text)] sm:inline-flex"

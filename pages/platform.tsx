@@ -5,10 +5,15 @@ import {
   CubeTransparentIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import type { GetServerSideProps } from "next";
+import { PublicPageHead } from "../components/platform/PublicPageHead";
 import { PublicHeader } from "../components/platform/PublicHeader";
 import { useLocale } from "../src/ui/i18n/locale-provider";
+import { publicSiteUrl } from "../src/ui/seo/public-site";
 
-export default function PlatformPage() {
+type PublicPageProps = { siteOrigin: string };
+
+export default function PlatformPage({ siteOrigin }: PublicPageProps) {
   const { t } = useLocale();
   const features = [
     {
@@ -30,6 +35,12 @@ export default function PlatformPage() {
 
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
+      <PublicPageHead
+        title={t("platformMetaTitle")}
+        description={t("productDescription")}
+        path="/platform"
+        siteOrigin={siteOrigin}
+      />
       <PublicHeader />
       <main id="main-content">
         <section className="mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pb-24 sm:pt-28 lg:px-8">
@@ -58,6 +69,17 @@ export default function PlatformPage() {
                 {t("viewLegacyDemo")}
               </Link>
             </div>
+            <nav
+              aria-label={t("learnMore")}
+              className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold"
+            >
+              <Link className="ui-pressable rounded-sm" href="/about">
+                {t("aboutPlatform")}
+              </Link>
+              <Link className="ui-pressable rounded-sm" href="/contact">
+                {t("contactTeam")}
+              </Link>
+            </nav>
           </div>
         </section>
 
@@ -84,3 +106,9 @@ export default function PlatformPage() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<
+  PublicPageProps
+> = async () => ({
+  props: { siteOrigin: publicSiteUrl() },
+});

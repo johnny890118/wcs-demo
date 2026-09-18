@@ -23,7 +23,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: `NEXTAUTH_URL=${baseURL} NEXTAUTH_SECRET=e2e-nextauth-secret DEMO_ADMIN_USERNAME=e2e-operator DEMO_ADMIN_PASSWORD=e2e-password API_SERVICE_TOKEN=e2e-service-token INTERNAL_API_BASE_URL=http://127.0.0.1:${apiPort} npm run start -- --hostname 127.0.0.1 --port ${webPort}`,
+      command: `NEXTAUTH_URL=${baseURL} PUBLIC_SITE_URL=${baseURL} NEXTAUTH_SECRET=e2e-nextauth-secret DEMO_ADMIN_USERNAME=e2e-operator DEMO_ADMIN_PASSWORD=e2e-password API_SERVICE_TOKEN=e2e-service-token INTERNAL_API_BASE_URL=http://127.0.0.1:${apiPort} npm run start -- --hostname 127.0.0.1 --port ${webPort}`,
       url: `${baseURL}/platform`,
       reuseExistingServer: false,
     },

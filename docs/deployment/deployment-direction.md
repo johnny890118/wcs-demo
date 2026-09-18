@@ -22,7 +22,7 @@ Kubernetes is intentionally deferred.
 The checked-in composition is an on-premises/VM baseline, not a public-internet approval. Both published ports bind to loopback unless an operator explicitly changes the bind addresses.
 
 1. Copy `infra/compose.env.example` to a private environment file outside version control.
-2. Replace every placeholder password/token/secret. Assign the API only the permissions required for that deployment.
+2. Replace every placeholder password/token/secret, set `PUBLIC_SITE_URL` to the canonical origin, and assign the API only the permissions required for that deployment.
 3. Validate with `docker compose --env-file <private-env> -f infra/compose.production.yml config --quiet`.
 4. Build with `docker compose --env-file <private-env> -f infra/compose.production.yml build`.
 5. Start with `docker compose --env-file <private-env> -f infra/compose.production.yml up -d --wait postgres api web`.

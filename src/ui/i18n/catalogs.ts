@@ -91,6 +91,40 @@ export const en = {
   noTopology: "No active topology is available.",
   desktopNavigation: "Operations desktop navigation",
   mobileNavigation: "Operations mobile navigation",
+  publicNavigation: "Public navigation",
+  about: "About",
+  contact: "Contact",
+  learnMore: "Learn more",
+  aboutPlatform: "About the platform",
+  contactTeam: "Contact the project",
+  platformMetaTitle: "Warehouse OS | Hardware-independent execution",
+  aboutMetaTitle: "About | Warehouse OS",
+  contactMetaTitle: "Contact | Warehouse OS",
+  aboutEyebrow: "Architecture before automation",
+  aboutTitle: "A warehouse control foundation built around operational truth.",
+  aboutIntro:
+    "Warehouse OS separates business decisions from equipment protocols, persists every meaningful transition, and makes uncertain outcomes visible instead of guessing.",
+  designPrinciples: "Design principles",
+  aboutModelTitle: "Model each site",
+  aboutModelBody:
+    "Versioned topology and capability descriptors express site constraints without hard-coding one warehouse layout.",
+  aboutEvidenceTitle: "Keep transactional evidence",
+  aboutEvidenceBody:
+    "Inventory, tasks, audit records, and integration events cross the same durable transaction boundary.",
+  aboutSafetyTitle: "Fail visibly and safely",
+  aboutSafetyBody:
+    "Timeouts and connection loss become explicit unknown outcomes that require reconciliation before work resumes.",
+  backToPlatform: "Back to platform",
+  contactEyebrow: "Project contact",
+  contactTitle: "Start with the warehouse problem, not a protocol assumption.",
+  contactIntro:
+    "Use the project issue tracker for reproducible product questions, integration requirements, and verified defects.",
+  projectContact: "Public project channel",
+  projectContactBody:
+    "Open a GitHub issue with the operating context, expected outcome, and evidence needed to reproduce the request. Do not include credentials, customer data, or sensitive facility details.",
+  openIssue: "Open GitHub issues",
+  securityContactNotice:
+    "Do not disclose a vulnerability in a public issue. Use the repository host's private security reporting channel when it is enabled, or contact the deployment owner through an established private channel.",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -187,6 +221,40 @@ export const zhTW: Catalog = {
   noTopology: "目前沒有啟用中的拓撲。",
   desktopNavigation: "操作台桌面版導覽",
   mobileNavigation: "操作台行動版導覽",
+  publicNavigation: "公開頁面導覽",
+  about: "關於",
+  contact: "聯絡",
+  learnMore: "進一步了解",
+  aboutPlatform: "關於平台",
+  contactTeam: "聯絡專案",
+  platformMetaTitle: "Warehouse OS｜硬體獨立的倉儲執行平台",
+  aboutMetaTitle: "關於｜Warehouse OS",
+  contactMetaTitle: "聯絡｜Warehouse OS",
+  aboutEyebrow: "先建立架構，再推動自動化",
+  aboutTitle: "以單一營運事實為核心的倉儲控制基礎。",
+  aboutIntro:
+    "Warehouse OS 將商業決策與設備協定分離，持久化每個關鍵狀態轉換，並清楚呈現不確定結果，而不是自行臆測。",
+  designPrinciples: "設計原則",
+  aboutModelTitle: "依場域建立模型",
+  aboutModelBody:
+    "透過版本化拓撲與能力描述表達場域限制，不將平台綁死在單一倉庫配置。",
+  aboutEvidenceTitle: "保留交易證據",
+  aboutEvidenceBody:
+    "庫存、任務、稽核紀錄與整合事件共享同一個可持久化的交易邊界。",
+  aboutSafetyTitle: "安全且清楚地失敗",
+  aboutSafetyBody:
+    "逾時與斷線會成為明確的未知結果，必須完成 reconciliation 才能恢復作業。",
+  backToPlatform: "返回平台",
+  contactEyebrow: "專案聯絡",
+  contactTitle: "從倉儲問題出發，而不是預設一套協定。",
+  contactIntro:
+    "請透過專案 issue tracker 提出可重現的產品問題、整合需求與已驗證缺陷。",
+  projectContact: "公開專案管道",
+  projectContactBody:
+    "建立 GitHub issue 時，請提供營運情境、預期結果與重現所需證據；不要附上憑證、客戶資料或敏感場域細節。",
+  openIssue: "開啟 GitHub Issues",
+  securityContactNotice:
+    "請勿在公開 issue 揭露弱點。若 repository host 已啟用私人安全回報，請使用該管道；否則請透過既有私人管道聯絡部署責任人。",
 };
 
 export const catalogs: Record<Locale, Catalog> = { "zh-TW": zhTW, en };

@@ -50,6 +50,7 @@ describe("deployment environment validation", () => {
     const safePassword = `validation-${"p".repeat(20)}`;
     const result = validate("web", {
       NEXTAUTH_URL: "http://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
       INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
       NEXTAUTH_SECRET: safeSecret,
       DEMO_ADMIN_USERNAME: "validation-operator",
@@ -59,5 +60,19 @@ describe("deployment environment validation", () => {
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("NEXTAUTH_URL must use HTTPS");
+  });
+
+  it("accepts matching canonical and authentication origins", () => {
+    const result = validate("web", {
+      NEXTAUTH_URL: "https://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
+      INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
+      DEMO_ADMIN_USERNAME: "validation-operator",
+      DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+    });
+
+    expect(result.status).toBe(0);
   });
 });

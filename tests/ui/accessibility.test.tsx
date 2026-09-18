@@ -5,6 +5,8 @@ import axe from "axe-core";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import PlatformPage from "../../pages/platform";
+import AboutPage from "../../pages/about";
+import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
@@ -112,11 +114,26 @@ describe("automated accessibility baseline", () => {
   it("finds no detectable violations on the public product entry", async () => {
     const { container } = render(
       <LocaleProvider>
-        <PlatformPage />
+        <PlatformPage siteOrigin="https://warehouse.example.com" />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);
   });
+
+  it.each([
+    ["about", AboutPage],
+    ["contact", ContactPage],
+  ])(
+    "finds no detectable violations on the public %s page",
+    async (_name, Page) => {
+      const { container } = render(
+        <LocaleProvider>
+          <Page siteOrigin="https://warehouse.example.com" />
+        </LocaleProvider>,
+      );
+      await expectNoAutomatedViolations(container);
+    },
+  );
 
   it("finds no detectable violations on populated operations projections", async () => {
     const { container } = render(

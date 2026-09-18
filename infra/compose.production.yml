@@ -81,6 +81,7 @@ services:
     restart: unless-stopped
     environment:
       NEXTAUTH_URL: ${NEXTAUTH_URL:?NEXTAUTH_URL is required}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required}
       DEMO_ADMIN_USERNAME: ${DEMO_ADMIN_USERNAME:?DEMO_ADMIN_USERNAME is required}
       DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:?DEMO_ADMIN_PASSWORD is required}

@@ -12,7 +12,7 @@ Validated against official provider documentation on 2026-09-18. These adapters 
 
 Configure secrets in provider dashboards, never in `vercel.json`, `render.yaml`, Git, build arguments, or client-visible variables.
 
-Vercel requires `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`, `INTERNAL_API_BASE_URL`, and the same `API_SERVICE_TOKEN` assigned to the web-to-API service identity. Set `INTERNAL_API_BASE_URL` to the Render API HTTPS origin and keep every variable server-only (no `NEXT_PUBLIC_` prefix).
+Vercel requires `NEXTAUTH_URL`, `PUBLIC_SITE_URL`, `NEXTAUTH_SECRET`, `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`, `INTERNAL_API_BASE_URL`, and the same `API_SERVICE_TOKEN` assigned to the web-to-API service identity. Set `PUBLIC_SITE_URL` to the canonical public HTTPS origin and `INTERNAL_API_BASE_URL` to the Render API HTTPS origin. Keep every variable server-only (no `NEXT_PUBLIC_` prefix).
 
 Render prompts for `DATABASE_URL` and `API_SERVICE_TOKEN` because the Blueprint marks them `sync: false`. Existing Blueprint services do not automatically receive newly added `sync: false` variables; add them manually when updating an existing service. Keep the API permission list least-privileged for the deployed web capabilities.
 
@@ -35,9 +35,9 @@ Apply only the repository migration runner. Do not separately translate the same
 2. Validate production environment variables for both targets.
 3. Take and verify a database backup before applying migrations to an existing environment.
 4. Deploy the API and require a successful pre-deploy migration plus readiness check.
-5. Deploy the web surface with the final API origin and production `NEXTAUTH_URL`.
+5. Deploy the web surface with the final API origin plus matching production `NEXTAUTH_URL` and `PUBLIC_SITE_URL` origins.
 6. Run the three deterministic operator scenarios against the candidate environment without enabling physical equipment adapters.
-7. Keep the demo private/noindex until the remaining M5 public-content and release gates are complete.
+7. Confirm `/robots.txt`, `/sitemap.xml`, public canonical metadata, and `X-Robots-Tag: noindex, nofollow` on operations/API routes before allowing indexing.
 
 ## Runtime security controls
 

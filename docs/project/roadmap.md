@@ -84,7 +84,7 @@ Status: In progress
 - [x] Vercel/Render/Supabase deployment adapters, provider-neutral environment validation, and provider-specific runbooks
 - [x] Checksum-verified backup/restore tooling and isolated recovery exercise in the deployment smoke gate
 - [x] Runtime secret controls, security headers, and bounded rate limiting
-- [ ] Public SEO/contact/about; private noindex policy
+- [x] Public SEO/contact/about; private operations/API noindex policy
 - [ ] Published demo only after security and scenario gates pass
 
 ## M6 — Hardware readiness
@@ -96,4 +96,4 @@ Status: In progress
 
 ## Immediate next task
 
-Add public SEO, contact, and about surfaces while maintaining the private `noindex` boundary. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Publish the demo only after the exact release candidate passes the security, deployment-smoke, and deterministic scenario gates. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

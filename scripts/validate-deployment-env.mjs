@@ -79,7 +79,21 @@ if (target === "api" || target === "all") {
 }
 
 if (target === "web" || target === "all") {
-  url("NEXTAUTH_URL", ["http:", "https:"]);
+  const nextAuth = url("NEXTAUTH_URL", ["http:", "https:"]);
+  const publicSite = url("PUBLIC_SITE_URL", ["http:", "https:"]);
+  if (
+    publicSite &&
+    (publicSite.username ||
+      publicSite.password ||
+      publicSite.pathname !== "/" ||
+      publicSite.search ||
+      publicSite.hash)
+  ) {
+    errors.push("PUBLIC_SITE_URL must be an origin without a path.");
+  }
+  if (nextAuth && publicSite && nextAuth.origin !== publicSite.origin) {
+    errors.push("NEXTAUTH_URL and PUBLIC_SITE_URL must use the same origin.");
+  }
   url("INTERNAL_API_BASE_URL", ["http:", "https:"]);
   required("NEXTAUTH_SECRET", 32);
   required("DEMO_ADMIN_USERNAME", 3);

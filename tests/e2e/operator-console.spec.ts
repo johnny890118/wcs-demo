@@ -25,6 +25,13 @@ test("public entry supports keyboard skip navigation and automated accessibility
   page,
 }) => {
   await page.goto("/platform");
+  const siteOrigin = new URL(page.url()).origin;
+
+  await expect(page).toHaveTitle(/Warehouse OS/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    `${siteOrigin}/platform`,
+  );
 
   await page.keyboard.press("Tab");
   await expect(page.locator(":focus")).toHaveAttribute("href", "#main-content");
@@ -33,6 +40,11 @@ test("public entry supports keyboard skip navigation and automated accessibility
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+
+  const robots = await page.request.get("/robots.txt");
+  expect(await robots.text()).toContain("Disallow: /operations");
+  const sitemap = await page.request.get("/sitemap.xml");
+  expect(await sitemap.text()).toContain(`${siteOrigin}/contact`);
 });
 
 test("public entry reflows at a 200%-equivalent CSS viewport", async ({
