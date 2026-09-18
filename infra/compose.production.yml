@@ -11,11 +11,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -51,6 +47,9 @@ services:
       API_SERVICE_TOKEN: ${API_SERVICE_TOKEN:?API_SERVICE_TOKEN is required}
       API_SERVICE_PERMISSIONS: ${API_SERVICE_PERMISSIONS:-operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover}
       OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS:-1000}
+      API_RATE_LIMIT_MAX: ${API_RATE_LIMIT_MAX:-120}
+      API_RATE_LIMIT_WINDOW_MS: ${API_RATE_LIMIT_WINDOW_MS:-60000}
+      API_TRUST_PROXY_HOPS: ${API_TRUST_PROXY_HOPS:-0}
     ports:
       - "${API_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-3001}:3001"
     depends_on:

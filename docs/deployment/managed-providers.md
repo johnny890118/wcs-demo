@@ -37,6 +37,12 @@ Apply only the repository migration runner. Do not separately translate the same
 4. Deploy the API and require a successful pre-deploy migration plus readiness check.
 5. Deploy the web surface with the final API origin and production `NEXTAUTH_URL`.
 6. Run the three deterministic operator scenarios against the candidate environment without enabling physical equipment adapters.
-7. Keep the demo private/noindex until the remaining M5 security, backup/restore, and public-content gates are complete.
+7. Keep the demo private/noindex until the remaining M5 public-content and release gates are complete.
+
+## Runtime security controls
+
+Set `API_RATE_LIMIT_MAX` and `API_RATE_LIMIT_WINDOW_MS` to a measured traffic envelope. The built-in limiter is a bounded, per-instance safeguard; configure the provider edge or gateway with a shared limit before scaling the API horizontally. Set `API_TRUST_PROXY_HOPS` to the exact number of trusted reverse proxies between the client and API (`1` for the current Render adapter, `0` for direct or Compose access). Never enable unconditional proxy trust.
+
+The API refuses to start when its database URL, service identity, token, or permission list is absent, placeholder-like, weak, duplicated, or unknown. Validate provider configuration with `DEPLOYMENT_ENV=production npm run deployment:validate -- api` before rollout and confirm that failed validation output never echoes credential values.
 
 Official references: [Vercel project configuration](https://vercel.com/docs/project-configuration/vercel-json), [Render Blueprint specification](https://render.com/docs/blueprint-spec), [Render health checks](https://render.com/docs/health-checks), and [Supabase Postgres connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres).

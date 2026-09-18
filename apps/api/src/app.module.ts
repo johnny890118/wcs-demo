@@ -5,6 +5,8 @@ import { HealthController } from "./health/health.controller";
 import { InboundModule } from "./inbound/inbound.module";
 import { LoggingModule } from "./logging/logging.module";
 import { RequestContextMiddleware } from "./logging/request-context.middleware";
+import { ApiSecurityHeadersMiddleware } from "./security/api-security-headers.middleware";
+import { RateLimitMiddleware } from "./security/rate-limit.middleware";
 import { OutboxModule } from "./outbox/outbox.module";
 import { OperationsModule } from "./operations/operations.module";
 import { OutboundModule } from "./outbound/outbound.module";
@@ -23,6 +25,12 @@ import { OutboundModule } from "./outbound/outbound.module";
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestContextMiddleware).forRoutes("*");
+    consumer
+      .apply(
+        RequestContextMiddleware,
+        ApiSecurityHeadersMiddleware,
+        RateLimitMiddleware,
+      )
+      .forRoutes("*");
   }
 }
