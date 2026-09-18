@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Pool } from "pg";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
+import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
 import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.errors";
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
@@ -18,6 +19,7 @@ import type {
   InboundIdentifiers,
 } from "../../apps/api/src/inbound/inbound.types";
 import { DeterministicInboundExecutor } from "../../src/application/execution/inbound-execution";
+import { DeterministicOutboundExecutor } from "../../src/application/execution/outbound-execution";
 import { TopologyActivationService } from "../../src/application/topology/topology-activation";
 import {
   OutboxProcessor,
@@ -337,11 +339,12 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
 
     const equipment = new SimulatorEquipmentAdapter();
     equipment.register(createMobileTransportDescriptor("AMR-01"), "idle");
+    const executionIds = idFactory();
     await new DeterministicInboundExecutor(
       new PgInboundExecutionRepository(pool),
       equipment,
       new ManualClock(1_000),
-      idFactory(),
+      executionIds,
     ).execute({
       taskId: identifiers.transportTaskId,
       equipmentId: "AMR-01",
@@ -419,6 +422,42 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       ),
     ).resolves.toBeNull();
 
+    await new DeterministicOutboundExecutor(
+      new PgOutboundExecutionRepository(pool),
+      equipment,
+      new ManualClock(10_000),
+      executionIds,
+    ).execute({
+      taskId: allocated.transportTaskIds[0]!,
+      equipmentId: "AMR-01",
+      actorId: outboundCommand.actorId,
+    });
+
+    const shipped = await pool.query<{
+      order_status: string;
+      task_status: string;
+      allocation_status: string;
+      remaining_quantity: number;
+      inventory_status: string;
+    }>(
+      `SELECT outbound.status AS order_status, task.status AS task_status,
+        allocation.status AS allocation_status,
+        inventory.quantity AS remaining_quantity, inventory.status AS inventory_status
+       FROM outbound_orders outbound
+       JOIN inventory_allocations allocation ON allocation.outbound_order_id = outbound.id
+       JOIN transport_tasks task ON task.inventory_allocation_id = allocation.id
+       JOIN inventory_units inventory ON inventory.id = allocation.inventory_unit_id
+       WHERE outbound.id = $1`,
+      [outboundIdentifiers.outboundOrderId],
+    );
+    expect(shipped.rows[0]).toEqual({
+      order_status: "completed",
+      task_status: "completed",
+      allocation_status: "consumed",
+      remaining_quantity: 14,
+      inventory_status: "available",
+    });
+
     const concurrentCommands: CreateOutboundOrder[] = [1, 2].map(
       (sequence) => ({
         ...outboundCommand,
@@ -468,7 +507,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     );
     expect(concurrencyState.rows[0]).toEqual({
       order_count: "2",
-      reserved_quantity: "18",
+      reserved_quantity: "8",
     });
   });
 });

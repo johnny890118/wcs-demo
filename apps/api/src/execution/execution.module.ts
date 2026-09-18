@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Module } from "@nestjs/common";
 import type { Pool } from "pg";
 import { DeterministicInboundExecutor } from "../../../../src/application/execution/inbound-execution";
+import { DeterministicOutboundExecutor } from "../../../../src/application/execution/outbound-execution";
 import type { EquipmentPort } from "../../../../src/application/equipment/equipment-port";
 import { ManualClock } from "../../../../src/infrastructure/simulator/manual-clock";
 import { SimulatorEquipmentAdapter } from "../../../../src/infrastructure/simulator/simulator-equipment-adapter";
@@ -12,17 +13,27 @@ import type {
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { DATABASE_POOL } from "../database/database.module";
 import { ExecutionController } from "./execution.controller";
+import { OutboundExecutionController } from "./outbound-execution.controller";
 import { PgInboundExecutionRepository } from "./pg-inbound-execution.repository";
+import { PgOutboundExecutionRepository } from "./pg-outbound-execution.repository";
 
 export const EXECUTION_REPOSITORY = Symbol("EXECUTION_REPOSITORY");
 export const EXECUTION_EQUIPMENT = Symbol("EXECUTION_EQUIPMENT");
 export const EXECUTION_CLOCK = Symbol("EXECUTION_CLOCK");
+export const OUTBOUND_EXECUTION_REPOSITORY = Symbol(
+  "OUTBOUND_EXECUTION_REPOSITORY",
+);
 
 @Module({
-  controllers: [ExecutionController],
+  controllers: [ExecutionController, OutboundExecutionController],
   providers: [
     ServiceTokenGuard,
     PgInboundExecutionRepository,
+    PgOutboundExecutionRepository,
+    {
+      provide: OUTBOUND_EXECUTION_REPOSITORY,
+      useExisting: PgOutboundExecutionRepository,
+    },
     {
       provide: EXECUTION_REPOSITORY,
       useExisting: PgInboundExecutionRepository,
@@ -75,6 +86,25 @@ export const EXECUTION_CLOCK = Symbol("EXECUTION_CLOCK");
           randomUUID,
         ),
       inject: [EXECUTION_REPOSITORY, EXECUTION_EQUIPMENT, EXECUTION_CLOCK],
+    },
+    {
+      provide: DeterministicOutboundExecutor,
+      useFactory: (
+        repository: PgOutboundExecutionRepository,
+        equipment: SimulatorEquipmentAdapter,
+        clock: ManualClock,
+      ) =>
+        new DeterministicOutboundExecutor(
+          repository,
+          equipment,
+          clock,
+          randomUUID,
+        ),
+      inject: [
+        OUTBOUND_EXECUTION_REPOSITORY,
+        EXECUTION_EQUIPMENT,
+        EXECUTION_CLOCK,
+      ],
     },
   ],
 })
