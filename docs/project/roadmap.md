@@ -82,7 +82,8 @@ Status: In progress
 
 - [x] Digest-pinned, non-root Web/API OCI images and production-like Docker Compose with migration/health smoke gate
 - [x] Vercel/Render/Supabase deployment adapters, provider-neutral environment validation, and provider-specific runbooks
-- [ ] Backup/restore exercise, secret management, security headers/rate limits
+- [x] Checksum-verified backup/restore tooling and isolated recovery exercise in the deployment smoke gate
+- [ ] Runtime secret controls, security headers, and bounded rate limiting
 - [ ] Public SEO/contact/about; private noindex policy
 - [ ] Published demo only after security and scenario gates pass
 
@@ -95,4 +96,4 @@ Status: In progress
 
 ## Immediate next task
 
-Exercise backup/restore, add runtime secret controls, security headers, and bounded rate limiting before any public deployment. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Add runtime secret controls, security headers, and bounded rate limiting before any public deployment. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

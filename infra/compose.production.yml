@@ -126,5 +126,62 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  backup-database:
+    image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+    profiles: ["data-ops"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-warehouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-warehouse}
+      BACKUP_NAME: ${BACKUP_NAME:-unset}
+    volumes:
+      - ${BACKUP_DIRECTORY:-./backups}:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        case "$${BACKUP_NAME}" in
+          *[!A-Za-z0-9._-]*|""|unset) echo "BACKUP_NAME is invalid" >&2; exit 2 ;;
+        esac
+        umask 077
+        test ! -e "/backups/$${BACKUP_NAME}.dump"
+        pg_dump --dbname="$${DATABASE_URL}" --format=custom --no-owner --no-acl --file="/backups/$${BACKUP_NAME}.dump"
+        cd /backups
+        sha256sum "$${BACKUP_NAME}.dump" > "$${BACKUP_NAME}.sha256"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  restore-database:
+    image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+    profiles: ["data-ops"]
+    environment:
+      RESTORE_DATABASE_URL: ${RESTORE_DATABASE_URL:-unset}
+      BACKUP_NAME: ${BACKUP_NAME:-unset}
+      RESTORE_CONFIRMATION: ${RESTORE_CONFIRMATION:-unset}
+    volumes:
+      - ${BACKUP_DIRECTORY:-./backups}:/backups:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        case "$${BACKUP_NAME}" in
+          *[!A-Za-z0-9._-]*|""|unset) echo "BACKUP_NAME is invalid" >&2; exit 2 ;;
+        esac
+        test "$${RESTORE_CONFIRMATION}" = "RESTORE:$${BACKUP_NAME}"
+        test "$${RESTORE_DATABASE_URL}" != "unset"
+        cd /backups
+        sha256sum -c "$${BACKUP_NAME}.sha256"
+        pg_restore --dbname="$${RESTORE_DATABASE_URL}" --clean --if-exists --exit-on-error --no-owner --no-acl "$${BACKUP_NAME}.dump"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   postgres-data:

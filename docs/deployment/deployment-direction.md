@@ -38,3 +38,27 @@ docker compose \
 ```
 
 Image base references are digest-pinned. Application dependencies are locked by `package-lock.json`; changing either input requires rebuilding and rerunning the deployment smoke gate.
+
+## Backup and restore
+
+Backups use PostgreSQL custom format, owner/ACL-neutral output, restrictive creation permissions, and a SHA-256 checksum. Choose a private host directory and a unique backup name; the backup job refuses to overwrite an existing dump.
+
+```bash
+BACKUP_DIRECTORY=/secure/warehouse-backups \
+BACKUP_NAME=warehouse-2026-09-19T0200Z \
+docker compose --env-file <private-env> -f infra/compose.production.yml \
+  --profile data-ops run --rm backup-database
+```
+
+Restore is intentionally separate and destructive to the selected target database. Create or select the exact restore target, verify that it is not the live production database unless a reviewed incident procedure requires it, and provide the exact confirmation string. The job verifies the checksum before invoking `pg_restore --clean --if-exists --exit-on-error`.
+
+```bash
+BACKUP_DIRECTORY=/secure/warehouse-backups \
+BACKUP_NAME=warehouse-2026-09-19T0200Z \
+RESTORE_CONFIRMATION=RESTORE:warehouse-2026-09-19T0200Z \
+RESTORE_DATABASE_URL='postgresql://.../warehouse_restore?sslmode=require' \
+docker compose --env-file <private-env> -f infra/compose.production.yml \
+  --profile data-ops run --rm restore-database
+```
+
+After restore, verify `schema_migrations`, `platform_metadata`, task/inventory counts, and a representative operational projection before declaring recovery successful. The CI deployment smoke gate performs this exercise against an isolated database on every change.
