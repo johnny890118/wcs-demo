@@ -20,3 +20,7 @@ Checked 2026-09-18. These sources inform boundaries and requirements; they do no
 - [React Testing Library](https://www.npmjs.com/package/@testing-library/react): DOM-focused component testing guidance that favors user-observable behavior over implementation details.
 - [Playwright accessibility testing](https://playwright.dev/docs/accessibility-testing): browser-level axe guidance and the explicit limitation that automated checks require complementary manual assessment.
 - [Playwright web server](https://playwright.dev/docs/test-webserver): supported production-like startup of multiple local web servers for deterministic E2E tests.
+- [Vercel project configuration](https://vercel.com/docs/project-configuration/vercel-json): current `vercel.json` schema, Next.js framework selection, and dashboard-managed environment guidance.
+- [Render Blueprint specification](https://render.com/docs/blueprint-spec): current Docker build-context, pre-deploy migration, health-check, and `sync: false` secret fields used by the API adapter.
+- [Render health checks](https://render.com/docs/health-checks): HTTP success criteria and routing/restart behavior for readiness checks.
+- [Supabase Postgres connections](https://supabase.com/docs/guides/database/connecting-to-postgres): direct versus pooler selection, TLS, persistent-backend pooling, and direct connections for migrations/backup/restore.

@@ -81,7 +81,7 @@ Status: Complete
 Status: In progress
 
 - [x] Digest-pinned, non-root Web/API OCI images and production-like Docker Compose with migration/health smoke gate
-- [ ] Vercel/Render/Supabase deployment adapters and provider-specific environment runbooks
+- [x] Vercel/Render/Supabase deployment adapters, provider-neutral environment validation, and provider-specific runbooks
 - [ ] Backup/restore exercise, secret management, security headers/rate limits
 - [ ] Public SEO/contact/about; private noindex policy
 - [ ] Published demo only after security and scenario gates pass
@@ -95,4 +95,4 @@ Status: In progress
 
 ## Immediate next task
 
-Add provider-neutral environment validation plus Vercel/Render/Supabase deployment adapters and provider-specific runbooks without coupling domain/application packages to provider SDKs. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Exercise backup/restore, add runtime secret controls, security headers, and bounded rate limiting before any public deployment. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

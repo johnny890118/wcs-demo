@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: warehouse-platform-api
+    runtime: docker
+    dockerfilePath: ./infra/docker/api.Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health/ready
+    preDeployCommand: node dist/runtime/database/migrate.mjs
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: API_SERVICE_ID
+        value: warehouse-web
+      - key: API_SERVICE_TOKEN
+        sync: false
+      - key: API_SERVICE_PERMISSIONS
+        value: operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover
+      - key: OUTBOX_POLL_INTERVAL_MS
+        value: 1000

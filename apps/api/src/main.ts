@@ -11,7 +11,7 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix("api");
   app.enableShutdownHooks();
 
-  const port = Number(process.env.API_PORT ?? 3001);
+  const port = Number(process.env.API_PORT ?? process.env.PORT ?? 3001);
   if (!Number.isSafeInteger(port) || port < 1 || port > 65_535) {
     throw new Error("API_PORT must be a valid TCP port.");
   }

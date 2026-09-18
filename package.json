@@ -9,6 +9,7 @@
     "db:migrate": "tsx apps/api/src/database/migrate.ts",
     "db:seed:demo": "tsx apps/api/src/database/seed-demo.ts",
     "db:reset:demo": "tsx apps/api/src/database/reset-demo.ts",
+    "deployment:validate": "node scripts/validate-deployment-env.mjs",
     "build": "next build",
     "build:api": "tsc -p tsconfig.api.json && esbuild dist/api/apps/api/src/main.js dist/api/apps/api/src/database/migrate.js dist/api/apps/api/src/database/seed-demo.js dist/api/apps/api/src/database/reset-demo.js --bundle --platform=node --format=esm --packages=external --outdir=dist/runtime --out-extension:.js=.mjs",
     "start:api:compiled": "node dist/runtime/main.mjs",
