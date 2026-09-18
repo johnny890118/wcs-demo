@@ -1,13 +1,13 @@
 # Research Source Register
 
-Checked 2026-09-18. These sources inform boundaries and requirements; they do not substitute for site-specific safety engineering or purchased standards.
+Checked 2026-09-19. These sources inform boundaries and requirements; they do not substitute for site-specific safety engineering or purchased standards.
 
 - [ISA-95 Enterprise-Control System Integration](https://www.isa.org/standards-and-publications/isa-standards/isa-95-standard): technology-neutral enterprise/operations/control layering and information exchange.
 - [MHI software fundamentals](https://og.mhi.org/fundamentals/software): WMS process ownership, WCS device-control scope, and simulation terminology.
 - [Dematic software overview](https://www.dematic.com/en-pl/software/): practical WMS/WES/WCS distinction and emulation-first WCS evidence.
 - [Oracle WMS allocation documentation](https://docs.oracle.com/en/cloud/saas/warehouse-management/26b/owmwr/allocation.html): allocations as reservations of inventory for order needs and grouping into tasks; informs the M4 separation between inventory reservation, transport work, and later shipping confirmation.
 - [VDA 5050](https://www.vda.de/en/topics/automotive-industry/vda-5050): order/status interface between a central master control and heterogeneous mobile robots; candidate adapter standard, not core domain model.
-- [Official VDA 5050 specification repository](https://github.com/VDA5050/VDA5050): the fleet control retains the complete node/edge graph, filters edges by robot restrictions, exchanges route segments, and consumes machine-readable factsheets for physical/protocol capabilities.
+- [Official VDA 5050 specification repository](https://github.com/VDA5050/VDA5050): v3.0.0 is the current published main-line specification. The fleet control retains the complete node/edge graph, filters edges by robot restrictions, exchanges route segments, uses retained connection state plus last-will reporting, and consumes machine-readable factsheets for physical/protocol capabilities.
 - [VDMA LIF 1.0 guideline](https://www.vdma.org/documents/34570/3317035/FuI_Guideline_LIF_GB.pdf): layout interchange for mobile-robot track networks, including nodes, edges, positions, actions, and vehicle-specific properties; useful as an import/export boundary rather than the universal warehouse model.
 - [MassRobotics AMR Interoperability](https://www.massrobotics.org/autonomous-mobile-robot-standards-published-by-massrobotics/): heterogeneous fleet status and shared-space coordination evidence; not a full routing or warehouse-domain standard.
 - [OPC UA overview](https://reference.opcfoundation.org/specs/OPC-10000-1/4): secure, platform-independent information/service model; candidate industrial adapter technology.

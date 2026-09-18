@@ -89,11 +89,13 @@ Status: In progress
 
 ## M6 — Hardware readiness
 
-- Adapter conformance kit and recorded simulator traces
-- First protocol proof (selected from validated customer/device need)
-- Connection-loss, stale telemetry, retry, reconciliation, and edge/WAN-loss drills
-- OT threat model aligned with NIST SP 800-82 and ISA/IEC 62443 concepts
+Status: In progress
+
+- [x] Protocol-neutral adapter conformance kit and versioned, replayable simulator trace
+- [ ] First protocol proof (selected from validated customer/device need)
+- [ ] Connection-loss, stale telemetry, retry, reconciliation, and edge/WAN-loss drills
+- [ ] OT threat model aligned with NIST SP 800-82 and ISA/IEC 62443 concepts
 
 ## Immediate next task
 
-Publish the demo only after the exact release candidate passes the security, deployment-smoke, and deterministic scenario gates. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Build the VDA 5050 v3 reference proof for the validated mobile-transport profile, keeping its messages and MQTT concerns outside the core equipment port. The public deployment remains blocked on existing Vercel project authorization/configuration. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

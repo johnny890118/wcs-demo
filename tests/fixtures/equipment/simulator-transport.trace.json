@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "adapterKey": "simulator.mobile-transport",
+  "events": [
+    {
+      "sequence": 0,
+      "at": 1000,
+      "kind": "command",
+      "envelope": {
+        "commandId": "CMD-TRACE-01",
+        "equipmentId": "AMR-TRACE-01",
+        "command": { "type": "assign_task", "taskId": "TASK-TRACE-01" }
+      },
+      "result": {
+        "commandId": "CMD-TRACE-01",
+        "duplicate": false,
+        "transition": {
+          "accepted": true,
+          "state": {
+            "equipmentId": "AMR-TRACE-01",
+            "status": "assigned",
+            "taskId": "TASK-TRACE-01",
+            "loadId": null,
+            "faultCode": null,
+            "interruptedStatus": null,
+            "version": 1
+          }
+        }
+      }
+    },
+    {
+      "sequence": 1,
+      "at": 1050,
+      "kind": "command",
+      "envelope": {
+        "commandId": "CMD-TRACE-01",
+        "equipmentId": "AMR-TRACE-01",
+        "command": { "type": "assign_task", "taskId": "TASK-TRACE-01" }
+      },
+      "result": {
+        "commandId": "CMD-TRACE-01",
+        "duplicate": true,
+        "transition": {
+          "accepted": true,
+          "state": {
+            "equipmentId": "AMR-TRACE-01",
+            "status": "assigned",
+            "taskId": "TASK-TRACE-01",
+            "loadId": null,
+            "faultCode": null,
+            "interruptedStatus": null,
+            "version": 1
+          }
+        }
+      }
+    },
+    {
+      "sequence": 2,
+      "at": 1050,
+      "kind": "state-read",
+      "equipmentId": "AMR-TRACE-01",
+      "state": {
+        "equipmentId": "AMR-TRACE-01",
+        "status": "assigned",
+        "taskId": "TASK-TRACE-01",
+        "loadId": null,
+        "faultCode": null,
+        "interruptedStatus": null,
+        "version": 1
+      }
+    }
+  ]
+}
