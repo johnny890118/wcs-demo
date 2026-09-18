@@ -10,6 +10,8 @@
 | Dependency age blocks secure deployment            | Public exploit exposure             | Upgrade framework/auth stack before public demo; enforce audit policy                |
 | Alarm flood reduces operator awareness             | Missed critical condition           | Alarm philosophy, prioritization, deduplication, actionable response                 |
 | Cloud assumptions break edge operation             | Warehouse stops during WAN loss     | Keep execution/database deployable inside warehouse network                          |
+| Stale or spoofed equipment telemetry               | Unsafe dispatch or false recovery   | Identity binding, freshness gate, schema validation, segmentation, reconciliation    |
+| Compromised adapter or broker                      | Forged command/state across cells   | Per-adapter identity, mTLS, topic/network allowlists, isolated zones and conduits    |
 | Demo reset touches non-demo data                   | Data loss                           | Environment/tenant guard plus explicit authorization and audit                       |
 | Product claims imply safety certification          | Legal and physical risk             | State scope clearly; never replace safety PLC/interlocks                             |
 
@@ -29,3 +31,4 @@
 - Split simulator process when fault isolation, accelerated time, or load testing requires it.
 - Add Kubernetes only for an explicit HA/multi-node/customer-platform need.
 - Adopt a protocol adapter only after a target device/fleet contract and conformance test are available.
+- Enable physical equipment only after the site commissioning gate in `docs/security/ot-threat-model.md` is approved and evidenced.

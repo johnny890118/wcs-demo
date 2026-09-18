@@ -28,6 +28,8 @@ Evolve this legacy prototype into a hardware-independent, commercially evolvable
 - Domain/application code must not depend on OPC UA, MQTT, Modbus, a vendor SDK, or a cloud provider.
 - Demo, simulator, and future hardware modes select adapters through configuration; do not scatter mode conditionals through the core.
 - Unknown command outcome is `unknown`, never success. High-risk actions require authorization, confirmation, audit, timeout handling, and explicit feedback.
+- Every hardware adapter must pass the shared conformance kit plus protocol/vendor tests. Stale or disconnected telemetry blocks new commands; acknowledgement loss uses the same command ID and unresolved divergence requires reconciliation.
+- Physical commissioning requires a site-specific OT threat/risk assessment, independently authoritative safety controls, broker/network hardening, failure drills, and recorded integrator/operations/security/safety approval. Repository tests never imply safety certification.
 - `zh-TW` and `en`, light and dark themes, responsive layouts, and WCAG 2.2 AA are product requirements.
 - Do not add an open-source license or expose this private repository in public UI.
 - Do not commit secrets or production credentials. `.env` is local-only; maintain `.env.example` with placeholders.

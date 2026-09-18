@@ -89,13 +89,13 @@ Status: In progress
 
 ## M6 — Hardware readiness
 
-Status: In progress
+Status: Complete
 
 - [x] Protocol-neutral adapter conformance kit and versioned, replayable simulator trace
 - [x] VDA 5050 v3 reference proof selected for the validated graph-routed mobile-transport profile, explicitly non-certified and replaceable after customer/device discovery
-- [ ] Connection-loss, stale telemetry, retry, reconciliation, and edge/WAN-loss drills
-- [ ] OT threat model aligned with NIST SP 800-82 and ISA/IEC 62443 concepts
+- [x] Deterministic acknowledgement-loss, connection-loss, stale telemetry, bounded retry, reconciliation, and edge/WAN-loss drills
+- [x] OT threat model and physical commissioning gate aligned with NIST SP 800-82 and ISA/IEC 62443 concepts without certification claims
 
 ## Immediate next task
 
-Complete connection-loss, stale telemetry, reconciliation, and edge/WAN-loss drills, then record the OT threat model and commissioning controls. The public deployment remains blocked on existing Vercel project authorization/configuration. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Resolve the existing Vercel project authorization/configuration failure, then rerun the exact release-candidate deployment, security, and deterministic scenario gates before marking M5 complete. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { EquipmentLinkSupervisor } from "../../src/application/equipment/equipment-link-supervisor";
 import type { EquipmentPort } from "../../src/application/equipment/equipment-port";
 import {
@@ -98,5 +98,30 @@ describe("equipment connection resilience", () => {
       status: "disconnected",
       lastObservedAt: 1_000,
     });
+  });
+
+  it("blocks dispatch before send when telemetry is stale", async () => {
+    const clock = new ManualClock();
+    const supervisor = new EquipmentLinkSupervisor(clock, 100);
+    supervisor.setConnection("AMR-01", "connected");
+    supervisor.observe(createEquipmentState("AMR-01", "idle"));
+    clock.advanceBy(101);
+    const adapter = flakyAdapter(0);
+    const dispatch = vi.spyOn(adapter, "dispatch");
+
+    const result = await new ResilientEquipmentGateway(
+      adapter,
+      new ImmediateClock(),
+      { maximumAttempts: 3, retryDelayMs: 100 },
+      supervisor,
+    ).dispatch(command);
+
+    expect(result).toEqual({
+      status: "blocked",
+      attempts: 0,
+      commandId: "CMD-01",
+      reason: "telemetry-stale",
+    });
+    expect(dispatch).not.toHaveBeenCalled();
   });
 });
