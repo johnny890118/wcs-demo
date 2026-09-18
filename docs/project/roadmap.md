@@ -92,10 +92,10 @@ Status: In progress
 Status: In progress
 
 - [x] Protocol-neutral adapter conformance kit and versioned, replayable simulator trace
-- [ ] First protocol proof (selected from validated customer/device need)
+- [x] VDA 5050 v3 reference proof selected for the validated graph-routed mobile-transport profile, explicitly non-certified and replaceable after customer/device discovery
 - [ ] Connection-loss, stale telemetry, retry, reconciliation, and edge/WAN-loss drills
 - [ ] OT threat model aligned with NIST SP 800-82 and ISA/IEC 62443 concepts
 
 ## Immediate next task
 
-Build the VDA 5050 v3 reference proof for the validated mobile-transport profile, keeping its messages and MQTT concerns outside the core equipment port. The public deployment remains blocked on existing Vercel project authorization/configuration. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Complete connection-loss, stale telemetry, reconciliation, and edge/WAN-loss drills, then record the OT threat model and commissioning controls. The public deployment remains blocked on existing Vercel project authorization/configuration. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

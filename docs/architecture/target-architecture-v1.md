@@ -13,7 +13,7 @@ apps/api (NestJS modular monolith)
   -> PostgreSQL + outbox
   -> EquipmentPort
        -> packages/simulator
-       -> adapters/opc-ua | mqtt | vda-5050 | vendor (future)
+       -> adapters/vda-5050-v3 (reference proof) | opc-ua | mqtt | vendor (future)
 ```
 
 ## Proposed repository shape
@@ -54,6 +54,7 @@ Migration starts inside the current application and moves into this shape increm
 - An outbox publishes state changes after commit; consumers are idempotent.
 - Commands carry correlation and idempotency identifiers.
 - Equipment telemetry includes observed-at and received-at timestamps plus quality/freshness.
+- Protocol messages map at the infrastructure boundary. A protocol order may carry an approved route, but it never selects routes or defines warehouse topology.
 - Demo reset operates only on an explicitly marked demo tenant/environment and is impossible in production mode.
 - Customer topology and equipment profiles are versioned persisted configuration. Activation is validated and audited.
 - Route plans reference the topology version and selected directed edges; runtime closures can invalidate a plan without rewriting topology history.
