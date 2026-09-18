@@ -568,6 +568,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       severity: "critical",
       message: "Travel path is blocked.",
       actorId: "integration-operator",
+      confirmationReason: "Integration fault-recovery drill.",
     });
     expect(alarm).toMatchObject({
       taskId: identifiers.transportTaskId,
@@ -585,6 +586,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       strategy: "release",
       resolution: "Vehicle isolated; task returned for reassignment.",
       actorId: "integration-supervisor",
+      confirmationReason: "Release approved after vehicle isolation.",
     });
     expect(released).toMatchObject({
       status: "queued",
@@ -602,6 +604,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       resolution: string;
       recovery_events: string;
       recovery_audits: string;
+      fault_confirmation: string;
+      recovery_confirmation: string;
     }>(
       `SELECT task.status AS task_status, task.equipment_id, task.blocking_alarm_id,
         alarm.status AS alarm_status, alarm.acknowledged_by, alarm.cleared_by,
@@ -609,7 +613,11 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         (SELECT count(*) FROM outbox_events WHERE event_type IN
           ('TransportTaskBlockedByFault', 'AlarmAcknowledged', 'TransportTaskReleasedForReassignment')) AS recovery_events,
         (SELECT count(*) FROM audit_events WHERE action IN
-          ('transport_task.block_for_fault', 'alarm.acknowledge', 'transport_task.recover_release')) AS recovery_audits
+          ('transport_task.block_for_fault', 'alarm.acknowledge', 'transport_task.recover_release')) AS recovery_audits,
+        (SELECT details ->> 'confirmationReason' FROM audit_events
+          WHERE action = 'transport_task.block_for_fault') AS fault_confirmation,
+        (SELECT details ->> 'confirmationReason' FROM audit_events
+          WHERE action = 'transport_task.recover_release') AS recovery_confirmation
        FROM transport_tasks task
        JOIN alarms alarm ON alarm.transport_task_id = task.id
        WHERE task.id = $1`,
@@ -625,6 +633,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       resolution: "Vehicle isolated; task returned for reassignment.",
       recovery_events: "3",
       recovery_audits: "3",
+      fault_confirmation: "Integration fault-recovery drill.",
+      recovery_confirmation: "Release approved after vehicle isolation.",
     });
     expect(await equipment.getState("AMR-01")).toMatchObject({
       status: "idle",

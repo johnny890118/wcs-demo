@@ -41,6 +41,7 @@ export interface FaultRecoveryRepository {
       "alarmId" | "code" | "severity" | "message" | "raisedAt"
     >;
     actorId: string;
+    confirmationReason: string;
     metadata: RecoveryMetadata;
   }): Promise<PersistedAlarm>;
   getAlarm(alarmId: string): Promise<PersistedAlarm | null>;
@@ -58,6 +59,7 @@ export interface FaultRecoveryRepository {
     actorId: string;
     at: number;
     resolution: string;
+    confirmationReason: string;
     metadata: RecoveryMetadata;
   }): Promise<RecoverableTask>;
   markUnknown(input: {
@@ -104,6 +106,7 @@ export class FaultRecoveryService {
     severity: AlarmSeverity;
     message: string;
     actorId: string;
+    confirmationReason: string;
   }): Promise<PersistedAlarm> {
     const task = await this.repository.getTask(command.taskId);
     if (!task) {
@@ -152,6 +155,7 @@ export class FaultRecoveryService {
           raisedAt: this.clock.now(),
         },
         actorId: command.actorId,
+        confirmationReason: command.confirmationReason,
         metadata: this.metadata(),
       });
     } catch (error) {
@@ -189,6 +193,7 @@ export class FaultRecoveryService {
     strategy: "resume" | "release";
     resolution: string;
     actorId: string;
+    confirmationReason: string;
   }): Promise<RecoverableTask> {
     const alarm = await this.repository.getAlarm(command.alarmId);
     if (!alarm) {
@@ -225,6 +230,7 @@ export class FaultRecoveryService {
         actorId: command.actorId,
         at: this.clock.now(),
         resolution: command.resolution,
+        confirmationReason: command.confirmationReason,
         metadata: this.metadata(),
       });
     } catch (error) {

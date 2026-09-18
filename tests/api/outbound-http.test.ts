@@ -25,6 +25,7 @@ describe("outbound HTTP contract", () => {
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
     process.env.API_SERVICE_ID = "test-web";
+    process.env.API_SERVICE_PERMISSIONS = "outbound.create";
     repository = {
       create: vi.fn(async () => ({
         outboundOrderId: "a0000000-0000-4000-8000-000000000001",
@@ -52,6 +53,7 @@ describe("outbound HTTP contract", () => {
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
     delete process.env.API_SERVICE_ID;
+    delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
 

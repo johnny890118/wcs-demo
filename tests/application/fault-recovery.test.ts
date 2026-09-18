@@ -125,6 +125,7 @@ describe("fault recovery orchestration", () => {
       severity: "critical",
       message: "Travel path is blocked.",
       actorId: "operator-01",
+      confirmationReason: "Controlled simulator fault drill.",
     });
     expect(alarm).toMatchObject({ alarmId, status: "active" });
     expect(await equipment.getState("AMR-01")).toMatchObject({
@@ -141,6 +142,7 @@ describe("fault recovery orchestration", () => {
       strategy: "resume",
       resolution: "Obstacle removed and route inspected.",
       actorId: "supervisor-01",
+      confirmationReason: "Route inspection completed before resume.",
     });
 
     expect(recovered).toMatchObject({
@@ -164,6 +166,7 @@ describe("fault recovery orchestration", () => {
       severity: "warning",
       message: "Battery reserve is below the recovery threshold.",
       actorId: "operator-01",
+      confirmationReason: "Controlled low-battery drill.",
     });
     await service.acknowledge({ alarmId, actorId: "operator-01" });
     const recovered = await service.recover({
@@ -171,6 +174,7 @@ describe("fault recovery orchestration", () => {
       strategy: "release",
       resolution: "Vehicle released for charging; task returned to queue.",
       actorId: "supervisor-01",
+      confirmationReason: "Release approved for charging.",
     });
 
     expect(recovered).toMatchObject({
@@ -196,6 +200,7 @@ describe("fault recovery orchestration", () => {
         severity: "critical",
         message: "Travel path is blocked.",
         actorId: "operator-01",
+        confirmationReason: "Controlled persistence-failure drill.",
       }),
     ).rejects.toThrow("database unavailable");
 

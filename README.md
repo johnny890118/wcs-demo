@@ -21,7 +21,7 @@ The new product entry is available at `/platform`. The session-protected operati
 
 ### API and database
 
-The M2 API requires PostgreSQL and never synchronizes schemas implicitly. After setting `DATABASE_URL`, `API_SERVICE_ID`, and a strong `API_SERVICE_TOKEN` in the local `.env`:
+The M2 API requires PostgreSQL and never synchronizes schemas implicitly. After setting `DATABASE_URL`, `API_SERVICE_ID`, a strong `API_SERVICE_TOKEN`, and the least-privilege comma-separated `API_SERVICE_PERMISSIONS` in the local `.env`:
 
 ```bash
 npm run db:migrate
@@ -36,6 +36,8 @@ The first vertical slice accepts inbound receipts at `POST /api/v1/inbound-recei
 The M4 outbound flow accepts authenticated, idempotent allocation requests at `POST /api/v1/outbound-orders`. It reserves persisted SKU quantities transactionally, validates an available destination with the `outbound.stage` capability, creates outbound-owned transport tasks, and records outbox/audit evidence. `POST /api/v1/outbound-transport-tasks/:taskId/execute` drives deterministic equipment movement and confirms shipping plus inventory consumption atomically; failures after dispatch remain `unknown` for reconciliation.
 
 Assigned or in-progress transport tasks support explicit fault handling through `POST /api/v1/transport-tasks/:taskId/faults`. The resulting persisted alarm must be acknowledged at `POST /api/v1/alarms/:alarmId/acknowledge` before `POST /api/v1/alarms/:alarmId/recover` can either resume the interrupted task or release it back to the queue for reassignment. Equipment-command/persistence disagreements are marked `unknown` for reconciliation; acknowledgement alone never clears a fault.
+
+Every protected API declares one required service permission and denies access when the authenticated service identity lacks it. Fault injection and recovery also require an exact `confirmedAction` plus a bounded `confirmationReason`; the reason is persisted in outbox/audit evidence with the resulting transition.
 
 Demo transactional data can be cleared only when both the command switch and an in-database `deployment_mode=demo` marker agree:
 

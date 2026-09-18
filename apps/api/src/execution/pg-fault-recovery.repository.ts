@@ -128,6 +128,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           equipmentId: input.task.equipmentId,
           faultCode: input.alarm.code,
           severity: input.alarm.severity,
+          confirmationReason: input.confirmationReason,
         },
       );
       return toAlarm(alarm.rows[0]!);
@@ -227,6 +228,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           equipmentId: input.alarm.equipmentId,
           resolution: input.resolution,
           strategy: input.strategy,
+          confirmationReason: input.confirmationReason,
         },
       );
       return toTask(task.rows[0]);

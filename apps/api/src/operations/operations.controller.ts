@@ -1,11 +1,13 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
+import { RequirePermission } from "../auth/permissions";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
 import { OperationsSummaryService } from "./operations-summary.service";
 
 @Controller("v1/operations")
 @UseGuards(ServiceTokenGuard)
+@RequirePermission("operations.view")
 export class OperationsController {
   constructor(private readonly summaries: OperationsSummaryService) {}
 

@@ -18,12 +18,14 @@ import {
   type InboundExecutionResult,
 } from "../../../../src/application/execution/inbound-execution";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
+import { RequirePermission } from "../auth/permissions";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 @Controller("v1/transport-tasks")
 @UseGuards(ServiceTokenGuard)
+@RequirePermission("transport.execute")
 export class ExecutionController {
   constructor(private readonly executor: DeterministicInboundExecutor) {}
 

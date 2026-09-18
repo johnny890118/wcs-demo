@@ -23,6 +23,7 @@ import {
   type AlarmSeverity,
 } from "../../../../src/domain/alarm/alarm";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
+import { RequirePermission } from "../auth/permissions";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -33,6 +34,7 @@ export class FaultRecoveryController {
   constructor(private readonly recovery: FaultRecoveryService) {}
 
   @Post("transport-tasks/:taskId/faults")
+  @RequirePermission("alarm.inject")
   async injectFault(
     @Param("taskId") taskId: string,
     @Body() body: unknown,
@@ -41,6 +43,7 @@ export class FaultRecoveryController {
     const value = this.requireBody(body);
     const faultCode = this.requireText(value.faultCode, "faultCode", 100);
     const message = this.requireText(value.message, "message", 500);
+    const confirmationReason = this.requireConfirmation(value, "inject_fault");
     if (
       typeof value.severity !== "string" ||
       !alarmSeverities.includes(value.severity as AlarmSeverity)
@@ -56,12 +59,14 @@ export class FaultRecoveryController {
         message,
         severity: value.severity as AlarmSeverity,
         actorId: this.actorId(),
+        confirmationReason,
       }),
     );
   }
 
   @Post("alarms/:alarmId/acknowledge")
   @HttpCode(200)
+  @RequirePermission("alarm.acknowledge")
   acknowledge(@Param("alarmId") alarmId: string): Promise<PersistedAlarm> {
     this.requireUuid(alarmId, "alarmId");
     return this.handle(() =>
@@ -71,6 +76,7 @@ export class FaultRecoveryController {
 
   @Post("alarms/:alarmId/recover")
   @HttpCode(200)
+  @RequirePermission("alarm.recover")
   recover(
     @Param("alarmId") alarmId: string,
     @Body() body: unknown,
@@ -81,12 +87,17 @@ export class FaultRecoveryController {
       throw new BadRequestException("strategy must be resume or release.");
     }
     const resolution = this.requireText(value.resolution, "resolution", 500);
+    const confirmationReason = this.requireConfirmation(
+      value,
+      `${value.strategy}_task`,
+    );
     return this.handle(() =>
       this.recovery.recover({
         alarmId,
         strategy: value.strategy as "resume" | "release",
         resolution,
         actorId: this.actorId(),
+        confirmationReason,
       }),
     );
   }
@@ -141,6 +152,18 @@ export class FaultRecoveryController {
     if (!uuidPattern.test(value)) {
       throw new BadRequestException(`${field} must be a UUID.`);
     }
+  }
+
+  private requireConfirmation(
+    body: Record<string, unknown>,
+    expectedAction: string,
+  ): string {
+    if (body.confirmedAction !== expectedAction) {
+      throw new BadRequestException(
+        `confirmedAction must exactly match ${expectedAction}.`,
+      );
+    }
+    return this.requireText(body.confirmationReason, "confirmationReason", 500);
   }
 
   private actorId(): string {

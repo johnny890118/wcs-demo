@@ -67,16 +67,18 @@ Status: Complete
 
 ## M4 — Outbound and fault recovery
 
-Status: In progress
+Status: Complete
 
 - [x] Transactional, idempotent outbound order allocation across persisted inventory units
 - [x] Capability-based shipping destination validation, SKU-scoped concurrency serialization, queued transport tasks, outbox, and audit evidence
 - [x] Outbound deterministic equipment execution, atomic inventory consumption, shipping confirmation, and unknown-outcome reconciliation
 - [x] Persisted fault injection, accountable alarm acknowledgement, resume/release recovery, reassignment, and unknown-outcome handling
 - [x] Three deterministic Playwright scenarios: inbound completion, outbound completion, and acknowledged fault release/reassignment
-- [ ] RBAC and high-risk action confirmation/audit
+- [x] Deny-by-default service RBAC plus named high-risk confirmation and transactional audit evidence
 
 ## M5 — Deployment and public demo
+
+Status: In progress
 
 - Web/API OCI images and Docker Compose
 - Vercel/Render/Supabase deployment adapters and environment runbooks
@@ -93,4 +95,4 @@ Status: In progress
 
 ## Immediate next task
 
-Enforce RBAC and explicit high-risk action confirmation/audit across operational mutations. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Build reproducible Web/API OCI images and a production-like Docker Compose deployment, including health checks and a documented environment contract. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

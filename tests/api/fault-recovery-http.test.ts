@@ -20,6 +20,8 @@ describe("fault recovery HTTP contract", () => {
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
     process.env.API_SERVICE_ID = "test-operations-console";
+    process.env.API_SERVICE_PERMISSIONS =
+      "alarm.inject,alarm.acknowledge,alarm.recover";
     vi.clearAllMocks();
     recovery.injectFault.mockResolvedValue({
       alarmId,
@@ -54,6 +56,7 @@ describe("fault recovery HTTP contract", () => {
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
     delete process.env.API_SERVICE_ID;
+    delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
 
@@ -64,6 +67,8 @@ describe("fault recovery HTTP contract", () => {
         faultCode: "DRIVE_BLOCKED",
         severity: "critical",
         message: "Travel path is blocked.",
+        confirmedAction: "inject_fault",
+        confirmationReason: "Controlled simulator fault drill.",
       });
     expect(response.status).toBe(401);
     expect(recovery.injectFault).not.toHaveBeenCalled();
@@ -76,16 +81,61 @@ describe("fault recovery HTTP contract", () => {
     const fault = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
       .set(headers)
-      .send({ faultCode: "", severity: "urgent", message: " " });
+      .send({
+        faultCode: "",
+        severity: "urgent",
+        message: " ",
+        confirmedAction: "inject_fault",
+        confirmationReason: " ",
+      });
     const recoveryResponse = await request(app.getHttpServer())
       .post(`/api/v1/alarms/${alarmId}/recover`)
       .set(headers)
-      .send({ strategy: "retry", resolution: " " });
+      .send({
+        strategy: "retry",
+        resolution: " ",
+        confirmedAction: "retry_task",
+        confirmationReason: " ",
+      });
 
     expect(fault.status).toBe(400);
     expect(recoveryResponse.status).toBe(400);
     expect(recovery.injectFault).not.toHaveBeenCalled();
     expect(recovery.recover).not.toHaveBeenCalled();
+  });
+
+  it("denies a valid token without the endpoint permission", async () => {
+    process.env.API_SERVICE_PERMISSIONS = "alarm.acknowledge";
+    const response = await request(app.getHttpServer())
+      .post(`/api/v1/transport-tasks/${taskId}/faults`)
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .send({
+        faultCode: "DRIVE_BLOCKED",
+        severity: "critical",
+        message: "Travel path is blocked.",
+        confirmedAction: "inject_fault",
+        confirmationReason: "Controlled simulator fault drill.",
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toMatchObject({ code: "FORBIDDEN" });
+    expect(recovery.injectFault).not.toHaveBeenCalled();
+  });
+
+  it("requires an exact named confirmation for high-risk commands", async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/api/v1/transport-tasks/${taskId}/faults`)
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .send({
+        faultCode: "DRIVE_BLOCKED",
+        severity: "critical",
+        message: "Travel path is blocked.",
+        confirmedAction: "recover",
+        confirmationReason: "Controlled simulator fault drill.",
+      });
+
+    expect(response.status).toBe(400);
+    expect(recovery.injectFault).not.toHaveBeenCalled();
   });
 
   it("exposes authenticated fault, acknowledgement, and release operations", async () => {
@@ -99,6 +149,8 @@ describe("fault recovery HTTP contract", () => {
         faultCode: "DRIVE_BLOCKED",
         severity: "critical",
         message: "Travel path is blocked.",
+        confirmedAction: "inject_fault",
+        confirmationReason: "Controlled simulator fault drill.",
       });
     const acknowledgement = await request(app.getHttpServer())
       .post(`/api/v1/alarms/${alarmId}/acknowledge`)
@@ -110,13 +162,19 @@ describe("fault recovery HTTP contract", () => {
       .send({
         strategy: "release",
         resolution: "Vehicle released; task ready for reassignment.",
+        confirmedAction: "release_task",
+        confirmationReason: "Supervisor approved vehicle isolation.",
       });
 
     expect(fault.status).toBe(201);
     expect(acknowledgement.status).toBe(200);
     expect(recovered.status).toBe(200);
     expect(recovery.injectFault).toHaveBeenCalledWith(
-      expect.objectContaining({ taskId, actorId: "test-operations-console" }),
+      expect.objectContaining({
+        taskId,
+        actorId: "test-operations-console",
+        confirmationReason: "Controlled simulator fault drill.",
+      }),
     );
     expect(recovery.acknowledge).toHaveBeenCalledWith({
       alarmId,
@@ -127,6 +185,7 @@ describe("fault recovery HTTP contract", () => {
       strategy: "release",
       resolution: "Vehicle released; task ready for reassignment.",
       actorId: "test-operations-console",
+      confirmationReason: "Supervisor approved vehicle isolation.",
     });
   });
 });

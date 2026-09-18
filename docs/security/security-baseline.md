@@ -2,7 +2,7 @@
 
 ## Current disposition
 
-The legacy prototype is not approved for public deployment or physical equipment connectivity. Authentication in the UI does not authorize the API, credentials are hard-coded, `.env` is tracked, and dependency findings include critical vulnerabilities.
+The legacy prototype routes remain outside the supported operations boundary and are not approved for public deployment or physical equipment connectivity. Supported NestJS endpoints require constant-time bearer authentication plus an explicitly configured service-permission allowlist. High-risk fault and recovery commands additionally require named confirmation with a recorded reason. Public deployment still remains blocked on the M5 hardening and release gates.
 
 ## Required baseline
 

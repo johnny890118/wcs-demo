@@ -2,13 +2,22 @@ import { timingSafeEqual } from "node:crypto";
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
+import {
+  REQUIRED_PERMISSION,
+  servicePermissions,
+  type ServicePermission,
+} from "./permissions";
 
 @Injectable()
 export class ServiceTokenGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+
   canActivate(context: ExecutionContext): boolean {
     const expected = process.env.API_SERVICE_TOKEN;
     if (!expected) {
@@ -30,6 +39,28 @@ export class ServiceTokenGuard implements CanActivate {
       throw new UnauthorizedException({
         code: "UNAUTHENTICATED",
         message: "A valid service token is required.",
+      });
+    }
+    const required = this.reflector.getAllAndOverride<
+      ServicePermission | undefined
+    >(REQUIRED_PERMISSION, [context.getHandler(), context.getClass()]);
+    if (!required) {
+      throw new Error(
+        "Protected endpoints must declare one required service permission.",
+      );
+    }
+    const configured = new Set(
+      (process.env.API_SERVICE_PERMISSIONS ?? "")
+        .split(",")
+        .map((permission) => permission.trim())
+        .filter((permission) =>
+          servicePermissions.includes(permission as ServicePermission),
+        ),
+    );
+    if (!configured.has(required)) {
+      throw new ForbiddenException({
+        code: "FORBIDDEN",
+        message: `Service identity lacks permission ${required}.`,
       });
     }
     return true;

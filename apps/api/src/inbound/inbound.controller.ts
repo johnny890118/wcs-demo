@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
+import { RequirePermission } from "../auth/permissions";
 import {
   IdempotencyConflictError,
   InvalidLocationError,
@@ -86,6 +87,7 @@ function parseBody(value: unknown): InboundBody {
 
 @Controller("v1/inbound-receipts")
 @UseGuards(ServiceTokenGuard)
+@RequirePermission("inbound.create")
 export class InboundController {
   constructor(private readonly inboundService: InboundService) {}
 

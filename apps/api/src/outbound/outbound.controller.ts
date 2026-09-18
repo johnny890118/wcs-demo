@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
+import { RequirePermission } from "../auth/permissions";
 import {
   InsufficientInventoryError,
   InvalidOutboundDestinationError,
@@ -69,6 +70,7 @@ function parseBody(value: unknown): OutboundBody {
 
 @Controller("v1/outbound-orders")
 @UseGuards(ServiceTokenGuard)
+@RequirePermission("outbound.create")
 export class OutboundController {
   constructor(private readonly outboundService: OutboundService) {}
 

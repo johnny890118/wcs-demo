@@ -261,6 +261,9 @@ const server = createServer(async (request, response) => {
       !task ||
       alarm.status !== "acknowledged" ||
       body.strategy !== "release" ||
+      body.confirmedAction !== "release_task" ||
+      typeof body.confirmationReason !== "string" ||
+      body.confirmationReason.trim().length === 0 ||
       typeof body.resolution !== "string" ||
       body.resolution.trim().length === 0
     ) {

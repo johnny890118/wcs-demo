@@ -143,6 +143,8 @@ test("fault scenario requires acknowledgement then releases task for reassignmen
       data: {
         strategy: "release",
         resolution: "Vehicle isolated; task returned for reassignment.",
+        confirmedAction: "release_task",
+        confirmationReason: "Supervisor approved deterministic E2E drill.",
       },
     },
   );
