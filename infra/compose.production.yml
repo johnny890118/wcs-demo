@@ -1,0 +1,130 @@
+name: warehouse-platform
+
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-warehouse}
+      POSTGRES_USER: ${POSTGRES_USER:-warehouse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+
+  migrate:
+    image: warehouse-platform-api:${IMAGE_TAG:-local}
+    restart: "no"
+    command: ["node", "dist/runtime/database/migrate.mjs"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-warehouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-warehouse}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/docker/api.Dockerfile
+    image: warehouse-platform-api:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-warehouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-warehouse}
+      API_HOST: 0.0.0.0
+      API_PORT: 3001
+      API_SERVICE_ID: ${API_SERVICE_ID:-warehouse-web}
+      API_SERVICE_TOKEN: ${API_SERVICE_TOKEN:?API_SERVICE_TOKEN is required}
+      API_SERVICE_PERMISSIONS: ${API_SERVICE_PERMISSIONS:-operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover}
+      OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS:-1000}
+    ports:
+      - "${API_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-3001}:3001"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/v1/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/docker/web.Dockerfile
+    image: warehouse-platform-web:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    environment:
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?NEXTAUTH_URL is required}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required}
+      DEMO_ADMIN_USERNAME: ${DEMO_ADMIN_USERNAME:?DEMO_ADMIN_USERNAME is required}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:?DEMO_ADMIN_PASSWORD is required}
+      INTERNAL_API_BASE_URL: http://api:3001
+      API_SERVICE_TOKEN: ${API_SERVICE_TOKEN}
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/platform').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    security_opt:
+      - no-new-privileges:true
+
+  seed-demo:
+    image: warehouse-platform-api:${IMAGE_TAG:-local}
+    profiles: ["demo-seed"]
+    command: ["node", "dist/runtime/database/seed-demo.mjs"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-warehouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-warehouse}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres-data:

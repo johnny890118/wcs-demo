@@ -80,11 +80,11 @@ Status: Complete
 
 Status: In progress
 
-- Web/API OCI images and Docker Compose
-- Vercel/Render/Supabase deployment adapters and environment runbooks
-- Backup/restore exercise, secret management, security headers/rate limits
-- Public SEO/contact/about; private noindex policy
-- Published demo only after security and scenario gates pass
+- [x] Digest-pinned, non-root Web/API OCI images and production-like Docker Compose with migration/health smoke gate
+- [ ] Vercel/Render/Supabase deployment adapters and provider-specific environment runbooks
+- [ ] Backup/restore exercise, secret management, security headers/rate limits
+- [ ] Public SEO/contact/about; private noindex policy
+- [ ] Published demo only after security and scenario gates pass
 
 ## M6 — Hardware readiness
 
@@ -95,4 +95,4 @@ Status: In progress
 
 ## Immediate next task
 
-Build reproducible Web/API OCI images and a production-like Docker Compose deployment, including health checks and a documented environment contract. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Add provider-neutral environment validation plus Vercel/Render/Supabase deployment adapters and provider-specific runbooks without coupling domain/application packages to provider SDKs. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

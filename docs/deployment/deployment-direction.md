@@ -16,3 +16,25 @@ Preferred initial composition is Vercel (web), Render (API/simulator), and Supab
 - Health endpoints distinguish liveness, readiness, database, and equipment-adapter status
 
 Kubernetes is intentionally deferred.
+
+## Production-like Compose runbook
+
+The checked-in composition is an on-premises/VM baseline, not a public-internet approval. Both published ports bind to loopback unless an operator explicitly changes the bind addresses.
+
+1. Copy `infra/compose.env.example` to a private environment file outside version control.
+2. Replace every placeholder password/token/secret. Assign the API only the permissions required for that deployment.
+3. Validate with `docker compose --env-file <private-env> -f infra/compose.production.yml config --quiet`.
+4. Build with `docker compose --env-file <private-env> -f infra/compose.production.yml build`.
+5. Start with `docker compose --env-file <private-env> -f infra/compose.production.yml up -d --wait postgres api web`.
+6. Confirm API readiness at `/api/v1/health/ready` and the web entry at `/platform`.
+
+The one-shot `migrate` service must complete successfully before the API starts. The API and web images run as non-root users with read-only root filesystems and explicit temporary mounts. PostgreSQL data lives in the named `postgres-data` volume. Run the `demo-seed` profile only in an environment intentionally designated for deterministic demonstrations:
+
+```bash
+docker compose \
+  --env-file <private-env> \
+  -f infra/compose.production.yml \
+  --profile demo-seed run --rm seed-demo
+```
+
+Image base references are digest-pinned. Application dependencies are locked by `package-lock.json`; changing either input requires rebuilding and rerunning the deployment smoke gate.
