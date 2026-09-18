@@ -72,7 +72,7 @@ Status: In progress
 - [x] Transactional, idempotent outbound order allocation across persisted inventory units
 - [x] Capability-based shipping destination validation, SKU-scoped concurrency serialization, queued transport tasks, outbox, and audit evidence
 - [x] Outbound deterministic equipment execution, atomic inventory consumption, shipping confirmation, and unknown-outcome reconciliation
-- [ ] Fault injection, alarm lifecycle, recovery/reassignment, uncertain-state handling
+- [x] Persisted fault injection, accountable alarm acknowledgement, resume/release recovery, reassignment, and unknown-outcome handling
 - [ ] Three deterministic end-to-end operational scenarios in Playwright
 - [ ] RBAC and high-risk action confirmation/audit
 
@@ -93,4 +93,4 @@ Status: In progress
 
 ## Immediate next task
 
-Add explicit fault injection, alarm lifecycle, and operator-safe recovery/reassignment around inbound and outbound execution. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Prove three deterministic operator scenarios in Playwright, including a fault/alarm/release path, then enforce RBAC and explicit high-risk action confirmation/audit. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

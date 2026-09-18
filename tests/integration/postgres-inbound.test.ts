@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Pool } from "pg";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
+import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
 import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.errors";
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
@@ -20,6 +21,7 @@ import type {
 } from "../../apps/api/src/inbound/inbound.types";
 import { DeterministicInboundExecutor } from "../../src/application/execution/inbound-execution";
 import { DeterministicOutboundExecutor } from "../../src/application/execution/outbound-execution";
+import { FaultRecoveryService } from "../../src/application/recovery/fault-recovery";
 import { TopologyActivationService } from "../../src/application/topology/topology-activation";
 import {
   OutboxProcessor,
@@ -84,7 +86,7 @@ function idFactory(): () => string {
 describeIntegration("PostgreSQL inbound vertical slice", () => {
   beforeEach(async () => {
     await pool?.query(
-      `TRUNCATE route_plan_edges, route_plans, audit_events, outbox_events,
+      `TRUNCATE route_plan_edges, route_plans, audit_events, outbox_events, alarms,
         inventory_allocations, transport_tasks, outbound_orders, inventory_units,
         loads, inbound_receipts`,
     );
@@ -508,6 +510,124 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect(concurrencyState.rows[0]).toEqual({
       order_count: "2",
       reserved_quantity: "8",
+    });
+  });
+
+  it("persists fault acknowledgement and release-for-reassignment atomically", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+
+    const equipment = new SimulatorEquipmentAdapter();
+    equipment.register(createMobileTransportDescriptor("AMR-01"), "idle");
+    await equipment.dispatch({
+      commandId: "90000000-0000-4000-8000-000000000011",
+      equipmentId: "AMR-01",
+      command: { type: "assign_task", taskId: identifiers.transportTaskId },
+    });
+    await equipment.dispatch({
+      commandId: "90000000-0000-4000-8000-000000000012",
+      equipmentId: "AMR-01",
+      command: { type: "start_pickup" },
+    });
+
+    const execution = new PgInboundExecutionRepository(pool);
+    const assigned = await execution.markAssigned(
+      identifiers.transportTaskId,
+      "AMR-01",
+      0,
+      "integration-test",
+      {
+        outboxEventId: "90000000-0000-4000-8000-000000000013",
+        auditEventId: "90000000-0000-4000-8000-000000000014",
+      },
+    );
+    await execution.markInProgress(
+      identifiers.transportTaskId,
+      assigned.version,
+      "integration-test",
+      {
+        outboxEventId: "90000000-0000-4000-8000-000000000015",
+        auditEventId: "90000000-0000-4000-8000-000000000016",
+      },
+    );
+
+    const recovery = new FaultRecoveryService(
+      new PgFaultRecoveryRepository(pool),
+      equipment,
+      new ManualClock(20_000),
+      idFactory(),
+    );
+    const alarm = await recovery.injectFault({
+      taskId: identifiers.transportTaskId,
+      faultCode: "DRIVE_BLOCKED",
+      severity: "critical",
+      message: "Travel path is blocked.",
+      actorId: "integration-operator",
+    });
+    expect(alarm).toMatchObject({
+      taskId: identifiers.transportTaskId,
+      equipmentId: "AMR-01",
+      status: "active",
+      previousTaskStatus: "in_progress",
+    });
+
+    await recovery.acknowledge({
+      alarmId: alarm.alarmId,
+      actorId: "integration-operator",
+    });
+    const released = await recovery.recover({
+      alarmId: alarm.alarmId,
+      strategy: "release",
+      resolution: "Vehicle isolated; task returned for reassignment.",
+      actorId: "integration-supervisor",
+    });
+    expect(released).toMatchObject({
+      status: "queued",
+      equipmentId: null,
+      blockingAlarmId: null,
+    });
+
+    const state = await pool.query<{
+      task_status: string;
+      equipment_id: string | null;
+      blocking_alarm_id: string | null;
+      alarm_status: string;
+      acknowledged_by: string;
+      cleared_by: string;
+      resolution: string;
+      recovery_events: string;
+      recovery_audits: string;
+    }>(
+      `SELECT task.status AS task_status, task.equipment_id, task.blocking_alarm_id,
+        alarm.status AS alarm_status, alarm.acknowledged_by, alarm.cleared_by,
+        alarm.resolution,
+        (SELECT count(*) FROM outbox_events WHERE event_type IN
+          ('TransportTaskBlockedByFault', 'AlarmAcknowledged', 'TransportTaskReleasedForReassignment')) AS recovery_events,
+        (SELECT count(*) FROM audit_events WHERE action IN
+          ('transport_task.block_for_fault', 'alarm.acknowledge', 'transport_task.recover_release')) AS recovery_audits
+       FROM transport_tasks task
+       JOIN alarms alarm ON alarm.transport_task_id = task.id
+       WHERE task.id = $1`,
+      [identifiers.transportTaskId],
+    );
+    expect(state.rows[0]).toEqual({
+      task_status: "queued",
+      equipment_id: null,
+      blocking_alarm_id: null,
+      alarm_status: "cleared",
+      acknowledged_by: "integration-operator",
+      cleared_by: "integration-supervisor",
+      resolution: "Vehicle isolated; task returned for reassignment.",
+      recovery_events: "3",
+      recovery_audits: "3",
+    });
+    expect(await equipment.getState("AMR-01")).toMatchObject({
+      status: "idle",
+      taskId: null,
     });
   });
 });

@@ -25,7 +25,7 @@ async function main(): Promise<void> {
     try {
       await client.query(`
         TRUNCATE route_plan_edges, route_plans,
-          audit_events, outbox_events, inventory_allocations,
+          audit_events, outbox_events, alarms, inventory_allocations,
           transport_tasks, outbound_orders, inventory_units,
           loads, inbound_receipts
       `);
