@@ -73,7 +73,7 @@ Status: In progress
 - [x] Capability-based shipping destination validation, SKU-scoped concurrency serialization, queued transport tasks, outbox, and audit evidence
 - [x] Outbound deterministic equipment execution, atomic inventory consumption, shipping confirmation, and unknown-outcome reconciliation
 - [x] Persisted fault injection, accountable alarm acknowledgement, resume/release recovery, reassignment, and unknown-outcome handling
-- [ ] Three deterministic end-to-end operational scenarios in Playwright
+- [x] Three deterministic Playwright scenarios: inbound completion, outbound completion, and acknowledged fault release/reassignment
 - [ ] RBAC and high-risk action confirmation/audit
 
 ## M5 — Deployment and public demo
@@ -93,4 +93,4 @@ Status: In progress
 
 ## Immediate next task
 
-Prove three deterministic operator scenarios in Playwright, including a fault/alarm/release path, then enforce RBAC and explicit high-risk action confirmation/audit. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Enforce RBAC and explicit high-risk action confirmation/audit across operational mutations. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.

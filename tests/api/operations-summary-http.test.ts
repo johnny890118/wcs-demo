@@ -111,6 +111,7 @@ describe("focused operations projection browser boundary", () => {
       tasks: [],
       equipment: [],
       inventory: [],
+      alarms: [],
       topology: null,
       generatedAt: "2026-09-18T00:00:00.000Z",
     });

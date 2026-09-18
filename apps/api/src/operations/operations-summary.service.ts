@@ -46,6 +46,20 @@ type InventoryRow = {
   updated_at: Date;
 };
 
+type AlarmRow = {
+  id: string;
+  transport_task_id: string;
+  equipment_id: string;
+  code: string;
+  severity: string;
+  message: string;
+  status: string;
+  raised_at: Date;
+  acknowledged_at: Date | null;
+  cleared_at: Date | null;
+  resolution: string | null;
+};
+
 type NodeRow = { node_id: string; kind: string; capabilities: string[] };
 type EdgeRow = {
   edge_id: string;
@@ -112,7 +126,7 @@ export class OperationsSummaryService {
   }
 
   async getDetails(): Promise<OperationsDetails> {
-    const [tasks, equipment, inventory, topology] = await Promise.all([
+    const [tasks, equipment, inventory, alarms, topology] = await Promise.all([
       this.pool.query<FocusedTaskRow>(
         `SELECT t.id, t.status, source.code AS source, destination.code AS destination,
           t.equipment_id, t.updated_at
@@ -134,6 +148,13 @@ export class OperationsSummaryService {
          FROM inventory_units inventory
          JOIN locations location ON location.id = inventory.location_id
          ORDER BY inventory.updated_at DESC, inventory.id
+         LIMIT 100`,
+      ),
+      this.pool.query<AlarmRow>(
+        `SELECT id, transport_task_id, equipment_id, code, severity, message,
+          status, raised_at, acknowledged_at, cleared_at, resolution
+         FROM alarms
+         ORDER BY raised_at DESC, id
          LIMIT 100`,
       ),
       this.pool.query<TopologyRow>(
@@ -187,6 +208,19 @@ export class OperationsSummaryService {
         location: item.location,
         status: item.status,
         updatedAt: item.updated_at.toISOString(),
+      })),
+      alarms: alarms.rows.map((alarm) => ({
+        alarmId: alarm.id,
+        taskId: alarm.transport_task_id,
+        equipmentId: alarm.equipment_id,
+        code: alarm.code,
+        severity: alarm.severity,
+        message: alarm.message,
+        status: alarm.status,
+        raisedAt: alarm.raised_at.toISOString(),
+        acknowledgedAt: alarm.acknowledged_at?.toISOString() ?? null,
+        clearedAt: alarm.cleared_at?.toISOString() ?? null,
+        resolution: alarm.resolution,
       })),
       topology: activeTopology
         ? {

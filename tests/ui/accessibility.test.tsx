@@ -57,6 +57,21 @@ const details: OperationsDetails = {
       updatedAt: "2026-09-18T00:00:00.000Z",
     },
   ],
+  alarms: [
+    {
+      alarmId: "ALARM-01",
+      taskId: "TASK-01",
+      equipmentId: "MOBILE-01",
+      code: "DRIVE_BLOCKED",
+      severity: "critical",
+      message: "Travel path is blocked.",
+      status: "acknowledged",
+      raisedAt: "2026-09-18T00:00:00.000Z",
+      acknowledgedAt: "2026-09-18T00:01:00.000Z",
+      clearedAt: null,
+      resolution: null,
+    },
+  ],
   topology: {
     topologyId: "TOPOLOGY-01",
     revision: 1,

@@ -141,6 +141,38 @@ export default function OperationsProjectionsPage({ details }: PageProps) {
 
         <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-panel)]">
           <h2 className="border-b border-[var(--border)] px-5 py-4 font-bold">
+            {t("alarms")} · {liveDetails?.alarms.length ?? 0}
+          </h2>
+          {liveDetails?.alarms.length ? (
+            <ul className="divide-y divide-[var(--border)]">
+              {liveDetails.alarms.map((alarm) => (
+                <li key={alarm.alarmId} className="p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <code className="text-xs font-semibold">{alarm.code}</code>
+                    <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-xs font-semibold">
+                      {alarm.severity} · {alarm.status}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm">{alarm.message}</p>
+                  <p className="mt-2 text-xs text-[var(--text-muted)]">
+                    {t("taskId")}: {alarm.taskId} · {t("equipmentLabel")}:{" "}
+                    {alarm.equipmentId}
+                  </p>
+                  {alarm.resolution ? (
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">
+                      {t("resolution")}: {alarm.resolution}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty>{t("noAlarms")}</Empty>
+          )}
+        </section>
+
+        <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-panel)]">
+          <h2 className="border-b border-[var(--border)] px-5 py-4 font-bold">
             {t("equipment")} · {liveDetails?.equipment.length ?? 0}
           </h2>
           {liveDetails?.equipment.length ? (

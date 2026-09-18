@@ -10,6 +10,17 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+const scenarioApi = "http://127.0.0.1:3101";
+const serviceHeaders = { Authorization: "Bearer e2e-service-token" };
+
+async function loadScenario(page: Page, name: string) {
+  const response = await page.request.post(
+    `${scenarioApi}/test/scenarios/${name}`,
+    { headers: serviceHeaders },
+  );
+  expect(response.ok()).toBe(true);
+}
+
 test("public entry supports keyboard skip navigation and automated accessibility", async ({
   page,
 }) => {
@@ -68,4 +79,80 @@ test("authenticated focused projections expose screen-reader semantics", async (
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+});
+
+test("completed inbound scenario projects stored inventory", async ({
+  page,
+}) => {
+  await loadScenario(page, "inbound-completed");
+  await signIn(page, "/operations/projections");
+
+  const task = page
+    .getByText("task-inbound-completed")
+    .locator("..")
+    .locator("..");
+  await expect(task).toContainText("completed");
+  await expect(task).toContainText("RECEIVING-01 → STORAGE-01");
+  const inventoryRow = page.getByRole("row").filter({
+    hasText: "SKU-INBOUND-E2E",
+  });
+  await expect(inventoryRow).toContainText("24");
+  await expect(inventoryRow).toContainText("STORAGE-01");
+  await expect(inventoryRow).toContainText("available");
+});
+
+test("completed outbound scenario projects shipping and remaining inventory", async ({
+  page,
+}) => {
+  await loadScenario(page, "outbound-completed");
+  await signIn(page, "/operations/projections");
+
+  const task = page
+    .getByText("task-outbound-completed")
+    .locator("..")
+    .locator("..");
+  await expect(task).toContainText("completed");
+  await expect(task).toContainText("STORAGE-01 → SHIPPING-01");
+  const inventoryRow = page.getByRole("row").filter({
+    hasText: "SKU-OUTBOUND-E2E",
+  });
+  await expect(inventoryRow).toContainText("14");
+  await expect(inventoryRow).toContainText("available");
+});
+
+test("fault scenario requires acknowledgement then releases task for reassignment", async ({
+  page,
+}) => {
+  await loadScenario(page, "faulted");
+  await signIn(page, "/operations/projections");
+
+  await expect(page.getByText("task-fault-e2e", { exact: true })).toBeVisible();
+  await expect(page.getByText("blocked", { exact: true })).toBeVisible();
+  await expect(page.getByText("DRIVE_BLOCKED")).toBeVisible();
+  await expect(page.getByText("critical · active")).toBeVisible();
+
+  const acknowledgement = await page.request.post(
+    `${scenarioApi}/api/v1/alarms/alarm-fault-e2e/acknowledge`,
+    { headers: serviceHeaders },
+  );
+  expect(acknowledgement.ok()).toBe(true);
+  const recovery = await page.request.post(
+    `${scenarioApi}/api/v1/alarms/alarm-fault-e2e/recover`,
+    {
+      headers: serviceHeaders,
+      data: {
+        strategy: "release",
+        resolution: "Vehicle isolated; task returned for reassignment.",
+      },
+    },
+  );
+  expect(recovery.ok()).toBe(true);
+  await page.reload();
+
+  await expect(page.getByText("queued", { exact: true })).toBeVisible();
+  await expect(page.getByText("尚未指派")).toBeVisible();
+  await expect(page.getByText("critical · cleared")).toBeVisible();
+  await expect(
+    page.getByText("Vehicle isolated; task returned for reassignment."),
+  ).toBeVisible();
 });

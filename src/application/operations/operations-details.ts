@@ -21,6 +21,19 @@ export type OperationsDetails = Readonly<{
     status: string;
     updatedAt: string;
   }>[];
+  alarms: readonly Readonly<{
+    alarmId: string;
+    taskId: string;
+    equipmentId: string;
+    code: string;
+    severity: string;
+    message: string;
+    status: string;
+    raisedAt: string;
+    acknowledgedAt: string | null;
+    clearedAt: string | null;
+    resolution: string | null;
+  }>[];
   topology: Readonly<{
     topologyId: string;
     revision: number;
@@ -56,6 +69,7 @@ export function isOperationsDetails(
     !Array.isArray(data.tasks) ||
     !Array.isArray(data.equipment) ||
     !Array.isArray(data.inventory) ||
+    !Array.isArray(data.alarms) ||
     typeof data.generatedAt !== "string" ||
     Number.isNaN(Date.parse(data.generatedAt))
   ) {
@@ -100,6 +114,28 @@ export function isOperationsDetails(
       !Number.isNaN(Date.parse(inventory.updatedAt))
     );
   });
+  const alarmsAreValid = data.alarms.every((item: unknown) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const alarm = item as Record<string, unknown>;
+    return (
+      typeof alarm.alarmId === "string" &&
+      typeof alarm.taskId === "string" &&
+      typeof alarm.equipmentId === "string" &&
+      typeof alarm.code === "string" &&
+      typeof alarm.severity === "string" &&
+      typeof alarm.message === "string" &&
+      typeof alarm.status === "string" &&
+      typeof alarm.raisedAt === "string" &&
+      !Number.isNaN(Date.parse(alarm.raisedAt)) &&
+      (alarm.acknowledgedAt === null ||
+        (typeof alarm.acknowledgedAt === "string" &&
+          !Number.isNaN(Date.parse(alarm.acknowledgedAt)))) &&
+      (alarm.clearedAt === null ||
+        (typeof alarm.clearedAt === "string" &&
+          !Number.isNaN(Date.parse(alarm.clearedAt)))) &&
+      (alarm.resolution === null || typeof alarm.resolution === "string")
+    );
+  });
 
   const topology = data.topology as Record<string, unknown> | null;
   const topologyIsValid =
@@ -137,6 +173,10 @@ export function isOperationsDetails(
       }));
 
   return (
-    tasksAreValid && equipmentIsValid && inventoryIsValid && topologyIsValid
+    tasksAreValid &&
+    equipmentIsValid &&
+    inventoryIsValid &&
+    alarmsAreValid &&
+    topologyIsValid
   );
 }

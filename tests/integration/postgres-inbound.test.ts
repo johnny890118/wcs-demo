@@ -237,6 +237,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect(details).toMatchObject({
       tasks: [],
       inventory: [],
+      alarms: [],
       equipment: [
         {
           equipmentId: "AMR-01",
