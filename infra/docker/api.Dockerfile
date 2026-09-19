@@ -26,6 +26,8 @@ RUN npm ci --omit=dev --ignore-scripts \
 COPY --from=builder --chown=warehouse:warehouse /app/dist ./dist
 COPY --chown=warehouse:warehouse apps/api/migrations ./apps/api/migrations
 COPY --chown=warehouse:warehouse apps/api/seeds ./apps/api/seeds
+COPY infra/docker/start-api.sh /usr/local/bin/start-warehouse-api
+RUN chmod 0755 /usr/local/bin/start-warehouse-api
 USER warehouse
 EXPOSE 3001
-CMD ["node", "dist/runtime/main.mjs"]
+CMD ["/usr/local/bin/start-warehouse-api"]
