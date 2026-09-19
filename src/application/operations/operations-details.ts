@@ -1,3 +1,5 @@
+import { equipmentStatuses } from "../../domain/equipment/equipment-state-machine";
+
 export type OperationsDetails = Readonly<{
   tasks: readonly Readonly<{
     taskId: string;
@@ -12,6 +14,23 @@ export type OperationsDetails = Readonly<{
     adapterKey: string;
     capabilities: readonly string[];
     active: boolean;
+    telemetry: Readonly<{
+      status: string;
+      taskId: string | null;
+      loadId: string | null;
+      faultCode: string | null;
+      topologyId: string | null;
+      topologyRevision: number | null;
+      nodeId: string | null;
+      connectionStatus: "connected" | "disconnected";
+      quality: "good" | "uncertain" | "bad" | "unknown";
+      freshness: "current" | "stale";
+      ageMs: number;
+      sequence: number;
+      observedAt: string;
+      receivedAt: string;
+      source: string;
+    }> | null;
   }>[];
   inventory: readonly Readonly<{
     inventoryUnitId: string;
@@ -98,11 +117,57 @@ export function isOperationsDetails(
   const equipmentIsValid = data.equipment.every((item: unknown) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return false;
     const equipment = item as Record<string, unknown>;
+    const telemetry = equipment.telemetry as Record<string, unknown> | null;
+    const telemetryIsValid =
+      telemetry === null ||
+      (typeof telemetry === "object" &&
+        !Array.isArray(telemetry) &&
+        equipmentStatuses.includes(
+          telemetry.status as (typeof equipmentStatuses)[number],
+        ) &&
+        (telemetry.taskId === null || typeof telemetry.taskId === "string") &&
+        (telemetry.loadId === null || typeof telemetry.loadId === "string") &&
+        (telemetry.faultCode === null ||
+          typeof telemetry.faultCode === "string") &&
+        (telemetry.topologyId === null ||
+          typeof telemetry.topologyId === "string") &&
+        (telemetry.topologyRevision === null ||
+          (typeof telemetry.topologyRevision === "number" &&
+            Number.isSafeInteger(telemetry.topologyRevision) &&
+            telemetry.topologyRevision > 0)) &&
+        (telemetry.nodeId === null || typeof telemetry.nodeId === "string") &&
+        ["connected", "disconnected"].includes(
+          telemetry.connectionStatus as string,
+        ) &&
+        ["good", "uncertain", "bad", "unknown"].includes(
+          telemetry.quality as string,
+        ) &&
+        ["current", "stale"].includes(telemetry.freshness as string) &&
+        typeof telemetry.ageMs === "number" &&
+        Number.isSafeInteger(telemetry.ageMs) &&
+        telemetry.ageMs >= 0 &&
+        typeof telemetry.sequence === "number" &&
+        Number.isSafeInteger(telemetry.sequence) &&
+        telemetry.sequence >= 0 &&
+        typeof telemetry.observedAt === "string" &&
+        !Number.isNaN(Date.parse(telemetry.observedAt)) &&
+        typeof telemetry.receivedAt === "string" &&
+        !Number.isNaN(Date.parse(telemetry.receivedAt)) &&
+        typeof telemetry.source === "string" &&
+        telemetry.source.trim().length > 0 &&
+        ((telemetry.topologyId === null &&
+          telemetry.topologyRevision === null) ||
+          (typeof telemetry.topologyId === "string" &&
+            typeof telemetry.topologyRevision === "number")) &&
+        (telemetry.nodeId === null ||
+          (telemetry.topologyId !== null &&
+            telemetry.topologyRevision !== null)));
     return (
       typeof equipment.equipmentId === "string" &&
       typeof equipment.adapterKey === "string" &&
       isStringArray(equipment.capabilities) &&
-      typeof equipment.active === "boolean"
+      typeof equipment.active === "boolean" &&
+      telemetryIsValid
     );
   });
   const inventoryIsValid = data.inventory.every((item: unknown) => {

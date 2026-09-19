@@ -103,11 +103,13 @@ Status: In progress
 - [x] Reopen the product roadmap and distinguish engineering-foundation completion from product completion
 - [x] Publish validated topology presentation coordinates through the operations read model without making visualization domain truth
 - [x] Add an accessible, responsive warehouse topology map with directed-edge and runtime-fact overlays
-- [ ] Add trustworthy equipment position/telemetry projection with freshness and quality; never infer location from assignment
+- [x] Persist and project topology-qualified equipment observations with timestamps, connection, quality, freshness, sequence, and explicit unknown position
+- [x] Render only qualified current/last-known observations on the map; never infer physical position from assignment
+- [ ] Connect simulator transitions and heartbeat publication to the observation sink, including restart and out-of-order behavior
 - [ ] Add operator workflows for inbound, outbound, alarm acknowledgement, and recovery behind authorization and confirmation boundaries
 - [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
 ## Immediate next task
 
-Add trustworthy simulator telemetry to the operations projection before placing equipment on the map, including observed and received timestamps, freshness, quality, and an explicit unknown position. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.
+Connect simulator transitions and heartbeat publication to the durable observation sink, then prove live movement, stale/disconnected behavior, restart semantics, and out-of-order rejection. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.

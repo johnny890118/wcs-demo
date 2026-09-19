@@ -188,6 +188,30 @@ export default function OperationsProjectionsPage({ details }: PageProps) {
                   <p className="mt-2 text-xs text-[var(--text-muted)]">
                     {t("adapter")}: {item.adapterKey}
                   </p>
+                  <dl className="mt-3 grid gap-2 rounded-lg bg-[var(--surface-muted)] p-3 text-xs sm:grid-cols-2">
+                    <div>
+                      <dt className="text-[var(--text-muted)]">
+                        {t("telemetryStatus")}
+                      </dt>
+                      <dd className="mt-1 font-semibold">
+                        {item.telemetry
+                          ? `${item.telemetry.status} · ${
+                              item.telemetry.freshness === "current"
+                                ? t("currentTelemetry")
+                                : t("staleTelemetry")
+                            }`
+                          : t("unavailable")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[var(--text-muted)]">
+                        {t("currentPosition")}
+                      </dt>
+                      <dd className="mt-1 font-mono font-semibold">
+                        {item.telemetry?.nodeId ?? t("unknownPosition")}
+                      </dd>
+                    </div>
+                  </dl>
                   <div className="mt-3">
                     <CapabilityList
                       values={item.capabilities}

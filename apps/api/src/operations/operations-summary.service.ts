@@ -36,6 +36,19 @@ type EquipmentRow = {
   adapter_key: string;
   capabilities: string[];
   active: boolean;
+  telemetry_status: string | null;
+  telemetry_task_id: string | null;
+  telemetry_load_id: string | null;
+  telemetry_fault_code: string | null;
+  telemetry_topology_id: string | null;
+  telemetry_topology_revision: number | null;
+  telemetry_node_id: string | null;
+  telemetry_connection_status: "connected" | "disconnected" | null;
+  telemetry_quality: "good" | "uncertain" | "bad" | "unknown" | null;
+  telemetry_sequence: string | null;
+  telemetry_observed_at: Date | null;
+  telemetry_received_at: Date | null;
+  telemetry_source: string | null;
 };
 
 type InventoryRow = {
@@ -75,6 +88,8 @@ type EdgeRow = {
   required_capabilities: string[];
   resource_ids: string[];
 };
+
+export const equipmentTelemetryFreshAfterMs = 30_000;
 
 @Injectable()
 export class OperationsSummaryService {
@@ -143,9 +158,25 @@ export class OperationsSummaryService {
          LIMIT 100`,
       ),
       this.pool.query<EquipmentRow>(
-        `SELECT equipment_id, adapter_key, capabilities, active
-         FROM equipment_descriptors
-         ORDER BY equipment_id
+        `SELECT descriptor.equipment_id, descriptor.adapter_key,
+          descriptor.capabilities, descriptor.active,
+          observation.status AS telemetry_status,
+          observation.task_id AS telemetry_task_id,
+          observation.load_id AS telemetry_load_id,
+          observation.fault_code AS telemetry_fault_code,
+          observation.topology_id AS telemetry_topology_id,
+          observation.topology_revision AS telemetry_topology_revision,
+          observation.node_id AS telemetry_node_id,
+          observation.connection_status AS telemetry_connection_status,
+          observation.quality AS telemetry_quality,
+          observation.sequence::text AS telemetry_sequence,
+          observation.observed_at AS telemetry_observed_at,
+          observation.received_at AS telemetry_received_at,
+          observation.source AS telemetry_source
+         FROM equipment_descriptors descriptor
+         LEFT JOIN equipment_observations observation
+           ON observation.equipment_id = descriptor.equipment_id
+         ORDER BY descriptor.equipment_id
          LIMIT 100`,
       ),
       this.pool.query<InventoryRow>(
@@ -201,12 +232,50 @@ export class OperationsSummaryService {
         equipmentId: task.equipment_id,
         updatedAt: task.updated_at.toISOString(),
       })),
-      equipment: equipment.rows.map((item) => ({
-        equipmentId: item.equipment_id,
-        adapterKey: item.adapter_key,
-        capabilities: item.capabilities,
-        active: item.active,
-      })),
+      equipment: equipment.rows.map((item) => {
+        const receivedAt = item.telemetry_received_at;
+        const ageMs = receivedAt
+          ? Math.max(0, Date.now() - receivedAt.getTime())
+          : null;
+        const hasTelemetry =
+          item.telemetry_status !== null &&
+          item.telemetry_connection_status !== null &&
+          item.telemetry_quality !== null &&
+          item.telemetry_sequence !== null &&
+          item.telemetry_observed_at !== null &&
+          receivedAt !== null &&
+          item.telemetry_source !== null &&
+          ageMs !== null;
+        return {
+          equipmentId: item.equipment_id,
+          adapterKey: item.adapter_key,
+          capabilities: item.capabilities,
+          active: item.active,
+          telemetry: hasTelemetry
+            ? {
+                status: item.telemetry_status!,
+                taskId: item.telemetry_task_id,
+                loadId: item.telemetry_load_id,
+                faultCode: item.telemetry_fault_code,
+                topologyId: item.telemetry_topology_id,
+                topologyRevision: item.telemetry_topology_revision,
+                nodeId: item.telemetry_node_id,
+                connectionStatus: item.telemetry_connection_status!,
+                quality: item.telemetry_quality!,
+                freshness:
+                  item.telemetry_connection_status === "connected" &&
+                  ageMs <= equipmentTelemetryFreshAfterMs
+                    ? ("current" as const)
+                    : ("stale" as const),
+                ageMs,
+                sequence: Number(item.telemetry_sequence),
+                observedAt: item.telemetry_observed_at!.toISOString(),
+                receivedAt: receivedAt.toISOString(),
+                source: item.telemetry_source!,
+              }
+            : null,
+        };
+      }),
       inventory: inventory.rows.map((item) => ({
         inventoryUnitId: item.id,
         sku: item.sku,

@@ -77,3 +77,38 @@ SET warehouse_id = EXCLUDED.warehouse_id,
   constraints = EXCLUDED.constraints,
   active = true,
   updated_at = now();
+
+INSERT INTO equipment_observations
+  (equipment_id, topology_id, topology_revision, node_id, status,
+   task_id, load_id, fault_code, connection_status, quality, sequence,
+   observed_at, received_at, source)
+VALUES (
+  'AMR-01',
+  '90000000-0000-4000-8000-000000000001',
+  1,
+  'RECEIVING-01',
+  'idle',
+  NULL,
+  NULL,
+  NULL,
+  'connected',
+  'good',
+  0,
+  now(),
+  now(),
+  'deterministic-demo-seed'
+)
+ON CONFLICT (equipment_id) DO UPDATE
+SET topology_id = EXCLUDED.topology_id,
+  topology_revision = EXCLUDED.topology_revision,
+  node_id = EXCLUDED.node_id,
+  status = EXCLUDED.status,
+  task_id = EXCLUDED.task_id,
+  load_id = EXCLUDED.load_id,
+  fault_code = EXCLUDED.fault_code,
+  connection_status = EXCLUDED.connection_status,
+  quality = EXCLUDED.quality,
+  sequence = EXCLUDED.sequence,
+  observed_at = EXCLUDED.observed_at,
+  received_at = EXCLUDED.received_at,
+  source = EXCLUDED.source;

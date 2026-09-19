@@ -93,7 +93,7 @@ test("authenticated focused projections expose screen-reader semantics", async (
   expect(accessibility.violations).toEqual([]);
 });
 
-test("warehouse map renders configured topology without inventing equipment position", async ({
+test("warehouse map renders timestamped equipment observation without using assignment", async ({
   page,
 }) => {
   await signIn(page, "/operations/warehouse");
@@ -106,8 +106,10 @@ test("warehouse map renders configured topology without inventing equipment posi
   await expect(
     page.getByRole("button", { name: "receiving-01" }),
   ).toBeVisible();
-  await expect(page.getByText("不臆測設備位置")).toBeVisible();
-  await expect(page.getByText("agv-e2e-01")).toHaveCount(0);
+  await expect(
+    page.getByText("設備標記來自帶有時間戳的後端觀測。"),
+  ).toBeVisible();
+  await expect(page.getByText("agv-e2e-01").first()).toBeVisible();
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);

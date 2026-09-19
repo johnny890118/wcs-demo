@@ -75,6 +75,20 @@ export function WarehouseTopologyMap({ details }: Props) {
   const blockedEdges = topology.edges.filter(
     (edge) => edge.status === "blocked",
   ).length;
+  const positionedEquipment = details.equipment.filter((item) => {
+    const telemetry = item.telemetry;
+    return (
+      telemetry?.topologyId === topology.topologyId &&
+      telemetry.topologyRevision === topology.revision &&
+      telemetry.nodeId !== null &&
+      points.has(telemetry.nodeId)
+    );
+  });
+  const selectedEquipment = selected
+    ? positionedEquipment.filter(
+        (item) => item.telemetry?.nodeId === selected.nodeId,
+      )
+    : [];
 
   return (
     <section aria-labelledby="warehouse-map-title">
@@ -152,6 +166,20 @@ export function WarehouseTopologyMap({ details }: Props) {
                 aria-hidden="true"
               />
               {t("blockedPath")}
+            </span>
+            <span className="flex items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 rounded-sm bg-[var(--success)]"
+                aria-hidden="true"
+              />
+              {t("currentEquipment")}
+            </span>
+            <span className="flex items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 rounded-sm bg-[var(--warning)]"
+                aria-hidden="true"
+              />
+              {t("lastKnownEquipment")}
             </span>
           </div>
         </div>
@@ -293,6 +321,48 @@ export function WarehouseTopologyMap({ details }: Props) {
                   </g>
                 );
               })}
+
+              {positionedEquipment.map((item, index) => {
+                const telemetry = item.telemetry;
+                if (!telemetry?.nodeId) return null;
+                const point = points.get(telemetry.nodeId);
+                if (!point) return null;
+                const isCurrent = telemetry.freshness === "current";
+                const markerX = point.x + 38 + (index % 3) * 8;
+                const markerY = point.y - 38 - (index % 3) * 8;
+                return (
+                  <g key={item.equipmentId}>
+                    <rect
+                      x={markerX - 9}
+                      y={markerY - 9}
+                      width="18"
+                      height="18"
+                      rx="4"
+                      fill={
+                        telemetry.quality === "bad"
+                          ? "var(--danger)"
+                          : isCurrent && telemetry.quality === "good"
+                            ? "var(--success)"
+                            : "var(--warning)"
+                      }
+                      stroke="var(--surface)"
+                      strokeWidth="3"
+                    />
+                    <text
+                      x={markerX + 15}
+                      y={markerY + 5}
+                      fill="var(--text)"
+                      fontSize="13"
+                      fontWeight="700"
+                    >
+                      {shortLabel(item.equipmentId)}
+                    </text>
+                    <title>{`${item.equipmentId} · ${telemetry.status} · ${
+                      isCurrent ? t("currentTelemetry") : t("staleTelemetry")
+                    }`}</title>
+                  </g>
+                );
+              })}
             </svg>
           </div>
 
@@ -369,6 +439,34 @@ export function WarehouseTopologyMap({ details }: Props) {
                     )}
                   </div>
                 </div>
+                {selectedEquipment.length ? (
+                  <div>
+                    <h3 className="text-xs font-bold">{t("equipmentLabel")}</h3>
+                    <ul className="mt-2 space-y-2">
+                      {selectedEquipment.map((item) => (
+                        <li
+                          key={item.equipmentId}
+                          className="rounded-lg border border-[var(--border)] p-3 text-xs"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono font-bold">
+                              {item.equipmentId}
+                            </span>
+                            <span className="text-[var(--text-muted)]">
+                              {item.telemetry?.freshness === "current"
+                                ? t("currentTelemetry")
+                                : t("staleTelemetry")}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[var(--text-muted)]">
+                            {item.telemetry?.status} · {t("observationQuality")}
+                            : {item.telemetry?.quality}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 {selectedTasks.length ? (
                   <ul className="space-y-2" aria-label={t("activeWork")}>
                     {selectedTasks.map((task) => (
@@ -397,20 +495,34 @@ export function WarehouseTopologyMap({ details }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-3 rounded-xl border border-[color:color-mix(in_srgb,var(--warning)_35%,var(--border))] bg-[color:color-mix(in_srgb,var(--warning)_8%,var(--surface))] p-4">
-        <ExclamationTriangleIcon
-          className="mt-0.5 h-5 w-5 shrink-0 text-[var(--warning)]"
-          aria-hidden="true"
-        />
-        <div>
-          <p className="text-sm font-bold">
-            {t("equipmentPositionUnavailable")}
-          </p>
-          <p className="mt-1 text-sm leading-6 text-[var(--text-muted)]">
-            {t("equipmentPositionUnavailableDescription")}
-          </p>
+      {details.equipment.length > 0 &&
+      positionedEquipment.length === details.equipment.length ? (
+        <p className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--text-muted)]">
+          <span className="font-bold text-[var(--text)]">
+            {t("equipmentPositionsFromTelemetry")}
+          </span>{" "}
+          {t("visualizationOnly")}
+        </p>
+      ) : (
+        <div className="mt-4 flex gap-3 rounded-xl border border-[color:color-mix(in_srgb,var(--warning)_35%,var(--border))] bg-[color:color-mix(in_srgb,var(--warning)_8%,var(--surface))] p-4">
+          <ExclamationTriangleIcon
+            className="mt-0.5 h-5 w-5 shrink-0 text-[var(--warning)]"
+            aria-hidden="true"
+          />
+          <div>
+            <p className="text-sm font-bold">
+              {positionedEquipment.length > 0
+                ? t("equipmentPositionPartial")
+                : t("equipmentPositionUnavailable")}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[var(--text-muted)]">
+              {positionedEquipment.length > 0
+                ? t("equipmentPositionPartialDescription")
+                : t("equipmentPositionUnavailableDescription")}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

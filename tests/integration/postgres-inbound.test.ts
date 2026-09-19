@@ -243,6 +243,17 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
           equipmentId: "AMR-01",
           adapterKey: "simulator.mobile-transport",
           active: true,
+          telemetry: {
+            status: "idle",
+            topologyId: "90000000-0000-4000-8000-000000000001",
+            topologyRevision: 1,
+            nodeId: "RECEIVING-01",
+            connectionStatus: "connected",
+            quality: "good",
+            freshness: "current",
+            sequence: 0,
+            source: "deterministic-demo-seed",
+          },
         },
       ],
       topology: {
@@ -281,6 +292,12 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         ],
       },
     });
+    expect(details.equipment[0]?.telemetry?.ageMs).toBeGreaterThanOrEqual(0);
+    expect(
+      Number.isNaN(
+        Date.parse(details.equipment[0]?.telemetry?.observedAt ?? ""),
+      ),
+    ).toBe(false);
   });
 
   it("loads persisted capabilities and atomically activates a valid topology revision", async () => {
