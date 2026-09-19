@@ -5,7 +5,7 @@ Validated against official provider documentation on 2026-09-18. These adapters 
 ## Topology
 
 - Vercel runs the Next.js web/BFF surface from the repository root using `vercel.json`.
-- Render builds the API from `infra/docker/api.Dockerfile` using `render.yaml`, runs the migration bundle before each deploy, and checks `/api/v1/health/ready` before routing traffic.
+- Render builds the API from `infra/docker/api.Dockerfile` using `render.yaml`, runs the idempotent migration bundle before starting the API process, and checks `/api/v1/health/ready` before routing traffic. The public demo pins the service to Render's free plan; because that plan does not support pre-deploy commands or configurable shutdown delay, the checked-in `dockerCommand` performs migration then starts the API. A paid production environment should restore a separate pre-deploy migration phase and an explicit shutdown delay.
 - Supabase supplies PostgreSQL through `DATABASE_URL`; the application continues to use the standard `pg` adapter and checked-in migration runner.
 
 ## Required secrets and environment
@@ -34,7 +34,7 @@ Apply only the repository migration runner. Do not separately translate the same
 1. Run repository `npm run verify` and the deployment smoke job at the exact commit.
 2. Validate production environment variables for both targets.
 3. Take and verify a database backup before applying migrations to an existing environment.
-4. Deploy the API and require a successful pre-deploy migration plus readiness check.
+4. Deploy the API and require a successful migration-before-start plus readiness check. On a paid production Render service, use the provider's separate pre-deploy phase instead of the free-demo startup command.
 5. Deploy the web surface with the final API origin plus matching production `NEXTAUTH_URL` and `PUBLIC_SITE_URL` origins.
 6. Run the three deterministic operator scenarios against the candidate environment without enabling physical equipment adapters.
 7. Confirm `/robots.txt`, `/sitemap.xml`, public canonical metadata, and `X-Robots-Tag: noindex, nofollow` on operations/API routes before allowing indexing.
