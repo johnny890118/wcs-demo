@@ -2,7 +2,7 @@
 
 ## Current disposition
 
-The legacy prototype routes remain outside the supported operations boundary and are not approved for public deployment or physical equipment connectivity. Supported NestJS endpoints require constant-time bearer authentication plus an explicitly configured service-permission allowlist. High-risk fault and recovery commands additionally require named confirmation with a recorded reason. API startup fails closed for missing, weak, placeholder, duplicate, or unknown security configuration. Public deployment still remains blocked on the remaining M5 content and release gates.
+The supported product entry and authenticated, simulator-backed operations console are deployed as the public demo described in the managed release evidence. The legacy prototype routes remain outside the supported operations boundary and are not approved for product use or physical equipment connectivity. Supported NestJS endpoints require constant-time bearer authentication plus an explicitly configured service-permission allowlist. High-risk fault and recovery commands additionally require named confirmation with a recorded reason. API startup fails closed for missing, weak, placeholder, duplicate, or unknown security configuration. Physical-equipment connectivity remains gated by the M6 commissioning controls and explicit site authorization.
 
 ## Runtime boundary
 

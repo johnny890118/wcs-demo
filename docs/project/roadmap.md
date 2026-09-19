@@ -78,14 +78,14 @@ Status: Complete
 
 ## M5 — Deployment and public demo
 
-Status: In progress
+Status: Complete
 
 - [x] Digest-pinned, non-root Web/API OCI images and production-like Docker Compose with migration/health smoke gate
 - [x] Vercel/Render/Supabase deployment adapters, provider-neutral environment validation, and provider-specific runbooks
 - [x] Checksum-verified backup/restore tooling and isolated recovery exercise in the deployment smoke gate
 - [x] Runtime secret controls, security headers, and bounded rate limiting
 - [x] Public SEO/contact/about; private operations/API noindex policy
-- [ ] Published demo only after security and scenario gates pass
+- [x] Published demo only after security and scenario gates pass
 
 ## M6 — Hardware readiness
 
@@ -98,4 +98,4 @@ Status: Complete
 
 ## Immediate next task
 
-Resolve the existing Vercel project authorization/configuration failure, then rerun the exact release-candidate deployment, security, and deterministic scenario gates before marking M5 complete. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+No roadmap milestone remains open. Preserve the verified managed demo, monitor provider limits and dependency/security signals, and collect customer, site, and device evidence before authorizing physical-equipment commissioning. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
