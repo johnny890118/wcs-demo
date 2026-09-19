@@ -18,6 +18,8 @@ services:
         value: operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover
       - key: OUTBOX_POLL_INTERVAL_MS
         value: 1000
+      - key: SIMULATOR_HEARTBEAT_MS
+        value: 10000
       - key: API_RATE_LIMIT_MAX
         value: 120
       - key: API_RATE_LIMIT_WINDOW_MS

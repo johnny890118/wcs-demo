@@ -19,6 +19,7 @@
           "state": {
             "equipmentId": "AMR-TRACE-01",
             "status": "assigned",
+            "nodeId": null,
             "taskId": "TASK-TRACE-01",
             "loadId": null,
             "faultCode": null,
@@ -45,6 +46,7 @@
           "state": {
             "equipmentId": "AMR-TRACE-01",
             "status": "assigned",
+            "nodeId": null,
             "taskId": "TASK-TRACE-01",
             "loadId": null,
             "faultCode": null,
@@ -62,6 +64,7 @@
       "state": {
         "equipmentId": "AMR-TRACE-01",
         "status": "assigned",
+        "nodeId": null,
         "taskId": "TASK-TRACE-01",
         "loadId": null,
         "faultCode": null,

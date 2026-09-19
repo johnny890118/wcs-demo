@@ -15,12 +15,17 @@ type TaskRow = {
   load_id: string;
   source_location_id: string;
   destination_location_id: string;
+  source_node_id: string;
+  destination_node_id: string;
   status: PersistedInboundTask["status"];
   equipment_id: string | null;
   version: number;
 };
 
-type CompletingTaskRow = TaskRow & { destination_location_id: string };
+type CompletingTaskRow = Pick<
+  TaskRow,
+  "task_id" | "receipt_id" | "load_id" | "destination_location_id"
+>;
 
 function toTask(row: TaskRow): PersistedInboundTask {
   return {
@@ -29,6 +34,8 @@ function toTask(row: TaskRow): PersistedInboundTask {
     loadId: row.load_id,
     sourceLocationId: row.source_location_id,
     destinationLocationId: row.destination_location_id,
+    sourceNodeId: row.source_node_id,
+    destinationNodeId: row.destination_node_id,
     status: row.status,
     equipmentId: row.equipment_id,
     version: row.version,
@@ -43,7 +50,9 @@ export class PgInboundExecutionRepository
 
   async getTask(taskId: string): Promise<PersistedInboundTask | null> {
     const result = await this.pool.query<TaskRow>(
-      `${this.taskSelection()} WHERE id = $1 AND receipt_id IS NOT NULL`,
+      `${this.taskSelection(
+        "transport_tasks task",
+      )} WHERE task.id = $1 AND task.receipt_id IS NOT NULL`,
       [taskId],
     );
     return result.rows[0] ? toTask(result.rows[0]) : null;
@@ -197,14 +206,16 @@ export class PgInboundExecutionRepository
   ): Promise<PersistedInboundTask> {
     return this.withTransaction(async (client) => {
       const result = await client.query<TaskRow>(
-        `UPDATE transport_tasks
-         SET status = $3,
-           equipment_id = COALESCE($4, equipment_id),
-           version = version + 1,
-           updated_at = now()
-         WHERE id = $1 AND version = $2 AND status = $5
-         RETURNING id AS task_id, receipt_id, load_id, source_location_id,
-           destination_location_id, status, equipment_id, version`,
+        `WITH task AS (
+           UPDATE transport_tasks
+           SET status = $3,
+             equipment_id = COALESCE($4, equipment_id),
+             version = version + 1,
+             updated_at = now()
+           WHERE id = $1 AND version = $2 AND status = $5
+           RETURNING *
+         )
+         ${this.taskSelection("task")}`,
         [taskId, expectedVersion, toStatus, equipmentId ?? null, fromStatus],
       );
       const row = result.rows[0];
@@ -289,9 +300,24 @@ export class PgInboundExecutionRepository
     );
   }
 
-  private taskSelection(): string {
-    return `SELECT id AS task_id, receipt_id, load_id, source_location_id,
-      destination_location_id, status, equipment_id, version
-      FROM transport_tasks`;
+  private taskSelection(from: string): string {
+    return `SELECT task.id AS task_id, task.receipt_id, task.load_id,
+      task.source_location_id, task.destination_location_id,
+      source_binding.node_id AS source_node_id,
+      destination_binding.node_id AS destination_node_id,
+      task.status, task.equipment_id, task.version
+      FROM ${from}
+      JOIN locations source_location ON source_location.id = task.source_location_id
+      JOIN warehouse_topologies topology
+        ON topology.warehouse_id = source_location.warehouse_id
+       AND topology.status = 'active'
+      JOIN location_topology_bindings source_binding
+        ON source_binding.location_id = task.source_location_id
+       AND source_binding.topology_id = topology.id
+       AND source_binding.topology_revision = topology.revision
+      JOIN location_topology_bindings destination_binding
+        ON destination_binding.location_id = task.destination_location_id
+       AND destination_binding.topology_id = topology.id
+       AND destination_binding.topology_revision = topology.revision`;
   }
 }

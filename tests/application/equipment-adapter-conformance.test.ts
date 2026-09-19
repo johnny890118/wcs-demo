@@ -12,7 +12,11 @@ const lifecycle: readonly EquipmentCommandEnvelope[] = [
     command: { type: "assign_task", taskId: "TASK-01" },
   },
   { commandId: "CMD-02", equipmentId, command: { type: "start_pickup" } },
-  { commandId: "CMD-03", equipmentId, command: { type: "arrive_at_pickup" } },
+  {
+    commandId: "CMD-03",
+    equipmentId,
+    command: { type: "arrive_at_pickup", nodeId: "PICKUP-01" },
+  },
   {
     commandId: "CMD-04",
     equipmentId,
@@ -21,7 +25,7 @@ const lifecycle: readonly EquipmentCommandEnvelope[] = [
   {
     commandId: "CMD-05",
     equipmentId,
-    command: { type: "arrive_at_destination" },
+    command: { type: "arrive_at_destination", nodeId: "DROPOFF-01" },
   },
   { commandId: "CMD-06", equipmentId, command: { type: "complete_unloading" } },
 ];

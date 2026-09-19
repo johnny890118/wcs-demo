@@ -18,6 +18,8 @@ type TaskRow = {
   quantity: number;
   source_location_id: string;
   destination_location_id: string;
+  source_node_id: string;
+  destination_node_id: string;
   status: PersistedOutboundTask["status"];
   equipment_id: string | null;
   version: number;
@@ -32,6 +34,8 @@ function toTask(row: TaskRow): PersistedOutboundTask {
     quantity: row.quantity,
     sourceLocationId: row.source_location_id,
     destinationLocationId: row.destination_location_id,
+    sourceNodeId: row.source_node_id,
+    destinationNodeId: row.destination_node_id,
     status: row.status,
     equipmentId: row.equipment_id,
     version: row.version,
@@ -221,16 +225,46 @@ export class PgOutboundExecutionRepository
   private selection(): string {
     return `SELECT task.id AS task_id, task.outbound_order_id, task.inventory_allocation_id AS allocation_id,
       allocation.inventory_unit_id, allocation.quantity, task.source_location_id,
-      task.destination_location_id, task.status, task.equipment_id, task.version
-      FROM transport_tasks task JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id`;
+      task.destination_location_id, source_binding.node_id AS source_node_id,
+      destination_binding.node_id AS destination_node_id,
+      task.status, task.equipment_id, task.version
+      FROM transport_tasks task
+      JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id
+      JOIN locations source_location ON source_location.id = task.source_location_id
+      JOIN warehouse_topologies topology
+        ON topology.warehouse_id = source_location.warehouse_id
+       AND topology.status = 'active'
+      JOIN location_topology_bindings source_binding
+        ON source_binding.location_id = task.source_location_id
+       AND source_binding.topology_id = topology.id
+       AND source_binding.topology_revision = topology.revision
+      JOIN location_topology_bindings destination_binding
+        ON destination_binding.location_id = task.destination_location_id
+       AND destination_binding.topology_id = topology.id
+       AND destination_binding.topology_revision = topology.revision`;
   }
 
   private returningSelection(update: string): string {
     return `WITH task AS (${update})
       SELECT task.id AS task_id, task.outbound_order_id, task.inventory_allocation_id AS allocation_id,
         allocation.inventory_unit_id, allocation.quantity, task.source_location_id,
-        task.destination_location_id, task.status, task.equipment_id, task.version
-      FROM task JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id`;
+        task.destination_location_id, source_binding.node_id AS source_node_id,
+        destination_binding.node_id AS destination_node_id,
+        task.status, task.equipment_id, task.version
+      FROM task
+      JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id
+      JOIN locations source_location ON source_location.id = task.source_location_id
+      JOIN warehouse_topologies topology
+        ON topology.warehouse_id = source_location.warehouse_id
+       AND topology.status = 'active'
+      JOIN location_topology_bindings source_binding
+        ON source_binding.location_id = task.source_location_id
+       AND source_binding.topology_id = topology.id
+       AND source_binding.topology_revision = topology.revision
+      JOIN location_topology_bindings destination_binding
+        ON destination_binding.location_id = task.destination_location_id
+       AND destination_binding.topology_id = topology.id
+       AND destination_binding.topology_revision = topology.revision`;
   }
 
   private async record(

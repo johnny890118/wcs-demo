@@ -79,6 +79,27 @@ export class PgTopologyRepository implements TopologyActivationRepository {
         );
       }
 
+      const missingBindings = await client.query<{ code: string }>(
+        `SELECT location.code
+         FROM locations location
+         LEFT JOIN location_topology_bindings binding
+           ON binding.location_id = location.id
+          AND binding.topology_id = $1
+          AND binding.topology_revision = $2
+         WHERE location.warehouse_id = $3
+           AND location.status <> 'disabled'
+           AND binding.location_id IS NULL
+         ORDER BY location.code`,
+        [topologyId, revision, row.warehouse_id],
+      );
+      if (missingBindings.rows.length > 0) {
+        throw new TopologyActivationError(
+          `Topology is missing bindings for enabled locations: ${missingBindings.rows
+            .map(({ code }) => code)
+            .join(", ")}.`,
+        );
+      }
+
       await client.query(
         `UPDATE warehouse_topologies
          SET status = 'retired'

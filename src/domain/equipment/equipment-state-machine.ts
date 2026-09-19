@@ -20,6 +20,7 @@ type ActiveStatus = Exclude<EquipmentStatus, "offline" | "faulted" | "unknown">;
 export type EquipmentState = Readonly<{
   equipmentId: string;
   status: EquipmentStatus;
+  nodeId: string | null;
   taskId: string | null;
   loadId: string | null;
   faultCode: string | null;
@@ -31,9 +32,9 @@ export type EquipmentCommand =
   | { type: "bring_online" }
   | { type: "assign_task"; taskId: string }
   | { type: "start_pickup" }
-  | { type: "arrive_at_pickup" }
+  | { type: "arrive_at_pickup"; nodeId: string }
   | { type: "complete_loading"; loadId: string }
-  | { type: "arrive_at_destination" }
+  | { type: "arrive_at_destination"; nodeId: string }
   | { type: "complete_unloading" }
   | { type: "inject_fault"; faultCode: string }
   | { type: "recover"; strategy: "resume" | "release" }
@@ -51,20 +52,41 @@ export type TransitionResult =
 
 export function createEquipmentState(
   equipmentId: string,
-  initialStatus: "offline" | "idle" = "offline",
+  initialStatus: "offline" | "idle" | "unknown" = "offline",
+  restored: Readonly<{
+    nodeId?: string | null;
+    taskId?: string | null;
+    loadId?: string | null;
+    version?: number;
+  }> = {},
 ): EquipmentState {
   if (equipmentId.trim().length === 0) {
     throw new Error("equipmentId must not be empty");
   }
 
+  if (
+    restored.nodeId !== undefined &&
+    restored.nodeId !== null &&
+    restored.nodeId.trim().length === 0
+  ) {
+    throw new Error("nodeId must not be empty when provided");
+  }
+  if (
+    restored.version !== undefined &&
+    (!Number.isSafeInteger(restored.version) || restored.version < 0)
+  ) {
+    throw new Error("version must be a non-negative safe integer");
+  }
+
   return {
     equipmentId,
     status: initialStatus,
-    taskId: null,
-    loadId: null,
+    nodeId: restored.nodeId ?? null,
+    taskId: restored.taskId ?? null,
+    loadId: restored.loadId ?? null,
     faultCode: null,
     interruptedStatus: null,
-    version: 0,
+    version: restored.version ?? 0,
   };
 }
 
@@ -189,9 +211,16 @@ export function transitionEquipment(
         : reject(state, command);
 
     case "moving_to_pickup":
-      return command.type === "arrive_at_pickup"
-        ? accept(state, { status: "loading" })
-        : reject(state, command);
+      if (command.type !== "arrive_at_pickup") return reject(state, command);
+      if (command.nodeId.trim().length === 0) {
+        return {
+          accepted: false,
+          code: "INVALID_COMMAND",
+          message: "nodeId must not be empty.",
+          state,
+        };
+      }
+      return accept(state, { status: "loading", nodeId: command.nodeId });
 
     case "loading":
       if (command.type !== "complete_loading") return reject(state, command);
@@ -209,9 +238,17 @@ export function transitionEquipment(
       });
 
     case "moving_to_destination":
-      return command.type === "arrive_at_destination"
-        ? accept(state, { status: "unloading" })
-        : reject(state, command);
+      if (command.type !== "arrive_at_destination")
+        return reject(state, command);
+      if (command.nodeId.trim().length === 0) {
+        return {
+          accepted: false,
+          code: "INVALID_COMMAND",
+          message: "nodeId must not be empty.",
+          state,
+        };
+      }
+      return accept(state, { status: "unloading", nodeId: command.nodeId });
 
     case "unloading":
       return command.type === "complete_unloading"

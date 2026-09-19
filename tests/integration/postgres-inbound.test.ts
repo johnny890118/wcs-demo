@@ -4,6 +4,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
 import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
+import { PgEquipmentObservationSink } from "../../apps/api/src/execution/pg-equipment-observation.sink";
 import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.errors";
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
@@ -172,6 +173,10 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       published_count: "4",
       audit_count: "4",
     });
+    expect(await equipment.getState("AMR-01")).toMatchObject({
+      status: "idle",
+      nodeId: "STORAGE-A-01",
+    });
   });
 
   it("returns the original records for an identical idempotent replay", async () => {
@@ -300,6 +305,78 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).toBe(false);
   });
 
+  it("persists only monotonic equipment observations and rejects older evidence", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const sink = new PgEquipmentObservationSink(pool);
+    const observation = {
+      equipmentId: "AMR-01",
+      topologyId: "90000000-0000-4000-8000-000000000001",
+      topologyRevision: 1,
+      nodeId: "STORAGE-A-01",
+      status: "idle" as const,
+      taskId: null,
+      loadId: null,
+      faultCode: null,
+      connectionStatus: "connected" as const,
+      quality: "good" as const,
+      sequence: 10,
+      observedAt: new Date("2026-09-19T14:00:00.000Z"),
+      source: "integration-simulator",
+    };
+
+    await expect(sink.publish(observation)).resolves.toBe("applied");
+    await expect(
+      sink.publish({
+        ...observation,
+        nodeId: "RECEIVING-01",
+        status: "faulted",
+        faultCode: "STALE-EVIDENCE",
+        sequence: 9,
+      }),
+    ).resolves.toBe("ignored");
+
+    const stored = await pool.query<{
+      node_id: string;
+      status: string;
+      fault_code: string | null;
+      sequence: string;
+    }>(
+      `SELECT node_id, status, fault_code, sequence::text
+       FROM equipment_observations WHERE equipment_id = 'AMR-01'`,
+    );
+    expect(stored.rows[0]).toEqual({
+      node_id: "STORAGE-A-01",
+      status: "idle",
+      fault_code: null,
+      sequence: "10",
+    });
+
+    await pool.query(
+      `UPDATE equipment_observations
+       SET received_at = now() - interval '1 minute'
+       WHERE equipment_id = 'AMR-01'`,
+    );
+    const stale = await new OperationsSummaryService(pool).getDetails();
+    expect(stale.equipment[0]?.telemetry).toMatchObject({
+      freshness: "stale",
+      connectionStatus: "connected",
+      sequence: 10,
+    });
+
+    await expect(
+      sink.publish({
+        ...observation,
+        sequence: 11,
+        observedAt: new Date(),
+      }),
+    ).resolves.toBe("applied");
+    const refreshed = await new OperationsSummaryService(pool).getDetails();
+    expect(refreshed.equipment[0]?.telemetry).toMatchObject({
+      freshness: "current",
+      sequence: 11,
+    });
+  });
+
   it("loads persisted capabilities and atomically activates a valid topology revision", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
 
@@ -339,9 +416,25 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
          ('90000000-0000-4000-8000-000000000001', 2, 'A-B', 'A', 'B', 1, 'available');`,
     );
 
-    const activated = await new TopologyActivationService(
+    const activation = new TopologyActivationService(
       new PgTopologyRepository(pool),
-    ).activate("90000000-0000-4000-8000-000000000001", 2);
+    );
+    await expect(
+      activation.activate("90000000-0000-4000-8000-000000000001", 2),
+    ).rejects.toThrow("missing bindings");
+
+    await pool.query(
+      `INSERT INTO location_topology_bindings
+        (location_id, warehouse_id, topology_id, topology_revision, node_id)
+       VALUES
+        ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 2, 'A'),
+        ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 2, 'B'),
+        ('20000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 2, 'B')`,
+    );
+    const activated = await activation.activate(
+      "90000000-0000-4000-8000-000000000001",
+      2,
+    );
     expect(activated).toMatchObject({ revision: 2, status: "active" });
 
     const versions = await pool.query<{ revision: number; status: string }>(

@@ -35,6 +35,12 @@ docker compose \
   --env-file <private-env> \
   -f infra/compose.production.yml \
   --profile demo-seed run --rm seed-demo
+
+# Reload persisted simulator descriptors and publish the initial observation.
+docker compose \
+  --env-file <private-env> \
+  -f infra/compose.production.yml \
+  restart api
 ```
 
 Image base references are digest-pinned. Application dependencies are locked by `package-lock.json`; changing either input requires rebuilding and rerunning the deployment smoke gate.

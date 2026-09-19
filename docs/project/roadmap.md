@@ -105,11 +105,11 @@ Status: In progress
 - [x] Add an accessible, responsive warehouse topology map with directed-edge and runtime-fact overlays
 - [x] Persist and project topology-qualified equipment observations with timestamps, connection, quality, freshness, sequence, and explicit unknown position
 - [x] Render only qualified current/last-known observations on the map; never infer physical position from assignment
-- [ ] Connect simulator transitions and heartbeat publication to the observation sink, including restart and out-of-order behavior
+- [x] Connect simulator transitions, heartbeat, and graceful disconnect publication to the observation sink, including conservative restart and out-of-order rejection
 - [ ] Add operator workflows for inbound, outbound, alarm acknowledgement, and recovery behind authorization and confirmation boundaries
 - [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
 ## Immediate next task
 
-Connect simulator transitions and heartbeat publication to the durable observation sink, then prove live movement, stale/disconnected behavior, restart semantics, and out-of-order rejection. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.
+Add authorized and confirmed operator workflows to the product operations experience, beginning with an inbound execution vertical slice that exposes progress and resulting equipment movement without using the legacy page state machine. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.

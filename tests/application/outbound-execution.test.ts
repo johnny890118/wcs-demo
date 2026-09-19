@@ -18,6 +18,8 @@ class MemoryOutboundRepository implements OutboundExecutionRepository {
     quantity: 5,
     sourceLocationId: "20000000-0000-4000-8000-000000000002",
     destinationLocationId: "20000000-0000-4000-8000-000000000003",
+    sourceNodeId: "STORAGE-A-01",
+    destinationNodeId: "SHIPPING-01",
     status: "queued",
     equipmentId: null,
     version: 0,

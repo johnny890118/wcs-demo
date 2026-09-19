@@ -18,6 +18,18 @@ type ProcessedCommand = Readonly<{
   result: EquipmentCommandResult;
 }>;
 
+export type SimulatorRegistration =
+  | "offline"
+  | "idle"
+  | "unknown"
+  | Readonly<{
+      status: "offline" | "idle" | "unknown";
+      nodeId: string | null;
+      taskId: string | null;
+      loadId: string | null;
+      version: number;
+    }>;
+
 export class SimulatorEquipmentAdapter implements EquipmentPort {
   readonly #equipment = new Map<string, EquipmentState>();
   readonly #descriptors = new Map<string, EquipmentDescriptor>();
@@ -25,7 +37,7 @@ export class SimulatorEquipmentAdapter implements EquipmentPort {
 
   register(
     descriptor: EquipmentDescriptor,
-    initialStatus: "offline" | "idle" = "offline",
+    initial: SimulatorRegistration = "offline",
   ): EquipmentState {
     const issues = validateEquipmentDescriptor(descriptor);
     if (issues.length > 0) {
@@ -36,7 +48,22 @@ export class SimulatorEquipmentAdapter implements EquipmentPort {
       throw new Error(`Equipment ${equipmentId} is already registered.`);
     }
 
-    const state = createEquipmentState(equipmentId, initialStatus);
+    const registration =
+      typeof initial === "string"
+        ? {
+            status: initial,
+            nodeId: null,
+            taskId: null,
+            loadId: null,
+            version: 0,
+          }
+        : initial;
+    const state = createEquipmentState(equipmentId, registration.status, {
+      nodeId: registration.nodeId,
+      taskId: registration.taskId,
+      loadId: registration.loadId,
+      version: registration.version,
+    });
     this.#equipment.set(equipmentId, state);
     this.#descriptors.set(equipmentId, descriptor);
     return state;

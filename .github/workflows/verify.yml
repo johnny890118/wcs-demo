@@ -46,11 +46,19 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:3001/api/v1/health/ready
           curl --fail --silent --show-error --output /dev/null http://127.0.0.1:3000/platform
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml --profile demo-seed run --rm seed-demo
-          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse -Atc "select count(*) from schema_migrations" | grep -Fxq 7
+          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml restart api
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:3001/api/v1/health/ready >/dev/null; then break; fi
+            if [ "$attempt" -eq 30 ]; then exit 1; fi
+            sleep 2
+          done
+          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse -Atc "select count(*) from schema_migrations" | grep -Fxq 8
+          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse -Atc "select count(*) from location_topology_bindings" | grep -Fxq 3
+          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse -Atc "select count(*) from equipment_observations where source = 'deterministic-simulator' and sequence > 0 and connection_status = 'connected'" | grep -Fxq 1
           backup_directory="$(mktemp -d)"
           BACKUP_DIRECTORY="$backup_directory" BACKUP_NAME=ci-verified docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml --profile data-ops run --rm backup-database
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres createdb -U warehouse warehouse_restore
           BACKUP_DIRECTORY="$backup_directory" BACKUP_NAME=ci-verified RESTORE_CONFIRMATION=RESTORE:ci-verified RESTORE_DATABASE_URL=postgresql://warehouse:${POSTGRES_PASSWORD}@postgres:5432/warehouse_restore docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml --profile data-ops run --rm restore-database
-          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse_restore -Atc "select count(*) from schema_migrations" | grep -Fxq 7
+          docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse_restore -Atc "select count(*) from schema_migrations" | grep -Fxq 8
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml exec -T postgres psql -U warehouse -d warehouse_restore -Atc "select value from platform_metadata where key='deployment_mode'" | grep -Fxq demo
           rm -rf "$backup_directory"

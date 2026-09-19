@@ -59,6 +59,15 @@ SET from_node_id = EXCLUDED.from_node_id,
   cost = EXCLUDED.cost,
   status = EXCLUDED.status;
 
+INSERT INTO location_topology_bindings
+  (location_id, warehouse_id, topology_id, topology_revision, node_id)
+VALUES
+  ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 1, 'RECEIVING-01'),
+  ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 1, 'STORAGE-A-01'),
+  ('20000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', '90000000-0000-4000-8000-000000000001', 1, 'SHIPPING-01')
+ON CONFLICT (location_id, topology_id, topology_revision) DO UPDATE
+SET node_id = EXCLUDED.node_id;
+
 INSERT INTO equipment_descriptors
   (equipment_id, warehouse_id, adapter_key, capabilities, supported_commands, constraints)
 VALUES (

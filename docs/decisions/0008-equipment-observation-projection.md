@@ -20,4 +20,4 @@ The target architecture requires observed-at and received-at timestamps plus qua
 
 ## Consequences
 
-Migration `0007_equipment_observations.sql` adds durable, schema-validated latest-observation storage. The read model and UI can now express missing, current, stale, disconnected, and topology-mismatched evidence without guessing. Continuous simulator publication and heartbeat behavior remain a separate checkpoint; seeded demo evidence does not claim a live stream.
+Migration `0007_equipment_observations.sql` adds durable, schema-validated latest-observation storage. The read model and UI can now express missing, current, stale, disconnected, and topology-mismatched evidence without guessing. ADR 0009 subsequently connects simulator transitions, heartbeat, shutdown, and conservative restart behavior to this boundary.

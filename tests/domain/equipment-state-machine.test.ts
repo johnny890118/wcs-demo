@@ -22,15 +22,22 @@ describe("equipment state machine", () => {
     let state = createEquipmentState("AMR-01", "idle");
     state = apply(state, { type: "assign_task", taskId: "TASK-01" });
     state = apply(state, { type: "start_pickup" });
-    state = apply(state, { type: "arrive_at_pickup" });
+    state = apply(state, {
+      type: "arrive_at_pickup",
+      nodeId: "RECEIVING-01",
+    });
     state = apply(state, { type: "complete_loading", loadId: "LOAD-01" });
-    state = apply(state, { type: "arrive_at_destination" });
+    state = apply(state, {
+      type: "arrive_at_destination",
+      nodeId: "STORAGE-A-01",
+    });
     state = apply(state, { type: "complete_unloading" });
 
     expect(state).toMatchObject({
       status: "idle",
       taskId: null,
       loadId: null,
+      nodeId: "STORAGE-A-01",
       version: 6,
     });
   });
@@ -69,7 +76,10 @@ describe("equipment state machine", () => {
     let state = createEquipmentState("AMR-01", "idle");
     state = apply(state, { type: "assign_task", taskId: "TASK-01" });
     state = apply(state, { type: "start_pickup" });
-    state = apply(state, { type: "arrive_at_pickup" });
+    state = apply(state, {
+      type: "arrive_at_pickup",
+      nodeId: "STORAGE-A-01",
+    });
     state = apply(state, { type: "complete_loading", loadId: "LOAD-01" });
     state = apply(state, { type: "inject_fault", faultCode: "LIFT_FAULT" });
     state = apply(state, { type: "recover", strategy: "release" });

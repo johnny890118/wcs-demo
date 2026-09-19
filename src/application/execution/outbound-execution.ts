@@ -20,6 +20,8 @@ export type PersistedOutboundTask = Readonly<{
   quantity: number;
   sourceLocationId: string;
   destinationLocationId: string;
+  sourceNodeId: string;
+  destinationNodeId: string;
   status: "queued" | "assigned" | "in_progress" | "unknown";
   equipmentId: string | null;
   version: number;
@@ -128,7 +130,10 @@ export class DeterministicOutboundExecutor {
         this.metadata(),
       );
       this.clock.advanceBy(this.stepDurationMs);
-      await this.dispatch(command.equipmentId, { type: "arrive_at_pickup" });
+      await this.dispatch(command.equipmentId, {
+        type: "arrive_at_pickup",
+        nodeId: task.sourceNodeId,
+      });
       this.clock.advanceBy(this.stepDurationMs);
       await this.dispatch(command.equipmentId, {
         type: "complete_loading",
@@ -137,6 +142,7 @@ export class DeterministicOutboundExecutor {
       this.clock.advanceBy(this.stepDurationMs);
       await this.dispatch(command.equipmentId, {
         type: "arrive_at_destination",
+        nodeId: task.destinationNodeId,
       });
       this.clock.advanceBy(this.stepDurationMs);
       await this.dispatch(command.equipmentId, { type: "complete_unloading" });

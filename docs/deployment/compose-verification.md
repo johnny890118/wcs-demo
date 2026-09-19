@@ -19,3 +19,13 @@ The M5 deployment foundation was exercised locally with Docker Compose, not only
 - The isolated smoke containers, network, and test-only PostgreSQL volume were removed after verification.
 
 The same composition is exercised by the `deployment-smoke` CI job on every main-branch push and pull request.
+
+## M7 equipment-observation extension — 2026-09-19
+
+- Fresh isolated PostgreSQL storage applied all eight migrations through `0008_location_topology_bindings.sql`.
+- The deterministic demo seed created three warehouse-consistent location-to-node bindings.
+- Restarting the API after the opt-in seed loaded the persisted simulator descriptor and published `AMR-01|deterministic-simulator|1|connected` rather than relying on seeded assignment or browser state.
+- API readiness and the `/platform` web entry both passed from the production images.
+- The isolated containers, network, and test-only PostgreSQL volume were removed after verification.
+
+The CI deployment smoke now repeats this startup sequence, asserts eight migration records, three bindings, and a connected simulator observation, then continues through the existing backup/restore gate.

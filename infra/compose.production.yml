@@ -44,6 +44,7 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 3001
       API_SERVICE_ID: ${API_SERVICE_ID:-warehouse-web}
+      SIMULATOR_HEARTBEAT_MS: ${SIMULATOR_HEARTBEAT_MS:-10000}
       API_SERVICE_TOKEN: ${API_SERVICE_TOKEN:?API_SERVICE_TOKEN is required}
       API_SERVICE_PERMISSIONS: ${API_SERVICE_PERMISSIONS:-operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover}
       OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS:-1000}

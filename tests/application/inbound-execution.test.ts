@@ -17,6 +17,8 @@ class MemoryExecutionRepository implements InboundExecutionRepository {
     loadId: "40000000-0000-4000-8000-000000000001",
     sourceLocationId: "20000000-0000-4000-8000-000000000001",
     destinationLocationId: "20000000-0000-4000-8000-000000000002",
+    sourceNodeId: "RECEIVING-01",
+    destinationNodeId: "STORAGE-A-01",
     status: "queued",
     equipmentId: null,
     version: 0,
