@@ -48,6 +48,14 @@ function url(name, protocols) {
   }
 }
 
+function integer(name, fallback, minimum, maximum) {
+  const value = Number(process.env[name] ?? fallback);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    errors.push(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return value;
+}
+
 if (target === "api" || target === "all") {
   const database = url("DATABASE_URL", ["postgres:", "postgresql:"]);
   if (
@@ -95,6 +103,7 @@ if (target === "web" || target === "all") {
     errors.push("NEXTAUTH_URL and PUBLIC_SITE_URL must use the same origin.");
   }
   url("INTERNAL_API_BASE_URL", ["http:", "https:"]);
+  integer("INTERNAL_API_TIMEOUT_MS", 75_000, 1_000, 120_000);
   required("NEXTAUTH_SECRET", 32);
   required("DEMO_ADMIN_USERNAME", 3);
   required("DEMO_ADMIN_PASSWORD", 16);

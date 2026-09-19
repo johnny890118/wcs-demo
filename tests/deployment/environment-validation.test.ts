@@ -67,6 +67,7 @@ describe("deployment environment validation", () => {
       NEXTAUTH_URL: "https://warehouse.example.com",
       PUBLIC_SITE_URL: "https://warehouse.example.com",
       INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      INTERNAL_API_TIMEOUT_MS: "75000",
       NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
       DEMO_ADMIN_USERNAME: "validation-operator",
       DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
@@ -74,5 +75,21 @@ describe("deployment environment validation", () => {
     });
 
     expect(result.status).toBe(0);
+  });
+
+  it("rejects an unbounded internal API timeout", () => {
+    const result = validate("web", {
+      NEXTAUTH_URL: "https://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
+      INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      INTERNAL_API_TIMEOUT_MS: "120001",
+      NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
+      DEMO_ADMIN_USERNAME: "validation-operator",
+      DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("INTERNAL_API_TIMEOUT_MS");
   });
 });

@@ -7,6 +7,18 @@ import {
   type OperationsDetails,
 } from "../../application/operations/operations-details";
 
+const defaultTimeoutMs = 75_000;
+
+export function loadWcsApiTimeoutMs(): number {
+  const value = Number(process.env.INTERNAL_API_TIMEOUT_MS ?? defaultTimeoutMs);
+  if (!Number.isSafeInteger(value) || value < 1_000 || value > 120_000) {
+    throw new Error(
+      "INTERNAL_API_TIMEOUT_MS must be an integer from 1000 to 120000.",
+    );
+  }
+  return value;
+}
+
 async function fetchWcsProjection(path: string): Promise<unknown> {
   const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
   const token = process.env.API_SERVICE_TOKEN;
@@ -14,7 +26,7 @@ async function fetchWcsProjection(path: string): Promise<unknown> {
 
   const response = await fetch(`${baseUrl}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
-    signal: AbortSignal.timeout(2_000),
+    signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
   });
   if (!response.ok) {
     throw new Error(`WCS API returned HTTP ${response.status}.`);
