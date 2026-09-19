@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Pool } from "pg";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
+import type { TopologyNode } from "../../../../src/domain/topology/warehouse-topology";
 import { DATABASE_POOL } from "../database/database.module";
 
 type CountRow = {
@@ -60,7 +61,12 @@ type AlarmRow = {
   resolution: string | null;
 };
 
-type NodeRow = { node_id: string; kind: string; capabilities: string[] };
+type NodeRow = {
+  node_id: string;
+  kind: string;
+  capabilities: string[];
+  position: TopologyNode["position"] | null;
+};
 type EdgeRow = {
   edge_id: string;
   from_node_id: string;
@@ -169,7 +175,7 @@ export class OperationsSummaryService {
     const [nodes, edges] = activeTopology
       ? await Promise.all([
           this.pool.query<NodeRow>(
-            `SELECT node_id, kind, capabilities
+            `SELECT node_id, kind, capabilities, position
              FROM topology_nodes
              WHERE topology_id = $1 AND topology_revision = $2
              ORDER BY node_id`,
@@ -230,6 +236,7 @@ export class OperationsSummaryService {
               nodeId: node.node_id,
               kind: node.kind,
               capabilities: node.capabilities,
+              ...(node.position ? { position: node.position } : {}),
             })),
             edges: edges.rows.map((edge) => ({
               edgeId: edge.edge_id,

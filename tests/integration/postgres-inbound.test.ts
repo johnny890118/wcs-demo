@@ -249,7 +249,11 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         topologyId: "90000000-0000-4000-8000-000000000001",
         revision: 1,
         nodes: [
-          { nodeId: "RECEIVING-01", kind: "transfer" },
+          {
+            nodeId: "RECEIVING-01",
+            kind: "transfer",
+            position: { coordinateSystem: "demo", x: 0, y: 0 },
+          },
           { nodeId: "SHIPPING-01", kind: "shipping" },
           { nodeId: "STORAGE-A-01", kind: "storage" },
         ],

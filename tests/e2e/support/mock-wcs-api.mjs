@@ -63,11 +63,13 @@ const baseDetails = {
         nodeId: "receiving-01",
         kind: "receiving",
         capabilities: ["transfer"],
+        position: { coordinateSystem: "e2e", x: 0, y: 0 },
       },
       {
         nodeId: "storage-01",
         kind: "storage",
         capabilities: ["store"],
+        position: { coordinateSystem: "e2e", x: 10, y: 0 },
       },
     ],
     edges: [

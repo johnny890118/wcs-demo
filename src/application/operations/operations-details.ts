@@ -41,6 +41,12 @@ export type OperationsDetails = Readonly<{
       nodeId: string;
       kind: string;
       capabilities: readonly string[];
+      position?: Readonly<{
+        coordinateSystem: string;
+        x: number;
+        y: number;
+        z?: number;
+      }>;
     }>[];
     edges: readonly Readonly<{
       edgeId: string;
@@ -151,10 +157,25 @@ export function isOperationsDetails(
         if (!item || typeof item !== "object" || Array.isArray(item))
           return false;
         const node = item as Record<string, unknown>;
+        const position = node.position as Record<string, unknown> | undefined;
+        const positionIsValid =
+          position === undefined ||
+          (typeof position === "object" &&
+            position !== null &&
+            !Array.isArray(position) &&
+            typeof position.coordinateSystem === "string" &&
+            position.coordinateSystem.trim().length > 0 &&
+            typeof position.x === "number" &&
+            Number.isFinite(position.x) &&
+            typeof position.y === "number" &&
+            Number.isFinite(position.y) &&
+            (position.z === undefined ||
+              (typeof position.z === "number" && Number.isFinite(position.z))));
         return (
           typeof node.nodeId === "string" &&
           typeof node.kind === "string" &&
-          isStringArray(node.capabilities)
+          isStringArray(node.capabilities) &&
+          positionIsValid
         );
       }) &&
       Array.isArray(topology.edges) &&

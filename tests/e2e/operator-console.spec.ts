@@ -93,6 +93,41 @@ test("authenticated focused projections expose screen-reader semantics", async (
   expect(accessibility.violations).toEqual([]);
 });
 
+test("warehouse map renders configured topology without inventing equipment position", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/warehouse");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "即時倉庫拓撲" }),
+  ).toBeVisible();
+  await expect(page.getByRole("img", { name: "即時倉庫拓撲" })).toBeVisible();
+  await expect(page.getByText("設定座標", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "receiving-01" }),
+  ).toBeVisible();
+  await expect(page.getByText("不臆測設備位置")).toBeVisible();
+  await expect(page.getByText("agv-e2e-01")).toHaveCount(0);
+
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
+});
+
+test("warehouse map reflows without horizontal page overflow on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, "/operations/warehouse");
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  await expect(page.getByRole("img", { name: "即時倉庫拓撲" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "storage-01" })).toBeVisible();
+});
+
 test("completed inbound scenario projects stored inventory", async ({
   page,
 }) => {

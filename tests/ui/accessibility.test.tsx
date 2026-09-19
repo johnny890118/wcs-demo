@@ -8,6 +8,7 @@ import PlatformPage from "../../pages/platform";
 import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";
+import WarehouseOperationsPage from "../../pages/operations/warehouse";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
 
@@ -78,8 +79,18 @@ const details: OperationsDetails = {
     topologyId: "TOPOLOGY-01",
     revision: 1,
     nodes: [
-      { nodeId: "A", kind: "transfer", capabilities: ["load.pickup"] },
-      { nodeId: "B", kind: "storage", capabilities: ["load.dropoff"] },
+      {
+        nodeId: "A",
+        kind: "transfer",
+        capabilities: ["load.pickup"],
+        position: { coordinateSystem: "test", x: 0, y: 0 },
+      },
+      {
+        nodeId: "B",
+        kind: "storage",
+        capabilities: ["load.dropoff"],
+        position: { coordinateSystem: "test", x: 10, y: 0 },
+      },
     ],
     edges: [
       {
@@ -139,6 +150,15 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <OperationsProjectionsPage details={details} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("finds no detectable violations on the warehouse topology map", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <WarehouseOperationsPage details={details} />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

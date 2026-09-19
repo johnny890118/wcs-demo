@@ -96,6 +96,18 @@ Status: Complete
 - [x] Deterministic acknowledgement-loss, connection-loss, stale telemetry, bounded retry, reconciliation, and edge/WAN-loss drills
 - [x] OT threat model and physical commissioning gate aligned with NIST SP 800-82 and ISA/IEC 62443 concepts without certification claims
 
+## M7 — Product operations experience
+
+Status: In progress
+
+- [x] Reopen the product roadmap and distinguish engineering-foundation completion from product completion
+- [x] Publish validated topology presentation coordinates through the operations read model without making visualization domain truth
+- [x] Add an accessible, responsive warehouse topology map with directed-edge and runtime-fact overlays
+- [ ] Add trustworthy equipment position/telemetry projection with freshness and quality; never infer location from assignment
+- [ ] Add operator workflows for inbound, outbound, alarm acknowledgement, and recovery behind authorization and confirmation boundaries
+- [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
+- [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
+
 ## Immediate next task
 
-No roadmap milestone remains open. Preserve the verified managed demo, monitor provider limits and dependency/security signals, and collect customer, site, and device evidence before authorizing physical-equipment commissioning. Warehouse visualization remains deferred until it can consume topology projections without defining routes or domain state.
+Add trustworthy simulator telemetry to the operations projection before placing equipment on the map, including observed and received timestamps, freshness, quality, and an explicit unknown position. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.
