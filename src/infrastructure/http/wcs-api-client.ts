@@ -6,6 +6,14 @@ import {
   isOperationsDetails,
   type OperationsDetails,
 } from "../../application/operations/operations-details";
+import {
+  isInboundExecutionCompleted,
+  isInboundReceiptCreated,
+  type CreateInboundWorkflowRequest,
+  type ExecuteInboundWorkflowRequest,
+  type InboundExecutionCompleted,
+  type InboundReceiptCreated,
+} from "../../application/operations/inbound-workflow";
 
 const defaultTimeoutMs = 55_000;
 
@@ -34,6 +42,54 @@ async function fetchWcsProjection(path: string): Promise<unknown> {
   return response.json();
 }
 
+export class WcsCommandError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "WcsCommandError";
+  }
+}
+
+async function postWcsCommand(
+  path: string,
+  body: unknown,
+  operatorId: string,
+  headers: Record<string, string> = {},
+): Promise<unknown> {
+  const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
+  const token = process.env.API_SERVICE_TOKEN;
+  if (!token) throw new Error("API_SERVICE_TOKEN is required.");
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "X-Operator-Id": operatorId,
+      ...headers,
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+  });
+  const payload: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    const error =
+      payload && typeof payload === "object" && !Array.isArray(payload)
+        ? (payload as Record<string, unknown>)
+        : null;
+    throw new WcsCommandError(
+      response.status,
+      typeof error?.code === "string" ? error.code : "WCS_COMMAND_FAILED",
+      typeof error?.message === "string"
+        ? error.message
+        : `WCS API returned HTTP ${response.status}.`,
+    );
+  }
+  return payload;
+}
+
 export async function fetchOperationsSummary(): Promise<OperationsSummary> {
   const payload = await fetchWcsProjection("/api/v1/operations/summary");
   if (!isOperationsSummary(payload)) {
@@ -46,6 +102,39 @@ export async function fetchOperationsDetails(): Promise<OperationsDetails> {
   const payload = await fetchWcsProjection("/api/v1/operations/details");
   if (!isOperationsDetails(payload)) {
     throw new Error("WCS operations API returned invalid focused projections.");
+  }
+  return payload;
+}
+
+export async function createInboundReceipt(
+  request: CreateInboundWorkflowRequest,
+  operatorId: string,
+): Promise<InboundReceiptCreated> {
+  const { idempotencyKey, ...body } = request;
+  const payload = await postWcsCommand(
+    "/api/v1/inbound-receipts",
+    body,
+    operatorId,
+    { "Idempotency-Key": idempotencyKey },
+  );
+  if (!isInboundReceiptCreated(payload)) {
+    throw new Error("WCS API returned an invalid inbound receipt result.");
+  }
+  return payload;
+}
+
+export async function executeInboundTask(
+  taskId: string,
+  request: ExecuteInboundWorkflowRequest,
+  operatorId: string,
+): Promise<InboundExecutionCompleted> {
+  const payload = await postWcsCommand(
+    `/api/v1/transport-tasks/${encodeURIComponent(taskId)}/execute`,
+    request,
+    operatorId,
+  );
+  if (!isInboundExecutionCompleted(payload)) {
+    throw new Error("WCS API returned an invalid inbound execution result.");
   }
   return payload;
 }

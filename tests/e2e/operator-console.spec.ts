@@ -130,6 +130,53 @@ test("warehouse map reflows without horizontal page overflow on mobile", async (
   await expect(page.getByRole("button", { name: "storage-01" })).toBeVisible();
 });
 
+test("operator creates, confirms, and executes an inbound workflow", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/inbound");
+
+  await page.getByLabel("外部參考編號").fill("ASN-UI-E2E-01");
+  await page.getByLabel("外部載具編號").fill("PALLET-UI-E2E-01");
+  await page.getByLabel("品項").fill("SKU-UI-E2E");
+  await page.getByLabel("數量").fill("6");
+  await page.getByRole("button", { name: "建立入庫單" }).click();
+
+  await expect(
+    page.getByText("50000000-0000-4000-8000-000000000099"),
+  ).toBeVisible();
+  await page
+    .getByLabel("確認理由")
+    .fill("已確認收貨資料、路線與即時設備狀態。");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "確認並執行入庫任務" }).click();
+
+  await expect(page.getByText("入庫執行完成")).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
+
+  await page.getByRole("link", { name: "查看執行後的倉庫觀測" }).click();
+  await expect(page).toHaveURL("/operations/warehouse");
+  await expect(page.getByText("agv-e2e-01").first()).toBeVisible();
+});
+
+test("inbound workflow reflows without horizontal page overflow on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, "/operations/inbound");
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "建立並執行入庫作業" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("外部參考編號")).toBeVisible();
+  await expect(page.getByRole("button", { name: "建立入庫單" })).toBeVisible();
+});
+
 test("completed inbound scenario projects stored inventory", async ({
   page,
 }) => {

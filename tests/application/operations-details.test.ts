@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { isOperationsDetails } from "../../src/application/operations/operations-details";
 
 const validProjection = {
+  locations: [],
   tasks: [],
   equipment: [
     {

@@ -3,6 +3,7 @@ import {
   ArrowRightStartOnRectangleIcon,
   BuildingStorefrontIcon,
   MapIcon,
+  InboxArrowDownIcon,
   QueueListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
@@ -18,7 +19,7 @@ export function OperationsShell({
   current = "overview",
 }: {
   children: ReactNode;
-  current?: "overview" | "warehouse" | "projections";
+  current?: "overview" | "warehouse" | "inbound" | "projections";
 }) {
   const { t } = useLocale();
 
@@ -65,6 +66,18 @@ export function OperationsShell({
             >
               <MapIcon className="h-5 w-5" aria-hidden="true" />
               {t("warehouseMap")}
+            </Link>
+            <Link
+              href="/operations/inbound"
+              aria-current={current === "inbound" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "inbound"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <InboxArrowDownIcon className="h-5 w-5" aria-hidden="true" />
+              {t("inbound")}
             </Link>
             <Link
               href="/operations/projections"
@@ -147,6 +160,17 @@ export function OperationsShell({
                 }`}
               >
                 {t("warehouseMap")}
+              </Link>
+              <Link
+                href="/operations/inbound"
+                aria-current={current === "inbound" ? "page" : undefined}
+                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "inbound"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("inbound")}
               </Link>
               <Link
                 href="/operations/projections"

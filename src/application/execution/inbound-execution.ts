@@ -21,6 +21,7 @@ export type PersistedInboundTask = Readonly<{
 export type TransitionMetadata = Readonly<{
   outboxEventId: string;
   auditEventId: string;
+  confirmationReason?: string;
 }>;
 
 export type CompletionMetadata = TransitionMetadata &
@@ -64,6 +65,7 @@ export type ExecuteInboundTask = Readonly<{
   taskId: string;
   equipmentId: string;
   actorId: string;
+  confirmationReason: string;
 }>;
 
 export type InboundExecutionResult = Readonly<{
@@ -146,7 +148,7 @@ export class DeterministicInboundExecutor {
         command.equipmentId,
         task.version,
         command.actorId,
-        this.transitionMetadata(),
+        this.transitionMetadata(command.confirmationReason),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -155,7 +157,7 @@ export class DeterministicInboundExecutor {
         task.taskId,
         task.version,
         command.actorId,
-        this.transitionMetadata(),
+        this.transitionMetadata(command.confirmationReason),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -181,7 +183,7 @@ export class DeterministicInboundExecutor {
         task.version,
         command.actorId,
         {
-          ...this.transitionMetadata(),
+          ...this.transitionMetadata(command.confirmationReason),
           inventoryUnitId: this.createId(),
         },
       );
@@ -214,10 +216,11 @@ export class DeterministicInboundExecutor {
     }
   }
 
-  private transitionMetadata(): TransitionMetadata {
+  private transitionMetadata(confirmationReason?: string): TransitionMetadata {
     return {
       outboxEventId: this.createId(),
       auditEventId: this.createId(),
+      ...(confirmationReason ? { confirmationReason } : {}),
     };
   }
 
@@ -238,7 +241,7 @@ export class DeterministicInboundExecutor {
         task.version,
         command.actorId,
         reason,
-        this.transitionMetadata(),
+        this.transitionMetadata(command.confirmationReason),
       ),
     ]);
   }

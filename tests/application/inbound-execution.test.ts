@@ -122,6 +122,7 @@ describe("deterministic inbound execution", () => {
       taskId: repository.task.taskId,
       equipmentId: "AMR-01",
       actorId: "test-service",
+      confirmationReason: "Verified deterministic inbound execution test.",
     });
 
     expect(result).toEqual({
@@ -155,6 +156,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test-service",
+        confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("database commit failed");
 
@@ -187,6 +189,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test-service",
+        confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("not idle");
 
@@ -216,6 +219,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "SCANNER-01",
         actorId: "test-service",
+        confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("lacks capabilities");
 

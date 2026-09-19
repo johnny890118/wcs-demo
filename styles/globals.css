@@ -18,6 +18,7 @@
   --accent-soft: #dcece3;
   --warning: #a15c0a;
   --danger: #b33737;
+  --on-danger: #ffffff;
   --success: #28724d;
   --focus: #3578e5;
   --shadow-panel: 0 1px 2px rgb(22 32 25 / 6%), 0 12px 32px rgb(22 32 25 / 6%);
@@ -40,6 +41,7 @@
   --accent-soft: #1d3c2c;
   --warning: #e8a64c;
   --danger: #ef7777;
+  --on-danger: #111612;
   --success: #73cf9f;
   --focus: #83adff;
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 20%), 0 16px 40px rgb(0 0 0 / 18%);

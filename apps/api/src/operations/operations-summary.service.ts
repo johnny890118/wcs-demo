@@ -74,6 +74,15 @@ type AlarmRow = {
   resolution: string | null;
 };
 
+type LocationRow = {
+  id: string;
+  code: string;
+  kind: string;
+  status: "available" | "blocked" | "disabled";
+  capabilities: string[];
+  active_node_id: string | null;
+};
+
 type NodeRow = {
   node_id: string;
   kind: string;
@@ -147,18 +156,19 @@ export class OperationsSummaryService {
   }
 
   async getDetails(): Promise<OperationsDetails> {
-    const [tasks, equipment, inventory, alarms, topology] = await Promise.all([
-      this.pool.query<FocusedTaskRow>(
-        `SELECT t.id, t.status, source.code AS source, destination.code AS destination,
+    const [tasks, equipment, inventory, alarms, locations, topology] =
+      await Promise.all([
+        this.pool.query<FocusedTaskRow>(
+          `SELECT t.id, t.status, source.code AS source, destination.code AS destination,
           t.equipment_id, t.updated_at
          FROM transport_tasks t
          JOIN locations source ON source.id = t.source_location_id
          JOIN locations destination ON destination.id = t.destination_location_id
          ORDER BY t.updated_at DESC, t.id
          LIMIT 100`,
-      ),
-      this.pool.query<EquipmentRow>(
-        `SELECT descriptor.equipment_id, descriptor.adapter_key,
+        ),
+        this.pool.query<EquipmentRow>(
+          `SELECT descriptor.equipment_id, descriptor.adapter_key,
           descriptor.capabilities, descriptor.active,
           observation.status AS telemetry_status,
           observation.task_id AS telemetry_task_id,
@@ -178,30 +188,44 @@ export class OperationsSummaryService {
            ON observation.equipment_id = descriptor.equipment_id
          ORDER BY descriptor.equipment_id
          LIMIT 100`,
-      ),
-      this.pool.query<InventoryRow>(
-        `SELECT inventory.id, inventory.sku, inventory.quantity,
+        ),
+        this.pool.query<InventoryRow>(
+          `SELECT inventory.id, inventory.sku, inventory.quantity,
           location.code AS location, inventory.status, inventory.updated_at
          FROM inventory_units inventory
          JOIN locations location ON location.id = inventory.location_id
          ORDER BY inventory.updated_at DESC, inventory.id
          LIMIT 100`,
-      ),
-      this.pool.query<AlarmRow>(
-        `SELECT id, transport_task_id, equipment_id, code, severity, message,
+        ),
+        this.pool.query<AlarmRow>(
+          `SELECT id, transport_task_id, equipment_id, code, severity, message,
           status, raised_at, acknowledged_at, cleared_at, resolution
          FROM alarms
          ORDER BY raised_at DESC, id
          LIMIT 100`,
-      ),
-      this.pool.query<TopologyRow>(
-        `SELECT id, revision
+        ),
+        this.pool.query<LocationRow>(
+          `SELECT location.id, location.code, location.kind, location.status,
+          location.capabilities, binding.node_id AS active_node_id
+         FROM locations location
+         LEFT JOIN warehouse_topologies topology
+           ON topology.warehouse_id = location.warehouse_id
+          AND topology.status = 'active'
+         LEFT JOIN location_topology_bindings binding
+           ON binding.location_id = location.id
+          AND binding.topology_id = topology.id
+          AND binding.topology_revision = topology.revision
+         ORDER BY location.code
+         LIMIT 500`,
+        ),
+        this.pool.query<TopologyRow>(
+          `SELECT id, revision
          FROM warehouse_topologies
          WHERE status = 'active'
          ORDER BY activated_at DESC NULLS LAST, revision DESC
          LIMIT 1`,
-      ),
-    ]);
+        ),
+      ]);
     const activeTopology = topology.rows[0];
     const [nodes, edges] = activeTopology
       ? await Promise.all([
@@ -296,6 +320,14 @@ export class OperationsSummaryService {
         acknowledgedAt: alarm.acknowledged_at?.toISOString() ?? null,
         clearedAt: alarm.cleared_at?.toISOString() ?? null,
         resolution: alarm.resolution,
+      })),
+      locations: locations.rows.map((location) => ({
+        locationId: location.id,
+        code: location.code,
+        kind: location.kind,
+        status: location.status,
+        capabilities: location.capabilities,
+        activeNodeId: location.active_node_id,
       })),
       topology: activeTopology
         ? {

@@ -263,7 +263,18 @@ export class PgInboundExecutionRepository
       `INSERT INTO audit_events
         (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details)
        VALUES ($1, 'service', $2, $3, 'TransportTask', $4, $5::jsonb)`,
-      [metadata.auditEventId, actorId, action, taskId, JSON.stringify(details)],
+      [
+        metadata.auditEventId,
+        actorId,
+        action,
+        taskId,
+        JSON.stringify({
+          ...details,
+          ...(metadata.confirmationReason
+            ? { confirmationReason: metadata.confirmationReason }
+            : {}),
+        }),
+      ],
     );
   }
 

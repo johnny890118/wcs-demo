@@ -119,6 +119,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: identifiers.transportTaskId,
       equipmentId: "AMR-01",
       actorId: command.actorId,
+      confirmationReason: "Verified integration inbound execution.",
     });
 
     const publishedEvents: OutboxEvent[] = [];
@@ -148,13 +149,16 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       outbox_count: string;
       published_count: string;
       audit_count: string;
+      confirmation_reason: string;
     }>(
       `SELECT t.status AS task_status, l.status AS load_status,
         r.status AS receipt_status, i.location_id,
         (SELECT count(*) FROM inventory_units) AS inventory_count,
         (SELECT count(*) FROM outbox_events) AS outbox_count,
         (SELECT count(*) FROM outbox_events WHERE published_at IS NOT NULL) AS published_count,
-        (SELECT count(*) FROM audit_events) AS audit_count
+        (SELECT count(*) FROM audit_events) AS audit_count,
+        (SELECT details ->> 'confirmationReason' FROM audit_events
+          WHERE action = 'transport_task.complete') AS confirmation_reason
        FROM transport_tasks t
        JOIN loads l ON l.id = t.load_id
        JOIN inbound_receipts r ON r.id = t.receipt_id
@@ -172,6 +176,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       outbox_count: "4",
       published_count: "4",
       audit_count: "4",
+      confirmation_reason: "Verified integration inbound execution.",
     });
     expect(await equipment.getState("AMR-01")).toMatchObject({
       status: "idle",
@@ -466,6 +471,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: identifiers.transportTaskId,
       equipmentId: "AMR-01",
       actorId: command.actorId,
+      confirmationReason: "Verified integration inbound execution.",
     });
 
     const outbound = new PgOutboundRepository(pool);

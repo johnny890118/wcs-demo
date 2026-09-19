@@ -8,6 +8,7 @@ import PlatformPage from "../../pages/platform";
 import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";
+import InboundOperationsPage from "../../pages/operations/inbound";
 import WarehouseOperationsPage from "../../pages/operations/warehouse";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
@@ -32,6 +33,24 @@ vi.mock("next-themes", () => ({
 }));
 
 const details: OperationsDetails = {
+  locations: [
+    {
+      locationId: "LOCATION-01",
+      code: "RECEIVING-01",
+      kind: "receiving",
+      status: "available",
+      capabilities: ["load.pickup"],
+      activeNodeId: "A",
+    },
+    {
+      locationId: "LOCATION-02",
+      code: "STORAGE-A-01",
+      kind: "storage",
+      status: "available",
+      capabilities: ["load.dropoff", "inventory.store"],
+      activeNodeId: "B",
+    },
+  ],
   tasks: [
     {
       taskId: "TASK-01",
@@ -46,7 +65,7 @@ const details: OperationsDetails = {
     {
       equipmentId: "MOBILE-01",
       adapterKey: "simulator.mobile-transport",
-      capabilities: ["transport.move", "load.pickup"],
+      capabilities: ["transport.move", "load.pickup", "load.dropoff"],
       active: true,
       telemetry: {
         status: "moving_to_destination",
@@ -176,6 +195,15 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <WarehouseOperationsPage details={details} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("finds no detectable violations on the inbound confirmation workflow", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <InboundOperationsPage details={details} />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

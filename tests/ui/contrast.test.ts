@@ -49,6 +49,7 @@ const normalTextPairs = [
   ["accent", "surface"],
   ["accent-strong", "accent-soft"],
   ["on-accent", "accent"],
+  ["on-danger", "danger"],
   ["warning", "surface"],
   ["danger", "surface"],
   ["success", "surface"],

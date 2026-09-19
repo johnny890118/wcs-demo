@@ -26,6 +26,24 @@ const baseSummary = {
   generatedAt,
 };
 const baseDetails = {
+  locations: [
+    {
+      locationId: "20000000-0000-4000-8000-000000000001",
+      code: "RECEIVING-01",
+      kind: "receiving",
+      status: "available",
+      capabilities: ["load.pickup"],
+      activeNodeId: "receiving-01",
+    },
+    {
+      locationId: "20000000-0000-4000-8000-000000000002",
+      code: "STORAGE-01",
+      kind: "storage",
+      status: "available",
+      capabilities: ["load.dropoff", "inventory.store"],
+      activeNodeId: "storage-01",
+    },
+  ],
   tasks: [
     {
       taskId: "task-e2e-001",
@@ -40,7 +58,12 @@ const baseDetails = {
     {
       equipmentId: "agv-e2e-01",
       adapterKey: "deterministic-simulator",
-      capabilities: ["transport.load"],
+      capabilities: [
+        "transport.move",
+        "load.pickup",
+        "load.dropoff",
+        "navigation.graph",
+      ],
       active: true,
       telemetry: {
         status: "idle",
@@ -238,6 +261,76 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/details") {
     response.end(JSON.stringify(details));
+    return;
+  }
+  if (request.method === "POST" && request.url === "/api/v1/inbound-receipts") {
+    const body = await readBody(request);
+    details.tasks = [
+      {
+        taskId: "50000000-0000-4000-8000-000000000099",
+        status: "queued",
+        source: "RECEIVING-01",
+        destination: "STORAGE-01",
+        equipmentId: null,
+        updatedAt: generatedAt,
+      },
+      ...details.tasks,
+    ];
+    refreshSummary();
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({
+        receiptId: "30000000-0000-4000-8000-000000000099",
+        loadId: "40000000-0000-4000-8000-000000000099",
+        transportTaskId: "50000000-0000-4000-8000-000000000099",
+        status: "requested",
+        duplicate: false,
+        echoedSku: body.load?.sku,
+      }),
+    );
+    return;
+  }
+  if (
+    request.method === "POST" &&
+    request.url ===
+      "/api/v1/transport-tasks/50000000-0000-4000-8000-000000000099/execute"
+  ) {
+    const body = await readBody(request);
+    if (
+      request.headers["x-operator-id"] !== "e2e-operator" ||
+      body.confirmedAction !== "execute_inbound_task"
+    ) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ code: "INVALID_CONFIRMATION" }));
+      return;
+    }
+    details.tasks[0] = {
+      ...details.tasks[0],
+      status: "completed",
+      equipmentId: body.equipmentId,
+    };
+    details.inventory.push({
+      inventoryUnitId: "inventory-inbound-ui",
+      sku: "SKU-UI-E2E",
+      quantity: 6,
+      location: "STORAGE-01",
+      status: "available",
+      updatedAt: generatedAt,
+    });
+    details.equipment[0].telemetry = {
+      ...details.equipment[0].telemetry,
+      nodeId: "storage-01",
+      sequence: details.equipment[0].telemetry.sequence + 6,
+    };
+    refreshSummary();
+    response.end(
+      JSON.stringify({
+        taskId: "50000000-0000-4000-8000-000000000099",
+        equipmentId: body.equipmentId,
+        status: "completed",
+        completedAt: 6000,
+      }),
+    );
     return;
   }
   if (

@@ -1,0 +1,20 @@
+# M7 inbound workflow design review
+
+Review date: 2026-09-19. Scope: the authorized inbound operations slice at `/operations/inbound`.
+
+The browser requests work but never owns warehouse truth. Locations, topology bindings, equipment capability, telemetry eligibility, route resolution, persistence, and execution outcomes remain behind authenticated application and API boundaries.
+
+| Before                                                                             | After                                                                                                                      | Why                                                                                       |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| The legacy workspace let React state imply inbound progress and equipment movement | The workflow creates a persistent receipt and task, then executes it through authenticated server-side application ports   | Reloads and presentation changes cannot manufacture warehouse outcomes                    |
+| Operators could not inspect a durable task before starting movement                | Creation and execution are separate steps with the persisted task ID and resolved route shown between them                 | The high-impact action has a stable review boundary                                       |
+| Browser identity was collapsed into the API service identity                       | The authenticated Next.js session forwards a trusted operator identifier that is written into audit evidence               | Every create and execute action remains attributable                                      |
+| Execution could be requested without an explicit named confirmation                | The operator must check a confirmation, provide an 8–500 character reason, and submit `execute_inbound_task`               | Intent is explicit, reviewable, and resistant to accidental activation                    |
+| Demo coordinates and equipment type branches shaped behavior                       | Location choices come from active topology bindings; equipment is filtered by capabilities and qualified current telemetry | The UI remains warehouse-configurable and never treats presentation data as routing truth |
+| A generic retry could create duplicate work                                        | One idempotency key is retained across retries and is renewed only after the operator edits an idle request                | Network uncertainty does not silently duplicate receipts or tasks                         |
+| Destructive-action contrast relied on a fixed white foreground                     | `--on-danger` is theme-specific and covered by the token contrast gate                                                     | The confirmation action remains WCAG AA legible in light and dark themes                  |
+| No responsive inbound workflow gate existed                                        | Chromium checks axe after completion and asserts 390 × 844 reflow without horizontal page overflow                         | Semantic and small-screen assumptions are executable rather than aspirational             |
+
+Manual review covered the initial desktop state and a 390 × 844 mobile viewport in the real browser. The desktop keeps request and confirmation side by side; mobile preserves the same order as a single column with persistent labels, native controls, and no hidden primary action. Both views expose the same bilingual navigation and theme controls.
+
+Motion decision: the workflow has no progress animation or decorative movement. Request state changes use text, disabled states, and status regions. The shared 160 ms press feedback is removed under reduced-motion preferences.

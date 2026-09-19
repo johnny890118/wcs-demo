@@ -53,6 +53,14 @@ export type OperationsDetails = Readonly<{
     clearedAt: string | null;
     resolution: string | null;
   }>[];
+  locations: readonly Readonly<{
+    locationId: string;
+    code: string;
+    kind: string;
+    status: "available" | "blocked" | "disabled";
+    capabilities: readonly string[];
+    activeNodeId: string | null;
+  }>[];
   topology: Readonly<{
     topologyId: string;
     revision: number;
@@ -95,6 +103,7 @@ export function isOperationsDetails(
     !Array.isArray(data.equipment) ||
     !Array.isArray(data.inventory) ||
     !Array.isArray(data.alarms) ||
+    !Array.isArray(data.locations) ||
     typeof data.generatedAt !== "string" ||
     Number.isNaN(Date.parse(data.generatedAt))
   ) {
@@ -207,6 +216,21 @@ export function isOperationsDetails(
       (alarm.resolution === null || typeof alarm.resolution === "string")
     );
   });
+  const locationsAreValid = data.locations.every((item: unknown) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    const location = item as Record<string, unknown>;
+    return (
+      typeof location.locationId === "string" &&
+      typeof location.code === "string" &&
+      typeof location.kind === "string" &&
+      ["available", "blocked", "disabled"].includes(
+        location.status as string,
+      ) &&
+      isStringArray(location.capabilities) &&
+      (location.activeNodeId === null ||
+        typeof location.activeNodeId === "string")
+    );
+  });
 
   const topology = data.topology as Record<string, unknown> | null;
   const topologyIsValid =
@@ -263,6 +287,7 @@ export function isOperationsDetails(
     equipmentIsValid &&
     inventoryIsValid &&
     alarmsAreValid &&
+    locationsAreValid &&
     topologyIsValid
   );
 }

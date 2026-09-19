@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission } from "../auth/permissions";
+import { requireOperatorId } from "../auth/operator-identity";
 import {
   IdempotencyConflictError,
   InvalidLocationError,
@@ -94,6 +95,7 @@ export class InboundController {
   @Post()
   async create(
     @Headers("idempotency-key") idempotencyKey: string | undefined,
+    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() rawBody: unknown,
   ): Promise<InboundReceiptResult> {
     if (!idempotencyKey || idempotencyKey.trim().length < 8) {
@@ -108,12 +110,10 @@ export class InboundController {
     }
 
     try {
-      const actorId = process.env.API_SERVICE_ID;
-      if (!actorId) throw new Error("API_SERVICE_ID is required.");
       return await this.inboundService.create({
         ...parseBody(rawBody),
         idempotencyKey: idempotencyKey.trim(),
-        actorId,
+        actorId: requireOperatorId(operatorId),
       });
     } catch (error) {
       if (error instanceof IdempotencyConflictError) {

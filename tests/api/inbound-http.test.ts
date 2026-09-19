@@ -89,6 +89,7 @@ describe("inbound HTTP contract", () => {
       .post("/api/v1/inbound-receipts")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
       .set("Idempotency-Key", "request-0001")
+      .set("X-Operator-Id", "operator@example.test")
       .send(validBody);
 
     expect(response.status).toBe(201);
@@ -98,7 +99,11 @@ describe("inbound HTTP contract", () => {
       duplicate: false,
     });
     expect(repository.create).toHaveBeenCalledWith(
-      { ...validBody, idempotencyKey: "request-0001", actorId: "test-web" },
+      {
+        ...validBody,
+        idempotencyKey: "request-0001",
+        actorId: "operator@example.test",
+      },
       expect.objectContaining({
         receiptId: expect.any(String),
         loadId: expect.any(String),
@@ -108,5 +113,16 @@ describe("inbound HTTP contract", () => {
       }),
       expect.stringMatching(/^[a-f0-9]{64}$/),
     );
+  });
+
+  it("requires the authenticated browser operator identity", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/inbound-receipts")
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("Idempotency-Key", "request-operator-required")
+      .send(validBody);
+
+    expect(response.status).toBe(400);
+    expect(repository.create).not.toHaveBeenCalled();
   });
 });
