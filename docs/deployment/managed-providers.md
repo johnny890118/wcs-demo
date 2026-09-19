@@ -5,7 +5,7 @@ Validated against official provider documentation on 2026-09-18. These adapters 
 ## Topology
 
 - Vercel runs the Next.js web/BFF surface from the repository root using `vercel.json`.
-- Render builds the API from `infra/docker/api.Dockerfile` using `render.yaml`, runs the idempotent migration bundle before starting the API process, and checks `/api/v1/health/ready` before routing traffic. The public demo pins the service to Render's free plan; because that plan does not support pre-deploy commands or configurable shutdown delay, the checked-in `dockerCommand` performs migration then starts the API. A paid production environment should restore a separate pre-deploy migration phase and an explicit shutdown delay.
+- Render builds the API from `infra/docker/api.Dockerfile` using `render.yaml`, runs the idempotent migration bundle before starting the API process, and checks `/api/v1/health/ready` before routing traffic. The public demo pins the service to Render's free plan; because that plan does not support pre-deploy commands or configurable shutdown delay, the checked-in `dockerCommand` explicitly invokes a shell for migration and then `exec`s the API process. A paid production environment should restore a separate pre-deploy migration phase and an explicit shutdown delay.
 - Supabase supplies PostgreSQL through `DATABASE_URL`; the application continues to use the standard `pg` adapter and checked-in migration runner.
 
 ## Required secrets and environment
