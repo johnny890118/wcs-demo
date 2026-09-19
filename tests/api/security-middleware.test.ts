@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  loadApiListenerPort,
   loadApiRuntimeConfig,
   validateApiRuntimeEnvironment,
 } from "../../apps/api/src/config/api-runtime-config";
@@ -15,6 +16,8 @@ const runtimeVariables = [
   "API_RATE_LIMIT_MAX",
   "API_RATE_LIMIT_WINDOW_MS",
   "API_TRUST_PROXY_HOPS",
+  "API_PORT",
+  "PORT",
 ] as const;
 
 const originalEnvironment = Object.fromEntries(
@@ -97,6 +100,18 @@ describe("API runtime security", () => {
     process.env.API_RATE_LIMIT_MAX = "120";
     process.env.API_TRUST_PROXY_HOPS = "6";
     expect(() => loadApiRuntimeConfig()).toThrow(/API_TRUST_PROXY_HOPS/);
+  });
+
+  it("prefers the provider-assigned port over the container fallback", () => {
+    process.env.API_PORT = "3001";
+    process.env.PORT = "10000";
+    expect(loadApiListenerPort()).toBe(10_000);
+
+    delete process.env.PORT;
+    expect(loadApiListenerPort()).toBe(3_001);
+
+    process.env.PORT = "70000";
+    expect(() => loadApiListenerPort()).toThrow(/PORT/);
   });
 
   it("sets restrictive API response headers", () => {

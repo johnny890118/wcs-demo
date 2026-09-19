@@ -9,6 +9,11 @@ export type ApiRuntimeConfig = Readonly<{
   trustProxyHops: number;
 }>;
 
+export function loadApiListenerPort(): number {
+  const name = process.env.PORT === undefined ? "API_PORT" : "PORT";
+  return integer(name, 3_001, 1, 65_535);
+}
+
 function integer(
   name: string,
   fallback: number,
