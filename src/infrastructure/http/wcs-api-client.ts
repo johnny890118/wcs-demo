@@ -7,13 +7,13 @@ import {
   type OperationsDetails,
 } from "../../application/operations/operations-details";
 
-const defaultTimeoutMs = 75_000;
+const defaultTimeoutMs = 55_000;
 
 export function loadWcsApiTimeoutMs(): number {
   const value = Number(process.env.INTERNAL_API_TIMEOUT_MS ?? defaultTimeoutMs);
-  if (!Number.isSafeInteger(value) || value < 1_000 || value > 120_000) {
+  if (!Number.isSafeInteger(value) || value < 1_000 || value > 60_000) {
     throw new Error(
-      "INTERNAL_API_TIMEOUT_MS must be an integer from 1000 to 120000.",
+      "INTERNAL_API_TIMEOUT_MS must be an integer from 1000 to 60000.",
     );
   }
   return value;

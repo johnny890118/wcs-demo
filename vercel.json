@@ -4,10 +4,10 @@
   "buildCommand": "npm run build",
   "functions": {
     "pages/api/operations/**/*.ts": {
-      "maxDuration": 90
+      "maxDuration": 60
     },
     "pages/operations/**/*.tsx": {
-      "maxDuration": 90
+      "maxDuration": 60
     }
   }
 }

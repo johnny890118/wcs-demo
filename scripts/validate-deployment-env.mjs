@@ -103,7 +103,7 @@ if (target === "web" || target === "all") {
     errors.push("NEXTAUTH_URL and PUBLIC_SITE_URL must use the same origin.");
   }
   url("INTERNAL_API_BASE_URL", ["http:", "https:"]);
-  integer("INTERNAL_API_TIMEOUT_MS", 75_000, 1_000, 120_000);
+  integer("INTERNAL_API_TIMEOUT_MS", 55_000, 1_000, 60_000);
   required("NEXTAUTH_SECRET", 32);
   required("DEMO_ADMIN_USERNAME", 3);
   required("DEMO_ADMIN_PASSWORD", 16);
