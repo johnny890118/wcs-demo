@@ -155,20 +155,51 @@ test("public entry supports both locales in explicit light and dark themes", asy
   await expect(page.locator("html")).toHaveClass(/light/);
 });
 
-test("system theme remains visibly selected on initial load and refresh", async ({
+test("theme preference has exactly one selection and persists across refresh", async ({
   page,
 }) => {
   await page.goto("/");
+  const themeChoices = page.locator("[data-theme-preference]");
+  const selectedChoices = page.locator(
+    '[data-theme-preference][aria-pressed="true"]',
+  );
+
   await expect(page.getByRole("button", { name: "系統" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
+  await expect(themeChoices).toHaveCount(3);
+  await expect(selectedChoices).toHaveCount(1);
+
+  await page.getByRole("button", { name: "深色" }).click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.getByRole("button", { name: "深色" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(selectedChoices).toHaveCount(1);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "深色" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(selectedChoices).toHaveCount(1);
+
+  await page.getByRole("button", { name: "系統" }).click();
+  await expect(page.getByRole("button", { name: "系統" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(selectedChoices).toHaveCount(1);
 
   await page.reload();
   await expect(page.getByRole("button", { name: "系統" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
+  await expect(selectedChoices).toHaveCount(1);
 });
 
 test("login reflows and remains accessible on mobile in all theme modes", async ({
