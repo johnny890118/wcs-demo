@@ -24,7 +24,7 @@ function requireStatus(response, expected, label) {
 const entry = await request("/");
 requireStatus(entry, [200], "Canonical entry");
 const entryBody = await entry.text();
-if (!entryBody.includes("Warehouse OS")) {
+if (!entryBody.includes("Smart Warehouse Platform")) {
   throw new Error("Canonical entry did not render the product shell.");
 }
 
@@ -42,8 +42,10 @@ if (legacy.headers.get("x-robots-tag") !== "noindex, nofollow") {
 
 const operations = await request("/operations");
 requireStatus(operations, [302, 303, 307, 308], "Protected operations entry");
-if (!operations.headers.get("location")?.startsWith("/api/auth/signin")) {
-  throw new Error("Protected operations entry did not redirect to sign-in.");
+if (!operations.headers.get("location")?.startsWith("/login?callbackUrl=")) {
+  throw new Error(
+    "Protected operations entry did not redirect to product login.",
+  );
 }
 if (operations.headers.get("x-robots-tag") !== "noindex, nofollow") {
   throw new Error("Protected operations entry is missing noindex policy.");
@@ -52,7 +54,11 @@ if (operations.headers.get("x-robots-tag") !== "noindex, nofollow") {
 const robots = await request("/robots.txt");
 requireStatus(robots, [200], "Robots policy");
 const robotsBody = await robots.text();
-for (const directive of ["Disallow: /operations", "Disallow: /legacy"]) {
+for (const directive of [
+  "Disallow: /login",
+  "Disallow: /operations",
+  "Disallow: /legacy",
+]) {
   if (!robotsBody.includes(directive)) {
     throw new Error(`Robots policy is missing ${directive}.`);
   }
@@ -66,6 +72,12 @@ if (!sitemapBody.includes(`<loc>${webOrigin.origin}/</loc>`)) {
 }
 if (sitemapBody.includes(`${webOrigin.origin}/platform`)) {
   throw new Error("Sitemap still exposes the former product entry.");
+}
+if (
+  sitemapBody.includes(`${webOrigin.origin}/about`) ||
+  sitemapBody.includes(`${webOrigin.origin}/contact`)
+) {
+  throw new Error("Sitemap exposes paused marketing routes.");
 }
 
 const health = await fetch(new URL("/api/v1/health/live", apiOrigin), {

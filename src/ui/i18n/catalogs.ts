@@ -1,8 +1,9 @@
 export const en = {
-  brand: "Warehouse OS",
+  brand: "Smart Warehouse Platform",
   productTagline: "One operational truth, from dock to device.",
   productDescription:
     "A hardware-independent warehouse execution platform for controlled inventory movement, deterministic simulation, and accountable operations.",
+  enterSystem: "Enter system",
   openOperations: "Open operations",
   viewLegacyDemo: "View legacy demo",
   platform: "Platform",
@@ -237,13 +238,24 @@ export const en = {
   learnMore: "Learn more",
   aboutPlatform: "About the platform",
   contactTeam: "Contact the project",
-  platformMetaTitle: "Warehouse OS | Hardware-independent execution",
-  aboutMetaTitle: "About | Warehouse OS",
-  contactMetaTitle: "Contact | Warehouse OS",
+  platformMetaTitle: "Smart Warehouse Platform",
+  aboutMetaTitle: "About | Smart Warehouse Platform",
+  contactMetaTitle: "Contact | Smart Warehouse Platform",
+  loginMetaTitle: "Sign in | Smart Warehouse Platform",
+  loginTitle: "Sign in to operations",
+  loginDescription:
+    "Continue to the protected simulator-backed operations console.",
+  demoIdentityNotice:
+    "This environment currently uses a limited demo identity. It is not a production user or role model.",
+  username: "Username",
+  passwordLabel: "Password",
+  signIn: "Sign in",
+  signingIn: "Signing in…",
+  invalidCredentials: "The username or password is incorrect.",
   aboutEyebrow: "Architecture before automation",
   aboutTitle: "A warehouse control foundation built around operational truth.",
   aboutIntro:
-    "Warehouse OS separates business decisions from equipment protocols, persists every meaningful transition, and makes uncertain outcomes visible instead of guessing.",
+    "Smart Warehouse Platform separates business decisions from equipment protocols, persists every meaningful transition, and makes uncertain outcomes visible instead of guessing.",
   designPrinciples: "Design principles",
   aboutModelTitle: "Model each site",
   aboutModelBody:
@@ -272,10 +284,11 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
-  brand: "Warehouse OS",
+  brand: "Smart Warehouse Platform",
   productTagline: "從月台到設備，共享單一營運事實。",
   productDescription:
     "硬體獨立的倉儲執行平台，整合受控庫存移動、決定性模擬與可追溯作業。",
+  enterSystem: "進入系統",
   openOperations: "開啟操作台",
   viewLegacyDemo: "查看舊版展示",
   platform: "平台",
@@ -504,13 +517,23 @@ export const zhTW: Catalog = {
   learnMore: "進一步了解",
   aboutPlatform: "關於平台",
   contactTeam: "聯絡專案",
-  platformMetaTitle: "Warehouse OS｜硬體獨立的倉儲執行平台",
-  aboutMetaTitle: "關於｜Warehouse OS",
-  contactMetaTitle: "聯絡｜Warehouse OS",
+  platformMetaTitle: "Smart Warehouse Platform",
+  aboutMetaTitle: "關於｜Smart Warehouse Platform",
+  contactMetaTitle: "聯絡｜Smart Warehouse Platform",
+  loginMetaTitle: "登入｜Smart Warehouse Platform",
+  loginTitle: "登入操作系統",
+  loginDescription: "繼續前往受保護、由模擬器支援的倉儲操作台。",
+  demoIdentityNotice:
+    "此環境目前使用受限的展示身分，並不代表正式產品的使用者或角色模型。",
+  username: "使用者名稱",
+  passwordLabel: "密碼",
+  signIn: "登入",
+  signingIn: "登入中…",
+  invalidCredentials: "使用者名稱或密碼不正確。",
   aboutEyebrow: "先建立架構，再推動自動化",
   aboutTitle: "以單一營運事實為核心的倉儲控制基礎。",
   aboutIntro:
-    "Warehouse OS 將商業決策與設備協定分離，持久化每個關鍵狀態轉換，並清楚呈現不確定結果，而不是自行臆測。",
+    "Smart Warehouse Platform 將商業決策與設備協定分離，持久化每個關鍵狀態轉換，並清楚呈現不確定結果，而不是自行臆測。",
   designPrinciples: "設計原則",
   aboutModelTitle: "依場域建立模型",
   aboutModelBody:

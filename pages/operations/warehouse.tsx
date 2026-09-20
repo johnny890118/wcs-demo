@@ -8,6 +8,7 @@ import {
   type OperationsDetails,
 } from "../../src/application/operations/operations-details";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
+import { loginDestination } from "../../src/ui/auth/login-routing";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
@@ -77,9 +78,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   if (!session) {
     return {
       redirect: {
-        destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          "/operations/warehouse",
-        )}`,
+        destination: loginDestination("/operations/warehouse"),
         permanent: false,
       },
     };

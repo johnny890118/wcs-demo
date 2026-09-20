@@ -1,7 +1,6 @@
 import {
   ArrowLeftIcon,
   ArrowRightStartOnRectangleIcon,
-  BuildingStorefrontIcon,
   MapIcon,
   InboxArrowDownIcon,
   TruckIcon,
@@ -48,7 +47,7 @@ export function OperationsShell({
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]">
-              W
+              S
             </span>
             <span className="font-bold tracking-tight">{t("brand")}</span>
           </Link>
@@ -139,13 +138,6 @@ export function OperationsShell({
                 aria-hidden="true"
               />
               {t("auditHistory")}
-            </Link>
-            <Link
-              href="/legacy"
-              className="ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-muted)]"
-            >
-              <BuildingStorefrontIcon className="h-5 w-5" aria-hidden="true" />
-              {t("legacyWorkspace")}
             </Link>
           </nav>
           <div className="mt-auto border-t border-[var(--border)] pt-4">
@@ -264,12 +256,6 @@ export function OperationsShell({
                 }`}
               >
                 {t("auditHistory")}
-              </Link>
-              <Link
-                href="/legacy"
-                className="ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
-              >
-                {t("legacyWorkspace")}
               </Link>
             </nav>
           </header>

@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>.
 
-The canonical product entry is available at `/`. The session-protected operations overview is at `/operations`, with warehouse topology, inbound, outbound, alarm recovery, and focused projections under that namespace. The original prototype is isolated under `/legacy/*`; `/platform`, `/fdp`, and `/engineeringMode` remain compatibility redirects rather than product surfaces.
+The canonical `/` route is a thin system entry: its primary action resolves to `/login` for an anonymous visitor and `/operations` for an authenticated operator. `/login` is the formal bilingual sign-in surface. The session-protected operations overview is at `/operations`, with warehouse topology, inbound, outbound, alarm recovery, focused projections, and audit history under that namespace. The original prototype is isolated under `/legacy/*`; it is not linked from active product navigation. `/platform`, `/fdp`, and `/engineeringMode` remain compatibility redirects rather than product surfaces.
 
 ### API and database
 

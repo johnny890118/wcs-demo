@@ -130,6 +130,18 @@ Status: Planned
 - [ ] Retain reset evidence outside the `audit_events` rows being reset and define concurrent-session behavior
 - [ ] Reconcile reset/replay with active tasks, outbox delivery, simulator state, and failed or interrupted reset outcomes
 
+## System-first frontend boundary checkpoint
+
+Status: Complete
+
+- [x] Replace the marketing-style root with a thin bilingual system entry and authentication-aware primary action
+- [x] Add the formal responsive, accessible, theme-aware `/login` surface with safe internal operations callbacks
+- [x] Route every supported operations page through the product login while preserving its valid internal destination
+- [x] Centralize public/login/operations/API/legacy classification and noindex response policy in the single Next.js deployment
+- [x] Remove About, Contact, Legacy, repository, and marketing links from the active product and operations navigation
+- [x] Keep paused About/Contact source routes available without advertising them in the active sitemap
+- [x] Verify anonymous/authenticated entry, callback rejection, bilingual themes, keyboard access, responsive reflow, production build, and full repository gates
+
 ## M9 — Production identity and warehouse scope
 
 Status: Planned
@@ -172,4 +184,4 @@ Status: Planned
 
 ## Immediate next task
 
-Design M8B from the existing guarded CLI reset and deterministic scenario fixtures. The next change must first define where reset evidence survives, then specify authorization, idempotency, concurrency, failure recovery, and production denial before adding a browser control.
+Complete the owner-led Feature Map + User Roles + Core User Flows + Navigation / Information Architecture + System Roadmap Alignment review. Do not start M8B implementation until that alignment checkpoint is accepted.

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { absoluteAuthRedirect } from "../../../src/ui/auth/login-routing";
 
 async function authorize(credentials) {
   const username = process.env.DEMO_ADMIN_USERNAME;
@@ -19,6 +20,7 @@ async function authorize(credentials) {
 }
 
 export const authOptions = {
+  pages: { signIn: "/login" },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -32,6 +34,11 @@ export const authOptions = {
   // JWT_SECRET is read only as a local migration fallback for the legacy .env.
   // New environments must use NEXTAUTH_SECRET.
   secret: process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET,
+  callbacks: {
+    redirect({ url, baseUrl }) {
+      return absoluteAuthRedirect(url, baseUrl);
+    },
+  },
 };
 
 export default NextAuth(authOptions);

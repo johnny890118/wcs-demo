@@ -9,6 +9,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const body = [
     "User-agent: *",
     "Allow: /",
+    "Disallow: /login",
     "Disallow: /operations",
     "Disallow: /legacy",
     "Disallow: /api",

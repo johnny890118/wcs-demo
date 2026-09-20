@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import PlatformPage from "../../pages";
 import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
+import LoginPage from "../../pages/login";
 import OperationsProjectionsPage from "../../pages/operations/projections";
 import InboundOperationsPage from "../../pages/operations/inbound";
 import AlarmOperationsPage from "../../pages/operations/alarms";
@@ -30,7 +31,8 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
-vi.mock("next-auth/react", () => ({ signOut: vi.fn() }));
+vi.mock("next-auth/react", () => ({ signIn: vi.fn(), signOut: vi.fn() }));
+vi.mock("next/router", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "light", setTheme: vi.fn() }),
 }));
@@ -172,7 +174,10 @@ describe("automated accessibility baseline", () => {
   it("finds no detectable violations on the public product entry", async () => {
     const { container } = render(
       <LocaleProvider>
-        <PlatformPage siteOrigin="https://warehouse.example.com" />
+        <PlatformPage
+          siteOrigin="https://warehouse.example.com"
+          entryHref="/login"
+        />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);
@@ -192,6 +197,15 @@ describe("automated accessibility baseline", () => {
       await expectNoAutomatedViolations(container);
     },
   );
+
+  it("finds no detectable violations on the product login", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <LoginPage callbackUrl="/operations" />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
 
   it("finds no detectable violations on populated operations projections", async () => {
     const { container } = render(

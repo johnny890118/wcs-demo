@@ -9,6 +9,7 @@ import {
   type AuditEventPage,
 } from "../../src/application/audit/audit-projection";
 import { fetchAuditEvents } from "../../src/infrastructure/http/wcs-api-client";
+import { loginDestination } from "../../src/ui/auth/login-routing";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
@@ -178,9 +179,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   if (!session)
     return {
       redirect: {
-        destination:
-          "/api/auth/signin?callbackUrl=" +
-          encodeURIComponent(context.resolvedUrl),
+        destination: loginDestination(context.resolvedUrl),
         permanent: false,
       },
     };

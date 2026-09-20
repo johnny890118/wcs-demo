@@ -16,6 +16,7 @@ describe("web security headers", () => {
     );
 
     for (const source of [
+      "/login",
       "/operations/:path*",
       "/legacy/:path*",
       "/api/:path*",

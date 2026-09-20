@@ -11,6 +11,7 @@ import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsSummary } from "../../src/application/operations/operations-summary";
 import { isOperationsSummary } from "../../src/application/operations/operations-summary";
 import { fetchOperationsSummary } from "../../src/infrastructure/http/wcs-api-client";
+import { loginDestination } from "../../src/ui/auth/login-routing";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
@@ -216,9 +217,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   if (!session) {
     return {
       redirect: {
-        destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
-          "/operations",
-        )}`,
+        destination: loginDestination("/operations"),
         permanent: false,
       },
     };

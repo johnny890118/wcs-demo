@@ -18,42 +18,20 @@ export function PublicHeader() {
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
+            aria-label={t("brand")}
             className="ui-pressable flex items-center gap-3 rounded-lg"
           >
             <span
               className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
               aria-hidden="true"
             >
-              W
+              S
             </span>
-            <span className="text-sm font-bold tracking-tight">
+            <span className="hidden text-sm font-bold tracking-tight sm:inline">
               {t("brand")}
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <nav
-              aria-label={t("publicNavigation")}
-              className="mr-1 hidden items-center gap-1 md:flex"
-            >
-              <Link
-                href="/about"
-                className="ui-pressable rounded-lg px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
-              >
-                {t("about")}
-              </Link>
-              <Link
-                href="/contact"
-                className="ui-pressable rounded-lg px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
-              >
-                {t("contact")}
-              </Link>
-            </nav>
-            <Link
-              href="/operations"
-              className="ui-pressable hidden rounded-lg border border-[var(--border-strong)] px-3 py-2 text-xs font-semibold text-[var(--text)] sm:inline-flex"
-            >
-              {t("openOperations")}
-            </Link>
             <LocaleControl />
             <ThemeControl />
           </div>

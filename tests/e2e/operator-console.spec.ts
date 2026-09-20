@@ -3,10 +3,10 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function signIn(page: Page, destination: string) {
   await page.goto(destination);
-  await expect(page).toHaveURL(/\/api\/auth\/signin/);
-  await page.getByLabel("Username").fill("e2e-operator");
-  await page.getByLabel("Password").fill("e2e-password");
-  await page.getByRole("button", { name: "Sign in with Credentials" }).click();
+  await expect(page).toHaveURL(/\/login\?callbackUrl=/);
+  await page.getByLabel("使用者名稱").fill("e2e-operator");
+  await page.getByLabel("密碼").fill("e2e-password");
+  await page.getByRole("button", { name: "登入" }).click();
   await expect(page).toHaveURL(destination);
 }
 
@@ -28,7 +28,7 @@ test("public entry supports keyboard skip navigation and automated accessibility
   await expect(page).toHaveURL("/");
   const siteOrigin = new URL(page.url()).origin;
 
-  await expect(page).toHaveTitle(/Warehouse OS/);
+  await expect(page).toHaveTitle(/Smart Warehouse Platform/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     `${siteOrigin}/`,
@@ -43,12 +43,65 @@ test("public entry supports keyboard skip navigation and automated accessibility
   expect(accessibility.violations).toEqual([]);
 
   const robots = await page.request.get("/robots.txt");
+  expect(await robots.text()).toContain("Disallow: /login");
   expect(await robots.text()).toContain("Disallow: /operations");
   expect(await robots.text()).toContain("Disallow: /legacy");
   const sitemap = await page.request.get("/sitemap.xml");
   expect(await sitemap.text()).toContain(`<loc>${siteOrigin}/</loc>`);
   expect(await sitemap.text()).not.toContain(`${siteOrigin}/platform`);
-  expect(await sitemap.text()).toContain(`${siteOrigin}/contact`);
+  expect(await sitemap.text()).not.toContain(`${siteOrigin}/contact`);
+});
+
+test("the public root is a thin unauthenticated system entry", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Smart Warehouse Platform" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "進入系統" })).toHaveAttribute(
+    "href",
+    "/login",
+  );
+  await expect(page.getByRole("link", { name: "關於" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "聯絡" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /舊版/ })).toHaveCount(0);
+  await expect(page.getByRole("contentinfo")).toHaveCount(0);
+});
+
+test("login and every operations route enforce the private surface boundary", async ({
+  page,
+}) => {
+  for (const path of [
+    "/operations",
+    "/operations/warehouse",
+    "/operations/projections",
+    "/operations/inbound",
+    "/operations/outbound",
+    "/operations/alarms",
+    "/operations/audit",
+  ]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(
+      `/login?callbackUrl=${encodeURIComponent(path)}`,
+    );
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex, nofollow",
+    );
+  }
+
+  await page.goto("/login?callbackUrl=https%3A%2F%2Fevil.example%2Foperations");
+  await page.getByLabel("使用者名稱").fill("e2e-operator");
+  await page.getByLabel("密碼").fill("e2e-password");
+  await page.getByRole("button", { name: "登入" }).click();
+  await expect(page).toHaveURL("/operations");
+
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "進入系統" })).toHaveAttribute(
+    "href",
+    "/operations",
+  );
 });
 
 test("public entry reflows at a 200%-equivalent CSS viewport", async ({
@@ -64,9 +117,7 @@ test("public entry reflows at a 200%-equivalent CSS viewport", async ({
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "開啟操作台" }).last(),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "進入系統" })).toBeVisible();
 });
 
 test("public entry supports both locales in explicit light and dark themes", async ({
@@ -78,7 +129,6 @@ test("public entry supports both locales in explicit light and dark themes", asy
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-TW");
   await expect(page.locator("html")).toHaveClass(/light/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-
   await page.getByRole("button", { name: "深色" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -88,8 +138,11 @@ test("public entry supports both locales in explicit light and dark themes", asy
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "One operational truth from dock to device.",
+      name: "Smart Warehouse Platform",
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("One operational truth, from dock to device."),
   ).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 
@@ -100,6 +153,27 @@ test("public entry supports both locales in explicit light and dark themes", asy
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveClass(/light/);
+});
+
+test("login reflows and remains accessible on mobile in all theme modes", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/login");
+  for (const theme of ["淺色", "深色", "系統"]) {
+    await page.getByRole("button", { name: theme }).click();
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    await expect(page.getByRole("button", { name: "登入" })).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  }
+
+  await page.reload();
+  await page.keyboard.press("Tab");
+  await expect(page.locator(":focus")).toHaveAttribute("href", "#main-content");
 });
 
 test("authenticated focused projections expose screen-reader semantics", async ({
@@ -113,6 +187,7 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByRole("navigation", { name: "操作台桌面版導覽" }),
   ).toBeVisible();
+  await expect(page.locator('a[href="/legacy"]')).toHaveCount(0);
   await expect(page.getByRole("table", { name: "庫存" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "品項" })).toBeVisible();
   await expect(page.getByText("SKU-E2E")).toBeVisible();

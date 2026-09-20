@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-09-21. Baseline: M7 release plus uncommitted M8A and frontend-boundary work in progress.
+Assessment date: 2026-09-21. Baseline: verified M8A plus the system-first frontend boundary checkpoint.
 
 ## Supported product path
 
@@ -20,9 +20,12 @@ Assessment date: 2026-09-21. Baseline: M7 release plus uncommitted M8A and front
 
 ## Frontend surfaces
 
-- Product intent is system-first: `/` is to remain a thin system entry, `/login` the formal sign-in surface, `/operations` the system home, and `/operations/*` operational capabilities.
-- The working tree also contains interrupted public/login/frontend-boundary WIP. Until that work is separately reconciled and verified, current public pages and Footer must not be treated as the system-first target or as part of M8A.
-- Public, login, operations, BFF/API, and legacy route-policy primitives are present in WIP, but provider/CSS isolation and the final thin `/` entry remain separate frontend-boundary work.
+- Product intent is system-first: `/` is a thin bilingual system entry whose single primary action resolves to `/login` for anonymous visitors and `/operations` for authenticated operators. It is not a marketing landing page.
+- `/login` is the formal, responsive, accessible, noindex sign-in surface. Operations SSR guards preserve only validated internal `/operations` callback destinations; external, credential-bearing, malformed, legacy, login, and paused marketing destinations fail closed to `/operations`.
+- `/operations` is the authenticated system home and `/operations/*` contains active operational capabilities. Active operations navigation contains no About, Contact, Legacy, repository, or sales links.
+- `/legacy/*` remains a noindex migration reference. `/about` and `/contact` source routes remain available for possible future reuse but are absent from the active entry/navigation and the current sitemap.
+- Public, login, operations, BFF/API, and legacy route policy is centralized for classification and response headers. Public pages omit the NextAuth session provider; login/operations receive auth, locale, and theme providers; legacy receives only the session provider required by the prototype.
+- Pages Router still requires legacy global CSS imports in `_app.js`, so stylesheet payload/isolation is not complete. Removing that coupling requires a separately characterized legacy migration or router/build boundary and was not justified for this checkpoint.
 
 ## Legacy migration reference
 
