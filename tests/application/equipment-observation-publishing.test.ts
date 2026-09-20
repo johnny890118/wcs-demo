@@ -24,6 +24,37 @@ class MemoryObservationSink implements EquipmentObservationSink {
   }
 }
 
+class PausingObservationSink extends MemoryObservationSink {
+  readonly firstPublicationStarted: Promise<void>;
+  #signalFirstPublicationStarted!: () => void;
+  #releaseFirstPublication!: () => void;
+  #first = true;
+
+  constructor() {
+    super();
+    this.firstPublicationStarted = new Promise((resolve) => {
+      this.#signalFirstPublicationStarted = resolve;
+    });
+  }
+
+  releaseFirstPublication(): void {
+    this.#releaseFirstPublication();
+  }
+
+  override async publish(
+    observation: EquipmentObservationWrite,
+  ): Promise<"applied" | "ignored"> {
+    if (this.#first) {
+      this.#first = false;
+      this.#signalFirstPublicationStarted();
+      await new Promise<void>((resolve) => {
+        this.#releaseFirstPublication = resolve;
+      });
+    }
+    return super.publish(observation);
+  }
+}
+
 function runtime(sink: MemoryObservationSink) {
   const adapter = new SimulatorEquipmentAdapter();
   const initial = adapter.register(createMobileTransportDescriptor("AMR-01"), {
@@ -104,6 +135,20 @@ describe("simulator equipment observation publication", () => {
 
     expect(sink.observations).toHaveLength(1);
     expect(sink.observations[0]?.sequence).toBe(1);
+  });
+
+  it("serializes a heartbeat racing with a state transition", async () => {
+    const sink = new PausingObservationSink();
+    const { observed, initial } = runtime(sink);
+
+    const heartbeatPublication = observed.publish(initial);
+    await sink.firstPublicationStarted;
+    const transitionPublication = observed.publish(initial);
+    sink.releaseFirstPublication();
+
+    await Promise.all([heartbeatPublication, transitionPublication]);
+
+    expect(sink.observations.map(({ sequence }) => sequence)).toEqual([1, 2]);
   });
 
   it("preserves the last certain simulator observation during a graceful API shutdown", async () => {

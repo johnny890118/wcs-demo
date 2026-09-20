@@ -15,6 +15,7 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
   readonly #sequences = new Map<string, number>();
   readonly #equipmentIds = new Set<string>();
   readonly #contexts = new Map<string, EquipmentObservationContext>();
+  readonly #publicationTails = new Map<string, Promise<void>>();
   #heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   #heartbeatInFlight = false;
 
@@ -128,6 +129,27 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
     "unknown"
       ? "unknown"
       : "good",
+  ): Promise<void> {
+    const previousPublication =
+      this.#publicationTails.get(state.equipmentId) ?? Promise.resolve();
+    const publication = previousPublication
+      .catch(() => undefined)
+      .then(() => this.publishNext(state, connectionStatus, quality));
+    this.#publicationTails.set(state.equipmentId, publication);
+
+    try {
+      await publication;
+    } finally {
+      if (this.#publicationTails.get(state.equipmentId) === publication) {
+        this.#publicationTails.delete(state.equipmentId);
+      }
+    }
+  }
+
+  private async publishNext(
+    state: EquipmentState,
+    connectionStatus: "connected" | "disconnected",
+    quality: "good" | "uncertain" | "bad" | "unknown",
   ): Promise<void> {
     const previous = this.#sequences.get(state.equipmentId);
     const context = this.#contexts.get(state.equipmentId);
