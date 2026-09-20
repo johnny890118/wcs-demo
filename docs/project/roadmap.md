@@ -98,7 +98,7 @@ Status: Complete
 
 ## M7 — Product operations experience
 
-Status: In progress
+Status: Complete
 
 - [x] Reopen the product roadmap and distinguish engineering-foundation completion from product completion
 - [x] Publish validated topology presentation coordinates through the operations read model without making visualization domain truth
@@ -110,8 +110,18 @@ Status: In progress
 - [x] Add an authorized outbound allocate/review/confirm/execute workflow with attributable audit evidence and persisted inventory outcomes
 - [x] Add authorized alarm acknowledgement and recovery workflows with named confirmations, operator evidence, and unknown-outcome preservation
 - [x] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
-- [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
+- [x] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
+
+## M8 — Accountable audit and demo orchestration
+
+Status: In progress
+
+- [ ] Define a paginated, redacted audit projection contract with stable correlation, actor, action, resource, and timestamp semantics
+- [ ] Expose authorized audit history without leaking secrets, raw credentials, or unrestricted diagnostic payloads
+- [ ] Link task, inventory, alarm, and workflow outcomes to accessible audit evidence in both supported locales and themes
+- [ ] Add a named deterministic demo reset/replay workflow behind demo-environment, authorization, confirmation, idempotency, and audit boundaries
+- [ ] Prove replay determinism and production reset denial through integration, browser, and managed-environment-safe gates
 
 ## Immediate next task
 
-Complete the M7 release proof across both supported locales and themes, keyboard and reflow paths, automated accessibility checks, deterministic operational scenarios, and the live deployment. Record any remaining assistive-technology or managed-environment gaps explicitly before declaring the milestone complete.
+Define the M8 audit projection contract from existing persisted audit facts before building UI. Establish pagination, redaction, actor/action/resource vocabulary, correlation links, authorization, and retention assumptions; then expose the smallest read-only vertical slice linking an operator workflow to its durable evidence.

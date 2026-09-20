@@ -1,5 +1,7 @@
 # Managed demo release evidence
 
+This document records the original M5 managed-provider and destructive-scenario gate. See [M7 product-experience release evidence](m7-release-evidence.md) for the current operations UI, exact candidate deployments, and non-mutating live validation.
+
 Release gate completed on 2026-09-19 for the simulator-only public demo. No physical adapter was enabled, no provider payment method was added, and no shared Git history was rewritten.
 
 ## Candidate and providers
