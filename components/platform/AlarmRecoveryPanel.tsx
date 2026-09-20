@@ -239,6 +239,26 @@ export function AlarmRecoveryPanel({ details }: Props) {
             >
               {t("viewRecoveryOutcome")}
             </Link>
+            {selected ? (
+              <>
+                <Link
+                  href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                    selected.taskId,
+                  )}`}
+                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                >
+                  {t("viewTaskAuditEvidence")}
+                </Link>
+                <Link
+                  href={`/operations/audit?resourceType=Alarm&resourceId=${encodeURIComponent(
+                    selected.alarmId,
+                  )}`}
+                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                >
+                  {t("viewAlarmAuditEvidence")}
+                </Link>
+              </>
+            ) : null}
           </div>
         ) : selected ? (
           <div className="mt-5 space-y-5">

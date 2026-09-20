@@ -343,6 +343,22 @@ export function InboundWorkflowPanel({ details }: Props) {
                 >
                   {t("viewWarehouseMap")}
                 </Link>
+                <Link
+                  href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                    completed.taskId,
+                  )}`}
+                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                >
+                  {t("viewTaskAuditEvidence")}
+                </Link>
+                <Link
+                  href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
+                    created.receiptId,
+                  )}`}
+                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                >
+                  {t("viewReceiptAuditEvidence")}
+                </Link>
               </div>
             ) : (
               <>

@@ -1,6 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { requestContext } from "../../apps/api/src/logging/request-context";
+import {
+  auditCorrelationId,
+  requestContext,
+} from "../../apps/api/src/logging/request-context";
 import { RequestContextMiddleware } from "../../apps/api/src/logging/request-context.middleware";
 
 describe("request correlation middleware", () => {
@@ -19,9 +22,20 @@ describe("request correlation middleware", () => {
     }) as NextFunction);
 
     expect(observed).toBe("request-warehouse-0001");
+    expect(
+      requestContext.run({ requestId: observed! }, () =>
+        auditCorrelationId("70000000-0000-4000-8000-000000000001"),
+      ),
+    ).toBe("request-warehouse-0001");
     expect(response.setHeader).toHaveBeenCalledWith(
       "X-Request-Id",
       "request-warehouse-0001",
+    );
+  });
+
+  it("uses an explicit event correlation outside an HTTP request", () => {
+    expect(auditCorrelationId("70000000-0000-4000-8000-000000000001")).toBe(
+      "event:70000000-0000-4000-8000-000000000001",
     );
   });
 

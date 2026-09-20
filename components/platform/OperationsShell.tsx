@@ -7,6 +7,7 @@ import {
   TruckIcon,
   BellAlertIcon,
   QueueListIcon,
+  ClipboardDocumentListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
@@ -27,6 +28,7 @@ export function OperationsShell({
     | "inbound"
     | "outbound"
     | "alarms"
+    | "audit"
     | "projections";
 }) {
   const { t } = useLocale();
@@ -122,6 +124,21 @@ export function OperationsShell({
             >
               <QueueListIcon className="h-5 w-5" aria-hidden="true" />
               {t("projections")}
+            </Link>
+            <Link
+              href="/operations/audit"
+              aria-current={current === "audit" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "audit"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <ClipboardDocumentListIcon
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
+              {t("auditHistory")}
             </Link>
             <Link
               href="/legacy"
@@ -236,6 +253,17 @@ export function OperationsShell({
                 }`}
               >
                 {t("projections")}
+              </Link>
+              <Link
+                href="/operations/audit"
+                aria-current={current === "audit" ? "page" : undefined}
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "audit"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("auditHistory")}
               </Link>
               <Link
                 href="/legacy"

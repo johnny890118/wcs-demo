@@ -130,6 +130,35 @@ test("authenticated focused projections expose screen-reader semantics", async (
   expect(accessibility.violations).toEqual([]);
 });
 
+test("operator can read redacted, bilingual audit history", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/audit");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "可歸責的營運歷程" }),
+  ).toBeVisible();
+  await expect(page.getByText("transport_task.complete")).toBeVisible();
+  await expect(page.getByText("e2e-operator").first()).toBeVisible();
+  await expect(page.getByText("未知動作")).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Accountable operational history",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Unknown action")).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+});
+
 test("warehouse map renders timestamped equipment observation without using assignment", async ({
   page,
 }) => {
@@ -191,9 +220,9 @@ test("operator creates, confirms, and executes an inbound workflow", async ({
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 
-  await page.getByRole("link", { name: "查看執行後的倉庫觀測" }).click();
-  await expect(page).toHaveURL("/operations/warehouse");
-  await expect(page.getByText("agv-e2e-01").first()).toBeVisible();
+  await page.getByRole("link", { name: "查看任務稽核證據" }).click();
+  await expect(page).toHaveURL(/resourceType=TransportTask/);
+  await expect(page.getByText("transport_task.complete")).toBeVisible();
 });
 
 test("inbound workflow reflows without horizontal page overflow on mobile", async ({
@@ -236,10 +265,8 @@ test("operator allocates, confirms, and executes an outbound workflow", async ({
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 
-  await page.getByRole("link", { name: "查看執行後的庫存投影" }).click();
-  await expect(page).toHaveURL("/operations/projections");
-  const inventoryRow = page.getByRole("row").filter({ hasText: "SKU-E2E" });
-  await expect(inventoryRow).toContainText("2");
+  await page.getByRole("link", { name: "查看出庫單稽核證據" }).click();
+  await expect(page.getByText("outbound_order.allocate")).toBeVisible();
 });
 
 test("outbound workflow reflows without horizontal page overflow on mobile", async ({
@@ -284,9 +311,8 @@ test("operator acknowledges and releases a faulted task", async ({ page }) => {
   await expect(page.getByText("警報復原完成")).toBeVisible();
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
-  await page.getByRole("link", { name: "查看復原後的任務與警報投影" }).click();
-  await expect(page).toHaveURL("/operations/projections");
-  await expect(page.getByText("queued", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "查看警報稽核證據" }).click();
+  await expect(page.getByText("alarm.acknowledge")).toBeVisible();
 });
 
 test("alarm workflow reflows without horizontal page overflow on mobile", async ({

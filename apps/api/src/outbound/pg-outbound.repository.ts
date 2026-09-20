@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Pool, PoolClient } from "pg";
 import { DATABASE_POOL } from "../database/database.module";
+import { auditCorrelationId } from "../logging/request-context";
 import {
   InsufficientInventoryError,
   InvalidOutboundDestinationError,
@@ -177,13 +178,14 @@ export class PgOutboundRepository implements OutboundRepository {
       );
       await client.query(
         `INSERT INTO audit_events
-          (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details)
-         VALUES ($1, 'service', $2, 'outbound_order.allocate', 'OutboundOrder', $3, $4::jsonb)`,
+          (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+         VALUES ($1, 'user', $2, 'outbound_order.allocate', 'OutboundOrder', $3, $4::jsonb, $5)`,
         [
           identifiers.auditEventId,
           command.actorId,
           identifiers.outboundOrderId,
           JSON.stringify(eventDetails),
+          auditCorrelationId(identifiers.auditEventId),
         ],
       );
       await client.query("COMMIT");

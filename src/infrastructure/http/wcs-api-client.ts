@@ -30,6 +30,11 @@ import {
   type AlarmRecovered,
   type RecoverAlarmRequest,
 } from "../../application/operations/alarm-workflow";
+import {
+  isAuditEventPage,
+  type AuditEventPage,
+  type AuditEventQuery,
+} from "../../application/audit/audit-projection";
 
 const defaultTimeoutMs = 55_000;
 
@@ -118,6 +123,24 @@ export async function fetchOperationsDetails(): Promise<OperationsDetails> {
   const payload = await fetchWcsProjection("/api/v1/operations/details");
   if (!isOperationsDetails(payload)) {
     throw new Error("WCS operations API returned invalid focused projections.");
+  }
+  return payload;
+}
+
+export async function fetchAuditEvents(
+  query: AuditEventQuery = {},
+): Promise<AuditEventPage> {
+  const search = new URLSearchParams();
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  if (query.resourceType) search.set("resourceType", query.resourceType);
+  if (query.resourceId) search.set("resourceId", query.resourceId);
+  if (query.correlationId) search.set("correlationId", query.correlationId);
+  const payload = await fetchWcsProjection(
+    `/api/v1/audit-events${search.size ? `?${search}` : ""}`,
+  );
+  if (!isAuditEventPage(payload)) {
+    throw new Error("WCS audit API returned an invalid projection.");
   }
   return payload;
 }

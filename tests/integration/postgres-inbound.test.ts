@@ -1,7 +1,11 @@
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { Pool } from "pg";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
+import { AuditProjectionService } from "../../apps/api/src/audit/audit-projection.service";
+import { requestContext } from "../../apps/api/src/logging/request-context";
 import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
 import { PgEquipmentObservationSink } from "../../apps/api/src/execution/pg-equipment-observation.sink";
@@ -97,6 +101,52 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await pool?.end();
   });
 
+  it("backfills stable correlation when upgrading an existing audit table", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query("CREATE SCHEMA audit_migration_upgrade");
+      await client.query("SET LOCAL search_path TO audit_migration_upgrade");
+      await client.query(`CREATE TABLE audit_events (
+        id uuid PRIMARY KEY,
+        occurred_at timestamptz NOT NULL DEFAULT now()
+      )`);
+      await client.query("INSERT INTO audit_events (id) VALUES ($1), ($2)", [
+        "71000000-0000-4000-8000-000000000001",
+        "71000000-0000-4000-8000-000000000002",
+      ]);
+      const migration = await readFile(
+        resolve("apps/api/migrations/0009_audit_correlation.sql"),
+        "utf8",
+      );
+      await client.query(migration);
+      const upgraded = await client.query<{
+        id: string;
+        correlation_id: string;
+      }>("SELECT id, correlation_id FROM audit_events ORDER BY id");
+      expect(upgraded.rows).toEqual([
+        {
+          id: "71000000-0000-4000-8000-000000000001",
+          correlation_id: "legacy:71000000-0000-4000-8000-000000000001",
+        },
+        {
+          id: "71000000-0000-4000-8000-000000000002",
+          correlation_id: "legacy:71000000-0000-4000-8000-000000000002",
+        },
+      ]);
+      await expect(
+        client.query(
+          "INSERT INTO audit_events (id, correlation_id) VALUES ($1, NULL)",
+          ["71000000-0000-4000-8000-000000000003"],
+        ),
+      ).rejects.toMatchObject({ code: "23502" });
+    } finally {
+      await client.query("ROLLBACK");
+      client.release();
+    }
+  });
+
   it("persists request, deterministic movement, and inventory confirmation", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const inbound = new PgInboundRepository(pool);
@@ -115,12 +165,16 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       new ManualClock(1_000),
       idFactory(),
     );
-    await executor.execute({
-      taskId: identifiers.transportTaskId,
-      equipmentId: "AMR-01",
-      actorId: command.actorId,
-      confirmationReason: "Verified integration inbound execution.",
-    });
+    await requestContext.run(
+      { requestId: "request:integration-execute-001" },
+      () =>
+        executor.execute({
+          taskId: identifiers.transportTaskId,
+          equipmentId: "AMR-01",
+          actorId: command.actorId,
+          confirmationReason: "Verified integration inbound execution.",
+        }),
+    );
 
     const publishedEvents: OutboxEvent[] = [];
     const outbox = new OutboxProcessor(
@@ -178,6 +232,47 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       audit_count: "4",
       confirmation_reason: "Verified integration inbound execution.",
     });
+
+    const audit = new AuditProjectionService(pool);
+    const firstAuditPage = await audit.list({
+      resourceType: "TransportTask",
+      resourceId: identifiers.transportTaskId,
+      limit: 2,
+    });
+    expect(firstAuditPage.events).toHaveLength(2);
+    expect(firstAuditPage.nextCursor).not.toBeNull();
+    expect(firstAuditPage.events[0]).toMatchObject({
+      actor: { type: "user", id: command.actorId },
+      action: "transport_task.complete",
+      knownAction: true,
+      resource: { type: "TransportTask", id: identifiers.transportTaskId },
+      evidence: {
+        receiptId: identifiers.receiptId,
+        loadId: identifiers.loadId,
+      },
+    });
+    expect(firstAuditPage.events[0].correlationId).toBe(
+      "request:integration-execute-001",
+    );
+    expect(
+      firstAuditPage.events.every(
+        (event) => event.correlationId === "request:integration-execute-001",
+      ),
+    ).toBe(true);
+    expect(JSON.stringify(firstAuditPage)).not.toContain(
+      "Verified integration inbound execution.",
+    );
+    const secondAuditPage = await audit.list({
+      resourceType: "TransportTask",
+      resourceId: identifiers.transportTaskId,
+      cursor: firstAuditPage.nextCursor!,
+      limit: 2,
+    });
+    expect(secondAuditPage.events).toHaveLength(1);
+    expect(secondAuditPage.events[0]?.correlationId).toBe(
+      "request:integration-execute-001",
+    );
+    expect(secondAuditPage.nextCursor).toBeNull();
     expect(await equipment.getState("AMR-01")).toMatchObject({
       status: "idle",
       nodeId: "STORAGE-A-01",

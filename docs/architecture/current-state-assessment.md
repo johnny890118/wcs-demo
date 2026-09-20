@@ -1,50 +1,37 @@
-# Current Architecture Assessment
+# Current architecture assessment
 
-Assessment date: 2026-09-17. Baseline commit: `24a2782`.
+Assessment date: 2026-09-21. Baseline: M7 release plus uncommitted M8A and frontend-boundary work in progress.
 
-## Classification legend
+## Supported product path
 
-- **Verified fact**: observed in tracked code or command output.
-- **Interpretation**: conclusion supported by multiple facts.
-- **Assumption**: working hypothesis requiring stakeholder or runtime validation.
-- **Suspected defect**: code behavior likely violates its apparent intent; reproduce before fixing.
+- The repository is one Next.js Pages Router deployment with an internal NestJS API and PostgreSQL. `/operations` is the supported operational home; its focused workflows and projections are server-session protected. `/legacy/*` retains the original prototype only as migration reference.
+- The framework-independent core covers versioned directed topology, capability-based routing/assignment, deterministic inbound and outbound execution, inventory allocation, equipment simulation/observations, alarms, recovery, unknown outcomes, outbox delivery, and adapter conformance contracts.
+- PostgreSQL migrations, transaction boundaries, container/deployment adapters, CI, unit/API/PostgreSQL/Chromium tests, bilingual catalogs, themes, accessibility checks, backup/restore tooling, structured logging, request IDs, health endpoints, and a persisted audit store exist.
+- M8A adds a dedicated `audit.view` read projection and `/operations/audit`: keyset pagination, actor/action/resource/correlation semantics, action-specific evidence allowlists, unknown-action fail-closed behavior, workflow links, and explicit retention/reset limitations.
 
-## Verified facts
+## Product limitations
 
-- One private Next.js Pages Router application uses JavaScript, Tailwind 3, Sass, Chart.js, NextAuth 4, Axios, and Headless UI. The baseline was upgraded in place to Next.js 16.3 and React 19.3 after discovery; see ADR 0003.
-- There are three pages: dispatch/map (`/`), dashboard (`/fdp`), and engineering controls (`/engineeringMode`); two API routes are `/api` and `/api/auth/[...nextauth]`.
-- No NestJS service, PostgreSQL schema, ORM, migrations, persistence, Docker, CI, unit/integration/E2E test framework, i18n system, light theme, observability, audit store, or equipment adapter exists.
-- Warehouse and task state live in React component state. A timer advances a single vehicle through an in-memory path.
-- `components/path.js` contains an A\*-like routing implementation coupled to React setters and numeric map codes.
-- `components/map.js` (6,558 lines) and `components/mapPerfect.js` (4,138 lines) contain large inline SVG/rendering implementations with duplicated simulation logic.
-- Dashboard values were generated with `Math.random()`/Faker and were not derived from warehouse state. They are now deterministic display fixtures pending real projections.
-- The `/api` route accepts any POST body and echoes it. It rejects GET, while engineering mode polls it with GET every second.
-- Discovery found credentials hard-coded in the NextAuth route and `.env` tracked. The credentials were removed, `.env` was untracked, and the legacy control endpoint now requires a server session and fails closed while no adapter exists. Full RBAC is still absent.
-- The Next.js 14 production build succeeded after dependency installation with six hook warnings. The Next.js 16 baseline also builds; React 19 diagnostics expose 15 warnings in the legacy map/task state machine.
-- Discovery found 25 dependency vulnerabilities (3 critical, 12 high, 8 moderate, 2 low), 14 in production. After ADR 0003 and lockfile remediation, the audit reports no known findings.
-- The UI is almost entirely hard-coded Traditional Chinese, always dark, and uses numerous unlabeled controls, mouse-only interactions, color-dependent states, and motion without a reduced-motion policy.
+- Authentication is still a single environment-backed demo identity. Service permissions are deny-by-default, but production user RBAC, identity lifecycle, session revocation, and warehouse/site scope are not implemented.
+- Warehouse, topology, equipment, and adapter models exist, but governed administration (draft, review, activation, rollback, compatibility impact) does not.
+- Execution proves deterministic vertical slices, not fleet-scale scheduling, resource coordination, or complete operator reconciliation.
+- External WMS and real equipment integrations are contracts/reference proofs rather than production integration products.
+- Structured logs, request IDs, health checks, deployment smoke gates, and backup/restore exist; metrics, tracing, SLOs, alerting, capacity evidence, and production incident diagnostics remain incomplete.
+- Audit storage is not claimed to be immutable or tamper-evident. The current demo reset truncates `audit_events`; accountable reset/replay remains M8B.
 
-## Interpretation
+## Frontend surfaces
 
-This is a visual proof of concept with useful behavioral clues—map topology, simple routing, inbound/outbound intent, and engineering-control vocabulary—but no trustworthy backend execution model. The most valuable migration strategy is to preserve and characterize scenarios while moving state and decisions into a tested domain/application core. The current UI cannot be used as an equipment-control security boundary.
+- Product intent is system-first: `/` is to remain a thin system entry, `/login` the formal sign-in surface, `/operations` the system home, and `/operations/*` operational capabilities.
+- The working tree also contains interrupted public/login/frontend-boundary WIP. Until that work is separately reconciled and verified, current public pages and Footer must not be treated as the system-first target or as part of M8A.
+- Public, login, operations, BFF/API, and legacy route-policy primitives are present in WIP, but provider/CSS isolation and the final thin `/` entry remain separate frontend-boundary work.
 
-## Suspected defects to reproduce and protect with regression tests
+## Legacy migration reference
 
-1. Engineering mode repeatedly GETs an endpoint that always returns `405`, so its equipment list cannot load.
-2. Both inbound and outbound completion checks contain mismatched `JSON.stringify(...)` parentheses, comparing a boolean string instead of positions.
-3. JavaScript bounds expressions such as `0 <= x < 9` do not perform mathematical chained comparison and can accept invalid coordinates.
-4. A\* open/closed sets store object identities, so semantically identical nodes are not deduplicated; path cost updates appear ineffective.
-5. Inbound chooses the first `trigger === ""` cell without first proving it is a valid, reachable storage location.
-6. Direct mutation of copied arrays and effect dependency omissions can produce stale or repeated task transitions.
-7. Engineering "emergency stop" is a normal unauthenticated echo request, despite UI wording implying a safety-critical action.
+The original React/SVG prototype still contains large stateful map/task components, UI-owned timers, fixed-coordinate/path assumptions, and engineering controls that are not supported product capabilities. It remains useful for visual and scenario characterization only. It must not define routing truth, equipment state, authorization, or a physical-control safety boundary.
 
-## Security and operational risk
+## Next architecture priorities
 
-The repository is safe only as a disconnected prototype. Do not publish it or connect it to physical equipment until credentials are removed, dependencies are remediated, API authorization and validation exist, high-risk actions are redesigned, and the equipment port enforces command/result semantics.
-
-## Legacy assets to retain during migration
-
-- Warehouse map visual references and topology hypotheses
-- Inbound/outbound demo intent and task-list UI concepts
-- A\* behavior as characterization input, not as trusted production routing
-- Engineering-control vocabulary as research prompts, not executable requirements
+1. Guarded demo reset/replay with evidence surviving reset.
+2. Production identity, user RBAC, and warehouse scope.
+3. Governed warehouse/topology/equipment administration.
+4. WCS scheduling, resource coordination, and reconciliation.
+5. External integration productization and production operability/diagnostics.

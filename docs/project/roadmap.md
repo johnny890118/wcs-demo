@@ -112,16 +112,64 @@ Status: Complete
 - [x] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [x] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
-## M8 — Accountable audit and demo orchestration
+## M8A — Accountable audit history
 
-Status: In progress
+Status: Complete
 
-- [ ] Define a paginated, redacted audit projection contract with stable correlation, actor, action, resource, and timestamp semantics
-- [ ] Expose authorized audit history without leaking secrets, raw credentials, or unrestricted diagnostic payloads
-- [ ] Link task, inventory, alarm, and workflow outcomes to accessible audit evidence in both supported locales and themes
+- [x] Define a paginated, redacted audit projection contract with stable correlation, actor, action, resource, and timestamp semantics
+- [x] Expose authorized audit history behind a dedicated permission without leaking secrets, raw credentials, or unrestricted diagnostic payloads
+- [x] Link supported operator workflow outcomes to accessible audit evidence in both supported locales and themes
+- [x] Record retention, unknown-action, historical-backfill, and current demo-reset policies without claiming immutable storage
+
+## M8B — Guarded demo reset and replay
+
+Status: Planned
+
 - [ ] Add a named deterministic demo reset/replay workflow behind demo-environment, authorization, confirmation, idempotency, and audit boundaries
 - [ ] Prove replay determinism and production reset denial through integration, browser, and managed-environment-safe gates
+- [ ] Retain reset evidence outside the `audit_events` rows being reset and define concurrent-session behavior
+- [ ] Reconcile reset/replay with active tasks, outbox delivery, simulator state, and failed or interrupted reset outcomes
+
+## M9 — Production identity and warehouse scope
+
+Status: Planned
+
+- [ ] Replace the single demo identity with production identity-provider integration and lifecycle controls
+- [ ] Enforce user/role permissions separately from service permissions, including warehouse/site scope
+- [ ] Audit identity, role, permission, and scope changes; add session revocation and access-review evidence
+
+## M10 — Warehouse configuration administration
+
+Status: Planned
+
+- [ ] Add authorized lifecycle UI/API for warehouse, topology, location, equipment, adapter, and activation configuration
+- [ ] Add draft/validate/approve/activate/rollback boundaries with impact preview and audit evidence
+- [ ] Protect active-work compatibility and prevent unsafe configuration changes
+
+## M11 — WCS coordination and reconciliation
+
+Status: Planned
+
+- [ ] Add scheduling priorities, resource reservations, contention handling, cancellation, and deterministic rescheduling
+- [ ] Add operator-visible unknown-outcome reconciliation and durable command/equipment divergence workflows
+- [ ] Prove recovery across restart, lease loss, duplicate delivery, and constrained multi-equipment scenarios
+
+## M12 — External integration productization
+
+Status: Planned
+
+- [ ] Define versioned external WMS contracts, idempotent ingestion, outbound status delivery, retry/dead-letter, and reconciliation
+- [ ] Productize equipment-adapter registration, conformance evidence, credential boundaries, compatibility, and upgrade policy
+- [ ] Add integration administration and diagnostics without coupling domain/application code to protocols or vendors
+
+## M13 — Production operability and diagnostics
+
+Status: Planned
+
+- [ ] Add metrics, traces, service-level objectives, alerting, capacity limits, and operator diagnostics
+- [ ] Prove backup/restore plus audit retention, upgrade/rollback, incident response, degraded-mode, and disaster-recovery runbooks
+- [ ] Complete deployment hardening and commissioning evidence for a real site without implying safety certification
 
 ## Immediate next task
 
-Define the M8 audit projection contract from existing persisted audit facts before building UI. Establish pagination, redaction, actor/action/resource vocabulary, correlation links, authorization, and retention assumptions; then expose the smallest read-only vertical slice linking an operator workflow to its durable evidence.
+Design M8B from the existing guarded CLI reset and deterministic scenario fixtures. The next change must first define where reset evidence survives, then specify authorization, idempotency, concurrency, failure recovery, and production denial before adding a browser control.

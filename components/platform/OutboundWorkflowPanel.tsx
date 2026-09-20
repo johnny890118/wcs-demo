@@ -318,6 +318,25 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 >
                   {t("viewInventoryOutcome")}
                 </Link>
+                <Link
+                  href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
+                    created.outboundOrderId,
+                  )}`}
+                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                >
+                  {t("viewOrderAuditEvidence")}
+                </Link>
+                {completedTaskIds.map((taskId) => (
+                  <Link
+                    key={taskId}
+                    href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                      taskId,
+                    )}`}
+                    className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                  >
+                    {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
+                  </Link>
+                ))}
               </div>
             ) : (
               <>

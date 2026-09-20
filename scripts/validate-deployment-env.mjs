@@ -5,6 +5,7 @@ if (!knownTargets.includes(target)) {
 }
 
 const knownPermissions = new Set([
+  "audit.view",
   "operations.view",
   "inbound.create",
   "outbound.create",

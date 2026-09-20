@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, type NestModule } from "@nestjs/common";
+import { AuditModule } from "./audit/audit.module";
 import { DatabaseModule } from "./database/database.module";
 import { ExecutionModule } from "./execution/execution.module";
 import { HealthController } from "./health/health.controller";
@@ -14,6 +15,7 @@ import { OutboundModule } from "./outbound/outbound.module";
 @Module({
   imports: [
     LoggingModule,
+    AuditModule,
     DatabaseModule,
     InboundModule,
     ExecutionModule,

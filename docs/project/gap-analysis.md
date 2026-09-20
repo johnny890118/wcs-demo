@@ -20,6 +20,16 @@
 | SEO/product identity | Prototype title                    | Public landing/about/contact and private noindex            | P2       |
 | Backup/restore       | None                               | Tested runbook and environment-specific retention           | P2       |
 
+## Current operational deltas after M8A
+
+The original table is retained as discovery history. Current system-side gaps, in dependency order, are:
+
+1. The application still has a single demo identity; user RBAC and warehouse/site scope are not production-ready.
+2. Demo reset deletes operational audit rows and has no accountable replay workflow; M8B must retain reset evidence separately.
+3. Warehouse, topology, equipment, and integration configuration are modelled but lack a governed administration lifecycle.
+4. WCS execution lacks product-level scheduling, shared-resource coordination, and operator reconciliation at fleet scale.
+5. External WMS/equipment integration administration plus production metrics, diagnostics, SLOs, and incident evidence remain incomplete.
+
 ## Exit rule
 
 A row leaves this table only when acceptance evidence exists in tests, verification output, or an operational runbook. Documentation alone does not close an implementation gap.

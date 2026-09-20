@@ -8,6 +8,7 @@ import {
   type TransitionMetadata,
 } from "../../../../src/application/execution/inbound-execution";
 import { DATABASE_POOL } from "../database/database.module";
+import { auditCorrelationId } from "../logging/request-context";
 
 type TaskRow = {
   task_id: string;
@@ -261,8 +262,8 @@ export class PgInboundExecutionRepository
     );
     await client.query(
       `INSERT INTO audit_events
-        (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details)
-       VALUES ($1, 'service', $2, $3, 'TransportTask', $4, $5::jsonb)`,
+        (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+       VALUES ($1, 'user', $2, $3, 'TransportTask', $4, $5::jsonb, $6)`,
       [
         metadata.auditEventId,
         actorId,
@@ -274,6 +275,7 @@ export class PgInboundExecutionRepository
             ? { confirmationReason: metadata.confirmationReason }
             : {}),
         }),
+        auditCorrelationId(metadata.auditEventId),
       ],
     );
   }

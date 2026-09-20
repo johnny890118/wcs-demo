@@ -9,6 +9,7 @@ import type {
   PersistedOutboundTask,
 } from "../../../../src/application/execution/outbound-execution";
 import { DATABASE_POOL } from "../database/database.module";
+import { auditCorrelationId } from "../logging/request-context";
 
 type TaskRow = {
   task_id: string;
@@ -295,13 +296,14 @@ export class PgOutboundExecutionRepository
       ],
     );
     await client.query(
-      `INSERT INTO audit_events (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details) VALUES ($1, 'service', $2, $3, 'TransportTask', $4, $5::jsonb)`,
+      `INSERT INTO audit_events (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id) VALUES ($1, 'user', $2, $3, 'TransportTask', $4, $5::jsonb, $6)`,
       [
         metadata.auditEventId,
         actorId,
         action,
         task.task_id,
         JSON.stringify(payload),
+        auditCorrelationId(metadata.auditEventId),
       ],
     );
   }

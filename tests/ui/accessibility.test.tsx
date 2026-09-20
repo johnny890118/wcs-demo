@@ -12,6 +12,7 @@ import InboundOperationsPage from "../../pages/operations/inbound";
 import AlarmOperationsPage from "../../pages/operations/alarms";
 import OutboundOperationsPage from "../../pages/operations/outbound";
 import WarehouseOperationsPage from "../../pages/operations/warehouse";
+import AuditHistoryPage from "../../pages/operations/audit";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
 
@@ -241,6 +242,36 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <AlarmOperationsPage details={details} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("finds no detectable violations on accountable audit history", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <AuditHistoryPage
+          filters={{}}
+          initialPage={{
+            events: [
+              {
+                eventId: "70000000-0000-4000-8000-000000000001",
+                correlationId: "request:workflow-001",
+                occurredAt: "2026-09-20T03:00:00.000Z",
+                actor: { type: "user", id: "operator@example.test" },
+                action: "transport_task.complete",
+                knownAction: true,
+                knownResource: true,
+                resource: {
+                  type: "TransportTask",
+                  id: "50000000-0000-4000-8000-000000000001",
+                },
+                evidence: { equipmentId: "AMR-01" },
+              },
+            ],
+            nextCursor: null,
+          }}
+        />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

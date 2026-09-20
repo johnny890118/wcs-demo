@@ -12,6 +12,7 @@ import {
   type RecoveryMetadata,
 } from "../../../../src/application/recovery/fault-recovery";
 import { DATABASE_POOL } from "../database/database.module";
+import { auditCorrelationId } from "../logging/request-context";
 
 type TaskRow = {
   task_id: string;
@@ -298,8 +299,8 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
     );
     await client.query(
       `INSERT INTO audit_events
-       (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details)
-       VALUES ($1, 'service', $2, $3, $4, $5, $6::jsonb)`,
+       (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+       VALUES ($1, 'user', $2, $3, $4, $5, $6::jsonb, $7)`,
       [
         metadata.auditEventId,
         actorId,
@@ -307,6 +308,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         aggregateType,
         aggregateId,
         JSON.stringify(details),
+        auditCorrelationId(metadata.auditEventId),
       ],
     );
   }

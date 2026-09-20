@@ -1,6 +1,7 @@
 import { SetMetadata } from "@nestjs/common";
 
 export const servicePermissions = [
+  "audit.view",
   "operations.view",
   "inbound.create",
   "outbound.create",

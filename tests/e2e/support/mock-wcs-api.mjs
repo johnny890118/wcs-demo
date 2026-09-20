@@ -147,6 +147,88 @@ const baseDetails = {
   },
   generatedAt,
 };
+const auditEvents = [
+  {
+    eventId: "70000000-0000-4000-8000-000000000097",
+    correlationId: "request:e2e-receipt-001",
+    occurredAt: "2026-09-18T07:58:00.000Z",
+    actor: { type: "user", id: "e2e-operator" },
+    action: "inbound_receipt.create",
+    knownAction: true,
+    resource: {
+      type: "InboundReceipt",
+      id: "30000000-0000-4000-8000-000000000099",
+    },
+    knownResource: true,
+    evidence: {
+      transportTaskId: "50000000-0000-4000-8000-000000000099",
+    },
+  },
+  {
+    eventId: "70000000-0000-4000-8000-000000000099",
+    correlationId: "request:e2e-workflow-001",
+    occurredAt: generatedAt,
+    actor: { type: "user", id: "e2e-operator" },
+    action: "transport_task.complete",
+    knownAction: true,
+    knownResource: true,
+    resource: {
+      type: "TransportTask",
+      id: "50000000-0000-4000-8000-000000000099",
+    },
+    evidence: {
+      equipmentId: "agv-e2e-01",
+      receiptId: "30000000-0000-4000-8000-000000000099",
+    },
+  },
+  {
+    eventId: "70000000-0000-4000-8000-000000000096",
+    correlationId: "request:e2e-order-001",
+    occurredAt: "2026-09-18T07:57:00.000Z",
+    actor: { type: "user", id: "e2e-operator" },
+    action: "outbound_order.allocate",
+    knownAction: true,
+    resource: {
+      type: "OutboundOrder",
+      id: "a0000000-0000-4000-8000-000000000099",
+    },
+    knownResource: true,
+    evidence: {
+      transportTaskIds: ["c0000000-0000-4000-8000-000000000099"],
+    },
+  },
+  {
+    eventId: "70000000-0000-4000-8000-000000000095",
+    correlationId: "request:e2e-alarm-001",
+    occurredAt: "2026-09-18T07:56:00.000Z",
+    actor: { type: "user", id: "e2e-operator" },
+    action: "alarm.acknowledge",
+    knownAction: true,
+    resource: {
+      type: "Alarm",
+      id: "80000000-0000-4000-8000-000000000098",
+    },
+    knownResource: true,
+    evidence: {
+      taskId: "50000000-0000-4000-8000-000000000098",
+      equipmentId: "agv-e2e-01",
+    },
+  },
+  {
+    eventId: "70000000-0000-4000-8000-000000000098",
+    correlationId: "request:e2e-unknown-001",
+    occurredAt: "2026-09-18T07:00:00.000Z",
+    actor: { type: "system", id: "future-worker" },
+    action: "future_action.not_yet_known",
+    knownAction: false,
+    knownResource: true,
+    resource: {
+      type: "TransportTask",
+      id: "50000000-0000-4000-8000-000000000098",
+    },
+    evidence: {},
+  },
+];
 
 let summary = structuredClone(baseSummary);
 let details = structuredClone(baseDetails);
@@ -283,6 +365,21 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/details") {
     response.end(JSON.stringify(details));
+    return;
+  }
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/audit-events")
+  ) {
+    const url = new URL(request.url, "http://127.0.0.1");
+    const correlationId = url.searchParams.get("correlationId");
+    const resourceId = url.searchParams.get("resourceId");
+    const events = auditEvents.filter(
+      (event) =>
+        (!correlationId || event.correlationId === correlationId) &&
+        (!resourceId || event.resource.id === resourceId),
+    );
+    response.end(JSON.stringify({ events, nextCursor: null }));
     return;
   }
   if (request.method === "POST" && request.url === "/api/v1/inbound-receipts") {
