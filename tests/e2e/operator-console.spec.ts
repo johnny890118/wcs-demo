@@ -234,6 +234,19 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByRole("navigation", { name: "操作台桌面版導覽" }),
   ).toBeVisible();
+  await expect(
+    page.getByLabel("目前營運情境").getByText("Deterministic Demo Warehouse"),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("目前營運情境").getByText("DEMO", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("目前營運情境").getByText("示範環境"),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("目前營運情境").getByText("模擬設備"),
+  ).toBeVisible();
+  await expect(page.getByText("e2e-operator", { exact: true })).toBeVisible();
   await expect(page.locator('a[href="/legacy"]')).toHaveCount(0);
   const sidebar = page.locator("aside");
   await expect(sidebar).toHaveCSS("position", "sticky");

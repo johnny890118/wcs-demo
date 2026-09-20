@@ -10,9 +10,11 @@ import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 import {
   REQUIRED_PERMISSION,
+  REQUIRED_USER_PERMISSION,
   servicePermissions,
   type ServicePermission,
 } from "./permissions";
+import { requireForwardedUserAccess } from "./user-access";
 
 @Injectable()
 export class ServiceTokenGuard implements CanActivate {
@@ -62,6 +64,12 @@ export class ServiceTokenGuard implements CanActivate {
         code: "FORBIDDEN",
         message: `Service identity lacks permission ${required}.`,
       });
+    }
+    const requiredUserPermission = this.reflector.getAllAndOverride<
+      import("../../../../src/application/access/operational-access").UserPermission
+    >(REQUIRED_USER_PERMISSION, [context.getHandler(), context.getClass()]);
+    if (requiredUserPermission) {
+      requireForwardedUserAccess(request, requiredUserPermission);
     }
     return true;
   }

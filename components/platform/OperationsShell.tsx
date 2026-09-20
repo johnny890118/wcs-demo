@@ -9,9 +9,15 @@ import {
   ClipboardDocumentListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  currentWarehouse,
+  hasUserPermission,
+  isOperationalAccess,
+  isOperationalRuntime,
+} from "../../src/application/access/operational-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
@@ -31,6 +37,33 @@ export function OperationsShell({
     | "projections";
 }) {
   const { t } = useLocale();
+  const { data: session } = useSession();
+  const access = isOperationalAccess(session?.access) ? session.access : null;
+  const runtime = isOperationalRuntime(session?.runtime)
+    ? session.runtime
+    : null;
+  const warehouse = access ? currentWarehouse(access) : null;
+  const canViewAudit = access ? hasUserPermission(access, "audit.view") : false;
+  const environmentLabel = runtime
+    ? t(
+        {
+          development: "environmentDevelopment",
+          test: "environmentTest",
+          demo: "environmentDemo",
+          staging: "environmentStaging",
+          production: "environmentProduction",
+        }[runtime.environment] as Parameters<typeof t>[0],
+      )
+    : null;
+  const equipmentSourceLabel = runtime
+    ? t(
+        {
+          simulation: "equipmentSourceSimulation",
+          hardware: "equipmentSourceHardware",
+          hybrid: "equipmentSourceHybrid",
+        }[runtime.equipmentSource] as Parameters<typeof t>[0],
+      )
+    : null;
 
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
@@ -124,21 +157,23 @@ export function OperationsShell({
               <QueueListIcon className="h-5 w-5" aria-hidden="true" />
               {t("projections")}
             </Link>
-            <Link
-              href="/operations/audit"
-              aria-current={current === "audit" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "audit"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <ClipboardDocumentListIcon
-                className="h-5 w-5"
-                aria-hidden="true"
-              />
-              {t("auditHistory")}
-            </Link>
+            {canViewAudit ? (
+              <Link
+                href="/operations/audit"
+                aria-current={current === "audit" ? "page" : undefined}
+                className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                  current === "audit"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                <ClipboardDocumentListIcon
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
+                {t("auditHistory")}
+              </Link>
+            ) : null}
           </nav>
           <div className="mt-auto border-t border-[var(--border)] pt-4">
             <button
@@ -168,10 +203,35 @@ export function OperationsShell({
                 </Link>
                 <span className="text-sm font-bold">{t("operations")}</span>
               </div>
-              <p className="hidden text-xs font-medium text-[var(--text-muted)] md:block">
-                {t("securedSession")}
-              </p>
+              <div
+                aria-label={t("operationalContext")}
+                className="hidden min-w-0 items-center gap-2 text-xs md:flex"
+              >
+                <span className="max-w-56 truncate font-bold text-[var(--text)]">
+                  {warehouse?.name ?? t("warehouseContextUnavailable")}
+                </span>
+                {warehouse ? (
+                  <span className="rounded-md bg-[var(--accent-soft)] px-2 py-1 font-mono font-semibold text-[var(--accent-strong)]">
+                    {warehouse.code}
+                  </span>
+                ) : null}
+                {environmentLabel ? (
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                    {environmentLabel}
+                  </span>
+                ) : null}
+                {equipmentSourceLabel ? (
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                    {equipmentSourceLabel}
+                  </span>
+                ) : null}
+              </div>
               <div className="ml-auto flex items-center gap-2">
+                {access ? (
+                  <span className="hidden max-w-40 truncate text-xs font-medium text-[var(--text-muted)] xl:inline">
+                    {access.principal.displayName}
+                  </span>
+                ) : null}
                 <LocaleControl />
                 <ThemeControl />
               </div>
@@ -246,17 +306,19 @@ export function OperationsShell({
               >
                 {t("projections")}
               </Link>
-              <Link
-                href="/operations/audit"
-                aria-current={current === "audit" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "audit"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("auditHistory")}
-              </Link>
+              {canViewAudit ? (
+                <Link
+                  href="/operations/audit"
+                  aria-current={current === "audit" ? "page" : undefined}
+                  className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                    current === "audit"
+                      ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                      : "text-[var(--text-muted)]"
+                  }`}
+                >
+                  {t("auditHistory")}
+                </Link>
+              ) : null}
             </nav>
           </header>
           <main id="main-content" className="px-4 py-8 sm:px-6 lg:px-8">

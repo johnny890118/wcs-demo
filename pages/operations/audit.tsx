@@ -9,7 +9,7 @@ import {
   type AuditEventPage,
 } from "../../src/application/audit/audit-projection";
 import { fetchAuditEvents } from "../../src/infrastructure/http/wcs-api-client";
-import { loginDestination } from "../../src/ui/auth/login-routing";
+import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
@@ -176,10 +176,15 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
   const session = await getServerSession(context.req, context.res, authOptions);
-  if (!session)
+  const access = operationalPageAccess(
+    session,
+    "audit.view",
+    context.resolvedUrl,
+  );
+  if (!access.allowed)
     return {
       redirect: {
-        destination: loginDestination(context.resolvedUrl),
+        destination: access.destination,
         permanent: false,
       },
     };
@@ -196,7 +201,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   };
   try {
     return {
-      props: { session, filters, initialPage: await fetchAuditEvents(filters) },
+      props: {
+        session,
+        filters,
+        initialPage: await fetchAuditEvents(access.access, filters),
+      },
     };
   } catch {
     return { props: { session, filters, initialPage: null } };

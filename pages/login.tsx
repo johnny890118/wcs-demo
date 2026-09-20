@@ -10,6 +10,10 @@ import { ThemeControl } from "../components/platform/ThemeControl";
 import { safeOperationsCallback } from "../src/ui/auth/login-routing";
 import { useLocale } from "../src/ui/i18n/locale-provider";
 import { authOptions } from "./api/auth/[...nextauth]";
+import {
+  isOperationalAccess,
+  isOperationalRuntime,
+} from "../src/application/access/operational-access";
 
 type LoginPageProps = { callbackUrl: string };
 
@@ -152,7 +156,11 @@ export const getServerSideProps: GetServerSideProps<LoginPageProps> = async (
     `http://${context.req.headers.host ?? "localhost:3000"}`;
   const callbackUrl = safeOperationsCallback(context.query.callbackUrl, origin);
   const session = await getServerSession(context.req, context.res, authOptions);
-  if (session) {
+  if (
+    session &&
+    isOperationalAccess(session.access) &&
+    isOperationalRuntime(session.runtime)
+  ) {
     return { redirect: { destination: callbackUrl, permanent: false } };
   }
   return { props: { callbackUrl } };

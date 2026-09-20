@@ -35,6 +35,8 @@ import {
   type AuditEventPage,
   type AuditEventQuery,
 } from "../../application/audit/audit-projection";
+import type { OperationalAccess } from "../../application/access/operational-access";
+import { operationalAccessHeaders } from "./operational-access-headers";
 
 const defaultTimeoutMs = 55_000;
 
@@ -48,13 +50,19 @@ export function loadWcsApiTimeoutMs(): number {
   return value;
 }
 
-async function fetchWcsProjection(path: string): Promise<unknown> {
+async function fetchWcsProjection(
+  path: string,
+  access: OperationalAccess,
+): Promise<unknown> {
   const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
   const token = process.env.API_SERVICE_TOKEN;
   if (!token) throw new Error("API_SERVICE_TOKEN is required.");
 
   const response = await fetch(`${baseUrl}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...operationalAccessHeaders(access),
+    },
     signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
   });
   if (!response.ok) {
@@ -111,16 +119,26 @@ async function postWcsCommand(
   return payload;
 }
 
-export async function fetchOperationsSummary(): Promise<OperationsSummary> {
-  const payload = await fetchWcsProjection("/api/v1/operations/summary");
+export async function fetchOperationsSummary(
+  access: OperationalAccess,
+): Promise<OperationsSummary> {
+  const payload = await fetchWcsProjection(
+    "/api/v1/operations/summary",
+    access,
+  );
   if (!isOperationsSummary(payload)) {
     throw new Error("WCS operations API returned an invalid projection.");
   }
   return payload;
 }
 
-export async function fetchOperationsDetails(): Promise<OperationsDetails> {
-  const payload = await fetchWcsProjection("/api/v1/operations/details");
+export async function fetchOperationsDetails(
+  access: OperationalAccess,
+): Promise<OperationsDetails> {
+  const payload = await fetchWcsProjection(
+    "/api/v1/operations/details",
+    access,
+  );
   if (!isOperationsDetails(payload)) {
     throw new Error("WCS operations API returned invalid focused projections.");
   }
@@ -128,6 +146,7 @@ export async function fetchOperationsDetails(): Promise<OperationsDetails> {
 }
 
 export async function fetchAuditEvents(
+  access: OperationalAccess,
   query: AuditEventQuery = {},
 ): Promise<AuditEventPage> {
   const search = new URLSearchParams();
@@ -138,6 +157,7 @@ export async function fetchAuditEvents(
   if (query.correlationId) search.set("correlationId", query.correlationId);
   const payload = await fetchWcsProjection(
     `/api/v1/audit-events${search.size ? `?${search}` : ""}`,
+    access,
   );
   if (!isAuditEventPage(payload)) {
     throw new Error("WCS audit API returned an invalid projection.");

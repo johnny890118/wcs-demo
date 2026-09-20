@@ -14,6 +14,15 @@ const knownPermissions = new Set([
   "alarm.acknowledge",
   "alarm.recover",
 ]);
+const knownUserPermissions = new Set([
+  "operations.view",
+  "audit.view",
+  "inbound.create",
+  "outbound.create",
+  "transport.execute",
+  "alarm.acknowledge",
+  "alarm.recover",
+]);
 const errors = [];
 
 function required(name, minimumLength = 1) {
@@ -53,6 +62,14 @@ function integer(name, fallback, minimum, maximum) {
   const value = Number(process.env[name] ?? fallback);
   if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
     errors.push(`${name} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return value;
+}
+
+function oneOf(name, allowed) {
+  const value = required(name);
+  if (!allowed.includes(value)) {
+    errors.push(`${name} must be one of ${allowed.join(", ")}.`);
   }
   return value;
 }
@@ -108,6 +125,35 @@ if (target === "web" || target === "all") {
   required("NEXTAUTH_SECRET", 32);
   required("DEMO_ADMIN_USERNAME", 3);
   required("DEMO_ADMIN_PASSWORD", 16);
+  const userPermissions = required("DEMO_USER_PERMISSIONS")
+    .split(",")
+    .map((permission) => permission.trim())
+    .filter(Boolean);
+  if (
+    userPermissions.length === 0 ||
+    new Set(userPermissions).size !== userPermissions.length ||
+    userPermissions.some((permission) => !knownUserPermissions.has(permission))
+  ) {
+    errors.push("DEMO_USER_PERMISSIONS must be non-empty, unique, and known.");
+  }
+  const warehouseId = required("DEMO_WAREHOUSE_ID");
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      warehouseId,
+    )
+  ) {
+    errors.push("DEMO_WAREHOUSE_ID must be a UUID.");
+  }
+  required("DEMO_WAREHOUSE_CODE");
+  required("DEMO_WAREHOUSE_NAME");
+  oneOf("SWP_ENVIRONMENT", [
+    "development",
+    "test",
+    "demo",
+    "staging",
+    "production",
+  ]);
+  oneOf("SWP_EQUIPMENT_SOURCE", ["simulation", "hardware", "hybrid"]);
   required("API_SERVICE_TOKEN", 32);
 }
 

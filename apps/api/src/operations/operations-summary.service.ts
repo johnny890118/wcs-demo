@@ -104,28 +104,46 @@ export const equipmentTelemetryFreshAfterMs = 30_000;
 export class OperationsSummaryService {
   constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
-  async getSummary(): Promise<OperationsSummary> {
+  async getSummary(warehouseId: string): Promise<OperationsSummary> {
     const [counts, topology, tasks] = await Promise.all([
       this.pool.query<CountRow>(
         `SELECT
-          (SELECT count(*)::integer FROM transport_tasks WHERE status IN ('assigned', 'in_progress', 'blocked', 'unknown')) AS active_tasks,
-          (SELECT count(*)::integer FROM inventory_units WHERE status = 'available') AS stored_inventory,
-          (SELECT count(*)::integer FROM inbound_receipts WHERE status IN ('requested', 'in_progress')) AS open_receipts,
-          (SELECT count(*)::integer FROM equipment_descriptors WHERE active = true) AS configured_equipment`,
+          (SELECT count(*)::integer
+             FROM transport_tasks task
+             JOIN locations source ON source.id = task.source_location_id
+            WHERE source.warehouse_id = $1
+              AND task.status IN ('assigned', 'in_progress', 'blocked', 'unknown')) AS active_tasks,
+          (SELECT count(*)::integer
+             FROM inventory_units inventory
+             JOIN locations location ON location.id = inventory.location_id
+            WHERE location.warehouse_id = $1 AND inventory.status = 'available') AS stored_inventory,
+          (SELECT count(DISTINCT receipt.id)::integer
+             FROM inbound_receipts receipt
+             JOIN loads load ON load.receipt_id = receipt.id
+             JOIN locations location ON location.id = load.current_location_id
+            WHERE location.warehouse_id = $1
+              AND receipt.status IN ('requested', 'in_progress')) AS open_receipts,
+          (SELECT count(*)::integer FROM equipment_descriptors
+            WHERE warehouse_id = $1 AND active = true) AS configured_equipment`,
+        [warehouseId],
       ),
       this.pool.query<TopologyRow>(
         `SELECT id, revision
          FROM warehouse_topologies
-         WHERE status = 'active'
+         WHERE warehouse_id = $1 AND status = 'active'
          ORDER BY activated_at DESC NULLS LAST, revision DESC
          LIMIT 1`,
+        [warehouseId],
       ),
       this.pool.query<TaskRow>(
-        `SELECT id, status, source_location_id, destination_location_id,
-          equipment_id, updated_at
-         FROM transport_tasks
-         ORDER BY updated_at DESC, id
+        `SELECT task.id, task.status, task.source_location_id, task.destination_location_id,
+          task.equipment_id, task.updated_at
+         FROM transport_tasks task
+         JOIN locations source ON source.id = task.source_location_id
+         WHERE source.warehouse_id = $1
+         ORDER BY task.updated_at DESC, task.id
          LIMIT 5`,
+        [warehouseId],
       ),
     ]);
 
@@ -155,7 +173,7 @@ export class OperationsSummaryService {
     };
   }
 
-  async getDetails(): Promise<OperationsDetails> {
+  async getDetails(warehouseId: string): Promise<OperationsDetails> {
     const [tasks, equipment, inventory, alarms, locations, topology] =
       await Promise.all([
         this.pool.query<FocusedTaskRow>(
@@ -164,8 +182,10 @@ export class OperationsSummaryService {
          FROM transport_tasks t
          JOIN locations source ON source.id = t.source_location_id
          JOIN locations destination ON destination.id = t.destination_location_id
+         WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
          ORDER BY t.updated_at DESC, t.id
          LIMIT 100`,
+          [warehouseId],
         ),
         this.pool.query<EquipmentRow>(
           `SELECT descriptor.equipment_id, descriptor.adapter_key,
@@ -186,23 +206,33 @@ export class OperationsSummaryService {
          FROM equipment_descriptors descriptor
          LEFT JOIN equipment_observations observation
            ON observation.equipment_id = descriptor.equipment_id
+         WHERE descriptor.warehouse_id = $1
          ORDER BY descriptor.equipment_id
          LIMIT 100`,
+          [warehouseId],
         ),
         this.pool.query<InventoryRow>(
           `SELECT inventory.id, inventory.sku, inventory.quantity,
           location.code AS location, inventory.status, inventory.updated_at
          FROM inventory_units inventory
          JOIN locations location ON location.id = inventory.location_id
+         WHERE location.warehouse_id = $1
          ORDER BY inventory.updated_at DESC, inventory.id
          LIMIT 100`,
+          [warehouseId],
         ),
         this.pool.query<AlarmRow>(
-          `SELECT id, transport_task_id, equipment_id, code, severity, message,
-          status, raised_at, acknowledged_at, cleared_at, resolution
-         FROM alarms
-         ORDER BY raised_at DESC, id
+          `SELECT alarm.id, alarm.transport_task_id, alarm.equipment_id,
+          alarm.code, alarm.severity, alarm.message, alarm.status,
+          alarm.raised_at, alarm.acknowledged_at, alarm.cleared_at,
+          alarm.resolution
+         FROM alarms alarm
+         JOIN transport_tasks task ON task.id = alarm.transport_task_id
+         JOIN locations source ON source.id = task.source_location_id
+         WHERE source.warehouse_id = $1
+         ORDER BY alarm.raised_at DESC, alarm.id
          LIMIT 100`,
+          [warehouseId],
         ),
         this.pool.query<LocationRow>(
           `SELECT location.id, location.code, location.kind, location.status,
@@ -215,15 +245,18 @@ export class OperationsSummaryService {
            ON binding.location_id = location.id
           AND binding.topology_id = topology.id
           AND binding.topology_revision = topology.revision
+         WHERE location.warehouse_id = $1
          ORDER BY location.code
          LIMIT 500`,
+          [warehouseId],
         ),
         this.pool.query<TopologyRow>(
           `SELECT id, revision
          FROM warehouse_topologies
-         WHERE status = 'active'
+         WHERE warehouse_id = $1 AND status = 'active'
          ORDER BY activated_at DESC NULLS LAST, revision DESC
          LIMIT 1`,
+          [warehouseId],
         ),
       ]);
     const activeTopology = topology.rows[0];

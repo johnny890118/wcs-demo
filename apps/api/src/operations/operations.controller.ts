@@ -1,6 +1,6 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Headers, UseGuards } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
-import { RequirePermission } from "../auth/permissions";
+import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
 import { OperationsSummaryService } from "./operations-summary.service";
@@ -8,16 +8,21 @@ import { OperationsSummaryService } from "./operations-summary.service";
 @Controller("v1/operations")
 @UseGuards(ServiceTokenGuard)
 @RequirePermission("operations.view")
+@RequireUserPermission("operations.view")
 export class OperationsController {
   constructor(private readonly summaries: OperationsSummaryService) {}
 
   @Get("summary")
-  getSummary(): Promise<OperationsSummary> {
-    return this.summaries.getSummary();
+  getSummary(
+    @Headers("x-swp-warehouse") warehouseId: string,
+  ): Promise<OperationsSummary> {
+    return this.summaries.getSummary(warehouseId);
   }
 
   @Get("details")
-  getDetails(): Promise<OperationsDetails> {
-    return this.summaries.getDetails();
+  getDetails(
+    @Headers("x-swp-warehouse") warehouseId: string,
+  ): Promise<OperationsDetails> {
+    return this.summaries.getDetails(warehouseId);
   }
 }

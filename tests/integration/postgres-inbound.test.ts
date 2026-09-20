@@ -78,6 +78,8 @@ const outboundIdentifiers: OutboundIdentifiers = {
   auditEventId: "a0000000-0000-4000-8000-000000000003",
 };
 
+const warehouseId = "10000000-0000-4000-8000-000000000001";
+
 function requestHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
@@ -321,7 +323,26 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
 
   it("returns data-backed operations projections without inferring missing state", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
-    const summary = await new OperationsSummaryService(pool).getSummary();
+    await pool.query(
+      `INSERT INTO warehouses (id, code, name)
+       VALUES ('10000000-0000-4000-8000-000000000099', 'OTHER', 'Other Warehouse')`,
+    );
+    await pool.query(
+      `INSERT INTO equipment_descriptors
+        (equipment_id, warehouse_id, adapter_key, capabilities,
+         supported_commands, constraints)
+       VALUES (
+         'OTHER-AMR',
+         '10000000-0000-4000-8000-000000000099',
+         'test.other',
+         ARRAY['transport.move'],
+         ARRAY['assign_task'],
+         '{}'::jsonb
+       )`,
+    );
+    const summary = await new OperationsSummaryService(pool).getSummary(
+      warehouseId,
+    );
 
     expect(summary).toMatchObject({
       counts: {
@@ -338,7 +359,9 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     });
     expect(Number.isNaN(Date.parse(summary.generatedAt))).toBe(false);
 
-    const details = await new OperationsSummaryService(pool).getDetails();
+    const details = await new OperationsSummaryService(pool).getDetails(
+      warehouseId,
+    );
     expect(details).toMatchObject({
       tasks: [],
       inventory: [],
@@ -397,6 +420,9 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         ],
       },
     });
+    expect(details.equipment.map((item) => item.equipmentId)).not.toContain(
+      "OTHER-AMR",
+    );
     expect(details.equipment[0]?.telemetry?.ageMs).toBeGreaterThanOrEqual(0);
     expect(
       Number.isNaN(
@@ -456,7 +482,9 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
        SET received_at = now() - interval '1 minute'
        WHERE equipment_id = 'AMR-01'`,
     );
-    const stale = await new OperationsSummaryService(pool).getDetails();
+    const stale = await new OperationsSummaryService(pool).getDetails(
+      warehouseId,
+    );
     expect(stale.equipment[0]?.telemetry).toMatchObject({
       freshness: "stale",
       connectionStatus: "connected",
@@ -470,7 +498,9 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         observedAt: new Date(),
       }),
     ).resolves.toBe("applied");
-    const refreshed = await new OperationsSummaryService(pool).getDetails();
+    const refreshed = await new OperationsSummaryService(pool).getDetails(
+      warehouseId,
+    );
     expect(refreshed.equipment[0]?.telemetry).toMatchObject({
       freshness: "current",
       sequence: 11,

@@ -7,6 +7,10 @@ import { PublicHeader } from "../components/platform/PublicHeader";
 import { useLocale } from "../src/ui/i18n/locale-provider";
 import { publicSiteUrl } from "../src/ui/seo/public-site";
 import { authOptions } from "./api/auth/[...nextauth]";
+import {
+  isOperationalAccess,
+  isOperationalRuntime,
+} from "../src/application/access/operational-access";
 
 type SystemEntryProps = { siteOrigin: string; entryHref: string };
 
@@ -59,7 +63,12 @@ export const getServerSideProps: GetServerSideProps<SystemEntryProps> = async (
   return {
     props: {
       siteOrigin: publicSiteUrl(),
-      entryHref: session ? "/operations" : "/login",
+      entryHref:
+        session &&
+        isOperationalAccess(session.access) &&
+        isOperationalRuntime(session.runtime)
+          ? "/operations"
+          : "/login",
     },
   };
 };

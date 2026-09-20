@@ -3,6 +3,15 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const script = resolve("scripts/validate-deployment-env.mjs");
+const webAccessEnvironment = {
+  DEMO_USER_PERMISSIONS:
+    "operations.view,audit.view,inbound.create,outbound.create,transport.execute,alarm.acknowledge,alarm.recover",
+  DEMO_WAREHOUSE_ID: "10000000-0000-4000-8000-000000000001",
+  DEMO_WAREHOUSE_CODE: "DEMO",
+  DEMO_WAREHOUSE_NAME: "Deterministic Demo Warehouse",
+  SWP_ENVIRONMENT: "demo",
+  SWP_EQUIPMENT_SOURCE: "simulation",
+};
 
 function validate(target: "api" | "web", environment: Record<string, string>) {
   return spawnSync(process.execPath, [script, target], {
@@ -49,6 +58,7 @@ describe("deployment environment validation", () => {
     const safeSecret = `validation-${"s".repeat(32)}`;
     const safePassword = `validation-${"p".repeat(20)}`;
     const result = validate("web", {
+      ...webAccessEnvironment,
       NEXTAUTH_URL: "http://warehouse.example.com",
       PUBLIC_SITE_URL: "https://warehouse.example.com",
       INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
@@ -64,6 +74,7 @@ describe("deployment environment validation", () => {
 
   it("accepts matching canonical and authentication origins", () => {
     const result = validate("web", {
+      ...webAccessEnvironment,
       NEXTAUTH_URL: "https://warehouse.example.com",
       PUBLIC_SITE_URL: "https://warehouse.example.com",
       INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
@@ -79,6 +90,7 @@ describe("deployment environment validation", () => {
 
   it("rejects an unbounded internal API timeout", () => {
     const result = validate("web", {
+      ...webAccessEnvironment,
       NEXTAUTH_URL: "https://warehouse.example.com",
       PUBLIC_SITE_URL: "https://warehouse.example.com",
       INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",

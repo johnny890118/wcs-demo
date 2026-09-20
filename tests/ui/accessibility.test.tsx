@@ -16,6 +16,7 @@ import WarehouseOperationsPage from "../../pages/operations/warehouse";
 import AuditHistoryPage from "../../pages/operations/audit";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
+import { testOperationalSession } from "../fixtures/operational-access";
 
 vi.mock("next/link", () => ({
   default: ({
@@ -31,7 +32,11 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
-vi.mock("next-auth/react", () => ({ signIn: vi.fn(), signOut: vi.fn() }));
+vi.mock("next-auth/react", () => ({
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  useSession: () => ({ data: testOperationalSession }),
+}));
 vi.mock("next/router", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "light", setTheme: vi.fn() }),

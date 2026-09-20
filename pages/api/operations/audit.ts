@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import type { AuditEventPage } from "../../../src/application/audit/audit-projection";
 import { fetchAuditEvents } from "../../../src/infrastructure/http/wcs-api-client";
+import { authorizeOperationalSession } from "../../../src/infrastructure/auth/operational-session";
 import { authOptions } from "../auth/[...nextauth]";
 
 type ErrorResponse = Readonly<{ code: string; message: string }>;
@@ -23,10 +24,14 @@ export default async function handler(
     return;
   }
   const session = await getServerSession(request, response, authOptions);
-  if (!session) {
-    response.status(401).json({
-      code: "UNAUTHENTICATED",
-      message: "Authentication is required.",
+  const decision = authorizeOperationalSession(session, "audit.view");
+  if (!decision.allowed) {
+    const forbidden = decision.reason === "forbidden";
+    response.status(forbidden ? 403 : 401).json({
+      code: forbidden ? "FORBIDDEN" : "UNAUTHENTICATED",
+      message: forbidden
+        ? "Audit view permission is required."
+        : "A valid operational session is required.",
     });
     return;
   }
@@ -44,7 +49,7 @@ export default async function handler(
   }
   try {
     response.status(200).json(
-      await fetchAuditEvents({
+      await fetchAuditEvents(decision.session.access, {
         cursor: single(request.query.cursor),
         limit,
         resourceType: single(request.query.resourceType),

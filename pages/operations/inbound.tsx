@@ -4,7 +4,7 @@ import { InboundWorkflowPanel } from "../../components/platform/InboundWorkflowP
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
-import { loginDestination } from "../../src/ui/auth/login-routing";
+import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
@@ -48,16 +48,26 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   context,
 ) => {
   const session = await getServerSession(context.req, context.res, authOptions);
-  if (!session) {
+  const access = operationalPageAccess(
+    session,
+    "operations.view",
+    "/operations/inbound",
+  );
+  if (!access.allowed) {
     return {
       redirect: {
-        destination: loginDestination("/operations/inbound"),
+        destination: access.destination,
         permanent: false,
       },
     };
   }
   try {
-    return { props: { session, details: await fetchOperationsDetails() } };
+    return {
+      props: {
+        session,
+        details: await fetchOperationsDetails(access.access),
+      },
+    };
   } catch {
     return { props: { session, details: null } };
   }

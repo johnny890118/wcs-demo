@@ -14,6 +14,10 @@ import {
   fetchOperationsDetails,
   fetchOperationsSummary,
 } from "../../src/infrastructure/http/wcs-api-client";
+import {
+  testOperationalAccess,
+  testOperationalSession,
+} from "../fixtures/operational-access";
 
 function createResponse() {
   const response = {
@@ -55,9 +59,7 @@ describe("operations summary browser boundary", () => {
   });
 
   it("returns the server-fetched projection to an authenticated operator", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchOperationsSummary).mockResolvedValue({
       counts: {
         activeTasks: 1,
@@ -73,12 +75,11 @@ describe("operations summary browser boundary", () => {
     await handler({ method: "GET" } as never, response as never);
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatchObject({ counts: { activeTasks: 1 } });
+    expect(fetchOperationsSummary).toHaveBeenCalledWith(testOperationalAccess);
   });
 
   it("does not expose upstream errors or credentials", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchOperationsSummary).mockRejectedValue(
       new Error("Bearer secret-value"),
     );
@@ -104,9 +105,7 @@ describe("focused operations projection browser boundary", () => {
   });
 
   it("returns validated server-fetched detail projections", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchOperationsDetails).mockResolvedValue({
       tasks: [],
       equipment: [],
@@ -120,5 +119,16 @@ describe("focused operations projection browser boundary", () => {
     await detailsHandler({ method: "GET" } as never, response as never);
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatchObject({ tasks: [], topology: null });
+    expect(fetchOperationsDetails).toHaveBeenCalledWith(testOperationalAccess);
+  });
+
+  it("fails closed when the signed session lacks an access context", async () => {
+    vi.mocked(getServerSession).mockResolvedValue({
+      user: { name: "legacy-session" },
+    });
+    const response = createResponse();
+    await detailsHandler({ method: "GET" } as never, response as never);
+    expect(response.statusCode).toBe(401);
+    expect(fetchOperationsDetails).not.toHaveBeenCalled();
   });
 });

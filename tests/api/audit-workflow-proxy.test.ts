@@ -9,6 +9,10 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/audit";
 import { fetchAuditEvents } from "../../src/infrastructure/http/wcs-api-client";
+import {
+  testOperationalAccess,
+  testOperationalSession,
+} from "../fixtures/operational-access";
 
 function createResponse() {
   const response = {
@@ -43,9 +47,7 @@ describe("audit history browser boundary", () => {
   });
 
   it("forwards only scalar supported query values", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchAuditEvents).mockResolvedValue({
       events: [],
       nextCursor: null,
@@ -64,7 +66,7 @@ describe("audit history browser boundary", () => {
       response as never,
     );
     expect(response.statusCode).toBe(200);
-    expect(fetchAuditEvents).toHaveBeenCalledWith({
+    expect(fetchAuditEvents).toHaveBeenCalledWith(testOperationalAccess, {
       limit: 25,
       correlationId: "request:workflow-001",
       resourceId: undefined,
@@ -74,9 +76,7 @@ describe("audit history browser boundary", () => {
   });
 
   it("rejects an invalid page size before calling the service", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     const response = createResponse();
     await handler(
       { method: "GET", query: { limit: "not-a-number" } } as never,
@@ -87,9 +87,7 @@ describe("audit history browser boundary", () => {
   });
 
   it("does not expose upstream error details", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchAuditEvents).mockRejectedValue(new Error("Bearer secret"));
     const response = createResponse();
     await handler({ method: "GET", query: {} } as never, response as never);

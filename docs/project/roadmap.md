@@ -150,11 +150,11 @@ The governing detail is the [Approved Product Experience Direction](../product/a
 
 Status: Active
 
-- [ ] Establish provider-neutral principal/session contracts while retaining the demo identity as a replaceable adapter
-- [ ] Define effective user permissions independently from service permissions and role-name conditionals
-- [ ] Persist/derive allowed warehouse scopes and require an explicit current warehouse context
+- [x] Establish provider-neutral principal/session contracts while retaining the demo identity as a replaceable adapter
+- [x] Define effective user permissions independently from service permissions and role-name conditionals
+- [x] Derive allowed demo warehouse scopes and require an explicit current warehouse context; persistent production assignments remain planned
 - [ ] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
-- [ ] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
+- [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
 - [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
 - [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
 
@@ -214,4 +214,5 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Start the first S1 vertical slice from repository reality: provider-neutral principal, effective permission, and explicit current-warehouse contracts that preserve the current demo login while creating enforceable SSR/BFF/API boundaries.
+Execute the [S1 access-context plan](s1-access-context-plan.md), beginning with
+the read boundary and visible operational context defined by ADR 0013.

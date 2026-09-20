@@ -3,6 +3,7 @@ import {
   fetchAuditEvents,
   loadWcsApiTimeoutMs,
 } from "../../src/infrastructure/http/wcs-api-client";
+import { testOperationalAccess } from "../fixtures/operational-access";
 
 const originalTimeout = process.env.INTERNAL_API_TIMEOUT_MS;
 
@@ -25,11 +26,20 @@ describe("WCS audit projection client", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(
-      fetchAuditEvents({ correlationId: "request:workflow-001", limit: 25 }),
+      fetchAuditEvents(testOperationalAccess, {
+        correlationId: "request:workflow-001",
+        limit: 25,
+      }),
     ).resolves.toEqual({ events: [], nextCursor: null });
     expect(fetchMock.mock.calls[0][0]).toContain(
       "/api/v1/audit-events?limit=25&correlationId=request%3Aworkflow-001",
     );
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({
+      headers: expect.objectContaining({
+        "X-SWP-Principal": "test-operator",
+        "X-SWP-Warehouse": testOperationalAccess.currentWarehouseId,
+      }),
+    });
     delete process.env.API_SERVICE_TOKEN;
   });
 
@@ -45,7 +55,9 @@ describe("WCS audit projection client", () => {
         }),
       }),
     );
-    await expect(fetchAuditEvents()).rejects.toThrow(/invalid projection/);
+    await expect(fetchAuditEvents(testOperationalAccess)).rejects.toThrow(
+      /invalid projection/,
+    );
     delete process.env.API_SERVICE_TOKEN;
   });
 });

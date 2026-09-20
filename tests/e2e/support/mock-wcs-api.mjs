@@ -5,6 +5,7 @@ const token = process.env.API_SERVICE_TOKEN;
 if (!token) throw new Error("API_SERVICE_TOKEN is required for the E2E mock.");
 
 const generatedAt = "2026-09-18T08:00:00.000Z";
+const expectedWarehouseId = "10000000-0000-4000-8000-000000000001";
 const baseSummary = {
   counts: {
     activeTasks: 1,
@@ -357,6 +358,20 @@ const server = createServer(async (request, response) => {
   if (request.headers.authorization !== `Bearer ${token}`) {
     response.statusCode = 401;
     response.end(JSON.stringify({ error: "unauthorized" }));
+    return;
+  }
+  if (
+    request.method === "GET" &&
+    (request.url === "/api/v1/operations/summary" ||
+      request.url === "/api/v1/operations/details" ||
+      request.url?.startsWith("/api/v1/audit-events")) &&
+    (request.headers["x-swp-principal"] !== "legacy-demo-admin" ||
+      !request.headers["x-swp-user-permissions"]?.includes("operations.view") ||
+      request.headers["x-swp-warehouse"] !== expectedWarehouseId ||
+      request.headers["x-swp-warehouse-scopes"] !== expectedWarehouseId)
+  ) {
+    response.statusCode = 403;
+    response.end(JSON.stringify({ error: "invalid operational context" }));
     return;
   }
   if (request.url === "/api/v1/operations/summary") {

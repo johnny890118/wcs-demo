@@ -42,6 +42,7 @@ import {
   classifyFrontendSurface,
   frontendSurfacePolicies,
 } from "../../src/ui/navigation/frontend-surfaces";
+import { testOperationalSession } from "../fixtures/operational-access";
 
 const context = {
   req: { headers: { host: "warehouse.example.com" } },
@@ -105,9 +106,7 @@ describe("frontend surface boundary", () => {
       } as never),
     ).resolves.toEqual({ props: { callbackUrl: "/operations" } });
 
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     await expect(
       getLoginProps({
         ...context,
@@ -129,9 +128,7 @@ describe("frontend surface boundary", () => {
       },
     });
 
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     await expect(getEntryProps(context as never)).resolves.toEqual({
       props: {
         siteOrigin: "https://warehouse.example.com",
