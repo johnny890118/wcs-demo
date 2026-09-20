@@ -22,6 +22,9 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
     private readonly inner: EquipmentPort,
     private readonly sink: EquipmentObservationSink,
     private readonly now: () => Date = () => new Date(),
+    private readonly lifecycle: Readonly<{
+      disconnectOnDestroy?: boolean;
+    }> = {},
   ) {}
 
   track(
@@ -113,7 +116,9 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
 
   async onModuleDestroy(): Promise<void> {
     this.stopHeartbeat();
-    await this.disconnect();
+    if (this.lifecycle.disconnectOnDestroy !== false) {
+      await this.disconnect();
+    }
   }
 
   async publish(

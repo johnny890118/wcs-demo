@@ -41,7 +41,7 @@ export function OperationsShell({
         {t("skipToContent")}
       </a>
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
-        <aside className="hidden w-64 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
           <Link
             href="/"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"

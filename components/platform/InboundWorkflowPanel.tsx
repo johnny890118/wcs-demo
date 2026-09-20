@@ -159,6 +159,11 @@ export function InboundWorkflowPanel({ details }: Props) {
 
   const configurationReady =
     sources.length > 0 && destinations.length > 0 && equipment.length > 0;
+  const configurationIssues = [
+    ...(sources.length === 0 ? [t("inboundSourceUnavailable")] : []),
+    ...(destinations.length === 0 ? [t("inboundDestinationUnavailable")] : []),
+    ...(equipment.length === 0 ? [t("inboundEquipmentUnavailable")] : []),
+  ];
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
@@ -180,9 +185,16 @@ export function InboundWorkflowPanel({ details }: Props) {
               className="h-5 w-5 shrink-0 text-[var(--warning)]"
               aria-hidden="true"
             />
-            <p className="text-sm leading-6">
-              {t("inboundConfigurationUnavailable")}
-            </p>
+            <div>
+              <p className="text-sm font-semibold leading-6">
+                {t("inboundConfigurationUnavailable")}
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--text-muted)]">
+                {configurationIssues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         ) : null}
 

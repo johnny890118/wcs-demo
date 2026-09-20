@@ -99,6 +99,8 @@ function simulatorHeartbeatIntervalMs(): number {
         const observed = new ObservationPublishingEquipmentPort(
           adapter,
           observationSink,
+          undefined,
+          { disconnectOnDestroy: false },
         );
         const result = await pool.query<SimulatorEquipmentRow>(
           `SELECT descriptor.equipment_id, descriptor.adapter_key,

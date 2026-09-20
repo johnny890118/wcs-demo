@@ -15,6 +15,7 @@ const options = [
 export function ThemeControl() {
   const { theme, setTheme } = useTheme();
   const { t } = useLocale();
+  const selectedTheme = theme ?? "system";
 
   return (
     <div
@@ -28,10 +29,10 @@ export function ThemeControl() {
           type="button"
           title={t(key)}
           aria-label={t(key)}
-          aria-pressed={theme === value}
+          aria-pressed={selectedTheme === value}
           onClick={() => setTheme(value)}
           className={`ui-pressable rounded-md p-1.5 ${
-            theme === value
+            selectedTheme === value
               ? "bg-[var(--surface)] text-[var(--text)] shadow-sm"
               : "text-[var(--text-muted)]"
           }`}

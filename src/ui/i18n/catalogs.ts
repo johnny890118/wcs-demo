@@ -59,6 +59,12 @@ export const en = {
     "Locations and equipment come from the active warehouse configuration. The browser does not define movement or position.",
   inboundConfigurationUnavailable:
     "No safe source, destination, or current idle equipment is available. Check topology bindings and telemetry before creating work.",
+  inboundSourceUnavailable:
+    "No available pickup location is bound to the active topology.",
+  inboundDestinationUnavailable:
+    "No available drop-off location is bound to the active topology.",
+  inboundEquipmentUnavailable:
+    "No connected equipment is currently idle with good, current telemetry.",
   externalReference: "External reference",
   externalLoadId: "External load ID",
   sourceLocation: "Source location",
@@ -343,6 +349,9 @@ export const zhTW: Catalog = {
     "位置與設備來自啟用中的倉庫設定；瀏覽器不會定義移動或設備位置。",
   inboundConfigurationUnavailable:
     "目前沒有安全可用的起點、終點或即時閒置設備；請先檢查拓撲綁定與遙測。",
+  inboundSourceUnavailable: "沒有可用且已綁定目前拓撲的取貨位置。",
+  inboundDestinationUnavailable: "沒有可用且已綁定目前拓撲的卸貨位置。",
+  inboundEquipmentUnavailable: "目前沒有連線中、閒置且遙測正常即時的設備。",
   externalReference: "外部參考編號",
   externalLoadId: "外部載具編號",
   sourceLocation: "起點位置",

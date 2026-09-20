@@ -106,6 +106,43 @@ describe("simulator equipment observation publication", () => {
     expect(sink.observations[0]?.sequence).toBe(1);
   });
 
+  it("preserves the last certain simulator observation during a graceful API shutdown", async () => {
+    const sink = new MemoryObservationSink();
+    const adapter = new SimulatorEquipmentAdapter();
+    const initial = adapter.register(
+      createMobileTransportDescriptor("AMR-01"),
+      {
+        status: "idle",
+        nodeId: "RECEIVING-01",
+        taskId: null,
+        loadId: null,
+        version: 0,
+      },
+    );
+    const observed = new ObservationPublishingEquipmentPort(
+      adapter,
+      sink,
+      () => new Date("2026-09-19T00:00:00.000Z"),
+      { disconnectOnDestroy: false },
+    );
+    observed.track("AMR-01", 0, {
+      topologyId: "TOPOLOGY-01",
+      topologyRevision: 3,
+      source: "deterministic-simulator",
+    });
+
+    await observed.publish(initial);
+    await observed.onModuleDestroy();
+
+    expect(sink.observations).toHaveLength(1);
+    expect(sink.observations[0]).toMatchObject({
+      status: "idle",
+      nodeId: "RECEIVING-01",
+      connectionStatus: "connected",
+      quality: "good",
+    });
+  });
+
   it("restores only trustworthy idle state and degrades unresolved restart state to unknown", () => {
     const topology = { id: "TOPOLOGY-01", revision: 3 };
     expect(

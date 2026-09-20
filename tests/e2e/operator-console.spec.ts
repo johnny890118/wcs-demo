@@ -155,6 +155,22 @@ test("public entry supports both locales in explicit light and dark themes", asy
   await expect(page.locator("html")).toHaveClass(/light/);
 });
 
+test("system theme remains visibly selected on initial load and refresh", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "系統" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "系統" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+});
+
 test("login reflows and remains accessible on mobile in all theme modes", async ({
   page,
 }) => {
@@ -188,6 +204,10 @@ test("authenticated focused projections expose screen-reader semantics", async (
     page.getByRole("navigation", { name: "操作台桌面版導覽" }),
   ).toBeVisible();
   await expect(page.locator('a[href="/legacy"]')).toHaveCount(0);
+  const sidebar = page.locator("aside");
+  await expect(sidebar).toHaveCSS("position", "sticky");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  expect((await sidebar.boundingBox())?.y).toBe(0);
   await expect(page.getByRole("table", { name: "庫存" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "品項" })).toBeVisible();
   await expect(page.getByText("SKU-E2E")).toBeVisible();
