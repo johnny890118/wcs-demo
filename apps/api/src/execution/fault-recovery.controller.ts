@@ -4,6 +4,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Headers,
   HttpCode,
   NotFoundException,
   Param,
@@ -24,6 +25,7 @@ import {
 } from "../../../../src/domain/alarm/alarm";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission } from "../auth/permissions";
+import { requireOperatorId } from "../auth/operator-identity";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -37,6 +39,7 @@ export class FaultRecoveryController {
   @RequirePermission("alarm.inject")
   async injectFault(
     @Param("taskId") taskId: string,
+    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<PersistedAlarm> {
     this.requireUuid(taskId, "taskId");
@@ -58,7 +61,7 @@ export class FaultRecoveryController {
         faultCode,
         message,
         severity: value.severity as AlarmSeverity,
-        actorId: this.actorId(),
+        actorId: requireOperatorId(operatorId),
         confirmationReason,
       }),
     );
@@ -67,10 +70,23 @@ export class FaultRecoveryController {
   @Post("alarms/:alarmId/acknowledge")
   @HttpCode(200)
   @RequirePermission("alarm.acknowledge")
-  acknowledge(@Param("alarmId") alarmId: string): Promise<PersistedAlarm> {
+  acknowledge(
+    @Param("alarmId") alarmId: string,
+    @Headers("x-operator-id") operatorId: string | undefined,
+    @Body() body: unknown,
+  ): Promise<PersistedAlarm> {
     this.requireUuid(alarmId, "alarmId");
+    const value = this.requireBody(body);
+    const confirmationReason = this.requireConfirmation(
+      value,
+      "acknowledge_alarm",
+    );
     return this.handle(() =>
-      this.recovery.acknowledge({ alarmId, actorId: this.actorId() }),
+      this.recovery.acknowledge({
+        alarmId,
+        actorId: requireOperatorId(operatorId),
+        confirmationReason,
+      }),
     );
   }
 
@@ -79,6 +95,7 @@ export class FaultRecoveryController {
   @RequirePermission("alarm.recover")
   recover(
     @Param("alarmId") alarmId: string,
+    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<RecoverableTask> {
     this.requireUuid(alarmId, "alarmId");
@@ -96,7 +113,7 @@ export class FaultRecoveryController {
         alarmId,
         strategy: value.strategy as "resume" | "release",
         resolution,
-        actorId: this.actorId(),
+        actorId: requireOperatorId(operatorId),
         confirmationReason,
       }),
     );
@@ -163,12 +180,16 @@ export class FaultRecoveryController {
         `confirmedAction must exactly match ${expectedAction}.`,
       );
     }
-    return this.requireText(body.confirmationReason, "confirmationReason", 500);
-  }
-
-  private actorId(): string {
-    const actorId = process.env.API_SERVICE_ID;
-    if (!actorId) throw new Error("API_SERVICE_ID is required.");
-    return actorId;
+    const reason = this.requireText(
+      body.confirmationReason,
+      "confirmationReason",
+      500,
+    );
+    if (reason.length < 8) {
+      throw new BadRequestException(
+        "confirmationReason must contain at least 8 characters.",
+      );
+    }
+    return reason;
   }
 }

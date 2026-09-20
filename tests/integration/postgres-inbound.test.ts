@@ -714,6 +714,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await recovery.acknowledge({
       alarmId: alarm.alarmId,
       actorId: "integration-operator",
+      confirmationReason: "Alarm evidence reviewed during integration drill.",
     });
     const released = await recovery.recover({
       alarmId: alarm.alarmId,
@@ -739,6 +740,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       recovery_events: string;
       recovery_audits: string;
       fault_confirmation: string;
+      acknowledgement_confirmation: string;
       recovery_confirmation: string;
     }>(
       `SELECT task.status AS task_status, task.equipment_id, task.blocking_alarm_id,
@@ -750,6 +752,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
           ('transport_task.block_for_fault', 'alarm.acknowledge', 'transport_task.recover_release')) AS recovery_audits,
         (SELECT details ->> 'confirmationReason' FROM audit_events
           WHERE action = 'transport_task.block_for_fault') AS fault_confirmation,
+        (SELECT details ->> 'confirmationReason' FROM audit_events
+          WHERE action = 'alarm.acknowledge') AS acknowledgement_confirmation,
         (SELECT details ->> 'confirmationReason' FROM audit_events
           WHERE action = 'transport_task.recover_release') AS recovery_confirmation
        FROM transport_tasks task
@@ -768,6 +772,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       recovery_events: "3",
       recovery_audits: "3",
       fault_confirmation: "Integration fault-recovery drill.",
+      acknowledgement_confirmation:
+        "Alarm evidence reviewed during integration drill.",
       recovery_confirmation: "Release approved after vehicle isolation.",
     });
     expect(await equipment.getState("AMR-01")).toMatchObject({

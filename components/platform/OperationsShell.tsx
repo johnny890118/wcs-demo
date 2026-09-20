@@ -5,6 +5,7 @@ import {
   MapIcon,
   InboxArrowDownIcon,
   TruckIcon,
+  BellAlertIcon,
   QueueListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
@@ -20,7 +21,13 @@ export function OperationsShell({
   current = "overview",
 }: {
   children: ReactNode;
-  current?: "overview" | "warehouse" | "inbound" | "outbound" | "projections";
+  current?:
+    | "overview"
+    | "warehouse"
+    | "inbound"
+    | "outbound"
+    | "alarms"
+    | "projections";
 }) {
   const { t } = useLocale();
 
@@ -91,6 +98,18 @@ export function OperationsShell({
             >
               <TruckIcon className="h-5 w-5" aria-hidden="true" />
               {t("outbound")}
+            </Link>
+            <Link
+              href="/operations/alarms"
+              aria-current={current === "alarms" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "alarms"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <BellAlertIcon className="h-5 w-5" aria-hidden="true" />
+              {t("alarmOperations")}
             </Link>
             <Link
               href="/operations/projections"
@@ -195,6 +214,17 @@ export function OperationsShell({
                 }`}
               >
                 {t("outbound")}
+              </Link>
+              <Link
+                href="/operations/alarms"
+                aria-current={current === "alarms" ? "page" : undefined}
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "alarms"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("alarmOperations")}
               </Link>
               <Link
                 href="/operations/projections"

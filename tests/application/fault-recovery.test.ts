@@ -136,6 +136,7 @@ describe("fault recovery orchestration", () => {
     await service.acknowledge({
       alarmId,
       actorId: "operator-02",
+      confirmationReason: "Alarm evidence reviewed by operator.",
     });
     const recovered = await service.recover({
       alarmId,
@@ -168,7 +169,11 @@ describe("fault recovery orchestration", () => {
       actorId: "operator-01",
       confirmationReason: "Controlled low-battery drill.",
     });
-    await service.acknowledge({ alarmId, actorId: "operator-01" });
+    await service.acknowledge({
+      alarmId,
+      actorId: "operator-01",
+      confirmationReason: "Alarm evidence reviewed by operator.",
+    });
     const recovered = await service.recover({
       alarmId,
       strategy: "release",

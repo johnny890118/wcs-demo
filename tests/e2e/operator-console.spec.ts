@@ -225,6 +225,51 @@ test("outbound workflow reflows without horizontal page overflow on mobile", asy
   ).toBeVisible();
 });
 
+test("operator acknowledges and releases a faulted task", async ({ page }) => {
+  await loadScenario(page, "faulted");
+  await signIn(page, "/operations/alarms");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "確認警報並復原受阻作業" }),
+  ).toBeVisible();
+  await page.getByLabel("確認理由").fill("已檢視警報、任務與設備證據。");
+  await page
+    .getByLabel("我已檢視警報、受影響任務、設備與目前營運證據。")
+    .check();
+  await page.getByRole("button", { name: "確認警報" }).click();
+
+  await page.getByLabel("復原策略").selectOption("release");
+  await page.getByLabel("處置結果").fill("車輛已隔離，任務釋放回待指派佇列。");
+  await page.getByLabel("確認理由").fill("主管已確認車輛隔離與任務釋放條件。");
+  await page.getByLabel("我已確認復原條件，並授權所選的任務狀態轉換。").check();
+  await page.getByRole("button", { name: "確認並復原任務" }).click();
+
+  await expect(page.getByText("警報復原完成")).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
+  await page.getByRole("link", { name: "查看復原後的任務與警報投影" }).click();
+  await expect(page).toHaveURL("/operations/projections");
+  await expect(page.getByText("queued", { exact: true })).toBeVisible();
+});
+
+test("alarm workflow reflows without horizontal page overflow on mobile", async ({
+  page,
+}) => {
+  await loadScenario(page, "faulted");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, "/operations/alarms");
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "確認警報並復原受阻作業" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("選擇警報")).toBeVisible();
+});
+
 test("completed inbound scenario projects stored inventory", async ({
   page,
 }) => {
@@ -270,20 +315,28 @@ test("fault scenario requires acknowledgement then releases task for reassignmen
   await loadScenario(page, "faulted");
   await signIn(page, "/operations/projections");
 
-  await expect(page.getByText("task-fault-e2e", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("50000000-0000-4000-8000-000000000098", { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText("blocked", { exact: true })).toBeVisible();
   await expect(page.getByText("DRIVE_BLOCKED")).toBeVisible();
   await expect(page.getByText("critical · active")).toBeVisible();
 
   const acknowledgement = await page.request.post(
-    `${scenarioApi}/api/v1/alarms/alarm-fault-e2e/acknowledge`,
-    { headers: serviceHeaders },
+    `${scenarioApi}/api/v1/alarms/80000000-0000-4000-8000-000000000098/acknowledge`,
+    {
+      headers: { ...serviceHeaders, "X-Operator-Id": "e2e-operator" },
+      data: {
+        confirmedAction: "acknowledge_alarm",
+        confirmationReason: "Operator reviewed deterministic fault evidence.",
+      },
+    },
   );
   expect(acknowledgement.ok()).toBe(true);
   const recovery = await page.request.post(
-    `${scenarioApi}/api/v1/alarms/alarm-fault-e2e/recover`,
+    `${scenarioApi}/api/v1/alarms/80000000-0000-4000-8000-000000000098/recover`,
     {
-      headers: serviceHeaders,
+      headers: { ...serviceHeaders, "X-Operator-Id": "e2e-operator" },
       data: {
         strategy: "release",
         resolution: "Vehicle isolated; task returned for reassignment.",

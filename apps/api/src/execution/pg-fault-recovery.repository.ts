@@ -169,7 +169,11 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         "alarm.acknowledge",
         "AlarmAcknowledged",
         input.alarmId,
-        { taskId: alarm.transport_task_id, equipmentId: alarm.equipment_id },
+        {
+          taskId: alarm.transport_task_id,
+          equipmentId: alarm.equipment_id,
+          confirmationReason: input.confirmationReason,
+        },
         "Alarm",
       );
       return toAlarm(alarm);

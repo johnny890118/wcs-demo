@@ -49,6 +49,7 @@ export interface FaultRecoveryRepository {
     alarmId: string;
     expectedVersion: number;
     actorId: string;
+    confirmationReason: string;
     at: number;
     metadata: RecoveryMetadata;
   }): Promise<PersistedAlarm>;
@@ -167,6 +168,7 @@ export class FaultRecoveryService {
   async acknowledge(command: {
     alarmId: string;
     actorId: string;
+    confirmationReason: string;
   }): Promise<PersistedAlarm> {
     const alarm = await this.repository.getAlarm(command.alarmId);
     if (!alarm) {
@@ -183,6 +185,7 @@ export class FaultRecoveryService {
       alarmId: alarm.alarmId,
       expectedVersion: alarm.version,
       actorId: command.actorId,
+      confirmationReason: command.confirmationReason,
       at: this.clock.now(),
       metadata: this.metadata(),
     });

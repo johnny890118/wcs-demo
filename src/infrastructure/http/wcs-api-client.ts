@@ -22,6 +22,14 @@ import {
   type OutboundExecutionCompleted,
   type OutboundOrderAllocated,
 } from "../../application/operations/outbound-workflow";
+import {
+  isAlarmAcknowledged,
+  isAlarmRecovered,
+  type AcknowledgeAlarmRequest,
+  type AlarmAcknowledged,
+  type AlarmRecovered,
+  type RecoverAlarmRequest,
+} from "../../application/operations/alarm-workflow";
 
 const defaultTimeoutMs = 55_000;
 
@@ -176,6 +184,38 @@ export async function executeOutboundTask(
   );
   if (!isOutboundExecutionCompleted(payload)) {
     throw new Error("WCS API returned an invalid outbound execution result.");
+  }
+  return payload;
+}
+
+export async function acknowledgeAlarm(
+  alarmId: string,
+  request: AcknowledgeAlarmRequest,
+  operatorId: string,
+): Promise<AlarmAcknowledged> {
+  const payload = await postWcsCommand(
+    `/api/v1/alarms/${encodeURIComponent(alarmId)}/acknowledge`,
+    request,
+    operatorId,
+  );
+  if (!isAlarmAcknowledged(payload)) {
+    throw new Error("WCS API returned an invalid alarm acknowledgement.");
+  }
+  return payload;
+}
+
+export async function recoverAlarm(
+  alarmId: string,
+  request: RecoverAlarmRequest,
+  operatorId: string,
+): Promise<AlarmRecovered> {
+  const payload = await postWcsCommand(
+    `/api/v1/alarms/${encodeURIComponent(alarmId)}/recover`,
+    request,
+    operatorId,
+  );
+  if (!isAlarmRecovered(payload)) {
+    throw new Error("WCS API returned an invalid alarm recovery result.");
   }
   return payload;
 }

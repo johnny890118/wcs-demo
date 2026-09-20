@@ -19,7 +19,6 @@ describe("fault recovery HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
-    process.env.API_SERVICE_ID = "test-operations-console";
     process.env.API_SERVICE_PERMISSIONS =
       "alarm.inject,alarm.acknowledge,alarm.recover";
     vi.clearAllMocks();
@@ -55,7 +54,6 @@ describe("fault recovery HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
-    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
@@ -77,6 +75,7 @@ describe("fault recovery HTTP contract", () => {
   it("validates fault and recovery commands before dispatch", async () => {
     const headers = {
       Authorization: `Bearer ${process.env.API_SERVICE_TOKEN}`,
+      "X-Operator-Id": "test-operations-console",
     };
     const fault = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
@@ -109,6 +108,7 @@ describe("fault recovery HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("X-Operator-Id", "test-operations-console")
       .send({
         faultCode: "DRIVE_BLOCKED",
         severity: "critical",
@@ -126,6 +126,7 @@ describe("fault recovery HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("X-Operator-Id", "test-operations-console")
       .send({
         faultCode: "DRIVE_BLOCKED",
         severity: "critical",
@@ -141,6 +142,7 @@ describe("fault recovery HTTP contract", () => {
   it("exposes authenticated fault, acknowledgement, and release operations", async () => {
     const headers = {
       Authorization: `Bearer ${process.env.API_SERVICE_TOKEN}`,
+      "X-Operator-Id": "test-operations-console",
     };
     const fault = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
@@ -155,7 +157,10 @@ describe("fault recovery HTTP contract", () => {
     const acknowledgement = await request(app.getHttpServer())
       .post(`/api/v1/alarms/${alarmId}/acknowledge`)
       .set(headers)
-      .send();
+      .send({
+        confirmedAction: "acknowledge_alarm",
+        confirmationReason: "Operator reviewed the alarm evidence.",
+      });
     const recovered = await request(app.getHttpServer())
       .post(`/api/v1/alarms/${alarmId}/recover`)
       .set(headers)
@@ -179,6 +184,7 @@ describe("fault recovery HTTP contract", () => {
     expect(recovery.acknowledge).toHaveBeenCalledWith({
       alarmId,
       actorId: "test-operations-console",
+      confirmationReason: "Operator reviewed the alarm evidence.",
     });
     expect(recovery.recover).toHaveBeenCalledWith({
       alarmId,

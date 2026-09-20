@@ -236,7 +236,7 @@ function scenario(name) {
   } else if (name === "faulted") {
     details.tasks = [
       {
-        taskId: "task-fault-e2e",
+        taskId: "50000000-0000-4000-8000-000000000098",
         status: "blocked",
         source: "RECEIVING-01",
         destination: "STORAGE-01",
@@ -246,8 +246,8 @@ function scenario(name) {
     ];
     details.alarms = [
       {
-        alarmId: "alarm-fault-e2e",
-        taskId: "task-fault-e2e",
+        alarmId: "80000000-0000-4000-8000-000000000098",
+        taskId: "50000000-0000-4000-8000-000000000098",
         equipmentId: "agv-e2e-01",
         code: "DRIVE_BLOCKED",
         severity: "critical",
@@ -442,10 +442,18 @@ const server = createServer(async (request, response) => {
   }
   if (
     request.method === "POST" &&
-    request.url === "/api/v1/alarms/alarm-fault-e2e/acknowledge"
+    request.url ===
+      "/api/v1/alarms/80000000-0000-4000-8000-000000000098/acknowledge"
   ) {
+    const body = await readBody(request);
     const alarm = details.alarms[0];
-    if (!alarm || alarm.status !== "active") {
+    if (
+      !alarm ||
+      alarm.status !== "active" ||
+      request.headers["x-operator-id"] !== "e2e-operator" ||
+      body.confirmedAction !== "acknowledge_alarm" ||
+      typeof body.confirmationReason !== "string"
+    ) {
       response.statusCode = 409;
       response.end(JSON.stringify({ error: "invalid_alarm_state" }));
       return;
@@ -457,7 +465,8 @@ const server = createServer(async (request, response) => {
   }
   if (
     request.method === "POST" &&
-    request.url === "/api/v1/alarms/alarm-fault-e2e/recover"
+    request.url ===
+      "/api/v1/alarms/80000000-0000-4000-8000-000000000098/recover"
   ) {
     const body = await readBody(request);
     const alarm = details.alarms[0];
@@ -467,6 +476,7 @@ const server = createServer(async (request, response) => {
       !task ||
       alarm.status !== "acknowledged" ||
       body.strategy !== "release" ||
+      request.headers["x-operator-id"] !== "e2e-operator" ||
       body.confirmedAction !== "release_task" ||
       typeof body.confirmationReason !== "string" ||
       body.confirmationReason.trim().length === 0 ||
@@ -483,7 +493,15 @@ const server = createServer(async (request, response) => {
     task.status = "queued";
     task.equipmentId = null;
     refreshSummary();
-    response.end(JSON.stringify(task));
+    response.end(
+      JSON.stringify({
+        taskId: task.taskId,
+        equipmentId: null,
+        status: "queued",
+        blockingAlarmId: null,
+        version: 4,
+      }),
+    );
     return;
   }
   response.statusCode = 404;

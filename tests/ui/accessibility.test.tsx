@@ -9,6 +9,7 @@ import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";
 import InboundOperationsPage from "../../pages/operations/inbound";
+import AlarmOperationsPage from "../../pages/operations/alarms";
 import OutboundOperationsPage from "../../pages/operations/outbound";
 import WarehouseOperationsPage from "../../pages/operations/warehouse";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
@@ -231,6 +232,15 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <OutboundOperationsPage details={outboundDetails} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("finds no detectable violations on the alarm recovery workflow", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <AlarmOperationsPage details={details} />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

@@ -108,10 +108,10 @@ Status: In progress
 - [x] Connect simulator transitions, heartbeat, and graceful disconnect publication to the observation sink, including conservative restart and out-of-order rejection
 - [x] Add an authorized inbound create/review/confirm/execute workflow with attributable audit evidence and qualified equipment selection
 - [x] Add an authorized outbound allocate/review/confirm/execute workflow with attributable audit evidence and persisted inventory outcomes
-- [ ] Add authorized alarm acknowledgement and recovery workflows behind confirmation boundaries
+- [x] Add authorized alarm acknowledgement and recovery workflows with named confirmations, operator evidence, and unknown-outcome preservation
 - [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
 ## Immediate next task
 
-Expose alarm acknowledgement and recovery as an authorized operator workflow with explicit accountable boundaries, deterministic scenario evidence, and safe unknown-outcome handling. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.
+Move the supported product entry away from the legacy root route now that inbound, outbound, alarm recovery, topology, and focused projections are available in the new operations experience. Preserve the prototype behind an explicit migration-reference route, update navigation and metadata, and prove redirects/deep links before removing any legacy behavior.
