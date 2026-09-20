@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission } from "../auth/permissions";
+import { requireOperatorId } from "../auth/operator-identity";
 import {
   InsufficientInventoryError,
   InvalidOutboundDestinationError,
@@ -77,6 +78,7 @@ export class OutboundController {
   @Post()
   async create(
     @Headers("idempotency-key") idempotencyKey: string | undefined,
+    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() rawBody: unknown,
   ): Promise<OutboundOrderResult> {
     if (!idempotencyKey || idempotencyKey.trim().length < 8) {
@@ -89,14 +91,11 @@ export class OutboundController {
         "Idempotency-Key header must be at most 200 characters.",
       );
     }
-    const actorId = process.env.API_SERVICE_ID;
-    if (!actorId) throw new Error("API_SERVICE_ID is required.");
-
     try {
       return await this.outboundService.create({
         ...parseBody(rawBody),
         idempotencyKey: idempotencyKey.trim(),
-        actorId,
+        actorId: requireOperatorId(operatorId),
       });
     } catch (error) {
       if (error instanceof OutboundIdempotencyConflictError) {

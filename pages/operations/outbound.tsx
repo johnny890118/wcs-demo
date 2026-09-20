@@ -1,0 +1,65 @@
+import type { GetServerSideProps } from "next";
+import { getServerSession } from "next-auth/next";
+import { OperationsShell } from "../../components/platform/OperationsShell";
+import { OutboundWorkflowPanel } from "../../components/platform/OutboundWorkflowPanel";
+import type { OperationsDetails } from "../../src/application/operations/operations-details";
+import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
+import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { authOptions } from "../api/auth/[...nextauth]";
+
+type PageProps = { details: OperationsDetails | null };
+
+export default function OutboundOperationsPage({ details }: PageProps) {
+  const { t } = useLocale();
+  return (
+    <OperationsShell current="outbound">
+      <header>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+          {t("outbound")}
+        </p>
+        <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
+          {t("outboundWorkflowTitle")}
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
+          {t("outboundWorkflowDescription")}
+        </p>
+      </header>
+      <div className="mt-8">
+        {details ? (
+          <OutboundWorkflowPanel details={details} />
+        ) : (
+          <div
+            role="status"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+          >
+            <p className="font-bold">{t("serviceUnavailable")}</p>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              {t("serviceUnavailableDescription")}
+            </p>
+          </div>
+        )}
+      </div>
+    </OperationsShell>
+  );
+}
+
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  context,
+) => {
+  const session = await getServerSession(context.req, context.res, authOptions);
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
+          "/operations/outbound",
+        )}`,
+        permanent: false,
+      },
+    };
+  }
+  try {
+    return { props: { session, details: await fetchOperationsDetails() } };
+  } catch {
+    return { props: { session, details: null } };
+  }
+};

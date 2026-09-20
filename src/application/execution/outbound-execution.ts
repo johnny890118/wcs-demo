@@ -77,6 +77,7 @@ export class DeterministicOutboundExecutor {
     taskId: string;
     equipmentId: string;
     actorId: string;
+    confirmationReason: string;
   }): Promise<OutboundExecutionResult> {
     let task = await this.repository.getTask(command.taskId);
     if (!task) throw new ExecutionTaskNotFoundError(command.taskId);
@@ -118,7 +119,7 @@ export class DeterministicOutboundExecutor {
         command.equipmentId,
         task.version,
         command.actorId,
-        this.metadata(),
+        this.metadata(command.confirmationReason),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -127,7 +128,7 @@ export class DeterministicOutboundExecutor {
         task.taskId,
         task.version,
         command.actorId,
-        this.metadata(),
+        this.metadata(command.confirmationReason),
       );
       this.clock.advanceBy(this.stepDurationMs);
       await this.dispatch(command.equipmentId, {
@@ -151,7 +152,7 @@ export class DeterministicOutboundExecutor {
         task.taskId,
         task.version,
         command.actorId,
-        this.metadata(),
+        this.metadata(command.confirmationReason),
       );
       return {
         taskId: task.taskId,
@@ -174,7 +175,7 @@ export class DeterministicOutboundExecutor {
             task.version,
             command.actorId,
             reason,
-            this.metadata(),
+            this.metadata(command.confirmationReason),
           ),
         ]);
       }
@@ -196,7 +197,11 @@ export class DeterministicOutboundExecutor {
     }
   }
 
-  private metadata(): TransitionMetadata {
-    return { outboxEventId: this.createId(), auditEventId: this.createId() };
+  private metadata(confirmationReason: string): TransitionMetadata {
+    return {
+      outboxEventId: this.createId(),
+      auditEventId: this.createId(),
+      confirmationReason,
+    };
   }
 }

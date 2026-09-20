@@ -2,6 +2,7 @@ import {
   BadGatewayException,
   BadRequestException,
   Body,
+  Headers,
   ConflictException,
   Controller,
   HttpCode,
@@ -21,6 +22,7 @@ import {
 } from "../../../../src/application/execution/outbound-execution";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission } from "../auth/permissions";
+import { requireOperatorId } from "../auth/operator-identity";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -35,6 +37,7 @@ export class OutboundExecutionController {
   @HttpCode(200)
   async execute(
     @Param("taskId") taskId: string,
+    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<OutboundExecutionResult> {
     if (!uuidPattern.test(taskId)) {
@@ -44,6 +47,9 @@ export class OutboundExecutionController {
       throw new BadRequestException("Request body must be an object.");
     }
     const equipmentId = (body as Record<string, unknown>).equipmentId;
+    const confirmedAction = (body as Record<string, unknown>).confirmedAction;
+    const confirmationReason = (body as Record<string, unknown>)
+      .confirmationReason;
     if (
       typeof equipmentId !== "string" ||
       equipmentId.trim().length === 0 ||
@@ -53,14 +59,28 @@ export class OutboundExecutionController {
         "equipmentId must be a non-empty string of at most 100 characters.",
       );
     }
-    const actorId = process.env.API_SERVICE_ID;
-    if (!actorId) throw new Error("API_SERVICE_ID is required.");
+    if (confirmedAction !== "execute_outbound_task") {
+      throw new BadRequestException(
+        "confirmedAction must equal execute_outbound_task.",
+      );
+    }
+    if (
+      typeof confirmationReason !== "string" ||
+      confirmationReason.trim().length < 8 ||
+      confirmationReason.length > 500
+    ) {
+      throw new BadRequestException(
+        "confirmationReason must contain 8 to 500 characters.",
+      );
+    }
+    const actorId = requireOperatorId(operatorId);
 
     try {
       return await this.executor.execute({
         taskId,
         equipmentId: equipmentId.trim(),
         actorId,
+        confirmationReason: confirmationReason.trim(),
       });
     } catch (error) {
       if (error instanceof ExecutionTaskNotFoundError) {

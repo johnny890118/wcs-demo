@@ -9,6 +9,7 @@ import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";
 import InboundOperationsPage from "../../pages/operations/inbound";
+import OutboundOperationsPage from "../../pages/operations/outbound";
 import WarehouseOperationsPage from "../../pages/operations/warehouse";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
@@ -49,6 +50,14 @@ const details: OperationsDetails = {
       status: "available",
       capabilities: ["load.dropoff", "inventory.store"],
       activeNodeId: "B",
+    },
+    {
+      locationId: "LOCATION-03",
+      code: "SHIPPING-01",
+      kind: "shipping",
+      status: "available",
+      capabilities: ["load.dropoff", "outbound.stage"],
+      activeNodeId: "C",
     },
   ],
   tasks: [
@@ -204,6 +213,24 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <InboundOperationsPage details={details} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("finds no detectable violations on the outbound confirmation workflow", async () => {
+    const outboundDetails: OperationsDetails = {
+      ...details,
+      equipment: details.equipment.map((item) => ({
+        ...item,
+        telemetry: item.telemetry
+          ? { ...item.telemetry, status: "idle" }
+          : null,
+      })),
+    };
+    const { container } = render(
+      <LocaleProvider>
+        <OutboundOperationsPage details={outboundDetails} />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

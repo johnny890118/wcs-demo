@@ -43,6 +43,14 @@ const baseDetails = {
       capabilities: ["load.dropoff", "inventory.store"],
       activeNodeId: "storage-01",
     },
+    {
+      locationId: "20000000-0000-4000-8000-000000000003",
+      code: "SHIPPING-01",
+      kind: "shipping",
+      status: "available",
+      capabilities: ["load.dropoff", "outbound.stage"],
+      activeNodeId: "shipping-01",
+    },
   ],
   tasks: [
     {
@@ -90,7 +98,7 @@ const baseDetails = {
       sku: "SKU-E2E",
       quantity: 4,
       location: "STORAGE-01",
-      status: "stored",
+      status: "available",
       updatedAt: generatedAt,
     },
   ],
@@ -111,12 +119,26 @@ const baseDetails = {
         capabilities: ["store"],
         position: { coordinateSystem: "e2e", x: 10, y: 0 },
       },
+      {
+        nodeId: "shipping-01",
+        kind: "shipping",
+        capabilities: ["outbound.stage"],
+        position: { coordinateSystem: "e2e", x: 20, y: 0 },
+      },
     ],
     edges: [
       {
         edgeId: "edge-e2e-001",
         fromNodeId: "receiving-01",
         toNodeId: "storage-01",
+        status: "available",
+        requiredCapabilities: ["transport.load"],
+        resourceIds: [],
+      },
+      {
+        edgeId: "edge-e2e-002",
+        fromNodeId: "storage-01",
+        toNodeId: "shipping-01",
         status: "available",
         requiredCapabilities: ["transport.load"],
         resourceIds: [],
@@ -329,6 +351,78 @@ const server = createServer(async (request, response) => {
         equipmentId: body.equipmentId,
         status: "completed",
         completedAt: 6000,
+      }),
+    );
+    return;
+  }
+  if (request.method === "POST" && request.url === "/api/v1/outbound-orders") {
+    const body = await readBody(request);
+    if (
+      request.headers["x-operator-id"] !== "e2e-operator" ||
+      body.sku !== "SKU-E2E" ||
+      body.quantity !== 2
+    ) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ code: "INVALID_OUTBOUND" }));
+      return;
+    }
+    details.tasks = [
+      {
+        taskId: "c0000000-0000-4000-8000-000000000099",
+        status: "queued",
+        source: "STORAGE-01",
+        destination: "SHIPPING-01",
+        equipmentId: null,
+        updatedAt: generatedAt,
+      },
+      ...details.tasks,
+    ];
+    refreshSummary();
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({
+        outboundOrderId: "a0000000-0000-4000-8000-000000000099",
+        allocationIds: ["b0000000-0000-4000-8000-000000000099"],
+        transportTaskIds: ["c0000000-0000-4000-8000-000000000099"],
+        status: "allocated",
+        duplicate: false,
+      }),
+    );
+    return;
+  }
+  if (
+    request.method === "POST" &&
+    request.url ===
+      "/api/v1/outbound-transport-tasks/c0000000-0000-4000-8000-000000000099/execute"
+  ) {
+    const body = await readBody(request);
+    if (
+      request.headers["x-operator-id"] !== "e2e-operator" ||
+      body.confirmedAction !== "execute_outbound_task"
+    ) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ code: "INVALID_CONFIRMATION" }));
+      return;
+    }
+    details.tasks[0] = {
+      ...details.tasks[0],
+      status: "completed",
+      equipmentId: body.equipmentId,
+    };
+    const inventory = details.inventory.find((item) => item.sku === "SKU-E2E");
+    if (inventory) inventory.quantity -= 2;
+    details.equipment[0].telemetry = {
+      ...details.equipment[0].telemetry,
+      nodeId: "shipping-01",
+      sequence: details.equipment[0].telemetry.sequence + 6,
+    };
+    refreshSummary();
+    response.end(
+      JSON.stringify({
+        taskId: "c0000000-0000-4000-8000-000000000099",
+        equipmentId: body.equipmentId,
+        status: "completed",
+        completedAt: 7000,
       }),
     );
     return;

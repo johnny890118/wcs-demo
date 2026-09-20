@@ -24,7 +24,6 @@ describe("outbound HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
-    process.env.API_SERVICE_ID = "test-web";
     process.env.API_SERVICE_PERMISSIONS = "outbound.create";
     repository = {
       create: vi.fn(async () => ({
@@ -52,7 +51,6 @@ describe("outbound HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
-    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
@@ -71,6 +69,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("X-Operator-Id", "outbound-operator")
       .set("Idempotency-Key", "short")
       .send({ ...validBody, quantity: 0, destinationLocationId: "shipping" });
 
@@ -82,6 +81,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("X-Operator-Id", "outbound-operator")
       .set("Idempotency-Key", "outbound-request-0001")
       .send(validBody);
 
@@ -96,7 +96,7 @@ describe("outbound HTTP contract", () => {
       {
         ...validBody,
         idempotencyKey: "outbound-request-0001",
-        actorId: "test-web",
+        actorId: "outbound-operator",
       },
       expect.objectContaining({
         outboundOrderId: expect.any(String),
@@ -115,6 +115,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set("X-Operator-Id", "outbound-operator")
       .set("Idempotency-Key", "outbound-request-0001")
       .send(validBody);
 

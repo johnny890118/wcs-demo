@@ -76,6 +76,30 @@ export const en = {
   inboundCompleted: "Inbound execution completed",
   completed: "Completed",
   viewWarehouseMap: "View the resulting warehouse observation",
+  outbound: "Outbound",
+  outboundWorkflowTitle: "Allocate and execute outbound work",
+  outboundWorkflowDescription:
+    "Reserve persisted inventory, review the generated transport task, then explicitly authorize shipment execution.",
+  outboundRequest: "Step 1 · Allocate",
+  outboundRequestTitle: "Create outbound order",
+  outboundRequestDescription:
+    "Available inventory and shipping destinations come from persisted warehouse projections and active configuration.",
+  outboundConfigurationUnavailable:
+    "No available inventory, shipping destination, or current idle equipment is eligible. Check inventory, topology bindings, and telemetry.",
+  createOutbound: "Allocate outbound order",
+  creatingOutbound: "Allocating order…",
+  outboundOrder: "Outbound order",
+  allocatedTasks: "Allocated transport tasks",
+  confirmOutboundExecution:
+    "I verified the allocation, destination, equipment, and current telemetry and authorize this shipment.",
+  executeOutbound: "Confirm and execute outbound task",
+  executingOutbound: "Executing outbound task…",
+  createOutboundBeforeExecute:
+    "Allocate the order first. Execution remains unavailable until a persisted task can be reviewed.",
+  outboundTaskCompleted: "Outbound task completed",
+  outboundCompleted: "Outbound shipment completed",
+  remainingTasks: "Remaining tasks",
+  viewInventoryOutcome: "View the resulting inventory projection",
   invalidServerResponse: "The server returned an invalid result.",
   requestFailed: "The request could not be completed.",
   tasks: "Transport tasks",
@@ -277,6 +301,30 @@ export const zhTW: Catalog = {
   inboundCompleted: "入庫執行完成",
   completed: "已完成",
   viewWarehouseMap: "查看執行後的倉庫觀測",
+  outbound: "出庫",
+  outboundWorkflowTitle: "建立並執行出庫作業",
+  outboundWorkflowDescription:
+    "先保留已持久化庫存，檢視系統建立的搬運任務，再明確授權出貨執行。",
+  outboundRequest: "步驟 1 · 配貨",
+  outboundRequestTitle: "建立出庫單",
+  outboundRequestDescription:
+    "可用庫存與出貨終點來自已持久化倉庫投影及啟用中的設定。",
+  outboundConfigurationUnavailable:
+    "目前沒有合格的可用庫存、出貨終點或即時閒置設備；請檢查庫存、拓撲綁定與遙測。",
+  createOutbound: "建立並配貨出庫單",
+  creatingOutbound: "正在配貨…",
+  outboundOrder: "出庫單",
+  allocatedTasks: "已配貨搬運任務",
+  confirmOutboundExecution:
+    "我已確認配貨、終點、設備與目前遙測，並授權執行此出貨任務。",
+  executeOutbound: "確認並執行出庫任務",
+  executingOutbound: "正在執行出庫任務…",
+  createOutboundBeforeExecute:
+    "請先建立並配貨出庫單；在可檢視持久化任務前，執行功能維持停用。",
+  outboundTaskCompleted: "出庫任務已完成",
+  outboundCompleted: "出庫作業已完成",
+  remainingTasks: "剩餘任務",
+  viewInventoryOutcome: "查看執行後的庫存投影",
   invalidServerResponse: "伺服器回傳了無效結果。",
   requestFailed: "無法完成此請求。",
   tasks: "搬運任務",

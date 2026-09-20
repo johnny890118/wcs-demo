@@ -107,10 +107,11 @@ Status: In progress
 - [x] Render only qualified current/last-known observations on the map; never infer physical position from assignment
 - [x] Connect simulator transitions, heartbeat, and graceful disconnect publication to the observation sink, including conservative restart and out-of-order rejection
 - [x] Add an authorized inbound create/review/confirm/execute workflow with attributable audit evidence and qualified equipment selection
-- [ ] Add authorized outbound, alarm acknowledgement, and recovery workflows behind confirmation boundaries
+- [x] Add an authorized outbound allocate/review/confirm/execute workflow with attributable audit evidence and persisted inventory outcomes
+- [ ] Add authorized alarm acknowledgement and recovery workflows behind confirmation boundaries
 - [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
 ## Immediate next task
 
-Add an authorized and confirmed outbound execution workflow that projects allocation, shipment progress, and inventory outcomes without using the legacy page state machine. Then expose alarm acknowledgement and recovery with equally explicit accountable boundaries. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.
+Expose alarm acknowledgement and recovery as an authorized operator workflow with explicit accountable boundaries, deterministic scenario evidence, and safe unknown-outcome handling. The legacy workspace remains a migration reference until the supported product entry covers the required operator workflows.

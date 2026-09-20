@@ -280,6 +280,9 @@ export class PgOutboundExecutionRepository
       outboundOrderId: task.outbound_order_id,
       allocationId: task.allocation_id,
       inventoryUnitId: task.inventory_unit_id,
+      ...(metadata.confirmationReason
+        ? { confirmationReason: metadata.confirmationReason }
+        : {}),
       ...details,
     };
     await client.query(

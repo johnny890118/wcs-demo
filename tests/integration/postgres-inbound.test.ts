@@ -554,6 +554,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: allocated.transportTaskIds[0]!,
       equipmentId: "AMR-01",
       actorId: outboundCommand.actorId,
+      confirmationReason: "Verified integration outbound execution.",
     });
 
     const shipped = await pool.query<{
@@ -579,6 +580,19 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       allocation_status: "consumed",
       remaining_quantity: 14,
       inventory_status: "available",
+    });
+    const outboundAudit = await pool.query<{
+      actor_id: string;
+      confirmation_reason: string;
+    }>(
+      `SELECT actor_id, details ->> 'confirmationReason' AS confirmation_reason
+       FROM audit_events
+       WHERE aggregate_id = $1 AND action = 'transport_task.complete'`,
+      [allocated.transportTaskIds[0]],
+    );
+    expect(outboundAudit.rows[0]).toEqual({
+      actor_id: outboundCommand.actorId,
+      confirmation_reason: "Verified integration outbound execution.",
     });
 
     const concurrentCommands: CreateOutboundOrder[] = [1, 2].map(

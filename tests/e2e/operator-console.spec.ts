@@ -177,6 +177,54 @@ test("inbound workflow reflows without horizontal page overflow on mobile", asyn
   await expect(page.getByRole("button", { name: "建立入庫單" })).toBeVisible();
 });
 
+test("operator allocates, confirms, and executes an outbound workflow", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/outbound");
+
+  await page.getByLabel("外部參考編號").fill("SO-UI-E2E-01");
+  await page.getByLabel("數量").fill("2");
+  await page.getByRole("button", { name: "建立並配貨出庫單" }).click();
+
+  await expect(
+    page.getByText("a0000000-0000-4000-8000-000000000099"),
+  ).toBeVisible();
+  await page
+    .getByLabel("確認理由")
+    .fill("已確認配貨、出貨終點與即時設備狀態。");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "確認並執行出庫任務" }).click();
+
+  await expect(page.getByText("出庫作業已完成")).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations).toEqual([]);
+
+  await page.getByRole("link", { name: "查看執行後的庫存投影" }).click();
+  await expect(page).toHaveURL("/operations/projections");
+  const inventoryRow = page.getByRole("row").filter({ hasText: "SKU-E2E" });
+  await expect(inventoryRow).toContainText("2");
+});
+
+test("outbound workflow reflows without horizontal page overflow on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signIn(page, "/operations/outbound");
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "建立並執行出庫作業" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("外部參考編號")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "建立並配貨出庫單" }),
+  ).toBeVisible();
+});
+
 test("completed inbound scenario projects stored inventory", async ({
   page,
 }) => {

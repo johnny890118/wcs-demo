@@ -4,6 +4,7 @@ import {
   BuildingStorefrontIcon,
   MapIcon,
   InboxArrowDownIcon,
+  TruckIcon,
   QueueListIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
@@ -19,7 +20,7 @@ export function OperationsShell({
   current = "overview",
 }: {
   children: ReactNode;
-  current?: "overview" | "warehouse" | "inbound" | "projections";
+  current?: "overview" | "warehouse" | "inbound" | "outbound" | "projections";
 }) {
   const { t } = useLocale();
 
@@ -78,6 +79,18 @@ export function OperationsShell({
             >
               <InboxArrowDownIcon className="h-5 w-5" aria-hidden="true" />
               {t("inbound")}
+            </Link>
+            <Link
+              href="/operations/outbound"
+              aria-current={current === "outbound" ? "page" : undefined}
+              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "outbound"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <TruckIcon className="h-5 w-5" aria-hidden="true" />
+              {t("outbound")}
             </Link>
             <Link
               href="/operations/projections"
@@ -142,7 +155,7 @@ export function OperationsShell({
               <Link
                 href="/operations"
                 aria-current={current === "overview" ? "page" : undefined}
-                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
                   current === "overview"
                     ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[var(--text-muted)]"
@@ -153,7 +166,7 @@ export function OperationsShell({
               <Link
                 href="/operations/warehouse"
                 aria-current={current === "warehouse" ? "page" : undefined}
-                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
                   current === "warehouse"
                     ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[var(--text-muted)]"
@@ -164,7 +177,7 @@ export function OperationsShell({
               <Link
                 href="/operations/inbound"
                 aria-current={current === "inbound" ? "page" : undefined}
-                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
                   current === "inbound"
                     ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[var(--text-muted)]"
@@ -173,9 +186,20 @@ export function OperationsShell({
                 {t("inbound")}
               </Link>
               <Link
+                href="/operations/outbound"
+                aria-current={current === "outbound" ? "page" : undefined}
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "outbound"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("outbound")}
+              </Link>
+              <Link
                 href="/operations/projections"
                 aria-current={current === "projections" ? "page" : undefined}
-                className={`ui-pressable rounded-md px-3 py-2 text-xs font-semibold ${
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
                   current === "projections"
                     ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[var(--text-muted)]"
@@ -185,7 +209,7 @@ export function OperationsShell({
               </Link>
               <Link
                 href="/"
-                className="ui-pressable rounded-md px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
+                className="ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
               >
                 {t("legacyWorkspace")}
               </Link>

@@ -14,6 +14,14 @@ import {
   type InboundExecutionCompleted,
   type InboundReceiptCreated,
 } from "../../application/operations/inbound-workflow";
+import {
+  isOutboundExecutionCompleted,
+  isOutboundOrderAllocated,
+  type CreateOutboundWorkflowRequest,
+  type ExecuteOutboundWorkflowRequest,
+  type OutboundExecutionCompleted,
+  type OutboundOrderAllocated,
+} from "../../application/operations/outbound-workflow";
 
 const defaultTimeoutMs = 55_000;
 
@@ -135,6 +143,39 @@ export async function executeInboundTask(
   );
   if (!isInboundExecutionCompleted(payload)) {
     throw new Error("WCS API returned an invalid inbound execution result.");
+  }
+  return payload;
+}
+
+export async function createOutboundOrder(
+  request: CreateOutboundWorkflowRequest,
+  operatorId: string,
+): Promise<OutboundOrderAllocated> {
+  const { idempotencyKey, ...body } = request;
+  const payload = await postWcsCommand(
+    "/api/v1/outbound-orders",
+    body,
+    operatorId,
+    { "Idempotency-Key": idempotencyKey },
+  );
+  if (!isOutboundOrderAllocated(payload)) {
+    throw new Error("WCS API returned an invalid outbound order result.");
+  }
+  return payload;
+}
+
+export async function executeOutboundTask(
+  taskId: string,
+  request: ExecuteOutboundWorkflowRequest,
+  operatorId: string,
+): Promise<OutboundExecutionCompleted> {
+  const payload = await postWcsCommand(
+    `/api/v1/outbound-transport-tasks/${encodeURIComponent(taskId)}/execute`,
+    request,
+    operatorId,
+  );
+  if (!isOutboundExecutionCompleted(payload)) {
+    throw new Error("WCS API returned an invalid outbound execution result.");
   }
   return payload;
 }

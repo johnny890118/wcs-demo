@@ -111,6 +111,7 @@ describe("deterministic outbound execution", () => {
       taskId: repository.task.taskId,
       equipmentId: "AMR-01",
       actorId: "test",
+      confirmationReason: "Verified outbound execution request.",
     });
 
     expect(result).toMatchObject({ status: "completed", completedAt: 7_000 });
@@ -134,6 +135,7 @@ describe("deterministic outbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test",
+        confirmationReason: "Verified outbound execution request.",
       }),
     ).rejects.toThrow("shipping commit failed");
     expect(repository.shipped).toBe(false);
