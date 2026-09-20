@@ -38,7 +38,7 @@ export default function PlatformPage({ siteOrigin }: PublicPageProps) {
       <PublicPageHead
         title={t("platformMetaTitle")}
         description={t("productDescription")}
-        path="/platform"
+        path="/"
         siteOrigin={siteOrigin}
       />
       <PublicHeader />
@@ -63,7 +63,7 @@ export default function PlatformPage({ siteOrigin }: PublicPageProps) {
                 <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
-                href="/"
+                href="/legacy"
                 className="ui-pressable inline-flex items-center rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold"
               >
                 {t("viewLegacyDemo")}

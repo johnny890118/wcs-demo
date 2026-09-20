@@ -109,9 +109,9 @@ Status: In progress
 - [x] Add an authorized inbound create/review/confirm/execute workflow with attributable audit evidence and qualified equipment selection
 - [x] Add an authorized outbound allocate/review/confirm/execute workflow with attributable audit evidence and persisted inventory outcomes
 - [x] Add authorized alarm acknowledgement and recovery workflows with named confirmations, operator evidence, and unknown-outcome preservation
-- [ ] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
+- [x] Move the supported product entry away from legacy routes while preserving the prototype as an explicit migration reference
 - [ ] Prove the new experience through bilingual, theme, keyboard, reflow, axe, deterministic scenario, and live deployment gates
 
 ## Immediate next task
 
-Move the supported product entry away from the legacy root route now that inbound, outbound, alarm recovery, topology, and focused projections are available in the new operations experience. Preserve the prototype behind an explicit migration-reference route, update navigation and metadata, and prove redirects/deep links before removing any legacy behavior.
+Complete the M7 release proof across both supported locales and themes, keyboard and reflow paths, automated accessibility checks, deterministic operational scenarios, and the live deployment. Record any remaining assistive-technology or managed-environment gaps explicitly before declaring the milestone complete.

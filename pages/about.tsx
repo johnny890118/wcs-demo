@@ -81,7 +81,7 @@ export default function AboutPage({ siteOrigin }: PublicPageProps) {
         </section>
         <div className="mt-12 flex flex-wrap gap-3">
           <Link
-            href="/platform"
+            href="/"
             className="ui-pressable rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold"
           >
             {t("backToPlatform")}

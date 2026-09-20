@@ -2,6 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  async redirects() {
+    return [
+      { source: "/platform", destination: "/", permanent: true },
+      { source: "/fdp", destination: "/legacy/fdp", permanent: true },
+      {
+        source: "/engineeringMode",
+        destination: "/legacy/engineering-mode",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       {
@@ -25,6 +36,10 @@ const nextConfig = {
       { source: "/(.*)", headers: securityHeaders },
       {
         source: "/operations/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/legacy/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
       {

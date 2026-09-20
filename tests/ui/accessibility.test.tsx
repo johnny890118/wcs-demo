@@ -4,7 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import axe from "axe-core";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import PlatformPage from "../../pages/platform";
+import PlatformPage from "../../pages";
 import AboutPage from "../../pages/about";
 import ContactPage from "../../pages/contact";
 import OperationsProjectionsPage from "../../pages/operations/projections";

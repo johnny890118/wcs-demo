@@ -17,7 +17,7 @@ export function PublicHeader() {
       <header className="border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)]">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link
-            href="/platform"
+            href="/"
             className="ui-pressable flex items-center gap-3 rounded-lg"
           >
             <span

@@ -25,12 +25,13 @@ test("public entry supports keyboard skip navigation and automated accessibility
   page,
 }) => {
   await page.goto("/platform");
+  await expect(page).toHaveURL("/");
   const siteOrigin = new URL(page.url()).origin;
 
   await expect(page).toHaveTitle(/Warehouse OS/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
-    `${siteOrigin}/platform`,
+    `${siteOrigin}/`,
   );
 
   await page.keyboard.press("Tab");
@@ -43,7 +44,10 @@ test("public entry supports keyboard skip navigation and automated accessibility
 
   const robots = await page.request.get("/robots.txt");
   expect(await robots.text()).toContain("Disallow: /operations");
+  expect(await robots.text()).toContain("Disallow: /legacy");
   const sitemap = await page.request.get("/sitemap.xml");
+  expect(await sitemap.text()).toContain(`<loc>${siteOrigin}/</loc>`);
+  expect(await sitemap.text()).not.toContain(`${siteOrigin}/platform`);
   expect(await sitemap.text()).toContain(`${siteOrigin}/contact`);
 });
 
@@ -52,7 +56,7 @@ test("public entry reflows at a 200%-equivalent CSS viewport", async ({
 }) => {
   // 640 CSS px represents a 1280 px browser viewport zoomed to 200%.
   await page.setViewportSize({ width: 640, height: 900 });
-  await page.goto("/platform");
+  await page.goto("/");
 
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,

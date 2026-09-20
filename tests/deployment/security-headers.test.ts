@@ -15,7 +15,11 @@ describe("web security headers", () => {
       ]),
     );
 
-    for (const source of ["/operations/:path*", "/api/:path*"]) {
+    for (const source of [
+      "/operations/:path*",
+      "/legacy/:path*",
+      "/api/:path*",
+    ]) {
       expect(rules?.find((rule) => rule.source === source)?.headers).toEqual(
         expect.arrayContaining([
           { key: "X-Robots-Tag", value: "noindex, nofollow" },

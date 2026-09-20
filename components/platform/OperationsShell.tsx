@@ -42,7 +42,7 @@ export function OperationsShell({
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="hidden w-64 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
           <Link
-            href="/platform"
+            href="/"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]">
@@ -124,7 +124,7 @@ export function OperationsShell({
               {t("projections")}
             </Link>
             <Link
-              href="/"
+              href="/legacy"
               className="ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-muted)]"
             >
               <BuildingStorefrontIcon className="h-5 w-5" aria-hidden="true" />
@@ -134,7 +134,7 @@ export function OperationsShell({
           <div className="mt-auto border-t border-[var(--border)] pt-4">
             <button
               type="button"
-              onClick={() => void signOut({ callbackUrl: "/platform" })}
+              onClick={() => void signOut({ callbackUrl: "/" })}
               className="ui-pressable flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
             >
               <ArrowRightStartOnRectangleIcon
@@ -151,7 +151,7 @@ export function OperationsShell({
             <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3 md:hidden">
                 <Link
-                  href="/platform"
+                  href="/"
                   aria-label={t("platform")}
                   className="ui-pressable rounded-lg p-2 text-[var(--text-muted)]"
                 >
@@ -238,7 +238,7 @@ export function OperationsShell({
                 {t("projections")}
               </Link>
               <Link
-                href="/"
+                href="/legacy"
                 className="ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold text-[var(--text-muted)]"
               >
                 {t("legacyWorkspace")}

@@ -7,7 +7,7 @@ import {
 } from "../src/application/navigation/legacy-routes";
 
 function pagePath(href: string): string {
-  const pageName = href === "/" ? "index" : href.slice(1);
+  const pageName = href === "/legacy" ? "legacy/index" : href.slice(1);
   return fileURLToPath(new URL(`../pages/${pageName}.js`, import.meta.url));
 }
 

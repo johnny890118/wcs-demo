@@ -58,7 +58,7 @@ export default function ContactPage({ siteOrigin }: PublicPageProps) {
           </p>
         </section>
         <Link
-          href="/platform"
+          href="/"
           className="ui-pressable mt-10 inline-flex rounded-sm text-sm font-bold"
         >
           {t("backToPlatform")}
