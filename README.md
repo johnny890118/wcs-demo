@@ -2,7 +2,7 @@
 
 Smart Warehouse Platform is evolving from a legacy visual prototype into a hardware-independent warehouse management, control, and simulation product. The source is private and proprietary.
 
-The published [simulator-backed operations console](https://wcs-demo.vercel.app) has completed the M7 product-experience release gate. The original visual-prototype routes remain migration references and are not approved for product use or physical-equipment connectivity. See the [current-state assessment](docs/architecture/current-state-assessment.md), [M7 release evidence](docs/deployment/m7-release-evidence.md), and [roadmap](docs/project/roadmap.md) before extending the system boundary.
+The published [simulator-backed operations console](https://wcs-demo.vercel.app) has completed the M7 product-experience and M8A accountable-audit foundations. The original visual-prototype routes remain migration references and are not approved for product use or physical-equipment connectivity. See the [approved product experience direction](docs/product/approved-product-experience-direction.md), [current-state assessment](docs/architecture/current-state-assessment.md), and [roadmap](docs/project/roadmap.md) before extending the system boundary.
 
 ## Local development
 
@@ -60,6 +60,7 @@ After a managed rollout, `npm run test:managed-demo` performs a read-only public
 ## Documentation
 
 - [Product definition](docs/product/product-definition-v1.md)
+- [Approved product experience direction](docs/product/approved-product-experience-direction.md)
 - [Domain and system boundaries](docs/domain/system-boundaries-v1.md)
 - [Target architecture](docs/architecture/target-architecture-v1.md)
 - [Roadmap](docs/project/roadmap.md)

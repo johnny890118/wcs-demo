@@ -8,6 +8,8 @@ One Smart Warehouse Platform core must support materially different customer war
 
 The current legacy warehouse is discovery material, a behavior reference, and a regression safety net. Its React tree, SVG elements, numeric cells, coordinates, path arrays, timers, and dispatch assumptions are not target domain truth.
 
+The approved [Product Experience Direction](approved-product-experience-direction.md) governs operational UX, Simulation/Hardware composition, information architecture, manual/help, identity/scope, and roadmap sequencing.
+
 ## Non-negotiable requirements
 
 - Warehouse and routing behavior must not be hard-coded to one customer or demo layout.
@@ -17,6 +19,11 @@ The current legacy warehouse is discovery material, a behavior reference, and a 
 - The same application-facing contracts must support deterministic simulation and future hardware adapters.
 - The product must retain its commercial evolution path, security, accessibility, responsive design, `zh-TW`/`en`, and hardware-free demo requirements.
 - Unknown physical outcomes remain `unknown` until reconciliation; visualization state never establishes inventory truth.
+- Simulation and Hardware are adapter selections behind the same normalized equipment contract, not separate products or duplicated operational workflows.
+- Environment and execution source are authorization/safety context. Production hard-denies simulation-only controls.
+- Human-readable meaning, impact, next action, risk, and outcome precede raw identifiers, enums, topology internals, and protocol payloads.
+- Every operational request is authorized by effective permission plus explicit warehouse scope; role names are never the enforcement boundary.
+- Operations Live View consumes qualified observations. Decorative frontend movement is never operational evidence.
 
 ## Evidence hierarchy
 

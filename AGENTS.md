@@ -20,6 +20,7 @@ Evolve this legacy prototype into a hardware-independent, commercially evolvable
 ## Critical constraints
 
 - Read `docs/product/decision-principles.md` before domain, architecture, routing, equipment, or warehouse UI work.
+- Read `docs/product/approved-product-experience-direction.md` before identity/access, operational UX, navigation, visualization, simulator/demo, manual/help, or roadmap work.
 - One core must support different customer warehouses through validated configuration and persisted models; never fork or hard-code the core around the legacy demo layout.
 - React, SVG, Canvas, coordinates, and visual path arrays are presentation data, never warehouse or routing truth.
 - Derive routes from versioned topology plus runtime constraints. Treat fixed paths only as named scenario fixtures.
@@ -79,10 +80,11 @@ See `docs/engineering/git-progress-policy.md` for the operational checklist.
 
 1. `docs/product/product-definition-v1.md`
 2. `docs/product/decision-principles.md`
-3. `docs/domain/system-boundaries-v1.md`
-4. `docs/architecture/current-state-assessment.md`
-5. `docs/architecture/target-architecture-v1.md`
-6. `docs/architecture/m1-m2-configurability-review.md`
-7. `docs/project/roadmap.md`
-8. `docs/engineering/verification-strategy.md`
-9. `docs/engineering/git-progress-policy.md`
+3. `docs/product/approved-product-experience-direction.md`
+4. `docs/domain/system-boundaries-v1.md`
+5. `docs/architecture/current-state-assessment.md`
+6. `docs/architecture/target-architecture-v1.md`
+7. `docs/architecture/m1-m2-configurability-review.md`
+8. `docs/project/roadmap.md`
+9. `docs/engineering/verification-strategy.md`
+10. `docs/engineering/git-progress-policy.md`

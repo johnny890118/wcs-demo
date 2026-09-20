@@ -15,6 +15,7 @@ ISA-95 separates business planning/logistics from operations management and cont
 | Simulator adapter | Deterministic virtual equipment behavior and telemetry                                             | Special-case domain rules or fake random dashboards                          |
 | Hardware adapter  | Protocol/vendor translation, connection health, command acknowledgement                            | Business allocation and scheduling policy                                    |
 | Alarm management  | Actionable abnormal-condition lifecycle and operator response                                      | Debug logs or every informational event                                      |
+| Identity/access   | Principal, effective permissions, warehouse scope, session lifecycle, role templates               | Protocol credentials, safety authority, role-name conditionals               |
 
 ## Core flow
 
@@ -82,6 +83,8 @@ Timeout does not imply device failure, and connection loss does not imply succes
 ## Integration posture
 
 VDA 5050 is a relevant candidate for mobile-robot adapters because it defines order/status exchange between a master control and heterogeneous vehicles. OPC UA and MQTT are relevant infrastructure options. None is the domain contract: adapters map them to versioned internal commands, telemetry, capabilities, and outcomes.
+
+Simulation and Hardware select adapters per configured equipment registration. The current deployment may run the deterministic simulator in the API process; future Hybrid commissioning may combine simulated and hardware registrations without mode branches in WCS. The current warehouse, environment, adapter source, permission, and warehouse scope are explicit request/session context and are revalidated server-side.
 
 ## Glossary (`en` / `zh-TW`)
 

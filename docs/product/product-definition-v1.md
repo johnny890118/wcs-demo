@@ -8,12 +8,16 @@ Smart Warehouse Platform is a bilingual operations, control, and simulation prod
 
 The product is one configurable core for different customer warehouses. No legacy layout, topology, route, equipment combination, coordinate system, station flow, or customer-specific operating rule is product truth. See the non-negotiable [product and decision principles](decision-principles.md).
 
+The approved product experience is one shared operational product whose equipment source can be Simulation or Hardware, with future per-equipment Hybrid composition. Human meaning is presented before machine detail; Operations Home, Live View, task context, and the built-in manual are operational capabilities rather than marketing surfaces. See the [Approved Product Experience Direction](approved-product-experience-direction.md).
+
 ## Product outcomes
 
 - Operators can understand warehouse, task, equipment, and alarm state without reconstructing it from several screens.
+- Operators first see current warehouse/environment context, attention required, waiting work, and permitted next actions rather than a chart-first dashboard.
 - Supervisors can create and follow inbound and outbound work, identify exceptions, and recover safely.
 - Engineers can test deterministic scenarios, inject faults, inspect decisions, and integrate equipment without changing core orchestration.
 - Sales and evaluators can reset and replay a credible demo with no external WMS or hardware.
+- Simulation and Hardware use the same WMS/WCS workflows, normalized equipment contract, observations, and operational UI.
 - Deployers can run the core on public cloud, a customer VM, or an edge server without a provider-specific rewrite.
 
 ## Primary personas and jobs

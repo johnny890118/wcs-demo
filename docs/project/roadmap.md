@@ -121,15 +121,6 @@ Status: Complete
 - [x] Link supported operator workflow outcomes to accessible audit evidence in both supported locales and themes
 - [x] Record retention, unknown-action, historical-backfill, and current demo-reset policies without claiming immutable storage
 
-## M8B — Guarded demo reset and replay
-
-Status: Planned
-
-- [ ] Add a named deterministic demo reset/replay workflow behind demo-environment, authorization, confirmation, idempotency, and audit boundaries
-- [ ] Prove replay determinism and production reset denial through integration, browser, and managed-environment-safe gates
-- [ ] Retain reset evidence outside the `audit_events` rows being reset and define concurrent-session behavior
-- [ ] Reconcile reset/replay with active tasks, outbox delivery, simulator state, and failed or interrupted reset outcomes
-
 ## System-first frontend boundary checkpoint
 
 Status: Complete
@@ -142,46 +133,85 @@ Status: Complete
 - [x] Keep paused About/Contact source routes available without advertising them in the active sitemap
 - [x] Verify anonymous/authenticated entry, callback rejection, bilingual themes, keyboard access, responsive reflow, production build, and full repository gates
 
-## M9 — Production identity and warehouse scope
+## Product capability, roles, flows, IA, and roadmap alignment
+
+Status: Complete
+
+- [x] Approve one-product Simulation/Hardware direction and future Hybrid compatibility
+- [x] Approve human-readable-by-default task, equipment, alarm, and recovery experience
+- [x] Approve actionable Operations Home, task-centered work context, Live View/topology separation, and role workspaces
+- [x] Approve built-in single-source web/PDF operation manual and contextual help direction
+- [x] Approve principal -> permission -> warehouse scope -> role-template authorization model and OIDC-first identity direction
+- [x] Replace the previous M8B-first sequence with the S1–S8 system roadmap
+
+The governing detail is the [Approved Product Experience Direction](../product/approved-product-experience-direction.md).
+
+## S1 — Accountable Access and Warehouse Context
+
+Status: Active
+
+- [ ] Establish provider-neutral principal/session contracts while retaining the demo identity as a replaceable adapter
+- [ ] Define effective user permissions independently from service permissions and role-name conditionals
+- [ ] Persist/derive allowed warehouse scopes and require an explicit current warehouse context
+- [ ] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
+- [ ] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
+- [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
+- [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
+
+## S2 — Operational Work Center and Inventory Visibility
 
 Status: Planned
 
-- [ ] Replace the single demo identity with production identity-provider integration and lifecycle controls
-- [ ] Enforce user/role permissions separately from service permissions, including warehouse/site scope
-- [ ] Audit identity, role, permission, and scope changes; add session revocation and access-review evidence
+- [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
+- [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
+- [ ] Operations Live View foundation distinct from readable engineering topology inspection
+- [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
+- [ ] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
-## M10 — Warehouse configuration administration
+## S3 — Accountable Demo Scenario Lifecycle
 
-Status: Planned
+Status: Planned (supersedes M8B)
 
-- [ ] Add authorized lifecycle UI/API for warehouse, topology, location, equipment, adapter, and activation configuration
-- [ ] Add draft/validate/approve/activate/rollback boundaries with impact preview and audit evidence
-- [ ] Protect active-work compatibility and prevent unsafe configuration changes
+- [ ] Named deterministic scenario catalog and guarded reset/run/pause/replay/fault lifecycle
+- [ ] Environment, permission, confirmation, idempotency, concurrency, and production hard-deny boundaries
+- [ ] Reset governance evidence outside resettable operational audit rows and interrupted-reset recovery
 
-## M11 — WCS coordination and reconciliation
-
-Status: Planned
-
-- [ ] Add scheduling priorities, resource reservations, contention handling, cancellation, and deterministic rescheduling
-- [ ] Add operator-visible unknown-outcome reconciliation and durable command/equipment divergence workflows
-- [ ] Prove recovery across restart, lease loss, duplicate delivery, and constrained multi-equipment scenarios
-
-## M12 — External integration productization
+## S4 — Safe Task Control and Reconciliation
 
 Status: Planned
 
-- [ ] Define versioned external WMS contracts, idempotent ingestion, outbound status delivery, retry/dead-letter, and reconciliation
-- [ ] Productize equipment-adapter registration, conformance evidence, credential boundaries, compatibility, and upgrade policy
-- [ ] Add integration administration and diagnostics without coupling domain/application code to protocols or vendors
+- [ ] Human-readable blocked/unknown context and command timeline
+- [ ] Authorized retry, reassign, replan, cancel, expected-versus-observed reconciliation, and outcome verification
 
-## M13 — Production operability and diagnostics
+## S5 — Scheduling and Resource Coordination
 
 Status: Planned
 
-- [ ] Add metrics, traces, service-level objectives, alerting, capacity limits, and operator diagnostics
-- [ ] Prove backup/restore plus audit retention, upgrade/rollback, incident response, degraded-mode, and disaster-recovery runbooks
-- [ ] Complete deployment hardening and commissioning evidence for a real site without implying safety certification
+- [ ] Priority, automatic assignment, reservation/lease, contention, fairness, reassignment, and restart consistency
+
+## S6 — Governed Warehouse Configuration
+
+Status: Planned
+
+- [ ] Warehouse/location/zone/station, topology, equipment, and integration configuration
+- [ ] Draft, validation, impact preview, review, activation, monitoring, rollback, and active-work compatibility
+
+## S7 — External Integration and Commissioning
+
+Status: Planned
+
+- [ ] Versioned external WMS contracts, delivery/dead-letter/reconciliation, and integration status
+- [ ] Productized real-equipment adapter registration, health, conformance evidence, diagnostics, and commissioning
+
+## S8 — Production Operability and Commercial Deployment
+
+Status: Planned
+
+- [ ] SLOs, mature metrics/tracing/alerting, incident support, capacity, access review, and production diagnostics
+- [ ] Backup/restore/DR, upgrade/rollback, retention governance, supportability, and site commissioning evidence
+
+Observability is cross-cutting from S1 onward. At each verified milestone, reassess remaining order against repository reality, dependencies, safety, user flow, and commercial maturity; record material changes.
 
 ## Immediate next task
 
-Complete the owner-led Feature Map + User Roles + Core User Flows + Navigation / Information Architecture + System Roadmap Alignment review. Do not start M8B implementation until that alignment checkpoint is accepted.
+Start the first S1 vertical slice from repository reality: provider-neutral principal, effective permission, and explicit current-warehouse contracts that preserve the current demo login while creating enforceable SSR/BFF/API boundaries.

@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-09-21. Baseline: verified M8A plus the system-first frontend boundary checkpoint.
+Assessment date: 2026-09-21. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, and approved product-experience alignment.
 
 ## Supported product path
 
@@ -8,15 +8,20 @@ Assessment date: 2026-09-21. Baseline: verified M8A plus the system-first fronte
 - The framework-independent core covers versioned directed topology, capability-based routing/assignment, deterministic inbound and outbound execution, inventory allocation, equipment simulation/observations, alarms, recovery, unknown outcomes, outbox delivery, and adapter conformance contracts.
 - PostgreSQL migrations, transaction boundaries, container/deployment adapters, CI, unit/API/PostgreSQL/Chromium tests, bilingual catalogs, themes, accessibility checks, backup/restore tooling, structured logging, request IDs, health endpoints, and a persisted audit store exist.
 - M8A adds a dedicated `audit.view` read projection and `/operations/audit`: keyset pagination, actor/action/resource/correlation semantics, action-specific evidence allowlists, unknown-action fail-closed behavior, workflow links, and explicit retention/reset limitations.
+- Simulation already runs through the real WMS Lite -> WCS -> EquipmentPort -> observation path. Production Hardware and mixed per-equipment sources remain architectural boundaries rather than finished product capabilities.
 
 ## Product limitations
 
 - Authentication is still a single environment-backed demo identity. Service permissions are deny-by-default, but production user RBAC, identity lifecycle, session revocation, and warehouse/site scope are not implemented.
+- The header does not yet expose an accountable current warehouse/environment/equipment-source/principal context, and operations queries are not warehouse-scoped end to end.
+- `/operations` and focused projections expose useful facts but do not yet form the approved actionable Home, task-centered work center, or human-readable next-action experience.
+- The current warehouse map is primarily a readable topology/observation view. It is not yet the approved Operations Live View, and topology usability remains limited.
+- No built-in single-source web/PDF operation manual or contextual-help foundation exists.
 - Warehouse, topology, equipment, and adapter models exist, but governed administration (draft, review, activation, rollback, compatibility impact) does not.
 - Execution proves deterministic vertical slices, not fleet-scale scheduling, resource coordination, or complete operator reconciliation.
 - External WMS and real equipment integrations are contracts/reference proofs rather than production integration products.
 - Structured logs, request IDs, health checks, deployment smoke gates, and backup/restore exist; metrics, tracing, SLOs, alerting, capacity evidence, and production incident diagnostics remain incomplete.
-- Audit storage is not claimed to be immutable or tamper-evident. The current demo reset truncates `audit_events`; accountable reset/replay remains M8B.
+- Audit storage is not claimed to be immutable or tamper-evident. The current demo reset truncates `audit_events`; accountable scenario/reset evidence remains S3.
 
 ## Frontend surfaces
 
@@ -33,8 +38,10 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. Guarded demo reset/replay with evidence surviving reset.
-2. Production identity, user RBAC, and warehouse scope.
-3. Governed warehouse/topology/equipment administration.
-4. WCS scheduling, resource coordination, and reconciliation.
-5. External integration productization and production operability/diagnostics.
+1. S1 accountable principal, effective permissions, explicit warehouse context, session lifecycle, and role-aware Home/navigation foundation.
+2. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
+3. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
+4. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.
+5. S7–S8 external integration, commissioning, and commercial production operability.
+
+See the approved [Product Experience Direction](../product/approved-product-experience-direction.md) for the governing sequence and user-facing definition of done.
