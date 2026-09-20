@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>.
 
-The new product entry is available at `/platform`. The session-protected operations overview is at `/operations`, with focused read-only projections at `/operations/projections`; the original `/`, `/fdp`, and `/engineeringMode` routes remain migration references rather than target architecture.
+The canonical product entry is available at `/`. The session-protected operations overview is at `/operations`, with warehouse topology, inbound, outbound, alarm recovery, and focused projections under that namespace. The original prototype is isolated under `/legacy/*`; `/platform`, `/fdp`, and `/engineeringMode` remain compatibility redirects rather than product surfaces.
 
 ### API and database
 
@@ -54,6 +54,8 @@ npm run verify
 ```
 
 The repository gate checks formatting, secret hygiene, high/critical production dependency findings, lint, strict TypeScript, unit/API tests, real PostgreSQL migrations and integration tests in an ephemeral container, a production web build, and authenticated Chromium E2E accessibility/responsive scenarios. Install the Playwright Chromium runtime once with `npx playwright install chromium` before running the local gate; CI installs it automatically. Current gaps remain visible in the [verification strategy](docs/engineering/verification-strategy.md).
+
+After a managed rollout, `npm run test:managed-demo` performs a read-only public check of the Vercel entry, compatibility redirect, indexing/auth boundaries, discovery files, and Render API liveness. Override `MANAGED_WEB_ORIGIN` or `MANAGED_API_ORIGIN` only when validating another authorized environment.
 
 ## Documentation
 

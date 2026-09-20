@@ -69,6 +69,39 @@ test("public entry reflows at a 200%-equivalent CSS viewport", async ({
   ).toBeVisible();
 });
 
+test("public entry supports both locales in explicit light and dark themes", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "淺色" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "zh-TW");
+  await expect(page.locator("html")).toHaveClass(/light/);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+  await page.getByRole("button", { name: "深色" }).click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "One operational truth from dock to device.",
+    }),
+  ).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+  await page.getByRole("button", { name: "Light" }).click();
+  await expect(page.locator("html")).toHaveClass(/light/);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveClass(/light/);
+});
+
 test("authenticated focused projections expose screen-reader semantics", async ({
   page,
 }) => {

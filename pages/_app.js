@@ -29,7 +29,12 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
       </Head>
       <div className={ubuntu.className}>
         <SessionProvider session={session}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <LocaleProvider>
               <Component {...pageProps} />
             </LocaleProvider>

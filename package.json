@@ -17,6 +17,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",
+    "test:managed-demo": "node scripts/check-managed-demo.mjs",
     "test:postgres": "node scripts/test-postgres-integration.mjs",
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",

@@ -38,6 +38,7 @@ Apply only the repository migration runner. Do not separately translate the same
 5. Deploy the web surface with the final API origin plus matching production `NEXTAUTH_URL` and `PUBLIC_SITE_URL` origins.
 6. Run the three deterministic operator scenarios against the candidate environment without enabling physical equipment adapters.
 7. Confirm `/robots.txt`, `/sitemap.xml`, public canonical metadata, and `X-Robots-Tag: noindex, nofollow` on operations/API routes before allowing indexing.
+8. Run `npm run test:managed-demo` to recheck the canonical public entry, compatibility redirect, legacy/private indexing policy, authentication boundary, sitemap/robots output, and API liveness without sending credentials or mutations.
 
 ## Runtime security controls
 

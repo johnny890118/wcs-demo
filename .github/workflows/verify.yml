@@ -44,7 +44,7 @@ jobs:
           trap cleanup EXIT
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml up -d --wait postgres api web
           curl --fail --silent --show-error http://127.0.0.1:3001/api/v1/health/ready
-          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:3000/platform
+          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:3000/
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml --profile demo-seed run --rm seed-demo
           docker compose -p warehouse-platform-ci --env-file infra/compose.env.example -f infra/compose.production.yml restart api
           for attempt in $(seq 1 30); do
