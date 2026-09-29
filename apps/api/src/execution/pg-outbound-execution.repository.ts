@@ -49,16 +49,34 @@ export class PgOutboundExecutionRepository
 {
   constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
-  async getTask(taskId: string): Promise<PersistedOutboundTask | null> {
+  async getTask(
+    taskId: string,
+    warehouseId: string,
+  ): Promise<PersistedOutboundTask | null> {
     const result = await this.pool.query<TaskRow>(
-      `${this.selection()} WHERE task.id = $1 AND task.outbound_order_id IS NOT NULL`,
-      [taskId],
+      `${this.selection()} WHERE task.id = $1 AND task.outbound_order_id IS NOT NULL
+        AND source_location.warehouse_id = $2
+        AND destination_location.warehouse_id = $2`,
+      [taskId, warehouseId],
     );
     return result.rows[0] ? toTask(result.rows[0]) : null;
   }
 
+  async isEquipmentAvailableInWarehouse(
+    equipmentId: string,
+    warehouseId: string,
+  ): Promise<boolean> {
+    const result = await this.pool.query(
+      `SELECT 1 FROM equipment_descriptors
+       WHERE equipment_id = $1 AND warehouse_id = $2 AND active = true`,
+      [equipmentId, warehouseId],
+    );
+    return result.rowCount === 1;
+  }
+
   markAssigned(
     taskId: string,
+    warehouseId: string,
     equipmentId: string,
     expectedVersion: number,
     actorId: string,
@@ -66,6 +84,7 @@ export class PgOutboundExecutionRepository
   ): Promise<PersistedOutboundTask> {
     return this.transition(
       taskId,
+      warehouseId,
       expectedVersion,
       "queued",
       "assigned",
@@ -77,12 +96,14 @@ export class PgOutboundExecutionRepository
 
   markInProgress(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     metadata: TransitionMetadata,
   ): Promise<PersistedOutboundTask> {
     return this.transition(
       taskId,
+      warehouseId,
       expectedVersion,
       "assigned",
       "in_progress",
@@ -93,6 +114,7 @@ export class PgOutboundExecutionRepository
 
   async complete(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     metadata: TransitionMetadata,
@@ -100,9 +122,17 @@ export class PgOutboundExecutionRepository
     await this.withTransaction(async (client) => {
       const taskResult = await client.query<TaskRow>(
         this.returningSelection(
-          `UPDATE transport_tasks SET status = 'completed', version = version + 1, updated_at = now() WHERE id = $1 AND status = 'in_progress' AND version = $2 RETURNING *`,
+          `UPDATE transport_tasks SET status = 'completed', version = version + 1, updated_at = now()
+           WHERE id = $1 AND status = 'in_progress' AND version = $2
+             AND EXISTS (
+               SELECT 1 FROM locations source, locations destination
+               WHERE source.id = transport_tasks.source_location_id
+                 AND destination.id = transport_tasks.destination_location_id
+                 AND source.warehouse_id = $3 AND destination.warehouse_id = $3
+             )
+           RETURNING *`,
         ),
-        [taskId, expectedVersion],
+        [taskId, expectedVersion, warehouseId],
       );
       const task = taskResult.rows[0];
       if (!task) throw this.conflict(taskId, expectedVersion);
@@ -142,12 +172,14 @@ export class PgOutboundExecutionRepository
         `UPDATE outbound_orders SET status = CASE WHEN EXISTS (
            SELECT 1 FROM transport_tasks WHERE outbound_order_id = $1 AND status <> 'completed'
          ) THEN 'in_progress' ELSE 'completed' END,
-         version = version + 1, updated_at = now() WHERE id = $1`,
-        [task.outbound_order_id],
+         version = version + 1, updated_at = now()
+         WHERE id = $1 AND warehouse_id = $2`,
+        [task.outbound_order_id, warehouseId],
       );
       await this.record(
         client,
         task,
+        warehouseId,
         actorId,
         "transport_task.complete",
         "OutboundTransportTaskCompleted",
@@ -159,6 +191,7 @@ export class PgOutboundExecutionRepository
 
   async markUnknown(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     reason: string,
@@ -167,15 +200,25 @@ export class PgOutboundExecutionRepository
     await this.withTransaction(async (client) => {
       const result = await client.query<TaskRow>(
         this.returningSelection(
-          `UPDATE transport_tasks SET status = 'unknown', version = version + 1, updated_at = now() WHERE id = $1 AND version = $2 AND status IN ('queued', 'assigned', 'in_progress', 'blocked') RETURNING *`,
+          `UPDATE transport_tasks SET status = 'unknown', version = version + 1, updated_at = now()
+           WHERE id = $1 AND version = $2
+             AND status IN ('queued', 'assigned', 'in_progress', 'blocked')
+             AND EXISTS (
+               SELECT 1 FROM locations source, locations destination
+               WHERE source.id = transport_tasks.source_location_id
+                 AND destination.id = transport_tasks.destination_location_id
+                 AND source.warehouse_id = $3 AND destination.warehouse_id = $3
+             )
+           RETURNING *`,
         ),
-        [taskId, expectedVersion],
+        [taskId, expectedVersion, warehouseId],
       );
       const task = result.rows[0];
       if (!task) throw this.conflict(taskId, expectedVersion);
       await this.record(
         client,
         task,
+        warehouseId,
         actorId,
         "transport_task.mark_unknown",
         "OutboundTransportTaskOutcomeUnknown",
@@ -187,6 +230,7 @@ export class PgOutboundExecutionRepository
 
   private async transition(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     fromStatus: "queued" | "assigned",
     toStatus: "assigned" | "in_progress",
@@ -197,20 +241,37 @@ export class PgOutboundExecutionRepository
     return this.withTransaction(async (client) => {
       const result = await client.query<TaskRow>(
         this.returningSelection(
-          `UPDATE transport_tasks SET status = $3, equipment_id = COALESCE($4, equipment_id), version = version + 1, updated_at = now() WHERE id = $1 AND version = $2 AND status = $5 RETURNING *`,
+          `UPDATE transport_tasks SET status = $3, equipment_id = COALESCE($4, equipment_id), version = version + 1, updated_at = now()
+           WHERE id = $1 AND version = $2 AND status = $5
+             AND EXISTS (
+               SELECT 1 FROM locations source, locations destination
+               WHERE source.id = transport_tasks.source_location_id
+                 AND destination.id = transport_tasks.destination_location_id
+                 AND source.warehouse_id = $6 AND destination.warehouse_id = $6
+             )
+           RETURNING *`,
         ),
-        [taskId, expectedVersion, toStatus, equipmentId ?? null, fromStatus],
+        [
+          taskId,
+          expectedVersion,
+          toStatus,
+          equipmentId ?? null,
+          fromStatus,
+          warehouseId,
+        ],
       );
       const task = result.rows[0];
       if (!task) throw this.conflict(taskId, expectedVersion);
       if (toStatus === "in_progress")
         await client.query(
-          `UPDATE outbound_orders SET status = 'in_progress', version = version + 1, updated_at = now() WHERE id = $1 AND status = 'allocated'`,
-          [task.outbound_order_id],
+          `UPDATE outbound_orders SET status = 'in_progress', version = version + 1, updated_at = now()
+           WHERE id = $1 AND warehouse_id = $2 AND status = 'allocated'`,
+          [task.outbound_order_id, warehouseId],
         );
       await this.record(
         client,
         task,
+        warehouseId,
         actorId,
         `transport_task.${toStatus}`,
         toStatus === "assigned"
@@ -232,6 +293,7 @@ export class PgOutboundExecutionRepository
       FROM transport_tasks task
       JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id
       JOIN locations source_location ON source_location.id = task.source_location_id
+      JOIN locations destination_location ON destination_location.id = task.destination_location_id
       JOIN warehouse_topologies topology
         ON topology.warehouse_id = source_location.warehouse_id
        AND topology.status = 'active'
@@ -255,6 +317,7 @@ export class PgOutboundExecutionRepository
       FROM task
       JOIN inventory_allocations allocation ON allocation.id = task.inventory_allocation_id
       JOIN locations source_location ON source_location.id = task.source_location_id
+      JOIN locations destination_location ON destination_location.id = task.destination_location_id
       JOIN warehouse_topologies topology
         ON topology.warehouse_id = source_location.warehouse_id
        AND topology.status = 'active'
@@ -271,6 +334,7 @@ export class PgOutboundExecutionRepository
   private async record(
     client: PoolClient,
     task: TaskRow,
+    warehouseId: string,
     actorId: string,
     action: string,
     eventType: string,
@@ -296,9 +360,11 @@ export class PgOutboundExecutionRepository
       ],
     );
     await client.query(
-      `INSERT INTO audit_events (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id) VALUES ($1, 'user', $2, $3, 'TransportTask', $4, $5::jsonb, $6)`,
+      `INSERT INTO audit_events (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+       VALUES ($1, $2, 'user', $3, $4, 'TransportTask', $5, $6::jsonb, $7)`,
       [
         metadata.auditEventId,
+        warehouseId,
         actorId,
         action,
         task.task_id,

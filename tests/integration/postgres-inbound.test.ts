@@ -45,6 +45,7 @@ const pool =
 const command: CreateInboundReceipt = {
   idempotencyKey: "integration-request-0001",
   actorId: "integration-test",
+  warehouseId: "10000000-0000-4000-8000-000000000001",
   externalReference: "ASN-INTEGRATION-0001",
   load: {
     externalId: "PALLET-INTEGRATION-0001",
@@ -66,6 +67,7 @@ const identifiers: InboundIdentifiers = {
 const outboundCommand: CreateOutboundOrder = {
   idempotencyKey: "integration-outbound-0001",
   actorId: "integration-test",
+  warehouseId: "10000000-0000-4000-8000-000000000001",
   externalReference: "SO-INTEGRATION-0001",
   sku: command.load.sku,
   quantity: 10,
@@ -79,6 +81,7 @@ const outboundIdentifiers: OutboundIdentifiers = {
 };
 
 const warehouseId = "10000000-0000-4000-8000-000000000001";
+const otherWarehouseId = "10000000-0000-4000-8000-000000000099";
 
 function requestHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -174,6 +177,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
           taskId: identifiers.transportTaskId,
           equipmentId: "AMR-01",
           actorId: command.actorId,
+          warehouseId,
           confirmationReason: "Verified integration inbound execution.",
         }),
     );
@@ -236,7 +240,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     });
 
     const audit = new AuditProjectionService(pool);
-    const firstAuditPage = await audit.list({
+    const firstAuditPage = await audit.list(warehouseId, {
       resourceType: "TransportTask",
       resourceId: identifiers.transportTaskId,
       limit: 2,
@@ -264,7 +268,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect(JSON.stringify(firstAuditPage)).not.toContain(
       "Verified integration inbound execution.",
     );
-    const secondAuditPage = await audit.list({
+    const secondAuditPage = await audit.list(warehouseId, {
       resourceType: "TransportTask",
       resourceId: identifiers.transportTaskId,
       cursor: firstAuditPage.nextCursor!,
@@ -321,11 +325,77 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).rejects.toBeInstanceOf(IdempotencyConflictError);
   });
 
+  it("keeps command idempotency, task lookup, equipment, and audit evidence warehouse-scoped", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await pool.query(
+      `INSERT INTO warehouses (id, code, name)
+       VALUES ($1, 'OTHER', 'Other Warehouse')
+       ON CONFLICT (id) DO NOTHING`,
+      [otherWarehouseId],
+    );
+    await pool.query(
+      `INSERT INTO locations (id, warehouse_id, code, kind, capabilities)
+       VALUES
+         ('20000000-0000-4000-8000-000000000091', $1, 'OTHER-RECEIVING', 'receiving', ARRAY['load.pickup']),
+         ('20000000-0000-4000-8000-000000000092', $1, 'OTHER-STORAGE', 'storage', ARRAY['load.dropoff', 'inventory.store'])
+       ON CONFLICT (id) DO NOTHING`,
+      [otherWarehouseId],
+    );
+
+    const repository = new PgInboundRepository(pool);
+    await repository.create(command, identifiers, requestHash(command));
+    const otherCommand: CreateInboundReceipt = {
+      ...command,
+      warehouseId: otherWarehouseId,
+      externalReference: "ASN-OTHER-0001",
+      load: { ...command.load, externalId: "PALLET-OTHER-0001" },
+      sourceLocationId: "20000000-0000-4000-8000-000000000091",
+      destinationLocationId: "20000000-0000-4000-8000-000000000092",
+    };
+    const otherIdentifiers: InboundIdentifiers = {
+      receiptId: "30000000-0000-4000-8000-000000000091",
+      loadId: "40000000-0000-4000-8000-000000000091",
+      transportTaskId: "50000000-0000-4000-8000-000000000091",
+      outboxEventId: "60000000-0000-4000-8000-000000000091",
+      auditEventId: "70000000-0000-4000-8000-000000000091",
+    };
+
+    await expect(
+      repository.create(
+        otherCommand,
+        otherIdentifiers,
+        requestHash(otherCommand),
+      ),
+    ).resolves.toMatchObject({
+      receiptId: otherIdentifiers.receiptId,
+      duplicate: false,
+    });
+
+    const execution = new PgInboundExecutionRepository(pool);
+    await expect(
+      execution.getTask(identifiers.transportTaskId, otherWarehouseId),
+    ).resolves.toBeNull();
+    await expect(
+      execution.isEquipmentAvailableInWarehouse("AMR-01", otherWarehouseId),
+    ).resolves.toBe(false);
+
+    const audit = new AuditProjectionService(pool);
+    const primaryAudit = await audit.list(warehouseId, { limit: 20 });
+    const otherAudit = await audit.list(otherWarehouseId, { limit: 20 });
+    expect(primaryAudit.events.map((event) => event.resource.id)).toEqual([
+      identifiers.receiptId,
+    ]);
+    expect(otherAudit.events.map((event) => event.resource.id)).toEqual([
+      otherIdentifiers.receiptId,
+    ]);
+  });
+
   it("returns data-backed operations projections without inferring missing state", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     await pool.query(
       `INSERT INTO warehouses (id, code, name)
-       VALUES ('10000000-0000-4000-8000-000000000099', 'OTHER', 'Other Warehouse')`,
+       VALUES ('10000000-0000-4000-8000-000000000099', 'OTHER', 'Other Warehouse')
+       ON CONFLICT (id) DO NOTHING`,
     );
     await pool.query(
       `INSERT INTO equipment_descriptors
@@ -338,7 +408,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
          ARRAY['transport.move'],
          ARRAY['assign_task'],
          '{}'::jsonb
-       )`,
+       )
+       ON CONFLICT (equipment_id) DO NOTHING`,
     );
     const summary = await new OperationsSummaryService(pool).getSummary(
       warehouseId,
@@ -596,6 +667,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: identifiers.transportTaskId,
       equipmentId: "AMR-01",
       actorId: command.actorId,
+      warehouseId,
       confirmationReason: "Verified integration inbound execution.",
     });
 
@@ -667,6 +739,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await expect(
       new PgInboundExecutionRepository(pool).getTask(
         allocated.transportTaskIds[0]!,
+        warehouseId,
       ),
     ).resolves.toBeNull();
 
@@ -679,6 +752,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: allocated.transportTaskIds[0]!,
       equipmentId: "AMR-01",
       actorId: outboundCommand.actorId,
+      warehouseId,
       confirmationReason: "Verified integration outbound execution.",
     });
 
@@ -797,6 +871,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     const execution = new PgInboundExecutionRepository(pool);
     const assigned = await execution.markAssigned(
       identifiers.transportTaskId,
+      warehouseId,
       "AMR-01",
       0,
       "integration-test",
@@ -807,6 +882,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     );
     await execution.markInProgress(
       identifiers.transportTaskId,
+      warehouseId,
       assigned.version,
       "integration-test",
       {
@@ -839,6 +915,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await recovery.acknowledge({
       alarmId: alarm.alarmId,
       actorId: "integration-operator",
+      warehouseId,
       confirmationReason: "Alarm evidence reviewed during integration drill.",
     });
     const released = await recovery.recover({
@@ -846,6 +923,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       strategy: "release",
       resolution: "Vehicle isolated; task returned for reassignment.",
       actorId: "integration-supervisor",
+      warehouseId,
       confirmationReason: "Release approved after vehicle isolation.",
     });
     expect(released).toMatchObject({

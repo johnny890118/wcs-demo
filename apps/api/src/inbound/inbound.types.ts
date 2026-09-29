@@ -1,6 +1,7 @@
 export type CreateInboundReceipt = Readonly<{
   idempotencyKey: string;
   actorId: string;
+  warehouseId: string;
   externalReference: string;
   load: Readonly<{
     externalId: string;

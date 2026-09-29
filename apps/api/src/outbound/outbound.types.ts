@@ -1,6 +1,7 @@
 export type CreateOutboundOrder = Readonly<{
   idempotencyKey: string;
   actorId: string;
+  warehouseId: string;
   externalReference: string;
   sku: string;
   quantity: number;

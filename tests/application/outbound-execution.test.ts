@@ -9,6 +9,8 @@ import { createMobileTransportDescriptor } from "../../src/domain/equipment/equi
 import { ManualClock } from "../../src/infrastructure/simulator/manual-clock";
 import { SimulatorEquipmentAdapter } from "../../src/infrastructure/simulator/simulator-equipment-adapter";
 
+const warehouseId = "10000000-0000-4000-8000-000000000001";
+
 class MemoryOutboundRepository implements OutboundExecutionRepository {
   task: PersistedOutboundTask = {
     taskId: "c0000000-0000-4000-8000-000000000001",
@@ -32,8 +34,13 @@ class MemoryOutboundRepository implements OutboundExecutionRepository {
     return taskId === this.task.taskId ? this.task : null;
   }
 
+  async isEquipmentAvailableInWarehouse(): Promise<boolean> {
+    return true;
+  }
+
   async markAssigned(
     _taskId: string,
+    _warehouseId: string,
     equipmentId: string,
     expectedVersion: number,
   ): Promise<PersistedOutboundTask> {
@@ -52,6 +59,7 @@ class MemoryOutboundRepository implements OutboundExecutionRepository {
 
   async markInProgress(
     _taskId: string,
+    _warehouseId: string,
     expectedVersion: number,
   ): Promise<PersistedOutboundTask> {
     expect(this.task).toMatchObject({
@@ -66,7 +74,11 @@ class MemoryOutboundRepository implements OutboundExecutionRepository {
     return this.task;
   }
 
-  async complete(_taskId: string, expectedVersion: number): Promise<void> {
+  async complete(
+    _taskId: string,
+    _warehouseId: string,
+    expectedVersion: number,
+  ): Promise<void> {
     expect(this.task).toMatchObject({
       status: "in_progress",
       version: expectedVersion,
@@ -77,6 +89,7 @@ class MemoryOutboundRepository implements OutboundExecutionRepository {
 
   async markUnknown(
     _taskId: string,
+    _warehouseId: string,
     expectedVersion: number,
     _actorId: string,
     reason: string,
@@ -111,6 +124,7 @@ describe("deterministic outbound execution", () => {
       taskId: repository.task.taskId,
       equipmentId: "AMR-01",
       actorId: "test",
+      warehouseId,
       confirmationReason: "Verified outbound execution request.",
     });
 
@@ -135,6 +149,7 @@ describe("deterministic outbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test",
+        warehouseId,
         confirmationReason: "Verified outbound execution request.",
       }),
     ).rejects.toThrow("shipping commit failed");

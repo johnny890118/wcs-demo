@@ -14,6 +14,7 @@ describe("inbound application service", () => {
     const command = {
       idempotencyKey: "request-0001",
       actorId: "test-web",
+      warehouseId: "10000000-0000-4000-8000-000000000001",
       externalReference: "ASN-0001",
       load: { externalId: "PALLET-01", sku: "SKU-01", quantity: 1 },
       sourceLocationId: "20000000-0000-4000-8000-000000000001",

@@ -42,13 +42,14 @@ export class PgOutboundRepository implements OutboundRepository {
       await client.query("BEGIN");
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO outbound_orders
-          (id, external_reference, idempotency_key, request_hash, sku, quantity,
-           destination_location_id, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'requested')
-         ON CONFLICT (idempotency_key) DO NOTHING
+          (id, warehouse_id, external_reference, idempotency_key, request_hash,
+           sku, quantity, destination_location_id, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'requested')
+         ON CONFLICT (warehouse_id, idempotency_key) DO NOTHING
          RETURNING id`,
         [
           identifiers.outboundOrderId,
+          command.warehouseId,
           command.externalReference,
           command.idempotencyKey,
           requestHash,
@@ -61,6 +62,7 @@ export class PgOutboundRepository implements OutboundRepository {
       if (inserted.rowCount === 0) {
         const existing = await this.findExisting(
           client,
+          command.warehouseId,
           command.idempotencyKey,
         );
         await client.query("COMMIT");
@@ -76,10 +78,14 @@ export class PgOutboundRepository implements OutboundRepository {
         };
       }
 
-      await this.assertDestination(client, command.destinationLocationId);
+      await this.assertDestination(
+        client,
+        command.warehouseId,
+        command.destinationLocationId,
+      );
       await client.query(
         "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
-        [command.sku],
+        [`${command.warehouseId}:${command.sku}`],
       );
       const candidates = await client.query<InventoryCandidateRow>(
         `SELECT inventory.id, inventory.location_id,
@@ -90,7 +96,9 @@ export class PgOutboundRepository implements OutboundRepository {
               AND allocation.status = 'reserved'
           ), 0))::integer AS allocatable_quantity
          FROM inventory_units inventory
+         JOIN locations location ON location.id = inventory.location_id
          WHERE inventory.sku = $1
+           AND location.warehouse_id = $2
            AND inventory.status = 'available'
            AND inventory.quantity > COALESCE((
              SELECT sum(allocation.quantity)::integer
@@ -100,7 +108,7 @@ export class PgOutboundRepository implements OutboundRepository {
            ), 0)
          ORDER BY inventory.created_at, inventory.id
          FOR UPDATE OF inventory`,
-        [command.sku],
+        [command.sku, command.warehouseId],
       );
 
       const available = candidates.rows.reduce(
@@ -178,10 +186,11 @@ export class PgOutboundRepository implements OutboundRepository {
       );
       await client.query(
         `INSERT INTO audit_events
-          (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-         VALUES ($1, 'user', $2, 'outbound_order.allocate', 'OutboundOrder', $3, $4::jsonb, $5)`,
+          (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+         VALUES ($1, $2, 'user', $3, 'outbound_order.allocate', 'OutboundOrder', $4, $5::jsonb, $6)`,
         [
           identifiers.auditEventId,
+          command.warehouseId,
           command.actorId,
           identifiers.outboundOrderId,
           JSON.stringify(eventDetails),
@@ -209,14 +218,18 @@ export class PgOutboundRepository implements OutboundRepository {
 
   private async assertDestination(
     client: PoolClient,
+    warehouseId: string,
     destinationLocationId: string,
   ): Promise<void> {
     const result = await client.query<{
       capabilities: string[];
       status: string;
-    }>("SELECT capabilities, status FROM locations WHERE id = $1", [
-      destinationLocationId,
-    ]);
+    }>(
+      `SELECT capabilities, status
+       FROM locations
+       WHERE id = $1 AND warehouse_id = $2`,
+      [destinationLocationId, warehouseId],
+    );
     const destination = result.rows[0];
     if (
       !destination ||
@@ -231,6 +244,7 @@ export class PgOutboundRepository implements OutboundRepository {
 
   private async findExisting(
     client: PoolClient,
+    warehouseId: string,
     idempotencyKey: string,
   ): Promise<ExistingOrderRow> {
     const result = await client.query<ExistingOrderRow>(
@@ -240,9 +254,9 @@ export class PgOutboundRepository implements OutboundRepository {
        FROM outbound_orders outbound
        JOIN inventory_allocations allocation ON allocation.outbound_order_id = outbound.id
        JOIN transport_tasks task ON task.inventory_allocation_id = allocation.id
-       WHERE outbound.idempotency_key = $1
+       WHERE outbound.warehouse_id = $1 AND outbound.idempotency_key = $2
        GROUP BY outbound.id, outbound.request_hash`,
-      [idempotencyKey],
+      [warehouseId, idempotencyKey],
     );
     const row = result.rows[0];
     if (!row) {

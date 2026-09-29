@@ -5,6 +5,7 @@ import {
 } from "../../apps/api/src/audit/audit-projection.service";
 
 const resourceId = "50000000-0000-4000-8000-000000000001";
+const warehouseId = "10000000-0000-4000-8000-000000000001";
 
 describe("audit projection", () => {
   it("returns a stable page while omitting raw and free-form details", async () => {
@@ -54,7 +55,7 @@ describe("audit projection", () => {
     });
     const service = new AuditProjectionService({ query } as never);
 
-    const page = await service.list({
+    const page = await service.list(warehouseId, {
       limit: 2,
       resourceType: "TransportTask",
       resourceId,
@@ -88,7 +89,7 @@ describe("audit projection", () => {
     });
     expect(query).toHaveBeenCalledWith(
       expect.stringContaining("ORDER BY occurred_at DESC, id DESC"),
-      ["TransportTask", resourceId, 3],
+      [warehouseId, "TransportTask", resourceId, 3],
     );
   });
 
@@ -102,24 +103,29 @@ describe("audit projection", () => {
       }),
     ).toString("base64url");
 
-    await expect(service.list({ cursor, limit: 25 })).resolves.toEqual({
+    await expect(
+      service.list(warehouseId, { cursor, limit: 25 }),
+    ).resolves.toEqual({
       events: [],
       nextCursor: null,
     });
     expect(query).toHaveBeenCalledWith(
-      expect.stringContaining("(occurred_at, id) < ($1, $2)"),
+      expect.stringContaining("(occurred_at, id) < ($2, $3)"),
       [
+        warehouseId,
         new Date("2026-09-20T02:00:00.000Z"),
         "70000000-0000-4000-8000-000000000002",
         26,
       ],
     );
     await expect(
-      service.list({ cursor: "not-a-cursor" }),
+      service.list(warehouseId, { cursor: "not-a-cursor" }),
     ).rejects.toMatchObject({
       response: { code: "INVALID_AUDIT_QUERY" },
     });
-    await expect(service.list({ limit: 101 })).rejects.toMatchObject({
+    await expect(
+      service.list(warehouseId, { limit: 101 }),
+    ).rejects.toMatchObject({
       response: { code: "INVALID_AUDIT_QUERY" },
     });
   });

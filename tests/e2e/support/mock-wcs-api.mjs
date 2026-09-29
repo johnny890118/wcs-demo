@@ -6,6 +6,26 @@ if (!token) throw new Error("API_SERVICE_TOKEN is required for the E2E mock.");
 
 const generatedAt = "2026-09-18T08:00:00.000Z";
 const expectedWarehouseId = "10000000-0000-4000-8000-000000000001";
+const expectedPrincipal = "legacy-demo-admin";
+
+function hasOperationalContext(request, permission) {
+  const permissions = String(request.headers["x-swp-user-permissions"] ?? "")
+    .split(",")
+    .map((value) => value.trim());
+  return (
+    request.headers["x-swp-principal"] === expectedPrincipal &&
+    permissions.includes(permission) &&
+    request.headers["x-swp-warehouse"] === expectedWarehouseId &&
+    request.headers["x-swp-warehouse-scopes"] === expectedWarehouseId
+  );
+}
+
+function requireOperationalContext(request, response, permission) {
+  if (hasOperationalContext(request, permission)) return true;
+  response.statusCode = 403;
+  response.end(JSON.stringify({ error: "invalid operational context" }));
+  return false;
+}
 const baseSummary = {
   counts: {
     activeTasks: 1,
@@ -365,13 +385,14 @@ const server = createServer(async (request, response) => {
     (request.url === "/api/v1/operations/summary" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
-    (request.headers["x-swp-principal"] !== "legacy-demo-admin" ||
-      !request.headers["x-swp-user-permissions"]?.includes("operations.view") ||
-      request.headers["x-swp-warehouse"] !== expectedWarehouseId ||
-      request.headers["x-swp-warehouse-scopes"] !== expectedWarehouseId)
+    !requireOperationalContext(
+      request,
+      response,
+      request.url.startsWith("/api/v1/audit-events")
+        ? "audit.view"
+        : "operations.view",
+    )
   ) {
-    response.statusCode = 403;
-    response.end(JSON.stringify({ error: "invalid operational context" }));
     return;
   }
   if (request.url === "/api/v1/operations/summary") {
@@ -398,6 +419,7 @@ const server = createServer(async (request, response) => {
     return;
   }
   if (request.method === "POST" && request.url === "/api/v1/inbound-receipts") {
+    if (!requireOperationalContext(request, response, "inbound.create")) return;
     const body = await readBody(request);
     details.tasks = [
       {
@@ -429,11 +451,10 @@ const server = createServer(async (request, response) => {
     request.url ===
       "/api/v1/transport-tasks/50000000-0000-4000-8000-000000000099/execute"
   ) {
+    if (!requireOperationalContext(request, response, "transport.execute"))
+      return;
     const body = await readBody(request);
-    if (
-      request.headers["x-operator-id"] !== "e2e-operator" ||
-      body.confirmedAction !== "execute_inbound_task"
-    ) {
+    if (body.confirmedAction !== "execute_inbound_task") {
       response.statusCode = 400;
       response.end(JSON.stringify({ code: "INVALID_CONFIRMATION" }));
       return;
@@ -468,12 +489,10 @@ const server = createServer(async (request, response) => {
     return;
   }
   if (request.method === "POST" && request.url === "/api/v1/outbound-orders") {
+    if (!requireOperationalContext(request, response, "outbound.create"))
+      return;
     const body = await readBody(request);
-    if (
-      request.headers["x-operator-id"] !== "e2e-operator" ||
-      body.sku !== "SKU-E2E" ||
-      body.quantity !== 2
-    ) {
+    if (body.sku !== "SKU-E2E" || body.quantity !== 2) {
       response.statusCode = 400;
       response.end(JSON.stringify({ code: "INVALID_OUTBOUND" }));
       return;
@@ -507,11 +526,10 @@ const server = createServer(async (request, response) => {
     request.url ===
       "/api/v1/outbound-transport-tasks/c0000000-0000-4000-8000-000000000099/execute"
   ) {
+    if (!requireOperationalContext(request, response, "transport.execute"))
+      return;
     const body = await readBody(request);
-    if (
-      request.headers["x-operator-id"] !== "e2e-operator" ||
-      body.confirmedAction !== "execute_outbound_task"
-    ) {
+    if (body.confirmedAction !== "execute_outbound_task") {
       response.statusCode = 400;
       response.end(JSON.stringify({ code: "INVALID_CONFIRMATION" }));
       return;
@@ -557,12 +575,13 @@ const server = createServer(async (request, response) => {
     request.url ===
       "/api/v1/alarms/80000000-0000-4000-8000-000000000098/acknowledge"
   ) {
+    if (!requireOperationalContext(request, response, "alarm.acknowledge"))
+      return;
     const body = await readBody(request);
     const alarm = details.alarms[0];
     if (
       !alarm ||
       alarm.status !== "active" ||
-      request.headers["x-operator-id"] !== "e2e-operator" ||
       body.confirmedAction !== "acknowledge_alarm" ||
       typeof body.confirmationReason !== "string"
     ) {
@@ -580,6 +599,7 @@ const server = createServer(async (request, response) => {
     request.url ===
       "/api/v1/alarms/80000000-0000-4000-8000-000000000098/recover"
   ) {
+    if (!requireOperationalContext(request, response, "alarm.recover")) return;
     const body = await readBody(request);
     const alarm = details.alarms[0];
     const task = details.tasks[0];
@@ -588,7 +608,6 @@ const server = createServer(async (request, response) => {
       !task ||
       alarm.status !== "acknowledged" ||
       body.strategy !== "release" ||
-      request.headers["x-operator-id"] !== "e2e-operator" ||
       body.confirmedAction !== "release_task" ||
       typeof body.confirmationReason !== "string" ||
       body.confirmationReason.trim().length === 0 ||

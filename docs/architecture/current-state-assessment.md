@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-09-29. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, and the S1A deployment-safety checkpoint.
+Assessment date: 2026-09-29. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, and S1B command isolation.
 
 ## Supported product path
 
@@ -9,13 +9,13 @@ Assessment date: 2026-09-29. Baseline: verified M8A, system-first frontend bound
 - PostgreSQL migrations, transaction boundaries, container/deployment adapters, CI, unit/API/PostgreSQL/Chromium tests, bilingual catalogs, themes, accessibility checks, backup/restore tooling, structured logging, request IDs, health endpoints, and a persisted audit store exist.
 - M8A adds a dedicated `audit.view` read projection and `/operations/audit`: keyset pagination, actor/action/resource/correlation semantics, action-specific evidence allowlists, unknown-action fail-closed behavior, workflow links, and explicit retention/reset limitations.
 - Simulation already runs through the real WMS Lite -> WCS -> EquipmentPort -> observation path. Production Hardware and mixed per-equipment sources remain architectural boundaries rather than finished product capabilities.
-- S1 read projections now carry a provider-neutral principal, effective user permissions, allowed warehouse scopes, and an explicit current warehouse through SSR/BFF/API validation. Summary and detail queries are constrained to that warehouse.
+- S1 read and supported human-command paths now carry a provider-neutral principal, effective user permissions, allowed warehouse scopes, and an explicit current warehouse through SSR/BFF/API validation. Summary, detail, and audit projections plus inbound, outbound, execution, acknowledgement, and recovery repositories constrain referenced records to that warehouse. Command audit rows persist the same principal and warehouse identity.
 - Lifecycle environment, deployment profile, and equipment source are distinct server-owned runtime values. API startup and deployment validation reject incompatible profile/source combinations; public and private demos are simulation-only.
 
 ## Product limitations
 
 - Authentication is still a single environment-backed demo identity. Service permissions are deny-by-default and read scope is explicit, but production OIDC, persistent role/grant administration, identity lifecycle, session revocation, anonymous demo principals, and demo-session scope are not implemented.
-- The shell exposes current warehouse, principal, lifecycle environment, deployment profile, equipment source, and projection freshness. Mutation and audit boundaries are not yet warehouse-scoped end to end.
+- The shell exposes current warehouse, principal, lifecycle environment, deployment profile, equipment source, and projection freshness. The simulator fault-injection endpoint remains a service-principal path; first-class service/anonymous-demo principal semantics and demo-session scope belong to S1C.
 - `/operations` and focused projections expose useful facts but do not yet form the approved actionable Home, task-centered work center, or human-readable next-action experience.
 - The current warehouse map is primarily a readable topology/observation view. It is not yet the approved Operations Live View, and topology usability remains limited.
 - No built-in single-source web/PDF operation manual or contextual-help foundation exists.
@@ -40,7 +40,7 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. Complete S1 command permission/warehouse enforcement, anonymous-demo principal and demo-session scope contracts, session/access-denied behavior, and permission-aware navigation.
+1. Complete S1 anonymous-demo/service principal and demo-session scope contracts, then session/access-denied behavior and permission-aware navigation.
 2. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
 3. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
 4. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.

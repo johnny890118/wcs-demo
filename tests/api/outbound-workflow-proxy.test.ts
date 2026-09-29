@@ -23,6 +23,10 @@ import {
   createOutboundOrder,
   executeOutboundTask,
 } from "../../src/infrastructure/http/wcs-api-client";
+import {
+  testOperationalAccess,
+  testOperationalSession,
+} from "../fixtures/operational-access";
 
 function createResponse() {
   const response = {
@@ -69,9 +73,7 @@ describe("outbound workflow browser boundary", () => {
   });
 
   it("forwards a validated allocation with the session operator identity", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "outbound-operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(createOutboundOrder).mockResolvedValue({
       outboundOrderId: "a0000000-0000-4000-8000-000000000099",
       allocationIds: ["b0000000-0000-4000-8000-000000000099"],
@@ -87,14 +89,12 @@ describe("outbound workflow browser boundary", () => {
     expect(response.statusCode).toBe(201);
     expect(createOutboundOrder).toHaveBeenCalledWith(
       createBody,
-      "outbound-operator",
+      testOperationalAccess,
     );
   });
 
   it("forwards only an exact confirmed execution", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "outbound-operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     const body = {
       equipmentId: "AMR-01",
       confirmedAction: "execute_outbound_task" as const,
@@ -115,7 +115,7 @@ describe("outbound workflow browser boundary", () => {
     expect(executeOutboundTask).toHaveBeenCalledWith(
       taskId,
       body,
-      "outbound-operator",
+      testOperationalAccess,
     );
   });
 });

@@ -9,6 +9,11 @@ import {
   INBOUND_REPOSITORY,
   type InboundRepository,
 } from "../../apps/api/src/inbound/inbound.types";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 const validBody = {
   externalReference: "ASN-2026-0001",
@@ -77,6 +82,7 @@ describe("inbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/inbound-receipts")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(testOperationalAccess))
       .set("Idempotency-Key", "short")
       .send({ ...validBody, load: { ...validBody.load, quantity: 0 } });
 
@@ -88,8 +94,8 @@ describe("inbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/inbound-receipts")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(testOperationalAccess))
       .set("Idempotency-Key", "request-0001")
-      .set("X-Operator-Id", "operator@example.test")
       .send(validBody);
 
     expect(response.status).toBe(201);
@@ -102,7 +108,8 @@ describe("inbound HTTP contract", () => {
       {
         ...validBody,
         idempotencyKey: "request-0001",
-        actorId: "operator@example.test",
+        actorId: testOperationalAccess.principal.subject,
+        warehouseId: testWarehouseId,
       },
       expect.objectContaining({
         receiptId: expect.any(String),
@@ -115,14 +122,35 @@ describe("inbound HTTP contract", () => {
     );
   });
 
-  it("requires the authenticated browser operator identity", async () => {
+  it("requires the forwarded authenticated user context", async () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/inbound-receipts")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
       .set("Idempotency-Key", "request-operator-required")
       .send(validBody);
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
+    expect(response.body.code).toBe("INVALID_USER_CONTEXT");
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it("revalidates the user permission at the API boundary", async () => {
+    const withoutInboundPermission = {
+      ...testOperationalAccess,
+      principal: {
+        ...testOperationalAccess.principal,
+        permissions: ["operations.view"] as const,
+      },
+    };
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/inbound-receipts")
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(withoutInboundPermission))
+      .set("Idempotency-Key", "request-permission-required")
+      .send(validBody);
+
+    expect(response.status).toBe(403);
+    expect(response.body.code).toBe("USER_PERMISSION_FORBIDDEN");
     expect(repository.create).not.toHaveBeenCalled();
   });
 });

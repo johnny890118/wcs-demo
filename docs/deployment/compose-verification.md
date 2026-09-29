@@ -40,10 +40,10 @@ The CI deployment smoke now repeats this startup sequence, asserts eight migrati
 - Public Demo plus Simulation is accepted; Public Demo plus Hardware is rejected
   by both runtime and deployment-environment tests.
 - Fresh API and Web images built successfully. A fresh isolated Compose stack
-  applied all nine migrations, reported API readiness, and served the supported
+  applied all ten migrations, reported API readiness, and served the supported
   `/` Web entry through the updated healthcheck.
 - Demo seed/restart produced the connected deterministic simulator observation;
-  three location bindings and nine migrations were verified.
-- Custom-format backup/checksum and isolated restore passed, including the nine
+  three location bindings and ten migrations were verified.
+- Custom-format backup/checksum and isolated restore passed, including the ten
   migration records and demo marker. Containers, network, and database volume
   were removed after the exercise.

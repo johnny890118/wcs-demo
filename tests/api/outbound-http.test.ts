@@ -10,6 +10,11 @@ import {
   OUTBOUND_REPOSITORY,
   type OutboundRepository,
 } from "../../apps/api/src/outbound/outbound.types";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 const validBody = {
   externalReference: "SO-2026-0001",
@@ -69,7 +74,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
-      .set("X-Operator-Id", "outbound-operator")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .set("Idempotency-Key", "short")
       .send({ ...validBody, quantity: 0, destinationLocationId: "shipping" });
 
@@ -81,7 +86,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
-      .set("X-Operator-Id", "outbound-operator")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .set("Idempotency-Key", "outbound-request-0001")
       .send(validBody);
 
@@ -96,7 +101,8 @@ describe("outbound HTTP contract", () => {
       {
         ...validBody,
         idempotencyKey: "outbound-request-0001",
-        actorId: "outbound-operator",
+        actorId: testOperationalAccess.principal.subject,
+        warehouseId: testWarehouseId,
       },
       expect.objectContaining({
         outboundOrderId: expect.any(String),
@@ -115,7 +121,7 @@ describe("outbound HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/outbound-orders")
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
-      .set("X-Operator-Id", "outbound-operator")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .set("Idempotency-Key", "outbound-request-0001")
       .send(validBody);
 

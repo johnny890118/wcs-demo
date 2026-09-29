@@ -11,7 +11,14 @@ async function signIn(page: Page, destination: string) {
 }
 
 const scenarioApi = "http://127.0.0.1:3101";
-const serviceHeaders = { Authorization: "Bearer e2e-service-token" };
+const serviceHeaders = {
+  Authorization: "Bearer e2e-service-token",
+  "X-SWP-Principal": "legacy-demo-admin",
+  "X-SWP-User-Permissions":
+    "operations.view,audit.view,inbound.create,outbound.create,transport.execute,alarm.acknowledge,alarm.recover",
+  "X-SWP-Warehouse-Scopes": "10000000-0000-4000-8000-000000000001",
+  "X-SWP-Warehouse": "10000000-0000-4000-8000-000000000001",
+};
 
 async function loadScenario(page: Page, name: string) {
   const response = await page.request.post(

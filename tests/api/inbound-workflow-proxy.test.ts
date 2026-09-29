@@ -23,6 +23,10 @@ import {
   createInboundReceipt,
   executeInboundTask,
 } from "../../src/infrastructure/http/wcs-api-client";
+import {
+  testOperationalAccess,
+  testOperationalSession,
+} from "../fixtures/operational-access";
 
 function createResponse() {
   const response = {
@@ -70,9 +74,7 @@ describe("inbound workflow browser boundary", () => {
   });
 
   it("forwards a validated receipt with the session operator identity", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator@example.test" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(createInboundReceipt).mockResolvedValue({
       receiptId: "30000000-0000-4000-8000-000000000001",
       loadId: "40000000-0000-4000-8000-000000000001",
@@ -89,14 +91,12 @@ describe("inbound workflow browser boundary", () => {
     expect(response.statusCode).toBe(201);
     expect(createInboundReceipt).toHaveBeenCalledWith(
       createBody,
-      "operator@example.test",
+      testOperationalAccess,
     );
   });
 
   it("forwards only an exact confirmed execution", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "operator@example.test" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     const body = {
       equipmentId: "AMR-01",
       confirmedAction: "execute_inbound_task" as const,
@@ -118,7 +118,28 @@ describe("inbound workflow browser boundary", () => {
     expect(executeInboundTask).toHaveBeenCalledWith(
       taskId,
       body,
-      "operator@example.test",
+      testOperationalAccess,
     );
+  });
+
+  it("denies a principal without the requested command permission", async () => {
+    vi.mocked(getServerSession).mockResolvedValue({
+      ...testOperationalSession,
+      access: {
+        ...testOperationalAccess,
+        principal: {
+          ...testOperationalAccess.principal,
+          permissions: ["operations.view"],
+        },
+      },
+    });
+    const response = createResponse();
+    await createHandler(
+      { method: "POST", body: createBody } as never,
+      response as never,
+    );
+
+    expect(response.statusCode).toBe(403);
+    expect(createInboundReceipt).not.toHaveBeenCalled();
   });
 });

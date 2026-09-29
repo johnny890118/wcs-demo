@@ -5,6 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
 import { OutboundExecutionController } from "../../apps/api/src/execution/outbound-execution.controller";
 import { DeterministicOutboundExecutor } from "../../src/application/execution/outbound-execution";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 const taskId = "c0000000-0000-4000-8000-000000000001";
 const validBody = {
@@ -59,7 +64,7 @@ describe("outbound execution HTTP contract", () => {
     const wrongAction = await request(app.getHttpServer())
       .post(`/api/v1/outbound-transport-tasks/${taskId}/execute`)
       .set("Authorization", authorization)
-      .set("X-Operator-Id", "outbound-operator")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .send({ ...validBody, confirmedAction: "execute" });
     const missingOperator = await request(app.getHttpServer())
       .post(`/api/v1/outbound-transport-tasks/${taskId}/execute`)
@@ -67,7 +72,7 @@ describe("outbound execution HTTP contract", () => {
       .send(validBody);
 
     expect(wrongAction.status).toBe(400);
-    expect(missingOperator.status).toBe(400);
+    expect(missingOperator.status).toBe(401);
     expect(executor.execute).not.toHaveBeenCalled();
   });
 
@@ -75,14 +80,15 @@ describe("outbound execution HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post(`/api/v1/outbound-transport-tasks/${taskId}/execute`)
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
-      .set("X-Operator-Id", "outbound-operator")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .send(validBody);
 
     expect(response.status).toBe(200);
     expect(executor.execute).toHaveBeenCalledWith({
       taskId,
       equipmentId: "AMR-01",
-      actorId: "outbound-operator",
+      actorId: testOperationalAccess.principal.subject,
+      warehouseId: testWarehouseId,
       confirmationReason: validBody.confirmationReason,
     });
   });

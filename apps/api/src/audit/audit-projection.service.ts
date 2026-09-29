@@ -129,7 +129,10 @@ function redactEvidence(
 export class AuditProjectionService {
   constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
-  async list(query: AuditEventQuery): Promise<AuditEventPage> {
+  async list(
+    warehouseId: string,
+    query: AuditEventQuery,
+  ): Promise<AuditEventPage> {
     const limit = query.limit ?? DEFAULT_LIMIT;
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) {
       badQuery(`limit must be an integer from 1 to ${MAX_LIMIT}.`);
@@ -144,8 +147,8 @@ export class AuditProjectionService {
       badQuery("correlationId is invalid.");
     }
 
-    const parameters: unknown[] = [];
-    const conditions: string[] = [];
+    const parameters: unknown[] = [warehouseId];
+    const conditions: string[] = ["warehouse_id = $1"];
     if (query.cursor) {
       const cursor = decodeAuditCursor(query.cursor);
       parameters.push(new Date(cursor.occurredAt), cursor.eventId);

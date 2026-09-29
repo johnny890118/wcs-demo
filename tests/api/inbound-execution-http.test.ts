@@ -5,6 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
 import { ExecutionController } from "../../apps/api/src/execution/execution.controller";
 import { DeterministicInboundExecutor } from "../../src/application/execution/inbound-execution";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 const taskId = "50000000-0000-4000-8000-000000000001";
 const validBody = {
@@ -59,7 +64,7 @@ describe("inbound execution HTTP contract", () => {
     const wrongAction = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/execute`)
       .set("Authorization", authorization)
-      .set("X-Operator-Id", "operator@example.test")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .send({ ...validBody, confirmedAction: "execute" });
     const missingOperator = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/execute`)
@@ -67,7 +72,7 @@ describe("inbound execution HTTP contract", () => {
       .send(validBody);
 
     expect(wrongAction.status).toBe(400);
-    expect(missingOperator.status).toBe(400);
+    expect(missingOperator.status).toBe(401);
     expect(executor.execute).not.toHaveBeenCalled();
   });
 
@@ -75,14 +80,15 @@ describe("inbound execution HTTP contract", () => {
     const response = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/execute`)
       .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
-      .set("X-Operator-Id", "operator@example.test")
+      .set(operationalAccessHeaders(testOperationalAccess))
       .send(validBody);
 
     expect(response.status).toBe(200);
     expect(executor.execute).toHaveBeenCalledWith({
       taskId,
       equipmentId: "AMR-01",
-      actorId: "operator@example.test",
+      actorId: testOperationalAccess.principal.subject,
+      warehouseId: testWarehouseId,
       confirmationReason: validBody.confirmationReason,
     });
   });

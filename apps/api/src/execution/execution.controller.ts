@@ -8,9 +8,10 @@ import {
   Param,
   Post,
   Body,
-  Headers,
+  Req,
   UseGuards,
 } from "@nestjs/common";
+import type { Request } from "express";
 import {
   DeterministicInboundExecutor,
   EquipmentExecutionError,
@@ -19,8 +20,8 @@ import {
   type InboundExecutionResult,
 } from "../../../../src/application/execution/inbound-execution";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
-import { RequirePermission } from "../auth/permissions";
-import { requireOperatorId } from "../auth/operator-identity";
+import { RequirePermission, RequireUserPermission } from "../auth/permissions";
+import { requireForwardedUserAccess } from "../auth/user-access";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -28,14 +29,15 @@ const uuidPattern =
 @Controller("v1/transport-tasks")
 @UseGuards(ServiceTokenGuard)
 @RequirePermission("transport.execute")
+@RequireUserPermission("transport.execute")
 export class ExecutionController {
   constructor(private readonly executor: DeterministicInboundExecutor) {}
 
   @Post(":taskId/execute")
   @HttpCode(200)
   async execute(
+    @Req() request: Request,
     @Param("taskId") taskId: string,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<InboundExecutionResult> {
     if (!uuidPattern.test(taskId)) {
@@ -71,13 +73,14 @@ export class ExecutionController {
         "confirmationReason must contain 8 to 500 characters.",
       );
     }
-    const actorId = requireOperatorId(operatorId);
+    const access = requireForwardedUserAccess(request, "transport.execute");
 
     try {
       return await this.executor.execute({
         taskId,
         equipmentId: equipmentId.trim(),
-        actorId,
+        actorId: access.principal,
+        warehouseId: access.currentWarehouseId,
         confirmationReason: confirmationReason.trim(),
       });
     } catch (error) {

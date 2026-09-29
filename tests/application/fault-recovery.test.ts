@@ -11,6 +11,7 @@ import { SimulatorEquipmentAdapter } from "../../src/infrastructure/simulator/si
 
 const taskId = "50000000-0000-4000-8000-000000000001";
 const alarmId = "80000000-0000-4000-8000-000000000002";
+const warehouseId = "10000000-0000-4000-8000-000000000001";
 
 function identifiers(): () => string {
   const values = [
@@ -29,6 +30,7 @@ function identifiers(): () => string {
 async function fixture(options?: { failBlock?: boolean }) {
   let task: RecoverableTask = {
     taskId,
+    warehouseId,
     equipmentId: "AMR-01",
     status: "in_progress",
     blockingAlarmId: null,
@@ -47,6 +49,7 @@ async function fixture(options?: { failBlock?: boolean }) {
       };
       const created: PersistedAlarm = {
         ...input.alarm,
+        warehouseId,
         taskId,
         equipmentId: "AMR-01",
         sourceId: "AMR-01",
@@ -136,6 +139,7 @@ describe("fault recovery orchestration", () => {
     await service.acknowledge({
       alarmId,
       actorId: "operator-02",
+      warehouseId,
       confirmationReason: "Alarm evidence reviewed by operator.",
     });
     const recovered = await service.recover({
@@ -143,6 +147,7 @@ describe("fault recovery orchestration", () => {
       strategy: "resume",
       resolution: "Obstacle removed and route inspected.",
       actorId: "supervisor-01",
+      warehouseId,
       confirmationReason: "Route inspection completed before resume.",
     });
 
@@ -172,6 +177,7 @@ describe("fault recovery orchestration", () => {
     await service.acknowledge({
       alarmId,
       actorId: "operator-01",
+      warehouseId,
       confirmationReason: "Alarm evidence reviewed by operator.",
     });
     const recovered = await service.recover({
@@ -179,6 +185,7 @@ describe("fault recovery orchestration", () => {
       strategy: "release",
       resolution: "Vehicle released for charging; task returned to queue.",
       actorId: "supervisor-01",
+      warehouseId,
       confirmationReason: "Release approved for charging.",
     });
 

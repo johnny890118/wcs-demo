@@ -16,6 +16,7 @@ import { auditCorrelationId } from "../logging/request-context";
 
 type TaskRow = {
   task_id: string;
+  warehouse_id?: string;
   equipment_id: string | null;
   status: RecoverableTask["status"];
   blocking_alarm_id: string | null;
@@ -24,6 +25,7 @@ type TaskRow = {
 
 type AlarmRow = {
   alarm_id: string;
+  warehouse_id?: string;
   transport_task_id: string;
   equipment_id: string;
   source_id: string;
@@ -41,9 +43,12 @@ type AlarmRow = {
   version: number;
 };
 
-function toTask(row: TaskRow): RecoverableTask {
+function toTask(row: TaskRow, warehouseId = row.warehouse_id): RecoverableTask {
+  if (!warehouseId)
+    throw new Error("Fault-recovery task lacks warehouse scope.");
   return {
     taskId: row.task_id,
+    warehouseId,
     equipmentId: row.equipment_id,
     status: row.status,
     blockingAlarmId: row.blocking_alarm_id,
@@ -51,9 +56,14 @@ function toTask(row: TaskRow): RecoverableTask {
   };
 }
 
-function toAlarm(row: AlarmRow): PersistedAlarm {
+function toAlarm(
+  row: AlarmRow,
+  warehouseId = row.warehouse_id,
+): PersistedAlarm {
+  if (!warehouseId) throw new Error("Alarm lacks warehouse scope.");
   return {
     alarmId: row.alarm_id,
+    warehouseId,
     taskId: row.transport_task_id,
     equipmentId: row.equipment_id,
     sourceId: row.source_id,
@@ -76,12 +86,22 @@ function toAlarm(row: AlarmRow): PersistedAlarm {
 export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
   constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
-  async getTask(taskId: string): Promise<RecoverableTask | null> {
+  async getTask(
+    taskId: string,
+    warehouseId?: string,
+  ): Promise<RecoverableTask | null> {
     const result = await this.pool.query<TaskRow>(
-      `SELECT id AS task_id, equipment_id, status, blocking_alarm_id, version
-       FROM transport_tasks
-       WHERE id = $1 AND status IN ('assigned', 'in_progress', 'blocked', 'unknown')`,
-      [taskId],
+      `SELECT task.id AS task_id, source.warehouse_id, task.equipment_id,
+        task.status, task.blocking_alarm_id, task.version
+       FROM transport_tasks task
+       JOIN locations source ON source.id = task.source_location_id
+       JOIN locations destination ON destination.id = task.destination_location_id
+       WHERE task.id = $1
+         AND ($2::uuid IS NULL OR (
+           source.warehouse_id = $2 AND destination.warehouse_id = $2
+         ))
+         AND task.status IN ('assigned', 'in_progress', 'blocked', 'unknown')`,
+      [taskId, warehouseId ?? null],
     );
     return result.rows[0] ? toTask(result.rows[0]) : null;
   }
@@ -107,6 +127,12 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         `UPDATE transport_tasks
          SET status = 'blocked', blocking_alarm_id = $4, version = version + 1, updated_at = now()
          WHERE id = $1 AND version = $2 AND status = $3 AND equipment_id = $5
+           AND EXISTS (
+             SELECT 1 FROM locations source, locations destination
+             WHERE source.id = transport_tasks.source_location_id
+               AND destination.id = transport_tasks.destination_location_id
+               AND source.warehouse_id = $6 AND destination.warehouse_id = $6
+           )
          RETURNING id AS task_id, equipment_id, status, blocking_alarm_id, version`,
         [
           input.task.taskId,
@@ -114,12 +140,14 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           input.task.status,
           input.alarm.alarmId,
           input.task.equipmentId,
+          input.task.warehouseId,
         ],
       );
       if (!task.rows[0]) throw this.conflict(input.task.taskId);
       await this.record(
         client,
         input.metadata,
+        input.task.warehouseId,
         input.actorId,
         "transport_task.block_for_fault",
         "TransportTaskBlockedByFault",
@@ -132,14 +160,25 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           confirmationReason: input.confirmationReason,
         },
       );
-      return toAlarm(alarm.rows[0]!);
+      return toAlarm(alarm.rows[0]!, input.task.warehouseId);
     });
   }
 
-  async getAlarm(alarmId: string): Promise<PersistedAlarm | null> {
+  async getAlarm(
+    alarmId: string,
+    warehouseId?: string,
+  ): Promise<PersistedAlarm | null> {
     const result = await this.pool.query<AlarmRow>(
-      `SELECT ${this.alarmColumns()} FROM alarms WHERE id = $1`,
-      [alarmId],
+      `SELECT ${this.alarmColumns("alarm")}, source.warehouse_id
+       FROM alarms alarm
+       JOIN transport_tasks task ON task.id = alarm.transport_task_id
+       JOIN locations source ON source.id = task.source_location_id
+       JOIN locations destination ON destination.id = task.destination_location_id
+       WHERE alarm.id = $1
+         AND ($2::uuid IS NULL OR (
+           source.warehouse_id = $2 AND destination.warehouse_id = $2
+         ))`,
+      [alarmId, warehouseId ?? null],
     );
     return result.rows[0] ? toAlarm(result.rows[0]) : null;
   }
@@ -153,12 +192,20 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
          SET status = 'acknowledged', acknowledged_at = $3, acknowledged_by = $4,
            version = version + 1, updated_at = now()
          WHERE id = $1 AND version = $2 AND status = 'active'
+           AND EXISTS (
+             SELECT 1 FROM transport_tasks task
+             JOIN locations source ON source.id = task.source_location_id
+             JOIN locations destination ON destination.id = task.destination_location_id
+             WHERE task.id = alarms.transport_task_id
+               AND source.warehouse_id = $5 AND destination.warehouse_id = $5
+           )
          RETURNING ${this.alarmColumns()}`,
         [
           input.alarmId,
           input.expectedVersion,
           new Date(input.at),
           input.actorId,
+          input.warehouseId,
         ],
       );
       const alarm = result.rows[0];
@@ -166,6 +213,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
       await this.record(
         client,
         input.metadata,
+        input.warehouseId,
         input.actorId,
         "alarm.acknowledge",
         "AlarmAcknowledged",
@@ -177,7 +225,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         },
         "Alarm",
       );
-      return toAlarm(alarm);
+      return toAlarm(alarm, input.warehouseId);
     });
   }
 
@@ -193,6 +241,12 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
            equipment_id = CASE WHEN $5 = 'release' THEN NULL ELSE equipment_id END,
            blocking_alarm_id = NULL, version = version + 1, updated_at = now()
          WHERE id = $1 AND version = $2 AND status = 'blocked' AND blocking_alarm_id = $3
+           AND EXISTS (
+             SELECT 1 FROM locations source, locations destination
+             WHERE source.id = transport_tasks.source_location_id
+               AND destination.id = transport_tasks.destination_location_id
+               AND source.warehouse_id = $6 AND destination.warehouse_id = $6
+           )
          RETURNING id AS task_id, equipment_id, status, blocking_alarm_id, version`,
         [
           input.alarm.taskId,
@@ -200,6 +254,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           input.alarm.alarmId,
           destinationStatus,
           input.strategy,
+          input.alarm.warehouseId,
         ],
       );
       if (!task.rows[0]) throw this.conflict(input.alarm.taskId);
@@ -208,13 +263,21 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         `UPDATE alarms
          SET status = 'cleared', cleared_at = $3, cleared_by = $4, resolution = $5,
            version = version + 1, updated_at = now()
-         WHERE id = $1 AND version = $2 AND status = 'acknowledged'`,
+         WHERE id = $1 AND version = $2 AND status = 'acknowledged'
+           AND EXISTS (
+             SELECT 1 FROM transport_tasks task
+             JOIN locations source ON source.id = task.source_location_id
+             JOIN locations destination ON destination.id = task.destination_location_id
+             WHERE task.id = alarms.transport_task_id
+               AND source.warehouse_id = $6 AND destination.warehouse_id = $6
+           )`,
         [
           input.alarm.alarmId,
           input.alarm.version,
           new Date(input.at),
           input.actorId,
           input.resolution,
+          input.alarm.warehouseId,
         ],
       );
       if (alarm.rowCount !== 1) throw this.conflict(input.alarm.alarmId);
@@ -222,6 +285,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
       await this.record(
         client,
         input.metadata,
+        input.alarm.warehouseId,
         input.actorId,
         `transport_task.recover_${input.strategy}`,
         input.strategy === "resume"
@@ -236,7 +300,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
           confirmationReason: input.confirmationReason,
         },
       );
-      return toTask(task.rows[0]);
+      return toTask(task.rows[0], input.alarm.warehouseId);
     });
   }
 
@@ -247,13 +311,20 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
       const task = await client.query<TaskRow>(
         `UPDATE transport_tasks SET status = 'unknown', version = version + 1, updated_at = now()
          WHERE id = $1 AND version = $2 AND status IN ('assigned', 'in_progress', 'blocked')
+           AND EXISTS (
+             SELECT 1 FROM locations source, locations destination
+             WHERE source.id = transport_tasks.source_location_id
+               AND destination.id = transport_tasks.destination_location_id
+               AND source.warehouse_id = $3 AND destination.warehouse_id = $3
+           )
          RETURNING id AS task_id, equipment_id, status, blocking_alarm_id, version`,
-        [input.taskId, input.expectedVersion],
+        [input.taskId, input.expectedVersion, input.warehouseId],
       );
       if (!task.rows[0]) throw this.conflict(input.taskId);
       await this.record(
         client,
         input.metadata,
+        input.warehouseId,
         input.actorId,
         "transport_task.mark_unknown",
         "TransportTaskOutcomeUnknown",
@@ -270,15 +341,19 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
       VALUES ($1, $2, $3, $3, $4, $5, $6, 'active', $7, $8)`;
   }
 
-  private alarmColumns(): string {
-    return `id AS alarm_id, transport_task_id, equipment_id, source_id, code, severity,
-      message, status, previous_task_status, raised_at, acknowledged_at,
-      acknowledged_by, cleared_at, cleared_by, resolution, version`;
+  private alarmColumns(alias?: string): string {
+    const prefix = alias ? `${alias}.` : "";
+    return `${prefix}id AS alarm_id, ${prefix}transport_task_id, ${prefix}equipment_id,
+      ${prefix}source_id, ${prefix}code, ${prefix}severity, ${prefix}message,
+      ${prefix}status, ${prefix}previous_task_status, ${prefix}raised_at,
+      ${prefix}acknowledged_at, ${prefix}acknowledged_by, ${prefix}cleared_at,
+      ${prefix}cleared_by, ${prefix}resolution, ${prefix}version`;
   }
 
   private async record(
     client: PoolClient,
     metadata: RecoveryMetadata,
+    warehouseId: string,
     actorId: string,
     action: string,
     eventType: string,
@@ -299,10 +374,11 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
     );
     await client.query(
       `INSERT INTO audit_events
-       (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-       VALUES ($1, 'user', $2, $3, $4, $5, $6::jsonb, $7)`,
+       (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+       VALUES ($1, $2, 'user', $3, $4, $5, $6, $7::jsonb, $8)`,
       [
         metadata.auditEventId,
+        warehouseId,
         actorId,
         action,
         aggregateType,

@@ -155,7 +155,7 @@ Status: Active
 - [x] Derive allowed demo warehouse scopes and require an explicit current warehouse context; persistent production assignments remain planned
 - [x] Separate lifecycle environment, deployment profile, and equipment source; reject incompatible profile/source combinations at deployment validation and API startup
 - [x] Restore API/Web OCI build parity and remove `/platform` from Compose health semantics
-- [ ] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
+- [x] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
 - [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
 - [ ] Define anonymous-demo principal and demo-session scope contracts without prematurely implementing the S3 data lifecycle
 - [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
@@ -219,4 +219,4 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Execute the command-boundary slice in the [S1 access-context plan](s1-access-context-plan.md): apply effective user permission and explicit warehouse scope to every operational mutation and its audit evidence.
+Execute Slice C in the [S1 access-context plan](s1-access-context-plan.md): define accountable human, anonymous-demo, and service principal semantics plus the minimum server-issued demo-session scope contract, without pulling the S3 lifecycle forward.

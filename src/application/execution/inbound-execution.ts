@@ -28,9 +28,17 @@ export type CompletionMetadata = TransitionMetadata &
   Readonly<{ inventoryUnitId: string }>;
 
 export interface InboundExecutionRepository {
-  getTask(taskId: string): Promise<PersistedInboundTask | null>;
+  getTask(
+    taskId: string,
+    warehouseId: string,
+  ): Promise<PersistedInboundTask | null>;
+  isEquipmentAvailableInWarehouse(
+    equipmentId: string,
+    warehouseId: string,
+  ): Promise<boolean>;
   markAssigned(
     taskId: string,
+    warehouseId: string,
     equipmentId: string,
     expectedVersion: number,
     actorId: string,
@@ -38,18 +46,21 @@ export interface InboundExecutionRepository {
   ): Promise<PersistedInboundTask>;
   markInProgress(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     metadata: TransitionMetadata,
   ): Promise<PersistedInboundTask>;
   complete(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     metadata: CompletionMetadata,
   ): Promise<void>;
   markUnknown(
     taskId: string,
+    warehouseId: string,
     expectedVersion: number,
     actorId: string,
     reason: string,
@@ -65,6 +76,7 @@ export type ExecuteInboundTask = Readonly<{
   taskId: string;
   equipmentId: string;
   actorId: string;
+  warehouseId: string;
   confirmationReason: string;
 }>;
 
@@ -106,7 +118,10 @@ export class DeterministicInboundExecutor {
   ) {}
 
   async execute(command: ExecuteInboundTask): Promise<InboundExecutionResult> {
-    let task = await this.repository.getTask(command.taskId);
+    let task = await this.repository.getTask(
+      command.taskId,
+      command.warehouseId,
+    );
     if (!task) throw new ExecutionTaskNotFoundError(command.taskId);
     if (task.status !== "queued") {
       throw new ExecutionConflictError(
@@ -114,13 +129,18 @@ export class DeterministicInboundExecutor {
       );
     }
 
-    const [equipmentState, equipmentDescriptor] = await Promise.all([
-      this.equipment.getState(command.equipmentId),
-      this.equipment.getDescriptor(command.equipmentId),
-    ]);
-    if (!equipmentState || !equipmentDescriptor) {
+    const [equipmentInWarehouse, equipmentState, equipmentDescriptor] =
+      await Promise.all([
+        this.repository.isEquipmentAvailableInWarehouse(
+          command.equipmentId,
+          command.warehouseId,
+        ),
+        this.equipment.getState(command.equipmentId),
+        this.equipment.getDescriptor(command.equipmentId),
+      ]);
+    if (!equipmentInWarehouse || !equipmentState || !equipmentDescriptor) {
       throw new EquipmentExecutionError(
-        `Equipment ${command.equipmentId} is not registered.`,
+        `Equipment ${command.equipmentId} is not available in the current warehouse.`,
       );
     }
     if (
@@ -145,6 +165,7 @@ export class DeterministicInboundExecutor {
       executionStarted = true;
       task = await this.repository.markAssigned(
         task.taskId,
+        command.warehouseId,
         command.equipmentId,
         task.version,
         command.actorId,
@@ -155,6 +176,7 @@ export class DeterministicInboundExecutor {
       await this.dispatch(command.equipmentId, { type: "start_pickup" });
       task = await this.repository.markInProgress(
         task.taskId,
+        command.warehouseId,
         task.version,
         command.actorId,
         this.transitionMetadata(command.confirmationReason),
@@ -180,6 +202,7 @@ export class DeterministicInboundExecutor {
 
       await this.repository.complete(
         task.taskId,
+        command.warehouseId,
         task.version,
         command.actorId,
         {
@@ -238,6 +261,7 @@ export class DeterministicInboundExecutor {
       }),
       this.repository.markUnknown(
         task.taskId,
+        command.warehouseId,
         task.version,
         command.actorId,
         reason,

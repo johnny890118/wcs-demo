@@ -23,6 +23,10 @@ import {
   acknowledgeAlarm,
   recoverAlarm,
 } from "../../src/infrastructure/http/wcs-api-client";
+import {
+  testOperationalAccess,
+  testOperationalSession,
+} from "../fixtures/operational-access";
 
 function createResponse() {
   const response = {
@@ -70,9 +74,7 @@ describe("alarm workflow browser boundary", () => {
   });
 
   it("forwards an exact acknowledgement with the session identity", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "alarm-operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     const body = {
       confirmedAction: "acknowledge_alarm" as const,
       confirmationReason: "Alarm evidence reviewed.",
@@ -90,14 +92,12 @@ describe("alarm workflow browser boundary", () => {
     expect(acknowledgeAlarm).toHaveBeenCalledWith(
       alarmId,
       body,
-      "alarm-operator",
+      testOperationalAccess,
     );
   });
 
   it("forwards only a matching confirmed recovery strategy", async () => {
-    vi.mocked(getServerSession).mockResolvedValue({
-      user: { name: "alarm-operator" },
-    });
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     const body = {
       strategy: "release" as const,
       resolution: "Vehicle isolated and task returned to queue.",
@@ -117,6 +117,10 @@ describe("alarm workflow browser boundary", () => {
       response as never,
     );
     expect(response.statusCode).toBe(200);
-    expect(recoverAlarm).toHaveBeenCalledWith(alarmId, body, "alarm-operator");
+    expect(recoverAlarm).toHaveBeenCalledWith(
+      alarmId,
+      body,
+      testOperationalAccess,
+    );
   });
 });

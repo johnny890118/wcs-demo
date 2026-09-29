@@ -85,7 +85,7 @@ export class WcsCommandError extends Error {
 async function postWcsCommand(
   path: string,
   body: unknown,
-  operatorId: string,
+  access: OperationalAccess,
   headers: Record<string, string> = {},
 ): Promise<unknown> {
   const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
@@ -96,7 +96,7 @@ async function postWcsCommand(
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      "X-Operator-Id": operatorId,
+      ...operationalAccessHeaders(access),
       ...headers,
     },
     body: JSON.stringify(body),
@@ -167,13 +167,13 @@ export async function fetchAuditEvents(
 
 export async function createInboundReceipt(
   request: CreateInboundWorkflowRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<InboundReceiptCreated> {
   const { idempotencyKey, ...body } = request;
   const payload = await postWcsCommand(
     "/api/v1/inbound-receipts",
     body,
-    operatorId,
+    access,
     { "Idempotency-Key": idempotencyKey },
   );
   if (!isInboundReceiptCreated(payload)) {
@@ -185,12 +185,12 @@ export async function createInboundReceipt(
 export async function executeInboundTask(
   taskId: string,
   request: ExecuteInboundWorkflowRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<InboundExecutionCompleted> {
   const payload = await postWcsCommand(
     `/api/v1/transport-tasks/${encodeURIComponent(taskId)}/execute`,
     request,
-    operatorId,
+    access,
   );
   if (!isInboundExecutionCompleted(payload)) {
     throw new Error("WCS API returned an invalid inbound execution result.");
@@ -200,13 +200,13 @@ export async function executeInboundTask(
 
 export async function createOutboundOrder(
   request: CreateOutboundWorkflowRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<OutboundOrderAllocated> {
   const { idempotencyKey, ...body } = request;
   const payload = await postWcsCommand(
     "/api/v1/outbound-orders",
     body,
-    operatorId,
+    access,
     { "Idempotency-Key": idempotencyKey },
   );
   if (!isOutboundOrderAllocated(payload)) {
@@ -218,12 +218,12 @@ export async function createOutboundOrder(
 export async function executeOutboundTask(
   taskId: string,
   request: ExecuteOutboundWorkflowRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<OutboundExecutionCompleted> {
   const payload = await postWcsCommand(
     `/api/v1/outbound-transport-tasks/${encodeURIComponent(taskId)}/execute`,
     request,
-    operatorId,
+    access,
   );
   if (!isOutboundExecutionCompleted(payload)) {
     throw new Error("WCS API returned an invalid outbound execution result.");
@@ -234,12 +234,12 @@ export async function executeOutboundTask(
 export async function acknowledgeAlarm(
   alarmId: string,
   request: AcknowledgeAlarmRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<AlarmAcknowledged> {
   const payload = await postWcsCommand(
     `/api/v1/alarms/${encodeURIComponent(alarmId)}/acknowledge`,
     request,
-    operatorId,
+    access,
   );
   if (!isAlarmAcknowledged(payload)) {
     throw new Error("WCS API returned an invalid alarm acknowledgement.");
@@ -250,12 +250,12 @@ export async function acknowledgeAlarm(
 export async function recoverAlarm(
   alarmId: string,
   request: RecoverAlarmRequest,
-  operatorId: string,
+  access: OperationalAccess,
 ): Promise<AlarmRecovered> {
   const payload = await postWcsCommand(
     `/api/v1/alarms/${encodeURIComponent(alarmId)}/recover`,
     request,
-    operatorId,
+    access,
   );
   if (!isAlarmRecovered(payload)) {
     throw new Error("WCS API returned an invalid alarm recovery result.");

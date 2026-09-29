@@ -9,8 +9,10 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   UseGuards,
 } from "@nestjs/common";
+import type { Request } from "express";
 import {
   FaultRecoveryConflictError,
   FaultRecoveryEquipmentError,
@@ -24,8 +26,9 @@ import {
   type AlarmSeverity,
 } from "../../../../src/domain/alarm/alarm";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
-import { RequirePermission } from "../auth/permissions";
+import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import { requireOperatorId } from "../auth/operator-identity";
+import { requireForwardedUserAccess } from "../auth/user-access";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -70,9 +73,10 @@ export class FaultRecoveryController {
   @Post("alarms/:alarmId/acknowledge")
   @HttpCode(200)
   @RequirePermission("alarm.acknowledge")
+  @RequireUserPermission("alarm.acknowledge")
   acknowledge(
+    @Req() request: Request,
     @Param("alarmId") alarmId: string,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<PersistedAlarm> {
     this.requireUuid(alarmId, "alarmId");
@@ -81,10 +85,12 @@ export class FaultRecoveryController {
       value,
       "acknowledge_alarm",
     );
+    const access = requireForwardedUserAccess(request, "alarm.acknowledge");
     return this.handle(() =>
       this.recovery.acknowledge({
         alarmId,
-        actorId: requireOperatorId(operatorId),
+        actorId: access.principal,
+        warehouseId: access.currentWarehouseId,
         confirmationReason,
       }),
     );
@@ -93,9 +99,10 @@ export class FaultRecoveryController {
   @Post("alarms/:alarmId/recover")
   @HttpCode(200)
   @RequirePermission("alarm.recover")
+  @RequireUserPermission("alarm.recover")
   recover(
+    @Req() request: Request,
     @Param("alarmId") alarmId: string,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<RecoverableTask> {
     this.requireUuid(alarmId, "alarmId");
@@ -108,12 +115,14 @@ export class FaultRecoveryController {
       value,
       `${value.strategy}_task`,
     );
+    const access = requireForwardedUserAccess(request, "alarm.recover");
     return this.handle(() =>
       this.recovery.recover({
         alarmId,
         strategy: value.strategy as "resume" | "release",
         resolution,
-        actorId: requireOperatorId(operatorId),
+        actorId: access.principal,
+        warehouseId: access.currentWarehouseId,
         confirmationReason,
       }),
     );

@@ -34,12 +34,13 @@ export class PgInboundRepository implements InboundRepository {
       await client.query("BEGIN");
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO inbound_receipts
-          (id, external_reference, idempotency_key, request_hash, status)
-         VALUES ($1, $2, $3, $4, 'requested')
-         ON CONFLICT (idempotency_key) DO NOTHING
+          (id, warehouse_id, external_reference, idempotency_key, request_hash, status)
+         VALUES ($1, $2, $3, $4, $5, 'requested')
+         ON CONFLICT (warehouse_id, idempotency_key) DO NOTHING
          RETURNING id`,
         [
           identifiers.receiptId,
+          command.warehouseId,
           command.externalReference,
           command.idempotencyKey,
           requestHash,
@@ -49,6 +50,7 @@ export class PgInboundRepository implements InboundRepository {
       if (inserted.rowCount === 0) {
         const existing = await this.findExisting(
           client,
+          command.warehouseId,
           command.idempotencyKey,
         );
         await client.query("COMMIT");
@@ -106,10 +108,11 @@ export class PgInboundRepository implements InboundRepository {
       );
       await client.query(
         `INSERT INTO audit_events
-          (id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-         VALUES ($1, 'user', $2, 'inbound_receipt.create', 'InboundReceipt', $3, $4::jsonb, $5)`,
+          (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
+         VALUES ($1, $2, 'user', $3, 'inbound_receipt.create', 'InboundReceipt', $4, $5::jsonb, $6)`,
         [
           identifiers.auditEventId,
+          command.warehouseId,
           command.actorId,
           identifiers.receiptId,
           JSON.stringify({
@@ -145,6 +148,7 @@ export class PgInboundRepository implements InboundRepository {
 
   private async findExisting(
     client: PoolClient,
+    warehouseId: string,
     idempotencyKey: string,
   ): Promise<ExistingReceiptRow> {
     const result = await client.query<ExistingReceiptRow>(
@@ -152,8 +156,8 @@ export class PgInboundRepository implements InboundRepository {
        FROM inbound_receipts r
        JOIN loads l ON l.receipt_id = r.id
        JOIN transport_tasks t ON t.receipt_id = r.id
-       WHERE r.idempotency_key = $1`,
-      [idempotencyKey],
+       WHERE r.warehouse_id = $1 AND r.idempotency_key = $2`,
+      [warehouseId, idempotencyKey],
     );
     const row = result.rows[0];
     if (!row)
@@ -172,8 +176,13 @@ export class PgInboundRepository implements InboundRepository {
       capabilities: string[];
       status: string;
     }>(
-      `SELECT id, capabilities, status FROM locations WHERE id = ANY($1::uuid[])`,
-      [[command.sourceLocationId, command.destinationLocationId]],
+      `SELECT id, capabilities, status
+       FROM locations
+       WHERE id = ANY($1::uuid[]) AND warehouse_id = $2`,
+      [
+        [command.sourceLocationId, command.destinationLocationId],
+        command.warehouseId,
+      ],
     );
     const source = result.rows.find(
       (row) => row.id === command.sourceLocationId,

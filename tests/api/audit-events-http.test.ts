@@ -5,6 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuditProjectionService } from "../../apps/api/src/audit/audit-projection.service";
 import { AuditController } from "../../apps/api/src/audit/audit.controller";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 describe("audit events HTTP contract", () => {
   let app: INestApplication;
@@ -40,7 +45,8 @@ describe("audit events HTTP contract", () => {
     process.env.API_SERVICE_PERMISSIONS = "operations.view";
     const forbidden = await request(app.getHttpServer())
       .get("/api/v1/audit-events")
-      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`);
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(testOperationalAccess));
 
     expect(unauthenticated.status).toBe(401);
     expect(forbidden.status).toBe(403);
@@ -57,11 +63,12 @@ describe("audit events HTTP contract", () => {
         resourceId: "50000000-0000-4000-8000-000000000001",
         correlationId: "request:workflow-001",
       })
-      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`);
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(testOperationalAccess));
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ events: [], nextCursor: null });
-    expect(audit.list).toHaveBeenCalledWith({
+    expect(audit.list).toHaveBeenCalledWith(testWarehouseId, {
       cursor: "opaque-cursor",
       limit: 25,
       resourceType: "TransportTask",

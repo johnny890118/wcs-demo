@@ -5,6 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
 import { FaultRecoveryController } from "../../apps/api/src/execution/fault-recovery.controller";
 import { FaultRecoveryService } from "../../src/application/recovery/fault-recovery";
+import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import {
+  testOperationalAccess,
+  testWarehouseId,
+} from "../fixtures/operational-access";
 
 const taskId = "50000000-0000-4000-8000-000000000001";
 const alarmId = "80000000-0000-4000-8000-000000000001";
@@ -76,6 +81,7 @@ describe("fault recovery HTTP contract", () => {
     const headers = {
       Authorization: `Bearer ${process.env.API_SERVICE_TOKEN}`,
       "X-Operator-Id": "test-operations-console",
+      ...operationalAccessHeaders(testOperationalAccess),
     };
     const fault = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
@@ -143,6 +149,7 @@ describe("fault recovery HTTP contract", () => {
     const headers = {
       Authorization: `Bearer ${process.env.API_SERVICE_TOKEN}`,
       "X-Operator-Id": "test-operations-console",
+      ...operationalAccessHeaders(testOperationalAccess),
     };
     const fault = await request(app.getHttpServer())
       .post(`/api/v1/transport-tasks/${taskId}/faults`)
@@ -183,14 +190,16 @@ describe("fault recovery HTTP contract", () => {
     );
     expect(recovery.acknowledge).toHaveBeenCalledWith({
       alarmId,
-      actorId: "test-operations-console",
+      actorId: testOperationalAccess.principal.subject,
+      warehouseId: testWarehouseId,
       confirmationReason: "Operator reviewed the alarm evidence.",
     });
     expect(recovery.recover).toHaveBeenCalledWith({
       alarmId,
       strategy: "release",
       resolution: "Vehicle released; task ready for reassignment.",
-      actorId: "test-operations-console",
+      actorId: testOperationalAccess.principal.subject,
+      warehouseId: testWarehouseId,
       confirmationReason: "Supervisor approved vehicle isolation.",
     });
   });

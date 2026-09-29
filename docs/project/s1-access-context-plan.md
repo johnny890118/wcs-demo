@@ -36,11 +36,11 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
 
 ## Slice B — Command boundary
 
-- [ ] Apply the same permission and warehouse-scope contract to inbound,
+- [x] Apply the same permission and warehouse-scope contract to inbound,
       outbound, transport execution, alarm acknowledgement, and recovery.
-- [ ] Constrain referenced locations, tasks, equipment, inventory, and alarms to
+- [x] Constrain referenced locations, tasks, equipment, inventory, and alarms to
       the current warehouse before mutation.
-- [ ] Preserve principal and warehouse context in audit evidence.
+- [x] Preserve principal and warehouse context in audit evidence.
 
 ## Slice C — Principal and anonymous-demo access contract
 

@@ -10,6 +10,8 @@ import { ManualClock } from "../../src/infrastructure/simulator/manual-clock";
 import { SimulatorEquipmentAdapter } from "../../src/infrastructure/simulator/simulator-equipment-adapter";
 import { createMobileTransportDescriptor } from "../../src/domain/equipment/equipment-descriptor";
 
+const warehouseId = "10000000-0000-4000-8000-000000000001";
+
 class MemoryExecutionRepository implements InboundExecutionRepository {
   task: PersistedInboundTask = {
     taskId: "50000000-0000-4000-8000-000000000001",
@@ -31,8 +33,13 @@ class MemoryExecutionRepository implements InboundExecutionRepository {
     return taskId === this.task.taskId ? this.task : null;
   }
 
+  async isEquipmentAvailableInWarehouse(): Promise<boolean> {
+    return true;
+  }
+
   async markAssigned(
     _taskId: string,
+    _warehouseId: string,
     equipmentId: string,
     expectedVersion: number,
     _actorId: string,
@@ -53,6 +60,7 @@ class MemoryExecutionRepository implements InboundExecutionRepository {
 
   async markInProgress(
     _taskId: string,
+    _warehouseId: string,
     expectedVersion: number,
     _actorId: string,
     _metadata: TransitionMetadata,
@@ -71,6 +79,7 @@ class MemoryExecutionRepository implements InboundExecutionRepository {
 
   async complete(
     _taskId: string,
+    _warehouseId: string,
     expectedVersion: number,
     _actorId: string,
     _metadata: CompletionMetadata,
@@ -85,6 +94,7 @@ class MemoryExecutionRepository implements InboundExecutionRepository {
 
   async markUnknown(
     _taskId: string,
+    _warehouseId: string,
     expectedVersion: number,
     _actorId: string,
     reason: string,
@@ -122,6 +132,7 @@ describe("deterministic inbound execution", () => {
       taskId: repository.task.taskId,
       equipmentId: "AMR-01",
       actorId: "test-service",
+      warehouseId,
       confirmationReason: "Verified deterministic inbound execution test.",
     });
 
@@ -156,6 +167,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test-service",
+        warehouseId,
         confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("database commit failed");
@@ -189,6 +201,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test-service",
+        warehouseId,
         confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("not idle");
@@ -219,6 +232,7 @@ describe("deterministic inbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "SCANNER-01",
         actorId: "test-service",
+        warehouseId,
         confirmationReason: "Verified deterministic inbound execution test.",
       }),
     ).rejects.toThrow("lacks capabilities");

@@ -2,15 +2,16 @@ import {
   BadGatewayException,
   BadRequestException,
   Body,
-  Headers,
   ConflictException,
   Controller,
   HttpCode,
+  Req,
   NotFoundException,
   Param,
   Post,
   UseGuards,
 } from "@nestjs/common";
+import type { Request } from "express";
 import {
   EquipmentExecutionError,
   ExecutionConflictError,
@@ -21,8 +22,8 @@ import {
   type OutboundExecutionResult,
 } from "../../../../src/application/execution/outbound-execution";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
-import { RequirePermission } from "../auth/permissions";
-import { requireOperatorId } from "../auth/operator-identity";
+import { RequirePermission, RequireUserPermission } from "../auth/permissions";
+import { requireForwardedUserAccess } from "../auth/user-access";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -30,14 +31,15 @@ const uuidPattern =
 @Controller("v1/outbound-transport-tasks")
 @UseGuards(ServiceTokenGuard)
 @RequirePermission("transport.execute")
+@RequireUserPermission("transport.execute")
 export class OutboundExecutionController {
   constructor(private readonly executor: DeterministicOutboundExecutor) {}
 
   @Post(":taskId/execute")
   @HttpCode(200)
   async execute(
+    @Req() request: Request,
     @Param("taskId") taskId: string,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<OutboundExecutionResult> {
     if (!uuidPattern.test(taskId)) {
@@ -73,13 +75,14 @@ export class OutboundExecutionController {
         "confirmationReason must contain 8 to 500 characters.",
       );
     }
-    const actorId = requireOperatorId(operatorId);
+    const access = requireForwardedUserAccess(request, "transport.execute");
 
     try {
       return await this.executor.execute({
         taskId,
         equipmentId: equipmentId.trim(),
-        actorId,
+        actorId: access.principal,
+        warehouseId: access.currentWarehouseId,
         confirmationReason: confirmationReason.trim(),
       });
     } catch (error) {

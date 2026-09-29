@@ -8,6 +8,7 @@ import {
   acknowledgeAlarm,
   WcsCommandError,
 } from "../../../../../src/infrastructure/http/wcs-api-client";
+import { authorizeOperationalSession } from "../../../../../src/infrastructure/auth/operational-session";
 import { authOptions } from "../../../auth/[...nextauth]";
 
 type ErrorResponse = Readonly<{ code: string; message: string }>;
@@ -26,12 +27,15 @@ export default async function handler(
     return;
   }
   const session = await getServerSession(request, response, authOptions);
-  const operatorId = session?.user?.name;
+  const decision = authorizeOperationalSession(session, "alarm.acknowledge");
   const alarmId = request.query.alarmId;
-  if (!operatorId) {
-    response.status(401).json({
-      code: "UNAUTHENTICATED",
-      message: "Authentication is required.",
+  if (!decision.allowed) {
+    const forbidden = decision.reason === "forbidden";
+    response.status(forbidden ? 403 : 401).json({
+      code: forbidden ? "FORBIDDEN" : "UNAUTHENTICATED",
+      message: forbidden
+        ? "Alarm acknowledgement permission is required."
+        : "A valid operational session is required.",
     });
     return;
   }
@@ -49,7 +53,9 @@ export default async function handler(
   try {
     response
       .status(200)
-      .json(await acknowledgeAlarm(alarmId, request.body, operatorId));
+      .json(
+        await acknowledgeAlarm(alarmId, request.body, decision.session.access),
+      );
   } catch (error) {
     if (error instanceof WcsCommandError) {
       response

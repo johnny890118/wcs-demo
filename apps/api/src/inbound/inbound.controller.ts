@@ -5,12 +5,14 @@ import {
   Controller,
   Headers,
   Post,
+  Req,
   UnprocessableEntityException,
   UseGuards,
 } from "@nestjs/common";
+import type { Request } from "express";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
-import { RequirePermission } from "../auth/permissions";
-import { requireOperatorId } from "../auth/operator-identity";
+import { RequirePermission, RequireUserPermission } from "../auth/permissions";
+import { requireForwardedUserAccess } from "../auth/user-access";
 import {
   IdempotencyConflictError,
   InvalidLocationError,
@@ -21,7 +23,10 @@ import type {
   InboundReceiptResult,
 } from "./inbound.types";
 
-type InboundBody = Omit<CreateInboundReceipt, "idempotencyKey" | "actorId">;
+type InboundBody = Omit<
+  CreateInboundReceipt,
+  "idempotencyKey" | "actorId" | "warehouseId"
+>;
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -89,13 +94,14 @@ function parseBody(value: unknown): InboundBody {
 @Controller("v1/inbound-receipts")
 @UseGuards(ServiceTokenGuard)
 @RequirePermission("inbound.create")
+@RequireUserPermission("inbound.create")
 export class InboundController {
   constructor(private readonly inboundService: InboundService) {}
 
   @Post()
   async create(
+    @Req() request: Request,
     @Headers("idempotency-key") idempotencyKey: string | undefined,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() rawBody: unknown,
   ): Promise<InboundReceiptResult> {
     if (!idempotencyKey || idempotencyKey.trim().length < 8) {
@@ -110,10 +116,12 @@ export class InboundController {
     }
 
     try {
+      const access = requireForwardedUserAccess(request, "inbound.create");
       return await this.inboundService.create({
         ...parseBody(rawBody),
         idempotencyKey: idempotencyKey.trim(),
-        actorId: requireOperatorId(operatorId),
+        actorId: access.principal,
+        warehouseId: access.currentWarehouseId,
       });
     } catch (error) {
       if (error instanceof IdempotencyConflictError) {

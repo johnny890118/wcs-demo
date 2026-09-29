@@ -11,6 +11,7 @@ export type RecoverableTaskStatus =
 
 export type RecoverableTask = Readonly<{
   taskId: string;
+  warehouseId: string;
   equipmentId: string | null;
   status: RecoverableTaskStatus;
   blockingAlarmId: string | null;
@@ -19,6 +20,7 @@ export type RecoverableTask = Readonly<{
 
 export type PersistedAlarm = Alarm &
   Readonly<{
+    warehouseId: string;
     taskId: string;
     equipmentId: string;
     previousTaskStatus: "assigned" | "in_progress";
@@ -30,7 +32,10 @@ export type RecoveryMetadata = Readonly<{
 }>;
 
 export interface FaultRecoveryRepository {
-  getTask(taskId: string): Promise<RecoverableTask | null>;
+  getTask(
+    taskId: string,
+    warehouseId?: string,
+  ): Promise<RecoverableTask | null>;
   blockForFault(input: {
     task: RecoverableTask & {
       status: "assigned" | "in_progress";
@@ -44,9 +49,13 @@ export interface FaultRecoveryRepository {
     confirmationReason: string;
     metadata: RecoveryMetadata;
   }): Promise<PersistedAlarm>;
-  getAlarm(alarmId: string): Promise<PersistedAlarm | null>;
+  getAlarm(
+    alarmId: string,
+    warehouseId?: string,
+  ): Promise<PersistedAlarm | null>;
   acknowledge(input: {
     alarmId: string;
+    warehouseId: string;
     expectedVersion: number;
     actorId: string;
     confirmationReason: string;
@@ -65,6 +74,7 @@ export interface FaultRecoveryRepository {
   }): Promise<RecoverableTask>;
   markUnknown(input: {
     taskId: string;
+    warehouseId: string;
     expectedVersion: number;
     actorId: string;
     reason: string;
@@ -168,9 +178,13 @@ export class FaultRecoveryService {
   async acknowledge(command: {
     alarmId: string;
     actorId: string;
+    warehouseId: string;
     confirmationReason: string;
   }): Promise<PersistedAlarm> {
-    const alarm = await this.repository.getAlarm(command.alarmId);
+    const alarm = await this.repository.getAlarm(
+      command.alarmId,
+      command.warehouseId,
+    );
     if (!alarm) {
       throw new FaultRecoveryNotFoundError(
         `Alarm ${command.alarmId} was not found.`,
@@ -183,6 +197,7 @@ export class FaultRecoveryService {
     }
     return this.repository.acknowledge({
       alarmId: alarm.alarmId,
+      warehouseId: command.warehouseId,
       expectedVersion: alarm.version,
       actorId: command.actorId,
       confirmationReason: command.confirmationReason,
@@ -196,9 +211,13 @@ export class FaultRecoveryService {
     strategy: "resume" | "release";
     resolution: string;
     actorId: string;
+    warehouseId: string;
     confirmationReason: string;
   }): Promise<RecoverableTask> {
-    const alarm = await this.repository.getAlarm(command.alarmId);
+    const alarm = await this.repository.getAlarm(
+      command.alarmId,
+      command.warehouseId,
+    );
     if (!alarm) {
       throw new FaultRecoveryNotFoundError(
         `Alarm ${command.alarmId} was not found.`,
@@ -209,7 +228,10 @@ export class FaultRecoveryService {
         `Alarm ${alarm.alarmId} must be acknowledged before recovery.`,
       );
     }
-    const task = await this.repository.getTask(alarm.taskId);
+    const task = await this.repository.getTask(
+      alarm.taskId,
+      command.warehouseId,
+    );
     if (
       !task ||
       task.status !== "blocked" ||
@@ -275,6 +297,7 @@ export class FaultRecoveryService {
       }),
       this.repository.markUnknown({
         taskId: task.taskId,
+        warehouseId: task.warehouseId,
         expectedVersion: task.version,
         actorId,
         reason,
