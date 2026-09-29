@@ -29,3 +29,21 @@ The same composition is exercised by the `deployment-smoke` CI job on every main
 - The isolated containers, network, and test-only PostgreSQL volume were removed after verification.
 
 The CI deployment smoke now repeats this startup sequence, asserts eight migration records, three bindings, and a connected simulator observation, then continues through the existing backup/restore gate.
+
+## S1A access-context delivery and profile safety — 2026-09-29
+
+- API compilation was narrowed to the API entry graph, so Web-only NextAuth
+  declaration augmentation no longer breaks the API OCI builder.
+- Lifecycle environment, deployment profile, and equipment source are explicit
+  in both API and Web containers. API startup validates the shared fail-closed
+  compatibility contract.
+- Public Demo plus Simulation is accepted; Public Demo plus Hardware is rejected
+  by both runtime and deployment-environment tests.
+- Fresh API and Web images built successfully. A fresh isolated Compose stack
+  applied all nine migrations, reported API readiness, and served the supported
+  `/` Web entry through the updated healthcheck.
+- Demo seed/restart produced the connected deterministic simulator observation;
+  three location bindings and nine migrations were verified.
+- Custom-format backup/checksum and isolated restore passed, including the nine
+  migration records and demo marker. Containers, network, and database volume
+  were removed after the exercise.

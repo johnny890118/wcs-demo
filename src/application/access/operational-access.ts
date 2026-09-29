@@ -32,7 +32,6 @@ export type OperationalAccess = Readonly<{
 export const operationalEnvironments = [
   "development",
   "test",
-  "demo",
   "staging",
   "production",
 ] as const;
@@ -42,10 +41,36 @@ export type OperationalEnvironment = (typeof operationalEnvironments)[number];
 export const equipmentSources = ["simulation", "hardware", "hybrid"] as const;
 export type EquipmentSource = (typeof equipmentSources)[number];
 
+export const deploymentProfiles = [
+  "public_demo",
+  "private_demo",
+  "pilot",
+  "production",
+] as const;
+
+export type DeploymentProfile = (typeof deploymentProfiles)[number];
+
 export type OperationalRuntime = Readonly<{
   environment: OperationalEnvironment;
+  deploymentProfile: DeploymentProfile;
   equipmentSource: EquipmentSource;
 }>;
+
+const allowedEquipmentSources: Readonly<
+  Record<DeploymentProfile, readonly EquipmentSource[]>
+> = Object.freeze({
+  public_demo: ["simulation"],
+  private_demo: ["simulation"],
+  pilot: ["hardware", "hybrid"],
+  production: ["hardware", "hybrid"],
+});
+
+export function isProfileEquipmentSourceAllowed(
+  profile: DeploymentProfile,
+  equipmentSource: EquipmentSource,
+): boolean {
+  return allowedEquipmentSources[profile].includes(equipmentSource);
+}
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -116,10 +141,20 @@ export function isOperationalRuntime(
 ): value is OperationalRuntime {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const runtime = value as Record<string, unknown>;
-  return (
+  const valid =
     operationalEnvironments.includes(
       runtime.environment as OperationalEnvironment,
-    ) && equipmentSources.includes(runtime.equipmentSource as EquipmentSource)
+    ) &&
+    deploymentProfiles.includes(
+      runtime.deploymentProfile as DeploymentProfile,
+    ) &&
+    equipmentSources.includes(runtime.equipmentSource as EquipmentSource);
+  return (
+    valid &&
+    isProfileEquipmentSourceAllowed(
+      runtime.deploymentProfile as DeploymentProfile,
+      runtime.equipmentSource as EquipmentSource,
+    )
   );
 }
 

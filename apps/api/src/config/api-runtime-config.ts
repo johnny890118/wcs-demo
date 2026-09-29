@@ -2,11 +2,14 @@ import {
   servicePermissions,
   type ServicePermission,
 } from "../auth/permissions";
+import type { OperationalRuntime } from "../../../../src/application/access/operational-access";
+import { loadOperationalRuntime } from "../../../../src/infrastructure/runtime/operational-runtime";
 
 export type ApiRuntimeConfig = Readonly<{
   rateLimitMax: number;
   rateLimitWindowMs: number;
   trustProxyHops: number;
+  operationalRuntime: OperationalRuntime;
 }>;
 
 export function loadApiListenerPort(): number {
@@ -77,5 +80,6 @@ export function loadApiRuntimeConfig(): ApiRuntimeConfig {
       3_600_000,
     ),
     trustProxyHops: integer("API_TRUST_PROXY_HOPS", 0, 0, 5),
+    operationalRuntime: loadOperationalRuntime(),
   };
 }

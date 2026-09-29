@@ -12,6 +12,6 @@
     "rootDir": ".",
     "sourceMap": true
   },
-  "include": ["apps/api/src/**/*.ts", "src/**/*.ts"],
+  "include": ["apps/api/src/**/*.ts"],
   "exclude": ["node_modules", "tests", "src/ui/**/*.tsx"]
 }

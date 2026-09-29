@@ -1,14 +1,10 @@
 import {
-  equipmentSources,
-  operationalEnvironments,
   userPermissions,
-  type EquipmentSource,
   type OperationalAccess,
-  type OperationalEnvironment,
-  type OperationalRuntime,
   type UserPermission,
   isOperationalAccess,
 } from "../../application/access/operational-access";
+export { loadOperationalRuntime } from "../runtime/operational-runtime";
 
 const demoWarehouseId = "10000000-0000-4000-8000-000000000001";
 
@@ -64,24 +60,4 @@ export function createDemoOperationalAccess(
     throw new Error("Demo identity access configuration is invalid.");
   }
   return access;
-}
-
-export function loadOperationalRuntime(): OperationalRuntime {
-  const environment = configuredValue(
-    "SWP_ENVIRONMENT",
-    process.env.NODE_ENV === "test" ? "test" : "demo",
-  );
-  const equipmentSource = configuredValue("SWP_EQUIPMENT_SOURCE", "simulation");
-  if (
-    !operationalEnvironments.includes(environment as OperationalEnvironment)
-  ) {
-    throw new Error("SWP_ENVIRONMENT is invalid.");
-  }
-  if (!equipmentSources.includes(equipmentSource as EquipmentSource)) {
-    throw new Error("SWP_EQUIPMENT_SOURCE is invalid.");
-  }
-  return {
-    environment: environment as OperationalEnvironment,
-    equipmentSource: equipmentSource as EquipmentSource,
-  };
 }

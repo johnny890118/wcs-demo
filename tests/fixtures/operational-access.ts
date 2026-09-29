@@ -32,6 +32,7 @@ export const testOperationalAccess: OperationalAccess = {
 
 export const testOperationalRuntime: OperationalRuntime = {
   environment: "test",
+  deploymentProfile: "private_demo",
   equipmentSource: "simulation",
 };
 

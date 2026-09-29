@@ -24,9 +24,9 @@
 
 The original table is retained as discovery history. Current system-side gaps, in dependency order, are:
 
-1. The application still has a single demo identity; effective user permissions, session lifecycle, explicit current-warehouse context, and end-to-end warehouse scope are not production-ready (S1).
+1. The application still has a single credentials-backed demo identity. Read projections now enforce effective user permissions and explicit current-warehouse scope, but commands, audit persistence, anonymous-demo principals, demo-session scope, OIDC, persistent grants, and session lifecycle remain incomplete (S1).
 2. The operational UI does not yet provide the approved actionable Home, task-centered work context, Operations Live View, or built-in manual/contextual help foundation (S2).
-3. Demo reset deletes operational audit rows and has no accountable scenario/replay workflow; S3 must retain reset-governance evidence separately and hard-deny production controls.
+3. Demo reset is still a global truncate that deletes operational audit rows. There is no first-class demo session, TTL/cleanup/quota/capacity lifecycle, or accountable scenario/replay product; S3 must isolate sessions, retain reset-governance evidence separately, and hard-deny production controls.
 4. WCS execution lacks product-level reconciliation, scheduling, shared-resource coordination, and governed warehouse/equipment configuration (S4–S6).
 5. External WMS/real-equipment integration administration plus production metrics, diagnostics, SLOs, and incident evidence remain incomplete (S7–S8).
 

@@ -26,7 +26,14 @@ The checked-in composition is an on-premises/VM baseline, not a public-internet 
 3. Validate with `docker compose --env-file <private-env> -f infra/compose.production.yml config --quiet`.
 4. Build with `docker compose --env-file <private-env> -f infra/compose.production.yml build`.
 5. Start with `docker compose --env-file <private-env> -f infra/compose.production.yml up -d --wait postgres api web`.
-6. Confirm API readiness at `/api/v1/health/ready` and the web entry at `/platform`.
+6. Confirm API readiness at `/api/v1/health/ready` and the supported web entry at `/`.
+
+The private environment file must declare three independent runtime dimensions:
+`SWP_LIFECYCLE_ENVIRONMENT`, `SWP_DEPLOYMENT_PROFILE`, and
+`SWP_EQUIPMENT_SOURCE`. Deployment validation rejects incompatible combinations.
+Public and private demos are simulation-only; pilot and production profiles are
+reserved for hardware or approved hybrid execution. These server-owned values
+cannot be selected through browser input.
 
 The one-shot `migrate` service must complete successfully before the API starts. The API and web images run as non-root users with read-only root filesystems and explicit temporary mounts. PostgreSQL data lives in the named `postgres-data` volume. Run the `demo-seed` profile only in an environment intentionally designated for deterministic demonstrations:
 

@@ -51,6 +51,9 @@ services:
       API_RATE_LIMIT_MAX: ${API_RATE_LIMIT_MAX:-120}
       API_RATE_LIMIT_WINDOW_MS: ${API_RATE_LIMIT_WINDOW_MS:-60000}
       API_TRUST_PROXY_HOPS: ${API_TRUST_PROXY_HOPS:-0}
+      SWP_LIFECYCLE_ENVIRONMENT: ${SWP_LIFECYCLE_ENVIRONMENT:?SWP_LIFECYCLE_ENVIRONMENT is required}
+      SWP_DEPLOYMENT_PROFILE: ${SWP_DEPLOYMENT_PROFILE:?SWP_DEPLOYMENT_PROFILE is required}
+      SWP_EQUIPMENT_SOURCE: ${SWP_EQUIPMENT_SOURCE:?SWP_EQUIPMENT_SOURCE is required}
     ports:
       - "${API_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-3001}:3001"
     depends_on:
@@ -90,7 +93,8 @@ services:
       DEMO_WAREHOUSE_ID: ${DEMO_WAREHOUSE_ID:?DEMO_WAREHOUSE_ID is required}
       DEMO_WAREHOUSE_CODE: ${DEMO_WAREHOUSE_CODE:?DEMO_WAREHOUSE_CODE is required}
       DEMO_WAREHOUSE_NAME: ${DEMO_WAREHOUSE_NAME:?DEMO_WAREHOUSE_NAME is required}
-      SWP_ENVIRONMENT: ${SWP_ENVIRONMENT:?SWP_ENVIRONMENT is required}
+      SWP_LIFECYCLE_ENVIRONMENT: ${SWP_LIFECYCLE_ENVIRONMENT:?SWP_LIFECYCLE_ENVIRONMENT is required}
+      SWP_DEPLOYMENT_PROFILE: ${SWP_DEPLOYMENT_PROFILE:?SWP_DEPLOYMENT_PROFILE is required}
       SWP_EQUIPMENT_SOURCE: ${SWP_EQUIPMENT_SOURCE:?SWP_EQUIPMENT_SOURCE is required}
       INTERNAL_API_BASE_URL: http://api:3001
       API_SERVICE_TOKEN: ${API_SERVICE_TOKEN}
@@ -105,7 +109,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3000/platform').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+          "fetch('http://127.0.0.1:3000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
         ]
       interval: 5s
       timeout: 5s

@@ -8,7 +8,7 @@ This document is the durable source for the product-experience alignment that
 supersedes the earlier M8B-first sequencing. Detailed domain, security, and
 architecture documents remain authoritative within their narrower concerns.
 
-## One product, replaceable execution sources
+## One product, multiple deployments, replaceable execution sources
 
 Smart Warehouse Platform is one operational product. It runs the same WMS Lite,
 WCS, task, alarm, recovery, audit, history, and visualization flows against a
@@ -35,11 +35,42 @@ Protocol and vendor details remain behind adapters. WCS domain/application code
 must not depend on MQTT, OPC UA, Modbus, VDA 5050, a vendor SDK, or a
 vendor-specific payload.
 
-Environment and equipment source are security and safety context, not cosmetic
-labels. Every operational session must eventually expose the current warehouse,
-environment, equipment execution source, current principal/permissions, and
-relevant connectivity or freshness. Simulation-only controls are hard-denied in
-production hardware environments in addition to being hidden from navigation.
+Public Website, Public Demo, Private Demo/Training, and customer-specific
+Commercial deployments are surfaces of one product, not divergent products or
+customer forks. The Website will eventually link to Public Demo; it does not
+provide a production login. Commercial users enter the URL of their own
+deployment.
+
+Three server-owned concepts remain independent:
+
+- lifecycle environment: development, test, staging, or production;
+- deployment profile: public demo, private demo/training, pilot, or production;
+- equipment source: simulation, hardware, or hybrid.
+
+They are security and safety context, not cosmetic labels. Every operational
+session exposes the current warehouse, deployment profile, equipment execution
+source, principal/permissions, and relevant connectivity or freshness. The
+backend validates permitted profile/source combinations; browser state and
+session claims cannot switch equipment source.
+
+## Public and private demo boundaries
+
+Public Demo is a no-login product surface, but never an authorization bypass. A
+server-issued anonymous principal receives explicit permissions, a demo-session
+scope, and a warehouse scope. Shared infrastructure hosts isolated, ephemeral
+sessions; operational rows, virtual equipment state, scenario runs, and demo
+history are session-scoped while versioned warehouse/topology reference data can
+be shared.
+
+Public sessions have configurable TTL, idempotent restart-resumable cleanup,
+per-session quotas, global capacity limits, and bounded scenario execution. A
+reset affects only its session and cannot delete its own control/security
+evidence. Public Demo is simulation-only at the deployment, adapter, credential,
+network, and command boundaries.
+
+Private Demo/Training is authenticated and simulation-only. It may expose a
+larger scenario catalog, replay, diagnostics, fault injection, speed controls,
+and advanced recovery without weakening Public Demo or commercial boundaries.
 
 ## Human-readable by default
 
@@ -172,7 +203,8 @@ use a separate identity adapter; SWP does not build a production password system
 Authorization evaluates:
 
 ```text
-principal -> permissions -> warehouse scope -> optional role templates
+principal -> permissions -> warehouse and optional demo-session scope
+          -> optional role templates
 ```
 
 Role names are permission bundles, not enforcement logic. A principal may combine
@@ -203,30 +235,34 @@ Every major user-facing vertical slice addresses, in proportion to risk:
 
 ## Approved system roadmap
 
-1. **S1 — Accountable Access and Warehouse Context**: production-capable identity
-   foundation, permissions, warehouse scope, session lifecycle, and role-aware
-   Home/navigation foundation.
+1. **S1 — Accountable Access and Deployment Safety**: human, anonymous-demo, and
+   service principal contracts; permissions; warehouse/demo-session scope
+   contracts; deployment profile/equipment-source guards; command enforcement;
+   and accountable runtime context.
 2. **S2 — Operational Work Center and Inventory Visibility**: actionable Home,
    task queue/detail, inbound/outbound context, inventory, history deep links,
    human-readable states, Live View foundation, readable topology, binding
    correctness, manual foundation, and contextual help.
-3. **S3 — Accountable Demo Scenario Lifecycle**: guarded scenario catalog,
-   reset/run/pause/replay/fault controls, persistent governance evidence, and
-   production hard-deny.
+3. **S3 — Public and Private Demo Product**: isolated ephemeral public sessions,
+   TTL/cleanup/quota/capacity, guided scenarios and safe sandbox, authenticated
+   training controls, reset/replay governance evidence, and production hard-deny.
 4. **S4 — Safe Task Control and Reconciliation**: blocked/unknown explanation,
    command timeline, retry/reassign/replan/cancel, expected-versus-observed
    evidence, reconciliation, and outcome verification.
 5. **S5 — Scheduling and Resource Coordination**: priority, automatic assignment,
    reservations/leases, contention, fairness, reassignment, and restart
    consistency.
-6. **S6 — Governed Warehouse Configuration**: versioned warehouse, location/zone/
-   station, topology, equipment, and integration configuration lifecycle.
+6. **S6 — Governed Warehouse Configuration and Map Authoring**: versioned
+   floors, spatial frames, physical/semantic layout, warehouse, location/zone/
+   station, topology, bindings, equipment, calibration, preview, and activation
+   lifecycle.
 7. **S7 — External Integration and Commissioning**: external WMS, a real equipment
    target, integration status, adapter health, commissioning, diagnostics,
    dead-letter handling, and reconciliation.
-8. **S8 — Production Operability and Commercial Deployment**: SLOs, mature
-   metrics/traces/alerts, incident support, backup/restore/DR, upgrade/rollback,
-   capacity, access review, and production supportability.
+8. **S8 — Commercial Delivery and Production Operability**: reproducible
+   Docker/on-prem/edge delivery, versioned artifacts, compatibility policy,
+   SLOs, mature metrics/traces/alerts, incident support, backup/restore/DR,
+   upgrade/rollback, capacity, access review, and customer supportability.
 
 Observability is a cross-cutting definition-of-done concern beginning in S1, not
 work deferred entirely to S8. At every milestone checkpoint the remaining order

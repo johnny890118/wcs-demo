@@ -146,15 +146,18 @@ Status: Complete
 
 The governing detail is the [Approved Product Experience Direction](../product/approved-product-experience-direction.md).
 
-## S1 — Accountable Access and Warehouse Context
+## S1 — Accountable Access and Deployment Safety
 
 Status: Active
 
 - [x] Establish provider-neutral principal/session contracts while retaining the demo identity as a replaceable adapter
 - [x] Define effective user permissions independently from service permissions and role-name conditionals
 - [x] Derive allowed demo warehouse scopes and require an explicit current warehouse context; persistent production assignments remain planned
+- [x] Separate lifecycle environment, deployment profile, and equipment source; reject incompatible profile/source combinations at deployment validation and API startup
+- [x] Restore API/Web OCI build parity and remove `/platform` from Compose health semantics
 - [ ] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
 - [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
+- [ ] Define anonymous-demo principal and demo-session scope contracts without prematurely implementing the S3 data lifecycle
 - [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
 - [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
 
@@ -168,13 +171,14 @@ Status: Planned
 - [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
 - [ ] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
-## S3 — Accountable Demo Scenario Lifecycle
+## S3 — Public and Private Demo Product
 
 Status: Planned (supersedes M8B)
 
-- [ ] Named deterministic scenario catalog and guarded reset/run/pause/replay/fault lifecycle
-- [ ] Environment, permission, confirmation, idempotency, concurrency, and production hard-deny boundaries
-- [ ] Reset governance evidence outside resettable operational audit rows and interrupted-reset recovery
+- [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
+- [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
+- [ ] Authenticated private-demo scenario, replay, fault, diagnostics, and advanced simulator controls
+- [ ] Session-scoped reset/run identities, permission/confirmation/idempotency/concurrency policy, reset evidence outside resettable rows, and production hard-deny
 
 ## S4 — Safe Task Control and Reconciliation
 
@@ -189,11 +193,12 @@ Status: Planned
 
 - [ ] Priority, automatic assignment, reservation/lease, contention, fairness, reassignment, and restart consistency
 
-## S6 — Governed Warehouse Configuration
+## S6 — Governed Warehouse Configuration and Map Authoring
 
 Status: Planned
 
-- [ ] Warehouse/location/zone/station, topology, equipment, and integration configuration
+- [ ] Warehouse/floor/spatial-frame, physical/semantic layout, location/zone/station, topology/bindings, equipment, and integration configuration
+- [ ] Floorplan import, coordinate calibration, validation, and Live View preview without customer-specific React code
 - [ ] Draft, validation, impact preview, review, activation, monitoring, rollback, and active-work compatibility
 
 ## S7 — External Integration and Commissioning
@@ -203,16 +208,15 @@ Status: Planned
 - [ ] Versioned external WMS contracts, delivery/dead-letter/reconciliation, and integration status
 - [ ] Productized real-equipment adapter registration, health, conformance evidence, diagnostics, and commissioning
 
-## S8 — Production Operability and Commercial Deployment
+## S8 — Commercial Delivery and Production Operability
 
 Status: Planned
 
 - [ ] SLOs, mature metrics/tracing/alerting, incident support, capacity, access review, and production diagnostics
-- [ ] Backup/restore/DR, upgrade/rollback, retention governance, supportability, and site commissioning evidence
+- [ ] Versioned Docker/on-prem/edge artifacts, compatibility/release policy, backup/restore/DR, upgrade/rollback, retention governance, supportability, and customer handoff evidence
 
 Observability is cross-cutting from S1 onward. At each verified milestone, reassess remaining order against repository reality, dependencies, safety, user flow, and commercial maturity; record material changes.
 
 ## Immediate next task
 
-Execute the [S1 access-context plan](s1-access-context-plan.md), beginning with
-the read boundary and visible operational context defined by ADR 0013.
+Execute the command-boundary slice in the [S1 access-context plan](s1-access-context-plan.md): apply effective user permission and explicit warehouse scope to every operational mutation and its audit evidence.

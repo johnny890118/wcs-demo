@@ -18,6 +18,9 @@ const runtimeVariables = [
   "API_TRUST_PROXY_HOPS",
   "API_PORT",
   "PORT",
+  "SWP_LIFECYCLE_ENVIRONMENT",
+  "SWP_DEPLOYMENT_PROFILE",
+  "SWP_EQUIPMENT_SOURCE",
 ] as const;
 
 const originalEnvironment = Object.fromEntries(
@@ -38,6 +41,9 @@ function validEnvironment(): void {
   process.env.API_SERVICE_ID = "warehouse-web";
   process.env.API_SERVICE_TOKEN = "runtime-token-with-at-least-32-characters";
   process.env.API_SERVICE_PERMISSIONS = "operations.view,transport.execute";
+  process.env.SWP_LIFECYCLE_ENVIRONMENT = "production";
+  process.env.SWP_DEPLOYMENT_PROFILE = "private_demo";
+  process.env.SWP_EQUIPMENT_SOURCE = "simulation";
 }
 
 type ResponseDouble = Response & {
@@ -85,6 +91,11 @@ describe("API runtime security", () => {
       rateLimitMax: 75,
       rateLimitWindowMs: 30_000,
       trustProxyHops: 1,
+      operationalRuntime: {
+        environment: "production",
+        deploymentProfile: "private_demo",
+        equipmentSource: "simulation",
+      },
     });
 
     process.env.API_SERVICE_TOKEN = "replace-with-a-long-random-service-token";

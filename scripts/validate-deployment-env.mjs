@@ -24,6 +24,20 @@ const knownUserPermissions = new Set([
   "alarm.recover",
 ]);
 const errors = [];
+const lifecycleEnvironments = ["development", "test", "staging", "production"];
+const deploymentProfiles = [
+  "public_demo",
+  "private_demo",
+  "pilot",
+  "production",
+];
+const equipmentSources = ["simulation", "hardware", "hybrid"];
+const allowedEquipmentSources = {
+  public_demo: ["simulation"],
+  private_demo: ["simulation"],
+  pilot: ["hardware", "hybrid"],
+  production: ["hardware", "hybrid"],
+};
 
 function required(name, minimumLength = 1) {
   const value = process.env[name]?.trim() ?? "";
@@ -73,6 +87,22 @@ function oneOf(name, allowed) {
   }
   return value;
 }
+
+function validateOperationalRuntime() {
+  oneOf("SWP_LIFECYCLE_ENVIRONMENT", lifecycleEnvironments);
+  const profile = oneOf("SWP_DEPLOYMENT_PROFILE", deploymentProfiles);
+  const source = oneOf("SWP_EQUIPMENT_SOURCE", equipmentSources);
+  if (
+    Object.hasOwn(allowedEquipmentSources, profile) &&
+    !allowedEquipmentSources[profile].includes(source)
+  ) {
+    errors.push(
+      `SWP_DEPLOYMENT_PROFILE ${profile} does not allow SWP_EQUIPMENT_SOURCE ${source}.`,
+    );
+  }
+}
+
+validateOperationalRuntime();
 
 if (target === "api" || target === "all") {
   const database = url("DATABASE_URL", ["postgres:", "postgresql:"]);
@@ -146,14 +176,6 @@ if (target === "web" || target === "all") {
   }
   required("DEMO_WAREHOUSE_CODE");
   required("DEMO_WAREHOUSE_NAME");
-  oneOf("SWP_ENVIRONMENT", [
-    "development",
-    "test",
-    "demo",
-    "staging",
-    "production",
-  ]);
-  oneOf("SWP_EQUIPMENT_SOURCE", ["simulation", "hardware", "hybrid"]);
   required("API_SERVICE_TOKEN", 32);
 }
 

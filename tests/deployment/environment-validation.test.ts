@@ -9,7 +9,8 @@ const webAccessEnvironment = {
   DEMO_WAREHOUSE_ID: "10000000-0000-4000-8000-000000000001",
   DEMO_WAREHOUSE_CODE: "DEMO",
   DEMO_WAREHOUSE_NAME: "Deterministic Demo Warehouse",
-  SWP_ENVIRONMENT: "demo",
+  SWP_LIFECYCLE_ENVIRONMENT: "production",
+  SWP_DEPLOYMENT_PROFILE: "private_demo",
   SWP_EQUIPMENT_SOURCE: "simulation",
 };
 
@@ -33,6 +34,7 @@ describe("deployment environment validation", () => {
       API_SERVICE_ID: "warehouse-web",
       API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
       API_SERVICE_PERMISSIONS: "operations.view,transport.execute",
+      ...webAccessEnvironment,
     });
 
     expect(result.status).toBe(0);
@@ -46,12 +48,31 @@ describe("deployment environment validation", () => {
       API_SERVICE_ID: "warehouse-web",
       API_SERVICE_TOKEN: weakToken,
       API_SERVICE_PERMISSIONS: "operations.view,admin.everything",
+      ...webAccessEnvironment,
     });
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("API_SERVICE_TOKEN");
     expect(result.stderr).toContain("unknown permissions");
     expect(result.stderr).not.toContain(weakToken);
+  });
+
+  it("rejects hardware for a public demo deployment", () => {
+    const result = validate("api", {
+      DATABASE_URL:
+        "postgresql://warehouse:validation-password@db.example.internal:5432/warehouse?sslmode=require",
+      API_SERVICE_ID: "warehouse-web",
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+      API_SERVICE_PERMISSIONS: "operations.view",
+      ...webAccessEnvironment,
+      SWP_DEPLOYMENT_PROFILE: "public_demo",
+      SWP_EQUIPMENT_SOURCE: "hardware",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      "public_demo does not allow SWP_EQUIPMENT_SOURCE hardware",
+    );
   });
 
   it("requires HTTPS for non-loopback production web origins", () => {

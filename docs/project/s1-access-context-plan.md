@@ -5,7 +5,18 @@ Status: Active
 Risk: High — authentication, authorization, tenant-like warehouse isolation, and
 operator attribution are load-bearing security boundaries.
 
-Governing decision: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md)
+Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md) and [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md)
+
+## Slice A — Delivery and deployment-safety contract
+
+- [x] Keep the API image compilation boundary independent of Web-only NextAuth
+      session augmentation and restore OCI image builds.
+- [x] Replace the `/platform` Compose health dependency with the supported root.
+- [x] Separate lifecycle environment, deployment profile, and equipment source.
+- [x] Validate profile/source compatibility in deployment validation, API
+      startup, and server-issued operational runtime context.
+- [x] Prove Public Demo plus Simulation is accepted and Public Demo plus Hardware
+      fails closed.
 
 ## Slice 1 — Read boundary and visible context
 
@@ -23,7 +34,7 @@ Governing decision: [ADR 0013](../decisions/0013-principal-permission-and-wareho
 - [x] Prove anonymous, malformed, insufficient-permission, out-of-scope, and
       successful access paths.
 
-## Slice 2 — Command boundary
+## Slice B — Command boundary
 
 - [ ] Apply the same permission and warehouse-scope contract to inbound,
       outbound, transport execution, alarm acknowledgement, and recovery.
@@ -31,7 +42,16 @@ Governing decision: [ADR 0013](../decisions/0013-principal-permission-and-wareho
       the current warehouse before mutation.
 - [ ] Preserve principal and warehouse context in audit evidence.
 
-## Slice 3 — Session lifecycle and role-aware experience
+## Slice C — Principal and anonymous-demo access contract
+
+- [ ] Define human, anonymous-demo, and service principal semantics without role
+      names as authorization branches.
+- [ ] Add a server-issued anonymous-demo carrier and demo-session scope contract
+      without implementing the complete S3 persistence/TTL lifecycle.
+- [ ] Revalidate the combined warehouse and optional demo-session scope at
+      backend boundaries and preserve accountable actor semantics.
+
+## Slice D — Session lifecycle and role-aware experience
 
 - [ ] Add explicit access-denied and expired-session behavior.
 - [ ] Filter navigation and permitted actions from effective permissions while

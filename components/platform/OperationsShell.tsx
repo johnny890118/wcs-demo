@@ -49,10 +49,19 @@ export function OperationsShell({
         {
           development: "environmentDevelopment",
           test: "environmentTest",
-          demo: "environmentDemo",
           staging: "environmentStaging",
           production: "environmentProduction",
         }[runtime.environment] as Parameters<typeof t>[0],
+      )
+    : null;
+  const deploymentProfileLabel = runtime
+    ? t(
+        {
+          public_demo: "deploymentProfilePublicDemo",
+          private_demo: "deploymentProfilePrivateDemo",
+          pilot: "deploymentProfilePilot",
+          production: "deploymentProfileProduction",
+        }[runtime.deploymentProfile] as Parameters<typeof t>[0],
       )
     : null;
   const equipmentSourceLabel = runtime
@@ -218,6 +227,11 @@ export function OperationsShell({
                 {environmentLabel ? (
                   <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
                     {environmentLabel}
+                  </span>
+                ) : null}
+                {deploymentProfileLabel ? (
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                    {deploymentProfileLabel}
                   </span>
                 ) : null}
                 {equipmentSourceLabel ? (

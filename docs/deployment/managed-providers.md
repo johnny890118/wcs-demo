@@ -15,11 +15,14 @@ Configure secrets in provider dashboards, never in `vercel.json`, `render.yaml`,
 Vercel requires `NEXTAUTH_URL`, `PUBLIC_SITE_URL`, `NEXTAUTH_SECRET`,
 `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`, `DEMO_USER_PERMISSIONS`,
 `DEMO_WAREHOUSE_ID`, `DEMO_WAREHOUSE_CODE`, `DEMO_WAREHOUSE_NAME`,
-`SWP_ENVIRONMENT`, `SWP_EQUIPMENT_SOURCE`, `INTERNAL_API_BASE_URL`,
+`SWP_LIFECYCLE_ENVIRONMENT`, `SWP_DEPLOYMENT_PROFILE`,
+`SWP_EQUIPMENT_SOURCE`, `INTERNAL_API_BASE_URL`,
 `INTERNAL_API_TIMEOUT_MS`, and the same `API_SERVICE_TOKEN` assigned to the
 web-to-API service identity. The current managed demo uses the seeded warehouse
-UUID/code/name, `SWP_ENVIRONMENT=demo`, and
-`SWP_EQUIPMENT_SOURCE=simulation`. These values are server-only access/runtime
+UUID/code/name, `SWP_LIFECYCLE_ENVIRONMENT=production`,
+`SWP_DEPLOYMENT_PROFILE=private_demo`, and
+`SWP_EQUIPMENT_SOURCE=simulation`. The Render API requires the same three values.
+These values are server-only access/runtime
 adapter configuration, not browser-exposed product truth. Set `PUBLIC_SITE_URL`
 to the canonical public HTTPS origin and `INTERNAL_API_BASE_URL` to the Render
 API HTTPS origin. The free demo sets `INTERNAL_API_TIMEOUT_MS=55000` so the first
@@ -57,6 +60,6 @@ Apply only the repository migration runner. Do not separately translate the same
 
 Set `API_RATE_LIMIT_MAX` and `API_RATE_LIMIT_WINDOW_MS` to a measured traffic envelope. The built-in limiter is a bounded, per-instance safeguard; configure the provider edge or gateway with a shared limit before scaling the API horizontally. Set `API_TRUST_PROXY_HOPS` to the exact number of trusted reverse proxies between the client and API (`1` for the current Render adapter, `0` for direct or Compose access). Never enable unconditional proxy trust.
 
-The API refuses to start when its database URL, service identity, token, or permission list is absent, placeholder-like, weak, duplicated, or unknown. Validate provider configuration with `DEPLOYMENT_ENV=production npm run deployment:validate -- api` before rollout and confirm that failed validation output never echoes credential values.
+The API refuses to start when its database URL, service identity, token, permission list, lifecycle environment, deployment profile, or equipment source is absent or invalid. It also rejects incompatible profile/source combinations before accepting traffic. Validate provider configuration with `DEPLOYMENT_ENV=production npm run deployment:validate -- api` before rollout and confirm that failed validation output never echoes credential values.
 
 Official references: [Vercel project configuration](https://vercel.com/docs/project-configuration/vercel-json), [Render Blueprint specification](https://render.com/docs/blueprint-spec), [Render health checks](https://render.com/docs/health-checks), and [Supabase Postgres connection guidance](https://supabase.com/docs/guides/database/connecting-to-postgres).

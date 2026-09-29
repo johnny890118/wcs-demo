@@ -241,7 +241,7 @@ test("authenticated focused projections expose screen-reader semantics", async (
     page.getByLabel("目前營運情境").getByText("DEMO", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByLabel("目前營運情境").getByText("示範環境"),
+    page.getByLabel("目前營運情境").getByText("私人示範／訓練"),
   ).toBeVisible();
   await expect(
     page.getByLabel("目前營運情境").getByText("模擬設備"),
