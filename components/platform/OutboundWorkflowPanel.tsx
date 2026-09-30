@@ -11,8 +11,14 @@ import {
 } from "../../src/application/operations/outbound-workflow";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { PermissionNotice } from "./PermissionNotice";
 
-type Props = Readonly<{ details: OperationsDetails }>;
+type Props = Readonly<{
+  details: OperationsDetails;
+  canCreate: boolean;
+  canExecute: boolean;
+  canViewAudit: boolean;
+}>;
 type RequestState = "idle" | "creating" | "ready" | "executing" | "complete";
 
 async function errorMessage(response: Response): Promise<string> {
@@ -24,7 +30,12 @@ async function errorMessage(response: Response): Promise<string> {
   return `HTTP ${response.status}`;
 }
 
-export function OutboundWorkflowPanel({ details }: Props) {
+export function OutboundWorkflowPanel({
+  details,
+  canCreate,
+  canExecute,
+  canViewAudit,
+}: Props) {
   const { t } = useLocale();
   const inventory = useMemo(() => {
     const quantities = new Map<string, number>();
@@ -88,6 +99,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
 
   async function createOrder(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canCreate) return;
     setError(null);
     setState("creating");
     idempotencyKey.current ??= crypto.randomUUID();
@@ -119,7 +131,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
   }
 
   async function executeTask() {
-    if (!created || !selectedTaskId || !confirmed) return;
+    if (!canExecute || !created || !selectedTaskId || !confirmed) return;
     setError(null);
     setState("executing");
     try {
@@ -185,6 +197,11 @@ export function OutboundWorkflowPanel({ details }: Props) {
             </p>
           </div>
         ) : null}
+        {!canCreate ? (
+          <PermissionNotice>
+            {t("outboundCreatePermissionRequired")}
+          </PermissionNotice>
+        ) : null}
         <form
           onSubmit={createOrder}
           onChange={() => {
@@ -199,7 +216,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 name="externalReference"
                 required
                 maxLength={200}
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -209,7 +226,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 value={sku}
                 onChange={(event) => setSku(event.target.value)}
                 required
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               >
                 {inventory.map((item) => (
@@ -228,7 +245,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 min="1"
                 max={inventory.find((item) => item.sku === sku)?.quantity}
                 step="1"
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -238,7 +255,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 value={destinationId}
                 onChange={(event) => setDestinationId(event.target.value)}
                 required
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               >
                 {destinations.map((location) => (
@@ -251,7 +268,7 @@ export function OutboundWorkflowPanel({ details }: Props) {
           </div>
           <button
             type="submit"
-            disabled={!configurationReady || state !== "idle"}
+            disabled={!canCreate || !configurationReady || state !== "idle"}
             className="ui-pressable rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-[var(--on-accent)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {state === "creating" ? t("creatingOutbound") : t("createOutbound")}
@@ -318,27 +335,31 @@ export function OutboundWorkflowPanel({ details }: Props) {
                 >
                   {t("viewInventoryOutcome")}
                 </Link>
-                <Link
-                  href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
-                    created.outboundOrderId,
-                  )}`}
-                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
-                >
-                  {t("viewOrderAuditEvidence")}
-                </Link>
-                {completedTaskIds.map((taskId) => (
-                  <Link
-                    key={taskId}
-                    href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
-                      taskId,
-                    )}`}
-                    className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
-                  >
-                    {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
-                  </Link>
-                ))}
+                {canViewAudit ? (
+                  <>
+                    <Link
+                      href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
+                        created.outboundOrderId,
+                      )}`}
+                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                    >
+                      {t("viewOrderAuditEvidence")}
+                    </Link>
+                    {completedTaskIds.map((taskId) => (
+                      <Link
+                        key={taskId}
+                        href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                          taskId,
+                        )}`}
+                        className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                      >
+                        {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
+                      </Link>
+                    ))}
+                  </>
+                ) : null}
               </div>
-            ) : (
+            ) : canExecute ? (
               <>
                 <label className="block text-sm font-semibold">
                   {t("taskId")}
@@ -413,6 +434,10 @@ export function OutboundWorkflowPanel({ details }: Props) {
                     : t("executeOutbound")}
                 </button>
               </>
+            ) : (
+              <PermissionNotice>
+                {t("transportExecutePermissionRequired")}
+              </PermissionNotice>
             )}
           </div>
         ) : (

@@ -199,6 +199,17 @@ export function hasUserPermission(
   return access.principal.permissions.includes(permission);
 }
 
+export function isDemoSessionExpired(
+  access: OperationalAccess,
+  now = Date.now(),
+): boolean {
+  return (
+    access.principal.kind === "anonymous_demo" &&
+    (!access.demoSessionScope ||
+      Date.parse(access.demoSessionScope.expiresAt) <= now)
+  );
+}
+
 export function currentWarehouse(access: OperationalAccess): WarehouseScope {
   const scope = access.principal.warehouseScopes.find(
     (candidate) => candidate.warehouseId === access.currentWarehouseId,

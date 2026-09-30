@@ -13,11 +13,15 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import {
   isOperationalAccess,
   isOperationalRuntime,
+  isDemoSessionExpired,
 } from "../src/application/access/operational-access";
 
-type LoginPageProps = { callbackUrl: string };
+type LoginPageProps = { callbackUrl: string; sessionExpired?: boolean };
 
-export default function LoginPage({ callbackUrl }: LoginPageProps) {
+export default function LoginPage({
+  callbackUrl,
+  sessionExpired = false,
+}: LoginPageProps) {
   const { t } = useLocale();
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -100,6 +104,17 @@ export default function LoginPage({ callbackUrl }: LoginPageProps) {
           onSubmit={(event) => void submit(event)}
           className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-panel)] sm:p-8"
         >
+          {sessionExpired ? (
+            <div
+              role="status"
+              className="mb-5 rounded-lg border border-[color:color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[color:color-mix(in_srgb,var(--warning)_10%,var(--surface))] p-4 text-sm leading-6"
+            >
+              <p className="font-bold">{t("sessionExpired")}</p>
+              <p className="mt-1 text-[var(--text-muted)]">
+                {t("sessionExpiredDescription")}
+              </p>
+            </div>
+          ) : null}
           <div>
             <label htmlFor="username" className="text-sm font-bold">
               {t("username")}
@@ -159,9 +174,15 @@ export const getServerSideProps: GetServerSideProps<LoginPageProps> = async (
   if (
     session &&
     isOperationalAccess(session.access) &&
-    isOperationalRuntime(session.runtime)
+    isOperationalRuntime(session.runtime) &&
+    !isDemoSessionExpired(session.access)
   ) {
     return { redirect: { destination: callbackUrl, permanent: false } };
   }
-  return { props: { callbackUrl } };
+  return {
+    props: {
+      callbackUrl,
+      sessionExpired: context.query.reason === "expired",
+    },
+  };
 };

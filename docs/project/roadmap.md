@@ -158,7 +158,8 @@ Status: Active
 - [x] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
 - [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
 - [x] Define human, anonymous-demo, and service principal semantics plus a bounded server-issued demo-session carrier without prematurely implementing the S3 data lifecycle
-- [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
+- [x] Add permission-aware navigation/actions plus explicit access-denied and expired anonymous-demo session behavior; the backend remains authoritative
+- [ ] Add bounded multi-warehouse context selection and accountable context-change evidence
 - [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
 
 ## S2 — Operational Work Center and Inventory Visibility
@@ -219,4 +220,4 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Execute Slice D in the [S1 access-context plan](s1-access-context-plan.md): add explicit access-denied/expired-session behavior, permission-aware navigation and actions, and the bounded current-warehouse selection/context-change contract without pulling persistent production identity administration forward.
+Continue Slice D in the [S1 access-context plan](s1-access-context-plan.md): add bounded current-warehouse selection and context-change evidence when multiple authorized scopes are configured, without pulling persistent production identity administration forward.

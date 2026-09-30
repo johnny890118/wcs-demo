@@ -53,8 +53,8 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
 
 ## Slice D — Session lifecycle and role-aware experience
 
-- [ ] Add explicit access-denied and expired-session behavior.
-- [ ] Filter navigation and permitted actions from effective permissions while
+- [x] Add explicit access-denied and expired anonymous-demo session behavior.
+- [x] Filter navigation and permitted actions from effective permissions while
       keeping server enforcement authoritative.
 - [ ] Add current-warehouse selection only when more than one authorized scope is
       configured, with accountable context-change evidence.

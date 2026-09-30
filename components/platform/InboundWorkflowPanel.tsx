@@ -12,9 +12,13 @@ import {
 } from "../../src/application/operations/inbound-workflow";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { PermissionNotice } from "./PermissionNotice";
 
 type Props = Readonly<{
   details: OperationsDetails;
+  canCreate: boolean;
+  canExecute: boolean;
+  canViewAudit: boolean;
 }>;
 
 type RequestState = "idle" | "creating" | "ready" | "executing" | "complete";
@@ -28,7 +32,12 @@ async function errorMessage(response: Response): Promise<string> {
   return `HTTP ${response.status}`;
 }
 
-export function InboundWorkflowPanel({ details }: Props) {
+export function InboundWorkflowPanel({
+  details,
+  canCreate,
+  canExecute,
+  canViewAudit,
+}: Props) {
   const { t } = useLocale();
   const sources = useMemo(
     () =>
@@ -92,6 +101,7 @@ export function InboundWorkflowPanel({ details }: Props) {
 
   async function createReceipt(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canCreate) return;
     setError(null);
     setState("creating");
     idempotencyKey.current ??= crypto.randomUUID();
@@ -126,7 +136,7 @@ export function InboundWorkflowPanel({ details }: Props) {
   }
 
   async function executeTask() {
-    if (!created || !confirmed) return;
+    if (!canExecute || !created || !confirmed) return;
     setError(null);
     setState("executing");
     try {
@@ -198,6 +208,12 @@ export function InboundWorkflowPanel({ details }: Props) {
           </div>
         ) : null}
 
+        {!canCreate ? (
+          <PermissionNotice>
+            {t("inboundCreatePermissionRequired")}
+          </PermissionNotice>
+        ) : null}
+
         <form
           onSubmit={createReceipt}
           onChange={() => {
@@ -212,7 +228,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                 name="externalReference"
                 required
                 maxLength={200}
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -222,7 +238,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                 name="externalId"
                 required
                 maxLength={200}
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -232,7 +248,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                 name="sku"
                 required
                 maxLength={200}
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -244,7 +260,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                 required
                 min="1"
                 step="1"
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -264,7 +280,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                   }
                 }}
                 required
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               >
                 {sources.map((location) => (
@@ -280,7 +296,7 @@ export function InboundWorkflowPanel({ details }: Props) {
                 value={destinationId}
                 onChange={(event) => setDestinationId(event.target.value)}
                 required
-                disabled={state !== "idle"}
+                disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               >
                 {destinations
@@ -298,7 +314,7 @@ export function InboundWorkflowPanel({ details }: Props) {
           </div>
           <button
             type="submit"
-            disabled={!configurationReady || state !== "idle"}
+            disabled={!canCreate || !configurationReady || state !== "idle"}
             className="ui-pressable rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-[var(--on-accent)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {state === "creating" ? t("creatingInbound") : t("createInbound")}
@@ -355,24 +371,28 @@ export function InboundWorkflowPanel({ details }: Props) {
                 >
                   {t("viewWarehouseMap")}
                 </Link>
-                <Link
-                  href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
-                    completed.taskId,
-                  )}`}
-                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
-                >
-                  {t("viewTaskAuditEvidence")}
-                </Link>
-                <Link
-                  href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
-                    created.receiptId,
-                  )}`}
-                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
-                >
-                  {t("viewReceiptAuditEvidence")}
-                </Link>
+                {canViewAudit ? (
+                  <>
+                    <Link
+                      href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                        completed.taskId,
+                      )}`}
+                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                    >
+                      {t("viewTaskAuditEvidence")}
+                    </Link>
+                    <Link
+                      href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
+                        created.receiptId,
+                      )}`}
+                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                    >
+                      {t("viewReceiptAuditEvidence")}
+                    </Link>
+                  </>
+                ) : null}
               </div>
-            ) : (
+            ) : canExecute ? (
               <>
                 <label className="block text-sm font-semibold">
                   {t("equipmentLabel")}
@@ -430,6 +450,10 @@ export function InboundWorkflowPanel({ details }: Props) {
                     : t("executeInbound")}
                 </button>
               </>
+            ) : (
+              <PermissionNotice>
+                {t("transportExecutePermissionRequired")}
+              </PermissionNotice>
             )}
           </div>
         ) : (

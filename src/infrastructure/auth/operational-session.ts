@@ -1,6 +1,7 @@
 import type { Session } from "next-auth";
 import {
   hasUserPermission,
+  isDemoSessionExpired,
   isOperationalAccess,
   isOperationalRuntime,
   type OperationalAccess,
@@ -17,7 +18,11 @@ export type OperationalSessionDecision =
   | Readonly<{ allowed: true; session: AuthorizedOperationalSession }>
   | Readonly<{
       allowed: false;
-      reason: "unauthenticated" | "invalid-access-context" | "forbidden";
+      reason:
+        | "unauthenticated"
+        | "invalid-access-context"
+        | "expired-session"
+        | "forbidden";
     }>;
 
 export function authorizeOperationalSession(
@@ -30,6 +35,9 @@ export function authorizeOperationalSession(
     !isOperationalRuntime(session.runtime)
   ) {
     return { allowed: false, reason: "invalid-access-context" };
+  }
+  if (isDemoSessionExpired(session.access)) {
+    return { allowed: false, reason: "expired-session" };
   }
   if (!hasUserPermission(session.access, permission)) {
     return { allowed: false, reason: "forbidden" };

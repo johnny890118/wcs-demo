@@ -21,6 +21,9 @@ export function operationalPageAccess(
     destination:
       decision.reason === "forbidden"
         ? "/operations/access-denied"
-        : loginDestination(returnTo),
+        : loginDestination(
+            returnTo,
+            decision.reason === "expired-session" ? "expired" : undefined,
+          ),
   };
 }

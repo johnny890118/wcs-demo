@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import axe from "axe-core";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -206,9 +206,10 @@ describe("automated accessibility baseline", () => {
   it("finds no detectable violations on the product login", async () => {
     const { container } = render(
       <LocaleProvider>
-        <LoginPage callbackUrl="/operations" />
+        <LoginPage callbackUrl="/operations" sessionExpired />
       </LocaleProvider>,
     );
+    expect(screen.getByText("工作階段已過期")).toBeTruthy();
     await expectNoAutomatedViolations(container);
   });
 
@@ -233,7 +234,12 @@ describe("automated accessibility baseline", () => {
   it("finds no detectable violations on the inbound confirmation workflow", async () => {
     const { container } = render(
       <LocaleProvider>
-        <InboundOperationsPage details={details} />
+        <InboundOperationsPage
+          details={details}
+          canCreate
+          canExecute
+          canViewAudit
+        />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);
@@ -251,7 +257,12 @@ describe("automated accessibility baseline", () => {
     };
     const { container } = render(
       <LocaleProvider>
-        <OutboundOperationsPage details={outboundDetails} />
+        <OutboundOperationsPage
+          details={outboundDetails}
+          canCreate
+          canExecute
+          canViewAudit
+        />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);
@@ -260,9 +271,39 @@ describe("automated accessibility baseline", () => {
   it("finds no detectable violations on the alarm recovery workflow", async () => {
     const { container } = render(
       <LocaleProvider>
-        <AlarmOperationsPage details={details} />
+        <AlarmOperationsPage
+          details={details}
+          canAcknowledge
+          canRecover
+          canViewAudit
+        />
       </LocaleProvider>,
     );
+    await expectNoAutomatedViolations(container);
+  });
+
+  it("explains and disables actions outside the effective permission set", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <InboundOperationsPage
+          details={details}
+          canCreate={false}
+          canExecute={false}
+          canViewAudit={false}
+        />
+      </LocaleProvider>,
+    );
+
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "建立入庫單",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+    expect(
+      screen.getByText("目前權限可以查看入庫作業，但不能建立入庫單。"),
+    ).toBeTruthy();
     await expectNoAutomatedViolations(container);
   });
 

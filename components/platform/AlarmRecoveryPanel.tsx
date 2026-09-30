@@ -11,8 +11,14 @@ import {
 } from "../../src/application/operations/alarm-workflow";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { PermissionNotice } from "./PermissionNotice";
 
-type Props = Readonly<{ details: OperationsDetails }>;
+type Props = Readonly<{
+  details: OperationsDetails;
+  canAcknowledge: boolean;
+  canRecover: boolean;
+  canViewAudit: boolean;
+}>;
 type AlarmItem = OperationsDetails["alarms"][number];
 type RequestState = "idle" | "acknowledging" | "recovering" | "complete";
 
@@ -25,7 +31,12 @@ async function errorMessage(response: Response): Promise<string> {
   return `HTTP ${response.status}`;
 }
 
-export function AlarmRecoveryPanel({ details }: Props) {
+export function AlarmRecoveryPanel({
+  details,
+  canAcknowledge,
+  canRecover,
+  canViewAudit,
+}: Props) {
   const { t } = useLocale();
   const [alarms, setAlarms] = useState<AlarmItem[]>([...details.alarms]);
   const actionable = useMemo(
@@ -44,6 +55,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
   const [completed, setCompleted] = useState<AlarmRecovered | null>(null);
 
   const selected = alarms.find((alarm) => alarm.alarmId === selectedAlarmId);
+  const canAct = selected?.status === "active" ? canAcknowledge : canRecover;
 
   function resetConfirmation() {
     setConfirmationReason("");
@@ -52,7 +64,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
   }
 
   async function acknowledge() {
-    if (!selected || !confirmed) return;
+    if (!canAcknowledge || !selected || !confirmed) return;
     setState("acknowledging");
     setError(null);
     try {
@@ -94,7 +106,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
   }
 
   async function recover() {
-    if (!selected || !strategy || !confirmed) return;
+    if (!canRecover || !selected || !strategy || !confirmed) return;
     setState("recovering");
     setError(null);
     try {
@@ -239,7 +251,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
             >
               {t("viewRecoveryOutcome")}
             </Link>
-            {selected ? (
+            {selected && canViewAudit ? (
               <>
                 <Link
                   href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
@@ -262,6 +274,13 @@ export function AlarmRecoveryPanel({ details }: Props) {
           </div>
         ) : selected ? (
           <div className="mt-5 space-y-5">
+            {!canAct ? (
+              <PermissionNotice>
+                {selected.status === "active"
+                  ? t("alarmAcknowledgePermissionRequired")
+                  : t("alarmRecoverPermissionRequired")}
+              </PermissionNotice>
+            ) : null}
             {selected.status === "acknowledged" ? (
               <>
                 <label className="block text-sm font-semibold">
@@ -273,7 +292,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
                         event.target.value as "" | "resume" | "release",
                       )
                     }
-                    disabled={state === "recovering"}
+                    disabled={!canAct || state === "recovering"}
                     className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
                   >
                     <option value="">{t("chooseRecoveryStrategy")}</option>
@@ -289,7 +308,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
                     required
                     maxLength={500}
                     rows={3}
-                    disabled={state === "recovering"}
+                    disabled={!canAct || state === "recovering"}
                     className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
                   />
                 </label>
@@ -314,7 +333,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
                 minLength={8}
                 maxLength={500}
                 rows={3}
-                disabled={state !== "idle"}
+                disabled={!canAct || state !== "idle"}
                 className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
@@ -323,7 +342,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
                 type="checkbox"
                 checked={confirmed}
                 onChange={(event) => setConfirmed(event.target.checked)}
-                disabled={state !== "idle"}
+                disabled={!canAct || state !== "idle"}
                 className="mt-1 h-4 w-4"
               />
               <span>
@@ -339,6 +358,7 @@ export function AlarmRecoveryPanel({ details }: Props) {
               }
               disabled={
                 !confirmed ||
+                !canAct ||
                 confirmationReason.trim().length < 8 ||
                 state !== "idle" ||
                 (selected.status === "acknowledged" &&

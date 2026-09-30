@@ -68,6 +68,11 @@ export function absoluteAuthRedirect(
   }
 }
 
-export function loginDestination(destination: string): string {
-  return `/login?callbackUrl=${encodeURIComponent(destination)}`;
+export function loginDestination(
+  destination: string,
+  reason?: "expired",
+): string {
+  const query = new URLSearchParams({ callbackUrl: destination });
+  if (reason) query.set("reason", reason);
+  return `/login?${query.toString()}`;
 }

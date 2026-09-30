@@ -3,14 +3,25 @@ import { getServerSession } from "next-auth/next";
 import { InboundWorkflowPanel } from "../../components/platform/InboundWorkflowPanel";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
+import { hasUserPermission } from "../../src/application/access/operational-access";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
 import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
-type PageProps = { details: OperationsDetails | null };
+type PageProps = {
+  details: OperationsDetails | null;
+  canCreate: boolean;
+  canExecute: boolean;
+  canViewAudit: boolean;
+};
 
-export default function InboundOperationsPage({ details }: PageProps) {
+export default function InboundOperationsPage({
+  details,
+  canCreate,
+  canExecute,
+  canViewAudit,
+}: PageProps) {
   const { t } = useLocale();
   return (
     <OperationsShell current="inbound">
@@ -27,7 +38,12 @@ export default function InboundOperationsPage({ details }: PageProps) {
       </header>
       <div className="mt-8">
         {details ? (
-          <InboundWorkflowPanel details={details} />
+          <InboundWorkflowPanel
+            details={details}
+            canCreate={canCreate}
+            canExecute={canExecute}
+            canViewAudit={canViewAudit}
+          />
         ) : (
           <div
             role="status"
@@ -61,14 +77,20 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
       },
     };
   }
+  const capabilities = {
+    canCreate: hasUserPermission(access.access, "inbound.create"),
+    canExecute: hasUserPermission(access.access, "transport.execute"),
+    canViewAudit: hasUserPermission(access.access, "audit.view"),
+  };
   try {
     return {
       props: {
         session,
         details: await fetchOperationsDetails(access.access),
+        ...capabilities,
       },
     };
   } catch {
-    return { props: { session, details: null } };
+    return { props: { session, details: null, ...capabilities } };
   }
 };

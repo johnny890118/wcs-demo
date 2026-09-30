@@ -104,7 +104,21 @@ describe("frontend surface boundary", () => {
         ...context,
         query: { callbackUrl: "https://evil.example/operations" },
       } as never),
-    ).resolves.toEqual({ props: { callbackUrl: "/operations" } });
+    ).resolves.toEqual({
+      props: { callbackUrl: "/operations", sessionExpired: false },
+    });
+
+    await expect(
+      getLoginProps({
+        ...context,
+        query: { callbackUrl: "/operations/inbound", reason: "expired" },
+      } as never),
+    ).resolves.toEqual({
+      props: {
+        callbackUrl: "/operations/inbound",
+        sessionExpired: true,
+      },
+    });
 
     vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     await expect(

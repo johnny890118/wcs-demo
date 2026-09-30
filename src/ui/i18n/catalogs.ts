@@ -225,6 +225,19 @@ export const en = {
   accessDeniedDescription:
     "Your signed-in identity does not have the permission required for this operational area. Return to Operations or ask an administrator to review your access.",
   returnToOperations: "Return to Operations",
+  sessionExpired: "Session expired",
+  sessionExpiredDescription:
+    "Your demo session is no longer valid. Sign in or start a new authorized session to continue.",
+  inboundCreatePermissionRequired:
+    "Your current access can view inbound work but cannot create receipts.",
+  outboundCreatePermissionRequired:
+    "Your current access can view outbound work but cannot allocate orders.",
+  transportExecutePermissionRequired:
+    "Your current access cannot execute transport tasks.",
+  alarmAcknowledgePermissionRequired:
+    "Your current access can view this alarm but cannot acknowledge it.",
+  alarmRecoverPermissionRequired:
+    "Your current access can view this alarm but cannot recover its task.",
   revision: "Revision",
   liveData: "Live",
   staleData: "Last known snapshot",
@@ -524,6 +537,18 @@ export const zhTW: Catalog = {
   accessDeniedDescription:
     "目前登入身分沒有進入此營運區域所需的權限。請返回營運首頁，或請管理者檢查你的存取設定。",
   returnToOperations: "返回營運首頁",
+  sessionExpired: "工作階段已過期",
+  sessionExpiredDescription:
+    "目前示範工作階段已失效。請重新登入或建立新的授權工作階段後再繼續。",
+  inboundCreatePermissionRequired:
+    "目前權限可以查看入庫作業，但不能建立入庫單。",
+  outboundCreatePermissionRequired:
+    "目前權限可以查看出庫作業，但不能配置出庫單。",
+  transportExecutePermissionRequired: "目前權限不能執行搬運任務。",
+  alarmAcknowledgePermissionRequired:
+    "目前權限可以查看此警報，但不能確認警報。",
+  alarmRecoverPermissionRequired:
+    "目前權限可以查看此警報，但不能執行任務復原。",
   revision: "版本",
   liveData: "即時",
   staleData: "最後已知快照",
