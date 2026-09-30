@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
 import { AuditProjectionService } from "../../apps/api/src/audit/audit-projection.service";
+import { AccessContextService } from "../../apps/api/src/access-context/access-context.service";
 import { requestContext } from "../../apps/api/src/logging/request-context";
 import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
@@ -397,6 +398,92 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect(otherAudit.events.map((event) => event.resource.id)).toEqual([
       otherIdentifiers.receiptId,
     ]);
+  });
+
+  it("atomically persists warehouse-local evidence for a context transition", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await pool.query(
+      `INSERT INTO warehouses (id, code, name)
+       VALUES ($1, 'OTHER', 'Other Warehouse')
+       ON CONFLICT (id) DO NOTHING`,
+      [otherWarehouseId],
+    );
+    const service = new AccessContextService(pool);
+    await expect(
+      requestContext.run({ requestId: "request:warehouse-context-001" }, () =>
+        service.changeWarehouse(
+          {
+            principalKind: "human",
+            principal: "integration-operator",
+            permissions: ["operations.view"],
+            warehouseScopes: [warehouseId, otherWarehouseId],
+            currentWarehouseId: warehouseId,
+          },
+          otherWarehouseId,
+        ),
+      ),
+    ).resolves.toEqual({ currentWarehouseId: otherWarehouseId });
+
+    const persisted = await pool.query<{
+      warehouse_id: string;
+      actor_type: string;
+      actor_id: string;
+      action: string;
+      aggregate_id: string;
+      details: Record<string, unknown>;
+      correlation_id: string;
+    }>(
+      `SELECT warehouse_id, actor_type, actor_id, action, aggregate_id, details,
+        correlation_id
+       FROM audit_events
+       ORDER BY action`,
+    );
+    expect(persisted.rows).toEqual([
+      {
+        warehouse_id: otherWarehouseId,
+        actor_type: "user",
+        actor_id: "integration-operator",
+        action: "access_context.warehouse_entered",
+        aggregate_id: otherWarehouseId,
+        details: {},
+        correlation_id: "request:warehouse-context-001",
+      },
+      {
+        warehouse_id: warehouseId,
+        actor_type: "user",
+        actor_id: "integration-operator",
+        action: "access_context.warehouse_left",
+        aggregate_id: warehouseId,
+        details: {},
+        correlation_id: "request:warehouse-context-001",
+      },
+    ]);
+
+    const audit = new AuditProjectionService(pool);
+    await expect(audit.list(warehouseId, { limit: 10 })).resolves.toMatchObject(
+      {
+        events: [
+          {
+            action: "access_context.warehouse_left",
+            knownAction: true,
+            knownResource: true,
+            evidence: {},
+          },
+        ],
+      },
+    );
+    await expect(
+      audit.list(otherWarehouseId, { limit: 10 }),
+    ).resolves.toMatchObject({
+      events: [
+        {
+          action: "access_context.warehouse_entered",
+          knownAction: true,
+          knownResource: true,
+          evidence: {},
+        },
+      ],
+    });
   });
 
   it("returns data-backed operations projections without inferring missing state", async () => {

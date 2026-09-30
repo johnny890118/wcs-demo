@@ -2,6 +2,8 @@ import {
   userPermissions,
   type OperationalAccess,
   type UserPermission,
+  type WarehouseScope,
+  isWarehouseScope,
   isOperationalAccess,
 } from "../../application/access/operational-access";
 export { loadOperationalRuntime } from "../runtime/operational-runtime";
@@ -33,10 +35,50 @@ function configuredValue(name: string, fallback: string): string {
   return value;
 }
 
+function configuredWarehouseScopes(): readonly WarehouseScope[] {
+  const configured = process.env.DEMO_WAREHOUSE_SCOPES_JSON?.trim();
+  if (!configured) {
+    return [
+      {
+        warehouseId: configuredValue("DEMO_WAREHOUSE_ID", demoWarehouseId),
+        code: configuredValue("DEMO_WAREHOUSE_CODE", "DEMO"),
+        name: configuredValue(
+          "DEMO_WAREHOUSE_NAME",
+          "Deterministic Demo Warehouse",
+        ),
+      },
+    ];
+  }
+  if (configured.length > 20_000) {
+    throw new Error("DEMO_WAREHOUSE_SCOPES_JSON is too long.");
+  }
+  try {
+    const scopes: unknown = JSON.parse(configured);
+    if (
+      !Array.isArray(scopes) ||
+      scopes.length === 0 ||
+      scopes.length > 100 ||
+      !scopes.every(isWarehouseScope) ||
+      new Set(scopes.map((scope) => scope.warehouseId)).size !== scopes.length
+    ) {
+      throw new Error();
+    }
+    return scopes;
+  } catch {
+    throw new Error(
+      "DEMO_WAREHOUSE_SCOPES_JSON must define unique valid warehouse scopes.",
+    );
+  }
+}
+
 export function createDemoOperationalAccess(
   username: string,
 ): OperationalAccess {
-  const warehouseId = configuredValue("DEMO_WAREHOUSE_ID", demoWarehouseId);
+  const warehouseScopes = configuredWarehouseScopes();
+  const warehouseId = configuredValue(
+    "DEMO_CURRENT_WAREHOUSE_ID",
+    warehouseScopes[0].warehouseId,
+  );
   const access: OperationalAccess = {
     principal: {
       kind: "human",
@@ -44,16 +86,7 @@ export function createDemoOperationalAccess(
       displayName: username,
       identityProvider: "demo-credentials",
       permissions: configuredPermissions(),
-      warehouseScopes: [
-        {
-          warehouseId,
-          code: configuredValue("DEMO_WAREHOUSE_CODE", "DEMO"),
-          name: configuredValue(
-            "DEMO_WAREHOUSE_NAME",
-            "Deterministic Demo Warehouse",
-          ),
-        },
-      ],
+      warehouseScopes,
     },
     currentWarehouseId: warehouseId,
   };

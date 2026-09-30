@@ -34,6 +34,8 @@ const UUID =
 const RESOURCE_TYPE = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
 const CORRELATION_ID = /^[A-Za-z0-9._:-]{8,200}$/;
 const evidenceKeys: Record<AuditAction, ReadonlySet<string>> = {
+  "access_context.warehouse_entered": new Set([]),
+  "access_context.warehouse_left": new Set([]),
   "alarm.acknowledge": new Set(["taskId", "equipmentId"]),
   "inbound_receipt.create": new Set(["transportTaskId"]),
   "outbound_order.allocate": new Set([

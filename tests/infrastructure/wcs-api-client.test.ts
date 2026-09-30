@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fetchAuditEvents,
   loadWcsApiTimeoutMs,
+  recordWarehouseContextChange,
 } from "../../src/infrastructure/http/wcs-api-client";
 import { testOperationalAccess } from "../fixtures/operational-access";
 
@@ -57,6 +58,33 @@ describe("WCS audit projection client", () => {
     );
     await expect(fetchAuditEvents(testOperationalAccess)).rejects.toThrow(
       /invalid projection/,
+    );
+    delete process.env.API_SERVICE_TOKEN;
+  });
+});
+
+describe("WCS warehouse context client", () => {
+  it("records an in-scope context change through the authenticated API", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    const targetWarehouseId = "20000000-0000-4000-8000-000000000001";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ currentWarehouseId: targetWarehouseId }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      recordWarehouseContextChange(testOperationalAccess, targetWarehouseId),
+    ).resolves.toEqual({ currentWarehouseId: targetWarehouseId });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/v1/access-context/warehouse"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ targetWarehouseId }),
+        headers: expect.objectContaining({
+          "X-SWP-Warehouse": testOperationalAccess.currentWarehouseId,
+        }),
+      }),
     );
     delete process.env.API_SERVICE_TOKEN;
   });

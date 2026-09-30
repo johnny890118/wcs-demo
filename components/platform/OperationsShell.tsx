@@ -13,7 +13,6 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  currentWarehouse,
   hasUserPermission,
   isOperationalAccess,
   isOperationalRuntime,
@@ -21,6 +20,7 @@ import {
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
+import { WarehouseContextControl } from "./WarehouseContextControl";
 
 export function OperationsShell({
   children,
@@ -42,7 +42,6 @@ export function OperationsShell({
   const runtime = isOperationalRuntime(session?.runtime)
     ? session.runtime
     : null;
-  const warehouse = access ? currentWarehouse(access) : null;
   const canViewAudit = access ? hasUserPermission(access, "audit.view") : false;
   const environmentLabel = runtime
     ? t(
@@ -201,7 +200,7 @@ export function OperationsShell({
 
         <div className="min-w-0 flex-1">
           <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-            <div className="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3 md:hidden">
                 <Link
                   href="/"
@@ -214,28 +213,25 @@ export function OperationsShell({
               </div>
               <div
                 aria-label={t("operationalContext")}
-                className="hidden min-w-0 items-center gap-2 text-xs md:flex"
+                className="order-3 flex w-full min-w-0 items-center gap-2 pb-3 text-xs md:order-none md:w-auto md:pb-0"
               >
-                <span className="max-w-56 truncate font-bold text-[var(--text)]">
-                  {warehouse?.name ?? t("warehouseContextUnavailable")}
-                </span>
-                {warehouse ? (
-                  <span className="rounded-md bg-[var(--accent-soft)] px-2 py-1 font-mono font-semibold text-[var(--accent-strong)]">
-                    {warehouse.code}
-                  </span>
-                ) : null}
+                {access ? (
+                  <WarehouseContextControl access={access} />
+                ) : (
+                  <span>{t("warehouseContextUnavailable")}</span>
+                )}
                 {environmentLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
                     {environmentLabel}
                   </span>
                 ) : null}
                 {deploymentProfileLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
                     {deploymentProfileLabel}
                   </span>
                 ) : null}
                 {equipmentSourceLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
                     {equipmentSourceLabel}
                   </span>
                 ) : null}

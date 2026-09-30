@@ -217,3 +217,20 @@ export function currentWarehouse(access: OperationalAccess): WarehouseScope {
   if (!scope) throw new Error("Current warehouse is outside principal scope.");
   return scope;
 }
+
+export function selectCurrentWarehouse(
+  access: OperationalAccess,
+  warehouseId: unknown,
+): OperationalAccess {
+  if (
+    typeof warehouseId !== "string" ||
+    !access.principal.warehouseScopes.some(
+      (scope) => scope.warehouseId === warehouseId,
+    )
+  ) {
+    throw new Error("Selected warehouse is outside the principal scope.");
+  }
+  return warehouseId === access.currentWarehouseId
+    ? access
+    : { ...access, currentWarehouseId: warehouseId };
+}

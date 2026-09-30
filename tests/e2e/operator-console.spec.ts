@@ -16,7 +16,8 @@ const serviceHeaders = {
   "X-SWP-Principal": "legacy-demo-admin",
   "X-SWP-User-Permissions":
     "operations.view,audit.view,inbound.create,outbound.create,transport.execute,alarm.acknowledge,alarm.recover",
-  "X-SWP-Warehouse-Scopes": "10000000-0000-4000-8000-000000000001",
+  "X-SWP-Warehouse-Scopes":
+    "10000000-0000-4000-8000-000000000001,20000000-0000-4000-8000-000000000010",
   "X-SWP-Warehouse": "10000000-0000-4000-8000-000000000001",
 };
 
@@ -109,6 +110,17 @@ test("login and every operations route enforce the private surface boundary", as
     "href",
     "/operations",
   );
+});
+
+test("operator switches only between authorized warehouse contexts", async ({
+  page,
+}) => {
+  await signIn(page, "/operations");
+  const selector = page.getByRole("combobox", { name: "目前倉庫" });
+  await expect(selector).toHaveValue("10000000-0000-4000-8000-000000000001");
+  await selector.selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(selector).toHaveValue("20000000-0000-4000-8000-000000000010");
+  await expect(page).toHaveURL("/operations");
 });
 
 test("public entry reflows at a 200%-equivalent CSS viewport", async ({
@@ -241,12 +253,13 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByRole("navigation", { name: "操作台桌面版導覽" }),
   ).toBeVisible();
-  await expect(
-    page.getByLabel("目前營運情境").getByText("Deterministic Demo Warehouse"),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel("目前營運情境").getByText("DEMO", { exact: true }),
-  ).toBeVisible();
+  const warehouseContext = page.getByRole("combobox", { name: "目前倉庫" });
+  await expect(warehouseContext).toHaveValue(
+    "10000000-0000-4000-8000-000000000001",
+  );
+  await expect(warehouseContext.locator("option:checked")).toHaveText(
+    "Deterministic Demo Warehouse · DEMO",
+  );
   await expect(
     page.getByLabel("目前營運情境").getByText("私人示範／訓練"),
   ).toBeVisible();

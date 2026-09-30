@@ -3,6 +3,7 @@ import {
   currentWarehouse,
   hasUserPermission,
   isOperationalAccess,
+  selectCurrentWarehouse,
 } from "../../src/application/access/operational-access";
 import {
   testOperationalAccess,
@@ -49,5 +50,33 @@ describe("operational access contract", () => {
         currentWarehouseId: "20000000-0000-4000-8000-000000000001",
       }),
     ).toBe(false);
+  });
+
+  it("changes only the current warehouse within the existing principal scope", () => {
+    const secondWarehouseId = "20000000-0000-4000-8000-000000000001";
+    const access = {
+      ...testOperationalAccess,
+      principal: {
+        ...testOperationalAccess.principal,
+        warehouseScopes: [
+          ...testOperationalAccess.principal.warehouseScopes,
+          {
+            warehouseId: secondWarehouseId,
+            code: "SECOND",
+            name: "Second Warehouse",
+          },
+        ],
+      },
+    };
+    expect(selectCurrentWarehouse(access, secondWarehouseId)).toEqual({
+      ...access,
+      currentWarehouseId: secondWarehouseId,
+    });
+    expect(selectCurrentWarehouse(access, access.currentWarehouseId)).toBe(
+      access,
+    );
+    expect(() =>
+      selectCurrentWarehouse(access, "30000000-0000-4000-8000-000000000001"),
+    ).toThrow(/outside the principal scope/);
   });
 });

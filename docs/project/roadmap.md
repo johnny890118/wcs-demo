@@ -159,8 +159,8 @@ Status: Active
 - [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
 - [x] Define human, anonymous-demo, and service principal semantics plus a bounded server-issued demo-session carrier without prematurely implementing the S3 data lifecycle
 - [x] Add permission-aware navigation/actions plus explicit access-denied and expired anonymous-demo session behavior; the backend remains authoritative
-- [ ] Add bounded multi-warehouse context selection and accountable context-change evidence
-- [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
+- [x] Add bounded multi-warehouse context selection and warehouse-scoped context-change evidence
+- [ ] Add observability evidence for authentication/access lifecycle events without guessing production retention duration
 
 ## S2 — Operational Work Center and Inventory Visibility
 
@@ -220,4 +220,4 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue Slice D in the [S1 access-context plan](s1-access-context-plan.md): add bounded current-warehouse selection and context-change evidence when multiple authorized scopes are configured, without pulling persistent production identity administration forward.
+Continue S1 by replacing environment-derived human grants with a persistent assignment boundary and access-lifecycle evidence before production identity is enabled; keep OIDC provider integration replaceable and out of this foundation slice.

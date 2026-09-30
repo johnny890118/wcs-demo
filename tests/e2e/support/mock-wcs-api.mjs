@@ -6,6 +6,8 @@ if (!token) throw new Error("API_SERVICE_TOKEN is required for the E2E mock.");
 
 const generatedAt = "2026-09-18T08:00:00.000Z";
 const expectedWarehouseId = "10000000-0000-4000-8000-000000000001";
+const secondWarehouseId = "20000000-0000-4000-8000-000000000010";
+const expectedWarehouseScopes = [expectedWarehouseId, secondWarehouseId];
 const expectedPrincipal = "legacy-demo-admin";
 
 function hasOperationalContext(request, permission) {
@@ -15,8 +17,9 @@ function hasOperationalContext(request, permission) {
   return (
     request.headers["x-swp-principal"] === expectedPrincipal &&
     permissions.includes(permission) &&
-    request.headers["x-swp-warehouse"] === expectedWarehouseId &&
-    request.headers["x-swp-warehouse-scopes"] === expectedWarehouseId
+    expectedWarehouseScopes.includes(request.headers["x-swp-warehouse"]) &&
+    request.headers["x-swp-warehouse-scopes"] ===
+      expectedWarehouseScopes.join(",")
   );
 }
 
@@ -393,6 +396,27 @@ const server = createServer(async (request, response) => {
         : "operations.view",
     )
   ) {
+    return;
+  }
+  if (
+    request.method === "POST" &&
+    request.url === "/api/v1/access-context/warehouse"
+  ) {
+    if (!requireOperationalContext(request, response, "operations.view"))
+      return;
+    const body = await readBody(request);
+    if (
+      !expectedWarehouseScopes.includes(body.targetWarehouseId) ||
+      body.targetWarehouseId === request.headers["x-swp-warehouse"]
+    ) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ code: "INVALID_WAREHOUSE_CONTEXT" }));
+      return;
+    }
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({ currentWarehouseId: body.targetWarehouseId }),
+    );
     return;
   }
   if (request.url === "/api/v1/operations/summary") {

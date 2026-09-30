@@ -9,6 +9,8 @@ const names = [
   "DEMO_WAREHOUSE_ID",
   "DEMO_WAREHOUSE_CODE",
   "DEMO_WAREHOUSE_NAME",
+  "DEMO_WAREHOUSE_SCOPES_JSON",
+  "DEMO_CURRENT_WAREHOUSE_ID",
   "SWP_ENVIRONMENT",
   "SWP_LIFECYCLE_ENVIRONMENT",
   "SWP_DEPLOYMENT_PROFILE",
@@ -55,6 +57,35 @@ describe("demo identity adapter", () => {
     );
     process.env.SWP_LIFECYCLE_ENVIRONMENT = "production-ish";
     expect(() => loadOperationalRuntime()).toThrow(/SWP_LIFECYCLE_ENVIRONMENT/);
+  });
+
+  it("supports bounded multi-warehouse demo grants without changing authorization semantics", () => {
+    process.env.DEMO_WAREHOUSE_SCOPES_JSON = JSON.stringify([
+      {
+        warehouseId: "10000000-0000-4000-8000-000000000001",
+        code: "ONE",
+        name: "Warehouse One",
+      },
+      {
+        warehouseId: "20000000-0000-4000-8000-000000000001",
+        code: "TWO",
+        name: "Warehouse Two",
+      },
+    ]);
+    process.env.DEMO_CURRENT_WAREHOUSE_ID =
+      "20000000-0000-4000-8000-000000000001";
+
+    const access = createDemoOperationalAccess("operator@example.test");
+    expect(access.currentWarehouseId).toBe(
+      "20000000-0000-4000-8000-000000000001",
+    );
+    expect(access.principal.warehouseScopes).toHaveLength(2);
+
+    process.env.DEMO_CURRENT_WAREHOUSE_ID =
+      "30000000-0000-4000-8000-000000000001";
+    expect(() => createDemoOperationalAccess("operator")).toThrow(
+      /access configuration/,
+    );
   });
 
   it("distinguishes lifecycle environment, deployment profile, and equipment source", () => {

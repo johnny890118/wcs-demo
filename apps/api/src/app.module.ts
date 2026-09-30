@@ -11,10 +11,12 @@ import { RateLimitMiddleware } from "./security/rate-limit.middleware";
 import { OutboxModule } from "./outbox/outbox.module";
 import { OperationsModule } from "./operations/operations.module";
 import { OutboundModule } from "./outbound/outbound.module";
+import { AccessContextModule } from "./access-context/access-context.module";
 
 @Module({
   imports: [
     LoggingModule,
+    AccessContextModule,
     AuditModule,
     DatabaseModule,
     InboundModule,

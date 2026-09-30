@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-09-30. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, S1B command isolation, S1C principal semantics, and the S1D role-aware runtime UX checkpoint.
+Assessment date: 2026-09-30. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, S1B command isolation, S1C principal semantics, and S1D role-aware runtime UX plus accountable warehouse context switching.
 
 ## Supported product path
 
@@ -13,6 +13,7 @@ Assessment date: 2026-09-30. Baseline: verified M8A, system-first frontend bound
 - Lifecycle environment, deployment profile, and equipment source are distinct server-owned runtime values. API startup and deployment validation reject incompatible profile/source combinations; public and private demos are simulation-only.
 - Human, anonymous-demo, and service principals now have distinct validation and audit semantics. Public Demo can issue a short-lived, signed, HttpOnly carrier only from the configured origin in simulation; permissions and warehouse scope are derived server-side, and API boundaries revalidate the forwarded demo-session UUID and expiry.
 - Operations pages derive action capabilities from the validated server-side access context. Inbound, outbound, execution, acknowledgement, recovery, audit navigation, and workflow-evidence links are hidden or disabled when their permission is absent, with an operator-readable explanation; BFF/API enforcement remains authoritative. Expired anonymous-demo sessions return to `/login` with a validated operations callback and an explicit bilingual notice.
+- Multi-scope human sessions expose a responsive, bilingual current-warehouse selector. The browser proposes only a target UUID; the signed-session callback and authenticated API independently revalidate scope, atomically record source/destination warehouse audit evidence, and update the current claim only after persistence succeeds. Single-scope sessions retain a static context label.
 
 ## Product limitations
 
@@ -42,7 +43,7 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. Complete S1 bounded multi-warehouse context selection/evidence and replace environment-derived grants with persistent assignments before production identity is enabled.
+1. Complete S1 persistent assignment and authentication/access-lifecycle evidence before production identity is enabled.
 2. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
 3. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
 4. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.

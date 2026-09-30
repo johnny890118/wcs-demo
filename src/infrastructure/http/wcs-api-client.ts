@@ -165,6 +165,27 @@ export async function fetchAuditEvents(
   return payload;
 }
 
+export async function recordWarehouseContextChange(
+  access: OperationalAccess,
+  targetWarehouseId: string,
+): Promise<{ currentWarehouseId: string }> {
+  const payload = await postWcsCommand(
+    "/api/v1/access-context/warehouse",
+    { targetWarehouseId },
+    access,
+  );
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    Array.isArray(payload) ||
+    (payload as Record<string, unknown>).currentWarehouseId !==
+      targetWarehouseId
+  ) {
+    throw new Error("WCS API returned an invalid warehouse context result.");
+  }
+  return { currentWarehouseId: targetWarehouseId };
+}
+
 export async function createInboundReceipt(
   request: CreateInboundWorkflowRequest,
   access: OperationalAccess,

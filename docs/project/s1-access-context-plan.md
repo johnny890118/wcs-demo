@@ -5,7 +5,7 @@ Status: Active
 Risk: High — authentication, authorization, tenant-like warehouse isolation, and
 operator attribution are load-bearing security boundaries.
 
-Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md), [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md), and [ADR 0015](../decisions/0015-principal-and-anonymous-demo-carrier.md)
+Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md), [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md), [ADR 0015](../decisions/0015-principal-and-anonymous-demo-carrier.md), and [ADR 0016](../decisions/0016-accountable-warehouse-context-switching.md)
 
 ## Slice A — Delivery and deployment-safety contract
 
@@ -56,7 +56,7 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
 - [x] Add explicit access-denied and expired anonymous-demo session behavior.
 - [x] Filter navigation and permitted actions from effective permissions while
       keeping server enforcement authoritative.
-- [ ] Add current-warehouse selection only when more than one authorized scope is
+- [x] Add current-warehouse selection only when more than one authorized scope is
       configured, with accountable context-change evidence.
 - [ ] Replace environment-derived demo grants with persistent assignments before
       production identity is enabled.

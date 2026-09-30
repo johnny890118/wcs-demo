@@ -2,7 +2,7 @@
 
 ## Current disposition
 
-The supported product entry and authenticated, simulator-backed operations console are deployed as the public demo described in the managed release evidence. The legacy prototype routes remain outside the supported operations boundary and are not approved for product use or physical equipment connectivity. Supported NestJS endpoints require constant-time bearer authentication plus an explicitly configured service-permission allowlist. High-risk fault and recovery commands additionally require named confirmation with a recorded reason. API startup fails closed for missing, weak, placeholder, duplicate, or unknown security configuration. Physical-equipment connectivity remains gated by the M6 commissioning controls and explicit site authorization.
+The supported product entry and authenticated, simulator-backed operations console are deployed as the managed private demo described in the release evidence. The legacy prototype routes remain outside the supported operations boundary and are not approved for product use or physical equipment connectivity. Supported NestJS endpoints require constant-time bearer authentication plus an explicitly configured service-permission allowlist. High-risk fault and recovery commands additionally require named confirmation with a recorded reason. API startup fails closed for missing, weak, placeholder, duplicate, or unknown security configuration. Physical-equipment connectivity remains gated by the M6 commissioning controls and explicit site authorization.
 
 ## Runtime boundary
 
@@ -10,6 +10,7 @@ The supported product entry and authenticated, simulator-backed operations conso
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.
 - `API_TRUST_PROXY_HOPS` is an exact trusted-hop count, not a blanket proxy trust switch. Keep it at `0` for direct/Compose access and set it only to the verified provider hop count (Render currently uses `1`). Incorrect proxy trust can allow client-IP spoofing and defeat per-client limits.
 - Runtime credentials come only from environment or provider secret stores. Placeholder credentials are accepted in committed examples but rejected when the API boots.
+- Operational access is an effective-permission plus warehouse-scope contract. A multi-warehouse context change accepts only an in-scope target UUID through the CSRF-protected signed-session update path, persists source/destination-scoped audit evidence before changing the claim, and leaves the prior context active on failure.
 
 ## Required baseline
 

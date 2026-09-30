@@ -30,6 +30,12 @@ BFF request can wait through most of Render's documented idle wake-up while
 retaining response time inside the Hobby plan's 60-second function limit. Keep
 every variable server-only (no `NEXT_PUBLIC_` prefix).
 
+The demo adapter can replace the three single-warehouse values with a bounded
+`DEMO_WAREHOUSE_SCOPES_JSON` array and optional in-scope
+`DEMO_CURRENT_WAREHOUSE_ID` when multi-warehouse context switching must be
+verified. This remains demo/test configuration; do not treat environment values
+as production role or warehouse assignment storage.
+
 Render prompts for `DATABASE_URL` and `API_SERVICE_TOKEN` because the Blueprint marks them `sync: false`. Existing Blueprint services do not automatically receive newly added `sync: false` variables; add them manually when updating an existing service. Keep the API permission list least-privileged for the deployed web capabilities.
 
 Before configuring either provider, validate an equivalent local environment without printing values:

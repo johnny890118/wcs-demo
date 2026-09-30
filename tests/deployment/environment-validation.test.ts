@@ -109,6 +109,46 @@ describe("deployment environment validation", () => {
     expect(result.status).toBe(0);
   });
 
+  it("validates bounded multi-warehouse demo scopes and their initial context", () => {
+    const scopes = JSON.stringify([
+      {
+        warehouseId: "10000000-0000-4000-8000-000000000001",
+        code: "ONE",
+        name: "Warehouse One",
+      },
+      {
+        warehouseId: "20000000-0000-4000-8000-000000000001",
+        code: "TWO",
+        name: "Warehouse Two",
+      },
+    ]);
+    const base = {
+      ...webAccessEnvironment,
+      NEXTAUTH_URL: "https://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
+      INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
+      DEMO_ADMIN_USERNAME: "validation-operator",
+      DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+      DEMO_WAREHOUSE_SCOPES_JSON: scopes,
+    };
+    const valid = validate("web", {
+      ...base,
+      DEMO_CURRENT_WAREHOUSE_ID: "20000000-0000-4000-8000-000000000001",
+    });
+    const outOfScope = validate("web", {
+      ...base,
+      DEMO_CURRENT_WAREHOUSE_ID: "30000000-0000-4000-8000-000000000001",
+    });
+
+    expect(valid.status).toBe(0);
+    expect(outOfScope.status).toBe(1);
+    expect(outOfScope.stderr).toContain(
+      "DEMO_CURRENT_WAREHOUSE_ID must belong",
+    );
+  });
+
   it("requires a bounded anonymous access contract for public demo web", () => {
     const base = {
       ...webAccessEnvironment,

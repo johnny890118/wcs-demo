@@ -5,6 +5,11 @@ import {
   loadOperationalRuntime,
 } from "../../../src/infrastructure/auth/demo-identity";
 import { absoluteAuthRedirect } from "../../../src/ui/auth/login-routing";
+import {
+  isOperationalAccess,
+  selectCurrentWarehouse,
+} from "../../../src/application/access/operational-access";
+import { recordWarehouseContextChange } from "../../../src/infrastructure/http/wcs-api-client";
 
 async function authorize(credentials) {
   const username = process.env.DEMO_ADMIN_USERNAME;
@@ -43,8 +48,26 @@ export const authOptions = {
   // New environments must use NEXTAUTH_SECRET.
   secret: process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET,
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user?.access) token.access = user.access;
+      if (trigger === "update") {
+        if (!isOperationalAccess(token.access)) {
+          throw new Error(
+            "Cannot change an invalid operational access context.",
+          );
+        }
+        const selected = selectCurrentWarehouse(
+          token.access,
+          session?.currentWarehouseId,
+        );
+        if (selected !== token.access) {
+          await recordWarehouseContextChange(
+            token.access,
+            selected.currentWarehouseId,
+          );
+          token.access = selected;
+        }
+      }
       return token;
     },
     session({ session, token }) {

@@ -1,4 +1,6 @@
 export const auditActions = [
+  "access_context.warehouse_entered",
+  "access_context.warehouse_left",
   "alarm.acknowledge",
   "inbound_receipt.create",
   "outbound_order.allocate",
@@ -18,6 +20,7 @@ export const auditResourceTypes = [
   "InboundReceipt",
   "OutboundOrder",
   "TransportTask",
+  "Warehouse",
 ] as const;
 
 export type AuditResourceType = (typeof auditResourceTypes)[number];
