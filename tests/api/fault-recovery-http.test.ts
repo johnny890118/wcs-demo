@@ -24,6 +24,7 @@ describe("fault recovery HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
+    process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS =
       "alarm.inject,alarm.acknowledge,alarm.recover";
     vi.clearAllMocks();
@@ -59,6 +60,7 @@ describe("fault recovery HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
+    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
@@ -184,13 +186,15 @@ describe("fault recovery HTTP contract", () => {
     expect(recovery.injectFault).toHaveBeenCalledWith(
       expect.objectContaining({
         taskId,
-        actorId: "test-operations-console",
+        actorId: "test-bff",
+        actorType: "service",
         confirmationReason: "Controlled simulator fault drill.",
       }),
     );
     expect(recovery.acknowledge).toHaveBeenCalledWith({
       alarmId,
       actorId: testOperationalAccess.principal.subject,
+      actorType: "user",
       warehouseId: testWarehouseId,
       confirmationReason: "Operator reviewed the alarm evidence.",
     });
@@ -199,6 +203,7 @@ describe("fault recovery HTTP contract", () => {
       strategy: "release",
       resolution: "Vehicle released; task ready for reassignment.",
       actorId: testOperationalAccess.principal.subject,
+      actorType: "user",
       warehouseId: testWarehouseId,
       confirmationReason: "Supervisor approved vehicle isolation.",
     });

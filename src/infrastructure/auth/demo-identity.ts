@@ -39,6 +39,7 @@ export function createDemoOperationalAccess(
   const warehouseId = configuredValue("DEMO_WAREHOUSE_ID", demoWarehouseId);
   const access: OperationalAccess = {
     principal: {
+      kind: "human",
       subject: "legacy-demo-admin",
       displayName: username,
       identityProvider: "demo-credentials",

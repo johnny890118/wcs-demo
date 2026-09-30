@@ -100,9 +100,10 @@ function validateOperationalRuntime() {
       `SWP_DEPLOYMENT_PROFILE ${profile} does not allow SWP_EQUIPMENT_SOURCE ${source}.`,
     );
   }
+  return profile;
 }
 
-validateOperationalRuntime();
+const deploymentProfile = validateOperationalRuntime();
 
 if (target === "api" || target === "all") {
   const database = url("DATABASE_URL", ["postgres:", "postgresql:"]);
@@ -177,6 +178,25 @@ if (target === "web" || target === "all") {
   required("DEMO_WAREHOUSE_CODE");
   required("DEMO_WAREHOUSE_NAME");
   required("API_SERVICE_TOKEN", 32);
+  if (deploymentProfile === "public_demo") {
+    required("ANONYMOUS_DEMO_SECRET", 32);
+    integer("ANONYMOUS_DEMO_SESSION_TTL_SECONDS", 1_800, 300, 7_200);
+    const publicDemoPermissions = required("PUBLIC_DEMO_USER_PERMISSIONS")
+      .split(",")
+      .map((permission) => permission.trim())
+      .filter(Boolean);
+    if (
+      publicDemoPermissions.length === 0 ||
+      new Set(publicDemoPermissions).size !== publicDemoPermissions.length ||
+      publicDemoPermissions.some(
+        (permission) => !knownUserPermissions.has(permission),
+      )
+    ) {
+      errors.push(
+        "PUBLIC_DEMO_USER_PERMISSIONS must be non-empty, unique, and known.",
+      );
+    }
+  }
 }
 
 if (errors.length > 0) {

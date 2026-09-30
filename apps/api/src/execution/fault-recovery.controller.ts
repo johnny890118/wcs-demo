@@ -4,7 +4,6 @@ import {
   Body,
   ConflictException,
   Controller,
-  Headers,
   HttpCode,
   NotFoundException,
   Param,
@@ -27,8 +26,9 @@ import {
 } from "../../../../src/domain/alarm/alarm";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
-import { requireOperatorId } from "../auth/operator-identity";
 import { requireForwardedUserAccess } from "../auth/user-access";
+import { requireServicePrincipal } from "../auth/service-principal";
+import { interactiveAuditActorType } from "../../../../src/application/audit/audit-actor";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -41,8 +41,8 @@ export class FaultRecoveryController {
   @Post("transport-tasks/:taskId/faults")
   @RequirePermission("alarm.inject")
   async injectFault(
+    @Req() request: Request,
     @Param("taskId") taskId: string,
-    @Headers("x-operator-id") operatorId: string | undefined,
     @Body() body: unknown,
   ): Promise<PersistedAlarm> {
     this.requireUuid(taskId, "taskId");
@@ -58,13 +58,15 @@ export class FaultRecoveryController {
         "severity must be info, warning, or critical.",
       );
     }
+    const principal = requireServicePrincipal(request);
     return this.handle(() =>
       this.recovery.injectFault({
         taskId,
         faultCode,
         message,
         severity: value.severity as AlarmSeverity,
-        actorId: requireOperatorId(operatorId),
+        actorId: principal.subject,
+        actorType: "service",
         confirmationReason,
       }),
     );
@@ -90,6 +92,7 @@ export class FaultRecoveryController {
       this.recovery.acknowledge({
         alarmId,
         actorId: access.principal,
+        actorType: interactiveAuditActorType(access.principalKind),
         warehouseId: access.currentWarehouseId,
         confirmationReason,
       }),
@@ -122,6 +125,7 @@ export class FaultRecoveryController {
         strategy: value.strategy as "resume" | "release",
         resolution,
         actorId: access.principal,
+        actorType: interactiveAuditActorType(access.principalKind),
         warehouseId: access.currentWarehouseId,
         confirmationReason,
       }),

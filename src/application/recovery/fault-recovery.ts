@@ -1,6 +1,7 @@
 import type { Alarm, AlarmSeverity } from "../../domain/alarm/alarm";
 import type { EquipmentPort } from "../equipment/equipment-port";
 import type { Clock } from "../time/clock";
+import type { AuditActorType } from "../audit/audit-actor";
 
 export type RecoverableTaskStatus =
   | "queued"
@@ -46,6 +47,7 @@ export interface FaultRecoveryRepository {
       "alarmId" | "code" | "severity" | "message" | "raisedAt"
     >;
     actorId: string;
+    actorType: AuditActorType;
     confirmationReason: string;
     metadata: RecoveryMetadata;
   }): Promise<PersistedAlarm>;
@@ -58,6 +60,7 @@ export interface FaultRecoveryRepository {
     warehouseId: string;
     expectedVersion: number;
     actorId: string;
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
     confirmationReason: string;
     at: number;
     metadata: RecoveryMetadata;
@@ -67,6 +70,7 @@ export interface FaultRecoveryRepository {
     taskVersion: number;
     strategy: "resume" | "release";
     actorId: string;
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
     at: number;
     resolution: string;
     confirmationReason: string;
@@ -77,6 +81,7 @@ export interface FaultRecoveryRepository {
     warehouseId: string;
     expectedVersion: number;
     actorId: string;
+    actorType: AuditActorType;
     reason: string;
     metadata: RecoveryMetadata;
   }): Promise<void>;
@@ -117,6 +122,7 @@ export class FaultRecoveryService {
     severity: AlarmSeverity;
     message: string;
     actorId: string;
+    actorType: AuditActorType;
     confirmationReason: string;
   }): Promise<PersistedAlarm> {
     const task = await this.repository.getTask(command.taskId);
@@ -166,11 +172,17 @@ export class FaultRecoveryService {
           raisedAt: this.clock.now(),
         },
         actorId: command.actorId,
+        actorType: command.actorType,
         confirmationReason: command.confirmationReason,
         metadata: this.metadata(),
       });
     } catch (error) {
-      await this.reconcileAsUnknown(task, command.actorId, error);
+      await this.reconcileAsUnknown(
+        task,
+        command.actorId,
+        command.actorType,
+        error,
+      );
       throw error;
     }
   }
@@ -178,6 +190,7 @@ export class FaultRecoveryService {
   async acknowledge(command: {
     alarmId: string;
     actorId: string;
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
     warehouseId: string;
     confirmationReason: string;
   }): Promise<PersistedAlarm> {
@@ -200,6 +213,7 @@ export class FaultRecoveryService {
       warehouseId: command.warehouseId,
       expectedVersion: alarm.version,
       actorId: command.actorId,
+      actorType: command.actorType,
       confirmationReason: command.confirmationReason,
       at: this.clock.now(),
       metadata: this.metadata(),
@@ -211,6 +225,7 @@ export class FaultRecoveryService {
     strategy: "resume" | "release";
     resolution: string;
     actorId: string;
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
     warehouseId: string;
     confirmationReason: string;
   }): Promise<RecoverableTask> {
@@ -253,13 +268,19 @@ export class FaultRecoveryService {
         taskVersion: task.version,
         strategy: command.strategy,
         actorId: command.actorId,
+        actorType: command.actorType,
         at: this.clock.now(),
         resolution: command.resolution,
         confirmationReason: command.confirmationReason,
         metadata: this.metadata(),
       });
     } catch (error) {
-      await this.reconcileAsUnknown(task, command.actorId, error);
+      await this.reconcileAsUnknown(
+        task,
+        command.actorId,
+        command.actorType,
+        error,
+      );
       throw error;
     }
   }
@@ -285,6 +306,7 @@ export class FaultRecoveryService {
   private async reconcileAsUnknown(
     task: RecoverableTask,
     actorId: string,
+    actorType: AuditActorType,
     error: unknown,
   ): Promise<void> {
     if (!task.equipmentId) return;
@@ -300,6 +322,7 @@ export class FaultRecoveryService {
         warehouseId: task.warehouseId,
         expectedVersion: task.version,
         actorId,
+        actorType,
         reason,
         metadata: this.metadata(),
       }),

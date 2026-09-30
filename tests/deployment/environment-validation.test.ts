@@ -109,6 +109,31 @@ describe("deployment environment validation", () => {
     expect(result.status).toBe(0);
   });
 
+  it("requires a bounded anonymous access contract for public demo web", () => {
+    const base = {
+      ...webAccessEnvironment,
+      SWP_DEPLOYMENT_PROFILE: "public_demo",
+      NEXTAUTH_URL: "https://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
+      INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
+      DEMO_ADMIN_USERNAME: "validation-operator",
+      DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+      PUBLIC_DEMO_USER_PERMISSIONS: "operations.view",
+    };
+    const missingSecret = validate("web", base);
+    const valid = validate("web", {
+      ...base,
+      ANONYMOUS_DEMO_SECRET: `validation-${"d".repeat(32)}`,
+      ANONYMOUS_DEMO_SESSION_TTL_SECONDS: "1800",
+    });
+
+    expect(missingSecret.status).toBe(1);
+    expect(missingSecret.stderr).toContain("ANONYMOUS_DEMO_SECRET");
+    expect(valid.status).toBe(0);
+  });
+
   it("rejects an unbounded internal API timeout", () => {
     const result = validate("web", {
       ...webAccessEnvironment,

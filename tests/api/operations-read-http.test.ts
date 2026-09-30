@@ -18,6 +18,7 @@ describe("warehouse-scoped operations read HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = serviceToken;
+    process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS = "operations.view";
     vi.clearAllMocks();
     summaries.getSummary.mockResolvedValue({
@@ -54,6 +55,7 @@ describe("warehouse-scoped operations read HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
+    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });

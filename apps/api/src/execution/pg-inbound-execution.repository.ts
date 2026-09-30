@@ -317,10 +317,11 @@ export class PgInboundExecutionRepository
     await client.query(
       `INSERT INTO audit_events
         (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-       VALUES ($1, $2, 'user', $3, $4, 'TransportTask', $5, $6::jsonb, $7)`,
+       VALUES ($1, $2, $3, $4, $5, 'TransportTask', $6, $7::jsonb, $8)`,
       [
         metadata.auditEventId,
         warehouseId,
+        metadata.actorType,
         actorId,
         action,
         taskId,

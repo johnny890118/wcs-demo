@@ -13,6 +13,7 @@ import type { Request } from "express";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import { requireForwardedUserAccess } from "../auth/user-access";
+import { interactiveAuditActorType } from "../../../../src/application/audit/audit-actor";
 import {
   InsufficientInventoryError,
   InvalidOutboundDestinationError,
@@ -26,7 +27,7 @@ import type {
 
 type OutboundBody = Omit<
   CreateOutboundOrder,
-  "idempotencyKey" | "actorId" | "warehouseId"
+  "idempotencyKey" | "actorId" | "actorType" | "warehouseId"
 >;
 
 const uuidPattern =
@@ -103,6 +104,7 @@ export class OutboundController {
         ...parseBody(rawBody),
         idempotencyKey: idempotencyKey.trim(),
         actorId: access.principal,
+        actorType: interactiveAuditActorType(access.principalKind),
         warehouseId: access.currentWarehouseId,
       });
     } catch (error) {

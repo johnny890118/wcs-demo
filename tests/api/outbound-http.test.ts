@@ -29,6 +29,7 @@ describe("outbound HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
+    process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS = "outbound.create";
     repository = {
       create: vi.fn(async () => ({
@@ -56,6 +57,7 @@ describe("outbound HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
+    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
@@ -102,6 +104,7 @@ describe("outbound HTTP contract", () => {
         ...validBody,
         idempotencyKey: "outbound-request-0001",
         actorId: testOperationalAccess.principal.subject,
+        actorType: "user",
         warehouseId: testWarehouseId,
       },
       expect.objectContaining({

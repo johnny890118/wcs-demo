@@ -11,6 +11,7 @@ import {
   type RecoverableTask,
   type RecoveryMetadata,
 } from "../../../../src/application/recovery/fault-recovery";
+import type { AuditActorType } from "../../../../src/application/audit/audit-actor";
 import { DATABASE_POOL } from "../database/database.module";
 import { auditCorrelationId } from "../logging/request-context";
 
@@ -149,6 +150,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         input.metadata,
         input.task.warehouseId,
         input.actorId,
+        input.actorType,
         "transport_task.block_for_fault",
         "TransportTaskBlockedByFault",
         input.task.taskId,
@@ -215,6 +217,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         input.metadata,
         input.warehouseId,
         input.actorId,
+        input.actorType,
         "alarm.acknowledge",
         "AlarmAcknowledged",
         input.alarmId,
@@ -287,6 +290,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         input.metadata,
         input.alarm.warehouseId,
         input.actorId,
+        input.actorType,
         `transport_task.recover_${input.strategy}`,
         input.strategy === "resume"
           ? "TransportTaskResumed"
@@ -326,6 +330,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
         input.metadata,
         input.warehouseId,
         input.actorId,
+        input.actorType,
         "transport_task.mark_unknown",
         "TransportTaskOutcomeUnknown",
         input.taskId,
@@ -355,6 +360,7 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
     metadata: RecoveryMetadata,
     warehouseId: string,
     actorId: string,
+    actorType: AuditActorType,
     action: string,
     eventType: string,
     aggregateId: string,
@@ -375,10 +381,11 @@ export class PgFaultRecoveryRepository implements FaultRecoveryRepository {
     await client.query(
       `INSERT INTO audit_events
        (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-       VALUES ($1, $2, 'user', $3, $4, $5, $6, $7::jsonb, $8)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9)`,
       [
         metadata.auditEventId,
         warehouseId,
+        actorType,
         actorId,
         action,
         aggregateType,

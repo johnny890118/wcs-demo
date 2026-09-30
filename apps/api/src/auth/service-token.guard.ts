@@ -11,10 +11,13 @@ import type { Request } from "express";
 import {
   REQUIRED_PERMISSION,
   REQUIRED_USER_PERMISSION,
-  servicePermissions,
   type ServicePermission,
 } from "./permissions";
 import { requireForwardedUserAccess } from "./user-access";
+import {
+  attachServicePrincipal,
+  loadServicePrincipal,
+} from "./service-principal";
 
 @Injectable()
 export class ServiceTokenGuard implements CanActivate {
@@ -51,15 +54,8 @@ export class ServiceTokenGuard implements CanActivate {
         "Protected endpoints must declare one required service permission.",
       );
     }
-    const configured = new Set(
-      (process.env.API_SERVICE_PERMISSIONS ?? "")
-        .split(",")
-        .map((permission) => permission.trim())
-        .filter((permission) =>
-          servicePermissions.includes(permission as ServicePermission),
-        ),
-    );
-    if (!configured.has(required)) {
+    const servicePrincipal = loadServicePrincipal();
+    if (!servicePrincipal.permissions.includes(required)) {
       throw new ForbiddenException({
         code: "FORBIDDEN",
         message: `Service identity lacks permission ${required}.`,
@@ -71,6 +67,7 @@ export class ServiceTokenGuard implements CanActivate {
     if (requiredUserPermission) {
       requireForwardedUserAccess(request, requiredUserPermission);
     }
+    attachServicePrincipal(request, servicePrincipal);
     return true;
   }
 }

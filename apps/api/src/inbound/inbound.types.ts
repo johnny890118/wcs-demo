@@ -1,6 +1,9 @@
+import type { AuditActorType } from "../../../../src/application/audit/audit-actor";
+
 export type CreateInboundReceipt = Readonly<{
   idempotencyKey: string;
   actorId: string;
+  actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
   warehouseId: string;
   externalReference: string;
   load: Readonly<{

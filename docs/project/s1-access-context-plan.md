@@ -5,7 +5,7 @@ Status: Active
 Risk: High — authentication, authorization, tenant-like warehouse isolation, and
 operator attribution are load-bearing security boundaries.
 
-Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md) and [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md)
+Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md), [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md), and [ADR 0015](../decisions/0015-principal-and-anonymous-demo-carrier.md)
 
 ## Slice A — Delivery and deployment-safety contract
 
@@ -44,11 +44,11 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
 
 ## Slice C — Principal and anonymous-demo access contract
 
-- [ ] Define human, anonymous-demo, and service principal semantics without role
+- [x] Define human, anonymous-demo, and service principal semantics without role
       names as authorization branches.
-- [ ] Add a server-issued anonymous-demo carrier and demo-session scope contract
+- [x] Add a server-issued anonymous-demo carrier and demo-session scope contract
       without implementing the complete S3 persistence/TTL lifecycle.
-- [ ] Revalidate the combined warehouse and optional demo-session scope at
+- [x] Revalidate the combined warehouse and optional demo-session scope at
       backend boundaries and preserve accountable actor semantics.
 
 ## Slice D — Session lifecycle and role-aware experience

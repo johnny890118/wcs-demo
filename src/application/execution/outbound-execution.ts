@@ -1,5 +1,6 @@
 import type { EquipmentPort } from "../equipment/equipment-port";
 import type { Clock } from "../time/clock";
+import type { AuditActorType } from "../audit/audit-actor";
 import {
   inboundTransportCapabilities,
   supportsCapabilities,
@@ -88,6 +89,7 @@ export class DeterministicOutboundExecutor {
     taskId: string;
     equipmentId: string;
     actorId: string;
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
     warehouseId: string;
     confirmationReason: string;
   }): Promise<OutboundExecutionResult> {
@@ -140,7 +142,7 @@ export class DeterministicOutboundExecutor {
         command.equipmentId,
         task.version,
         command.actorId,
-        this.metadata(command.confirmationReason),
+        this.metadata(command.confirmationReason, command.actorType),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -150,7 +152,7 @@ export class DeterministicOutboundExecutor {
         command.warehouseId,
         task.version,
         command.actorId,
-        this.metadata(command.confirmationReason),
+        this.metadata(command.confirmationReason, command.actorType),
       );
       this.clock.advanceBy(this.stepDurationMs);
       await this.dispatch(command.equipmentId, {
@@ -175,7 +177,7 @@ export class DeterministicOutboundExecutor {
         command.warehouseId,
         task.version,
         command.actorId,
-        this.metadata(command.confirmationReason),
+        this.metadata(command.confirmationReason, command.actorType),
       );
       return {
         taskId: task.taskId,
@@ -199,7 +201,7 @@ export class DeterministicOutboundExecutor {
             task.version,
             command.actorId,
             reason,
-            this.metadata(command.confirmationReason),
+            this.metadata(command.confirmationReason, command.actorType),
           ),
         ]);
       }
@@ -221,10 +223,14 @@ export class DeterministicOutboundExecutor {
     }
   }
 
-  private metadata(confirmationReason: string): TransitionMetadata {
+  private metadata(
+    confirmationReason: string,
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">,
+  ): TransitionMetadata {
     return {
       outboxEventId: this.createId(),
       auditEventId: this.createId(),
+      actorType,
       confirmationReason,
     };
   }

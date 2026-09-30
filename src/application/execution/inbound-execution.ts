@@ -1,5 +1,6 @@
 import type { EquipmentPort } from "../equipment/equipment-port";
 import type { Clock } from "../time/clock";
+import type { AuditActorType } from "../audit/audit-actor";
 import {
   inboundTransportCapabilities,
   supportsCapabilities,
@@ -21,6 +22,7 @@ export type PersistedInboundTask = Readonly<{
 export type TransitionMetadata = Readonly<{
   outboxEventId: string;
   auditEventId: string;
+  actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
   confirmationReason?: string;
 }>;
 
@@ -76,6 +78,7 @@ export type ExecuteInboundTask = Readonly<{
   taskId: string;
   equipmentId: string;
   actorId: string;
+  actorType: Extract<AuditActorType, "user" | "anonymous_demo">;
   warehouseId: string;
   confirmationReason: string;
 }>;
@@ -169,7 +172,7 @@ export class DeterministicInboundExecutor {
         command.equipmentId,
         task.version,
         command.actorId,
-        this.transitionMetadata(command.confirmationReason),
+        this.transitionMetadata(command.confirmationReason, command.actorType),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -179,7 +182,7 @@ export class DeterministicInboundExecutor {
         command.warehouseId,
         task.version,
         command.actorId,
-        this.transitionMetadata(command.confirmationReason),
+        this.transitionMetadata(command.confirmationReason, command.actorType),
       );
 
       this.clock.advanceBy(this.stepDurationMs);
@@ -206,7 +209,10 @@ export class DeterministicInboundExecutor {
         task.version,
         command.actorId,
         {
-          ...this.transitionMetadata(command.confirmationReason),
+          ...this.transitionMetadata(
+            command.confirmationReason,
+            command.actorType,
+          ),
           inventoryUnitId: this.createId(),
         },
       );
@@ -239,10 +245,14 @@ export class DeterministicInboundExecutor {
     }
   }
 
-  private transitionMetadata(confirmationReason?: string): TransitionMetadata {
+  private transitionMetadata(
+    confirmationReason: string | undefined,
+    actorType: Extract<AuditActorType, "user" | "anonymous_demo">,
+  ): TransitionMetadata {
     return {
       outboxEventId: this.createId(),
       auditEventId: this.createId(),
+      actorType,
       ...(confirmationReason ? { confirmationReason } : {}),
     };
   }
@@ -265,7 +275,7 @@ export class DeterministicInboundExecutor {
         task.version,
         command.actorId,
         reason,
-        this.transitionMetadata(command.confirmationReason),
+        this.transitionMetadata(command.confirmationReason, command.actorType),
       ),
     ]);
   }

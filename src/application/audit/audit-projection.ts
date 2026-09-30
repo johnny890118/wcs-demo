@@ -1,4 +1,6 @@
-export type AuditActorType = "user" | "service" | "system";
+import { auditActorTypes, type AuditActorType } from "./audit-actor";
+
+export type { AuditActorType } from "./audit-actor";
 
 export type AuditEvidenceValue = string | number | boolean | string[];
 
@@ -55,7 +57,7 @@ export function isAuditEventPage(value: unknown): value is AuditEventPage {
       typeof event.knownAction === "boolean" &&
       typeof event.knownResource === "boolean" &&
       isStringRecord(actor) &&
-      ["user", "service", "system"].includes(String(actor.type)) &&
+      auditActorTypes.includes(actor.type as AuditActorType) &&
       typeof actor.id === "string" &&
       isStringRecord(resource) &&
       typeof resource.type === "string" &&

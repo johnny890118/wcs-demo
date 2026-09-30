@@ -13,6 +13,7 @@ import type { Request } from "express";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import { requireForwardedUserAccess } from "../auth/user-access";
+import { interactiveAuditActorType } from "../../../../src/application/audit/audit-actor";
 import {
   IdempotencyConflictError,
   InvalidLocationError,
@@ -25,7 +26,7 @@ import type {
 
 type InboundBody = Omit<
   CreateInboundReceipt,
-  "idempotencyKey" | "actorId" | "warehouseId"
+  "idempotencyKey" | "actorId" | "actorType" | "warehouseId"
 >;
 
 const uuidPattern =
@@ -121,6 +122,7 @@ export class InboundController {
         ...parseBody(rawBody),
         idempotencyKey: idempotencyKey.trim(),
         actorId: access.principal,
+        actorType: interactiveAuditActorType(access.principalKind),
         warehouseId: access.currentWarehouseId,
       });
     } catch (error) {

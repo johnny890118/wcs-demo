@@ -16,7 +16,17 @@ export type WarehouseScope = Readonly<{
   name: string;
 }>;
 
+export const principalKinds = ["human", "anonymous_demo", "service"] as const;
+export type PrincipalKind = (typeof principalKinds)[number];
+export type InteractivePrincipalKind = Exclude<PrincipalKind, "service">;
+
+export type DemoSessionScope = Readonly<{
+  sessionId: string;
+  expiresAt: string;
+}>;
+
 export type OperationalPrincipal = Readonly<{
+  kind: InteractivePrincipalKind;
   subject: string;
   displayName: string;
   identityProvider: string;
@@ -27,6 +37,7 @@ export type OperationalPrincipal = Readonly<{
 export type OperationalAccess = Readonly<{
   principal: OperationalPrincipal;
   currentWarehouseId: string;
+  demoSessionScope?: DemoSessionScope;
 }>;
 
 export const operationalEnvironments = [
@@ -113,6 +124,7 @@ export function isOperationalAccess(
   }
   const principal = access.principal as Record<string, unknown>;
   if (
+    (principal.kind !== "human" && principal.kind !== "anonymous_demo") ||
     !isNonBlank(principal.subject) ||
     !isNonBlank(principal.displayName) ||
     !isNonBlank(principal.identityProvider, 80) ||
@@ -130,7 +142,29 @@ export function isOperationalAccess(
   const warehouseIds = principal.warehouseScopes.map(
     (scope) => (scope as WarehouseScope).warehouseId,
   );
+  const demoSession = access.demoSessionScope;
+  const validDemoSession =
+    demoSession !== undefined &&
+    demoSession !== null &&
+    typeof demoSession === "object" &&
+    !Array.isArray(demoSession) &&
+    uuidPattern.test(
+      String((demoSession as Record<string, unknown>).sessionId),
+    ) &&
+    typeof (demoSession as Record<string, unknown>).expiresAt === "string" &&
+    Number.isFinite(
+      Date.parse(String((demoSession as Record<string, unknown>).expiresAt)),
+    );
+  const scopeMatchesPrincipal =
+    principal.kind === "anonymous_demo"
+      ? validDemoSession &&
+        principal.subject ===
+          `anonymous-demo:${String(
+            (demoSession as Record<string, unknown>).sessionId,
+          )}`
+      : demoSession === undefined;
   return (
+    scopeMatchesPrincipal &&
     new Set(warehouseIds).size === warehouseIds.length &&
     warehouseIds.includes(access.currentWarehouseId)
   );

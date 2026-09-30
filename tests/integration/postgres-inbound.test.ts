@@ -45,6 +45,7 @@ const pool =
 const command: CreateInboundReceipt = {
   idempotencyKey: "integration-request-0001",
   actorId: "integration-test",
+  actorType: "anonymous_demo",
   warehouseId: "10000000-0000-4000-8000-000000000001",
   externalReference: "ASN-INTEGRATION-0001",
   load: {
@@ -67,6 +68,7 @@ const identifiers: InboundIdentifiers = {
 const outboundCommand: CreateOutboundOrder = {
   idempotencyKey: "integration-outbound-0001",
   actorId: "integration-test",
+  actorType: "user",
   warehouseId: "10000000-0000-4000-8000-000000000001",
   externalReference: "SO-INTEGRATION-0001",
   sku: command.load.sku,
@@ -161,6 +163,12 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       requestHash(command),
     );
     expect(created).toMatchObject({ status: "requested", duplicate: false });
+    await expect(
+      pool.query<{ actor_type: string }>(
+        "SELECT actor_type FROM audit_events WHERE id = $1",
+        [identifiers.auditEventId],
+      ),
+    ).resolves.toMatchObject({ rows: [{ actor_type: "anonymous_demo" }] });
 
     const equipment = new SimulatorEquipmentAdapter();
     equipment.register(createMobileTransportDescriptor("AMR-01"), "idle");
@@ -177,6 +185,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
           taskId: identifiers.transportTaskId,
           equipmentId: "AMR-01",
           actorId: command.actorId,
+          actorType: "user",
           warehouseId,
           confirmationReason: "Verified integration inbound execution.",
         }),
@@ -667,6 +676,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: identifiers.transportTaskId,
       equipmentId: "AMR-01",
       actorId: command.actorId,
+      actorType: "user",
       warehouseId,
       confirmationReason: "Verified integration inbound execution.",
     });
@@ -752,6 +762,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       taskId: allocated.transportTaskIds[0]!,
       equipmentId: "AMR-01",
       actorId: outboundCommand.actorId,
+      actorType: "user",
       warehouseId,
       confirmationReason: "Verified integration outbound execution.",
     });
@@ -878,6 +889,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       {
         outboxEventId: "90000000-0000-4000-8000-000000000013",
         auditEventId: "90000000-0000-4000-8000-000000000014",
+        actorType: "user",
       },
     );
     await execution.markInProgress(
@@ -888,6 +900,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       {
         outboxEventId: "90000000-0000-4000-8000-000000000015",
         auditEventId: "90000000-0000-4000-8000-000000000016",
+        actorType: "user",
       },
     );
 
@@ -902,7 +915,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       faultCode: "DRIVE_BLOCKED",
       severity: "critical",
       message: "Travel path is blocked.",
-      actorId: "integration-operator",
+      actorId: "integration-simulator-service",
+      actorType: "service",
       confirmationReason: "Integration fault-recovery drill.",
     });
     expect(alarm).toMatchObject({
@@ -915,6 +929,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await recovery.acknowledge({
       alarmId: alarm.alarmId,
       actorId: "integration-operator",
+      actorType: "user",
       warehouseId,
       confirmationReason: "Alarm evidence reviewed during integration drill.",
     });
@@ -923,6 +938,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       strategy: "release",
       resolution: "Vehicle isolated; task returned for reassignment.",
       actorId: "integration-supervisor",
+      actorType: "user",
       warehouseId,
       confirmationReason: "Release approved after vehicle isolation.",
     });
@@ -945,6 +961,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       fault_confirmation: string;
       acknowledgement_confirmation: string;
       recovery_confirmation: string;
+      fault_actor_type: string;
     }>(
       `SELECT task.status AS task_status, task.equipment_id, task.blocking_alarm_id,
         alarm.status AS alarm_status, alarm.acknowledged_by, alarm.cleared_by,
@@ -959,6 +976,8 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
           WHERE action = 'alarm.acknowledge') AS acknowledgement_confirmation,
         (SELECT details ->> 'confirmationReason' FROM audit_events
           WHERE action = 'transport_task.recover_release') AS recovery_confirmation
+        ,(SELECT actor_type FROM audit_events
+          WHERE action = 'transport_task.block_for_fault') AS fault_actor_type
        FROM transport_tasks task
        JOIN alarms alarm ON alarm.transport_task_id = task.id
        WHERE task.id = $1`,
@@ -978,6 +997,7 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       acknowledgement_confirmation:
         "Alarm evidence reviewed during integration drill.",
       recovery_confirmation: "Release approved after vehicle isolation.",
+      fault_actor_type: "service",
     });
     expect(await equipment.getState("AMR-01")).toMatchObject({
       status: "idle",

@@ -109,10 +109,11 @@ export class PgInboundRepository implements InboundRepository {
       await client.query(
         `INSERT INTO audit_events
           (id, warehouse_id, actor_type, actor_id, action, aggregate_type, aggregate_id, details, correlation_id)
-         VALUES ($1, $2, 'user', $3, 'inbound_receipt.create', 'InboundReceipt', $4, $5::jsonb, $6)`,
+         VALUES ($1, $2, $3, $4, 'inbound_receipt.create', 'InboundReceipt', $5, $6::jsonb, $7)`,
         [
           identifiers.auditEventId,
           command.warehouseId,
+          command.actorType,
           command.actorId,
           identifiers.receiptId,
           JSON.stringify({

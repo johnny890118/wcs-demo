@@ -22,6 +22,7 @@ import {
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import { requireForwardedUserAccess } from "../auth/user-access";
+import { interactiveAuditActorType } from "../../../../src/application/audit/audit-actor";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -80,6 +81,7 @@ export class ExecutionController {
         taskId,
         equipmentId: equipmentId.trim(),
         actorId: access.principal,
+        actorType: interactiveAuditActorType(access.principalKind),
         warehouseId: access.currentWarehouseId,
         confirmationReason: confirmationReason.trim(),
       });

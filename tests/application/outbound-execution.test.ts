@@ -124,6 +124,7 @@ describe("deterministic outbound execution", () => {
       taskId: repository.task.taskId,
       equipmentId: "AMR-01",
       actorId: "test",
+      actorType: "user",
       warehouseId,
       confirmationReason: "Verified outbound execution request.",
     });
@@ -149,6 +150,7 @@ describe("deterministic outbound execution", () => {
         taskId: repository.task.taskId,
         equipmentId: "AMR-01",
         actorId: "test",
+        actorType: "user",
         warehouseId,
         confirmationReason: "Verified outbound execution request.",
       }),

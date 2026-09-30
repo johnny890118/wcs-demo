@@ -157,7 +157,7 @@ Status: Active
 - [x] Restore API/Web OCI build parity and remove `/platform` from Compose health semantics
 - [x] Revalidate permission plus warehouse scope at SSR, BFF, and API boundaries
 - [x] Surface current warehouse, environment, equipment source, principal, and relevant freshness/connectivity in the application shell
-- [ ] Define anonymous-demo principal and demo-session scope contracts without prematurely implementing the S3 data lifecycle
+- [x] Define human, anonymous-demo, and service principal semantics plus a bounded server-issued demo-session carrier without prematurely implementing the S3 data lifecycle
 - [ ] Add role-aware actionable Home/navigation foundations and access-denied/session-lifecycle behavior
 - [ ] Add audit/observability evidence for access and context changes without guessing production retention duration
 
@@ -219,4 +219,4 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Execute Slice C in the [S1 access-context plan](s1-access-context-plan.md): define accountable human, anonymous-demo, and service principal semantics plus the minimum server-issued demo-session scope contract, without pulling the S3 lifecycle forward.
+Execute Slice D in the [S1 access-context plan](s1-access-context-plan.md): add explicit access-denied/expired-session behavior, permission-aware navigation and actions, and the bounded current-warehouse selection/context-change contract without pulling persistent production identity administration forward.

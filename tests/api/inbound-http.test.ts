@@ -10,6 +10,7 @@ import {
   type InboundRepository,
 } from "../../apps/api/src/inbound/inbound.types";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
+import type { OperationalAccess } from "../../src/application/access/operational-access";
 import {
   testOperationalAccess,
   testWarehouseId,
@@ -109,6 +110,7 @@ describe("inbound HTTP contract", () => {
         ...validBody,
         idempotencyKey: "request-0001",
         actorId: testOperationalAccess.principal.subject,
+        actorType: "user",
         warehouseId: testWarehouseId,
       },
       expect.objectContaining({
@@ -120,6 +122,51 @@ describe("inbound HTTP contract", () => {
       }),
       expect.stringMatching(/^[a-f0-9]{64}$/),
     );
+  });
+
+  it("preserves anonymous-demo actor and session scope at the API boundary", async () => {
+    const anonymousAccess = {
+      ...testOperationalAccess,
+      principal: {
+        ...testOperationalAccess.principal,
+        kind: "anonymous_demo" as const,
+        subject: "anonymous-demo:90000000-0000-4000-8000-000000000099",
+      },
+      demoSessionScope: {
+        sessionId: "90000000-0000-4000-8000-000000000099",
+        expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      },
+    } satisfies OperationalAccess;
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/inbound-receipts")
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set(operationalAccessHeaders(anonymousAccess))
+      .set("Idempotency-Key", "anonymous-request-0001")
+      .send(validBody);
+
+    expect(response.status).toBe(201);
+    expect(repository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorId: anonymousAccess.principal.subject,
+        actorType: "anonymous_demo",
+        warehouseId: testWarehouseId,
+      }),
+      expect.any(Object),
+      expect.stringMatching(/^[a-f0-9]{64}$/),
+    );
+
+    const missingScope = await request(app.getHttpServer())
+      .post("/api/v1/inbound-receipts")
+      .set("Authorization", `Bearer ${process.env.API_SERVICE_TOKEN}`)
+      .set({
+        ...operationalAccessHeaders(anonymousAccess),
+        "X-SWP-Demo-Session-Expires-At": "",
+      })
+      .set("Idempotency-Key", "anonymous-request-0002")
+      .send(validBody);
+    expect(missingScope.status).toBe(401);
+    expect(repository.create).toHaveBeenCalledTimes(1);
   });
 
   it("requires the forwarded authenticated user context", async () => {

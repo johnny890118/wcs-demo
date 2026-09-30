@@ -24,6 +24,7 @@ describe("inbound execution HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
+    process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS = "transport.execute";
     executor.execute.mockResolvedValue({
       taskId,
@@ -46,6 +47,7 @@ describe("inbound execution HTTP contract", () => {
   afterEach(async () => {
     vi.clearAllMocks();
     delete process.env.API_SERVICE_TOKEN;
+    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
@@ -88,6 +90,7 @@ describe("inbound execution HTTP contract", () => {
       taskId,
       equipmentId: "AMR-01",
       actorId: testOperationalAccess.principal.subject,
+      actorType: "user",
       warehouseId: testWarehouseId,
       confirmationReason: validBody.confirmationReason,
     });

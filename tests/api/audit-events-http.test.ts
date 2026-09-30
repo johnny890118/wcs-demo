@@ -17,6 +17,7 @@ describe("audit events HTTP contract", () => {
 
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-service-token-with-safe-length";
+    process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS = "audit.view";
     vi.clearAllMocks();
     audit.list.mockResolvedValue({ events: [], nextCursor: null });
@@ -34,6 +35,7 @@ describe("audit events HTTP contract", () => {
 
   afterEach(async () => {
     delete process.env.API_SERVICE_TOKEN;
+    delete process.env.API_SERVICE_ID;
     delete process.env.API_SERVICE_PERMISSIONS;
     await app.close();
   });
