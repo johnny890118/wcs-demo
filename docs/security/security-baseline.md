@@ -12,6 +12,7 @@ The supported product entry and authenticated, simulator-backed operations conso
 - Runtime credentials come only from environment or provider secret stores. Placeholder credentials are accepted in committed examples but rejected when the API boots.
 - Operational access is an effective-permission plus warehouse-scope contract. A multi-warehouse context change accepts only an in-scope target UUID through the CSRF-protected signed-session update path, persists source/destination-scoped audit evidence before changing the claim, and leaves the prior context active on failure.
 - Human grants are resolved from active, time-bounded persisted assignments by stable identity-provider/subject after identity proof. Each warehouse assignment owns its effective permissions; the BFF needs the dedicated `access.resolve` service permission, and no browser or environment value grants human authorization.
+- Human JWTs reference a persisted, bounded session that is revalidated against current principal, assignment, expiry, and revocation state on restore. Unknown registry state removes operational authority; sign-out and administrative revocation record session-linked evidence.
 
 ## Required baseline
 

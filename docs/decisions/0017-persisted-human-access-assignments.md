@@ -50,8 +50,8 @@ warehouse. OIDC can later supply the same provider/subject identity reference
 without changing authorization contracts. The BFF requires `access.resolve` in
 addition to the least-privilege service permissions needed by its operations.
 
-This slice records successful access issuance but does not provide assignment
-administration, role-template management, active-session persistence,
-revocation, failed-login security events, or expiry/sign-out evidence. Those
-remain explicit S1 lifecycle work; JWT sessions continue to hold a signed
-snapshot until refresh or reauthentication.
+This slice did not itself provide assignment administration, role-template
+management, active-session persistence, revocation, failed-login security
+events, or expiry/sign-out evidence. ADR 0018 subsequently adds persisted human
+sessions, bounded expiry, assignment revalidation, and explicit revocation;
+administration and failed-login controls remain S1 work.

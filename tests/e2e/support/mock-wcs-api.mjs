@@ -9,6 +9,50 @@ const expectedWarehouseId = "10000000-0000-4000-8000-000000000001";
 const secondWarehouseId = "20000000-0000-4000-8000-000000000010";
 const expectedWarehouseScopes = [expectedWarehouseId, secondWarehouseId];
 const expectedPrincipal = "legacy-demo-admin";
+const humanSession = {
+  sessionId: "90000000-0000-4000-8000-000000000099",
+  expiresAt: "2099-01-01T00:00:00.000Z",
+};
+
+function humanAccess(currentWarehouseId = expectedWarehouseId) {
+  const fullPermissions = [
+    "operations.view",
+    "audit.view",
+    "inbound.create",
+    "outbound.create",
+    "transport.execute",
+    "alarm.acknowledge",
+    "alarm.recover",
+  ];
+  const readPermissions = ["operations.view", "audit.view"];
+  return {
+    principal: {
+      kind: "human",
+      subject: expectedPrincipal,
+      displayName: "e2e-operator",
+      identityProvider: "demo-credentials",
+      permissions:
+        currentWarehouseId === secondWarehouseId
+          ? readPermissions
+          : fullPermissions,
+      warehouseScopes: [
+        {
+          warehouseId: expectedWarehouseId,
+          code: "DEMO",
+          name: "Deterministic Demo Warehouse",
+          permissions: fullPermissions,
+        },
+        {
+          warehouseId: secondWarehouseId,
+          code: "SECOND",
+          name: "Second Demo Warehouse",
+          permissions: readPermissions,
+        },
+      ],
+    },
+    currentWarehouseId,
+  };
+}
 
 function hasOperationalContext(request, permission) {
   const permissions = String(request.headers["x-swp-user-permissions"] ?? "")
@@ -385,7 +429,7 @@ const server = createServer(async (request, response) => {
   }
   if (
     request.method === "POST" &&
-    request.url === "/api/v1/access-context/human/resolve"
+    request.url === "/api/v1/access-context/human/sessions"
   ) {
     const body = await readBody(request);
     if (
@@ -393,52 +437,49 @@ const server = createServer(async (request, response) => {
       body.subject !== expectedPrincipal
     ) {
       response.statusCode = 401;
-      response.end(JSON.stringify({ code: "ACCESS_ASSIGNMENT_UNAVAILABLE" }));
+      response.end(JSON.stringify({ code: "ACCESS_SESSION_UNAVAILABLE" }));
       return;
     }
     response.statusCode = 201;
     response.end(
       JSON.stringify({
-        principal: {
-          kind: "human",
-          subject: expectedPrincipal,
-          displayName: "e2e-operator",
-          identityProvider: "demo-credentials",
-          permissions: [
-            "operations.view",
-            "audit.view",
-            "inbound.create",
-            "outbound.create",
-            "transport.execute",
-            "alarm.acknowledge",
-            "alarm.recover",
-          ],
-          warehouseScopes: [
-            {
-              warehouseId: expectedWarehouseId,
-              code: "DEMO",
-              name: "Deterministic Demo Warehouse",
-              permissions: [
-                "operations.view",
-                "audit.view",
-                "inbound.create",
-                "outbound.create",
-                "transport.execute",
-                "alarm.acknowledge",
-                "alarm.recover",
-              ],
-            },
-            {
-              warehouseId: secondWarehouseId,
-              code: "SECOND",
-              name: "Second Demo Warehouse",
-              permissions: ["operations.view", "audit.view"],
-            },
-          ],
-        },
-        currentWarehouseId: expectedWarehouseId,
+        access: humanAccess(),
+        session: humanSession,
       }),
     );
+    return;
+  }
+  if (
+    request.method === "POST" &&
+    request.url ===
+      `/api/v1/access-context/human/sessions/${humanSession.sessionId}/validate`
+  ) {
+    const body = await readBody(request);
+    if (
+      body.identityProvider !== "demo-credentials" ||
+      body.subject !== expectedPrincipal ||
+      !expectedWarehouseScopes.includes(body.currentWarehouseId)
+    ) {
+      response.statusCode = 401;
+      response.end(JSON.stringify({ code: "ACCESS_SESSION_UNAVAILABLE" }));
+      return;
+    }
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({
+        access: humanAccess(body.currentWarehouseId),
+        session: humanSession,
+      }),
+    );
+    return;
+  }
+  if (
+    request.method === "POST" &&
+    request.url ===
+      `/api/v1/access-context/human/sessions/${humanSession.sessionId}/revoke`
+  ) {
+    response.statusCode = 201;
+    response.end(JSON.stringify({ revoked: true }));
     return;
   }
   if (

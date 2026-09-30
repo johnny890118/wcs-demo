@@ -39,6 +39,10 @@ import {
   isOperationalAccess,
   type OperationalAccess,
 } from "../../application/access/operational-access";
+import {
+  isHumanSessionReference,
+  type HumanSessionReference,
+} from "../../application/access/human-session";
 import { operationalAccessHeaders } from "./operational-access-headers";
 
 const defaultTimeoutMs = 55_000;
@@ -122,30 +126,98 @@ async function postWcsCommand(
   return payload;
 }
 
-export async function resolveHumanOperationalAccess(
-  identityProvider: string,
-  subject: string,
-): Promise<OperationalAccess> {
+export type HumanSessionResolution = Readonly<{
+  access: OperationalAccess;
+  session: HumanSessionReference;
+}>;
+
+async function postHumanSession(path: string, body: unknown): Promise<unknown> {
   const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
   const token = process.env.API_SERVICE_TOKEN;
   if (!token) throw new Error("API_SERVICE_TOKEN is required.");
-  const response = await fetch(
-    `${baseUrl}/api/v1/access-context/human/resolve`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ identityProvider, subject }),
-      signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+  const response = await fetch(`${baseUrl}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+  });
   const payload: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isOperationalAccess(payload)) {
-    throw new Error("No valid persisted operational assignment is available.");
+  if (!response.ok) {
+    throw new Error("No valid persisted operational session is available.");
   }
   return payload;
+}
+
+function requireHumanSessionResolution(
+  payload: unknown,
+): HumanSessionResolution {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("The operational session response is invalid.");
+  }
+  const resolution = payload as Record<string, unknown>;
+  if (
+    !isOperationalAccess(resolution.access) ||
+    !isHumanSessionReference(resolution.session)
+  ) {
+    throw new Error("The operational session response is invalid.");
+  }
+  return {
+    access: resolution.access,
+    session: resolution.session,
+  };
+}
+
+export async function issueHumanOperationalSession(
+  identityProvider: string,
+  subject: string,
+): Promise<HumanSessionResolution> {
+  return requireHumanSessionResolution(
+    await postHumanSession("/api/v1/access-context/human/sessions", {
+      identityProvider,
+      subject,
+    }),
+  );
+}
+
+export async function validateHumanOperationalSession(
+  session: HumanSessionReference,
+  access: OperationalAccess,
+): Promise<HumanSessionResolution> {
+  return requireHumanSessionResolution(
+    await postHumanSession(
+      `/api/v1/access-context/human/sessions/${encodeURIComponent(
+        session.sessionId,
+      )}/validate`,
+      {
+        identityProvider: access.principal.identityProvider,
+        subject: access.principal.subject,
+        currentWarehouseId: access.currentWarehouseId,
+      },
+    ),
+  );
+}
+
+export async function revokeHumanOperationalSession(
+  session: HumanSessionReference,
+  reason: "sign_out" | "administrative" = "sign_out",
+): Promise<void> {
+  const payload = await postHumanSession(
+    `/api/v1/access-context/human/sessions/${encodeURIComponent(
+      session.sessionId,
+    )}/revoke`,
+    { reason },
+  );
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    Array.isArray(payload) ||
+    typeof (payload as Record<string, unknown>).revoked !== "boolean"
+  ) {
+    throw new Error("The operational session revocation response is invalid.");
+  }
 }
 
 export async function fetchOperationsSummary(

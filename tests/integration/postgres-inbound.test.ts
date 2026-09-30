@@ -100,7 +100,7 @@ function idFactory(): () => string {
 describeIntegration("PostgreSQL inbound vertical slice", () => {
   beforeEach(async () => {
     await pool?.query(
-      `TRUNCATE route_plan_edges, route_plans, audit_events, outbox_events, alarms,
+      `TRUNCATE human_access_sessions, route_plan_edges, route_plans, audit_events, outbox_events, alarms,
         inventory_allocations, transport_tasks, outbound_orders, inventory_units,
         loads, inbound_receipts`,
     );
@@ -487,37 +487,44 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     });
   });
 
-  it("resolves seeded human grants from persistence and records login evidence", async () => {
+  it("issues, validates, and revokes a persisted human session with evidence", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const service = new HumanAccessAssignmentService(pool);
 
     await expect(
       requestContext.run({ requestId: "request:login-integration-001" }, () =>
-        service.resolve("demo-credentials", "legacy-demo-admin"),
+        service.issue("demo-credentials", "legacy-demo-admin"),
       ),
     ).resolves.toMatchObject({
-      principal: {
-        kind: "human",
-        subject: "legacy-demo-admin",
-        identityProvider: "demo-credentials",
-        permissions: expect.arrayContaining([
-          "operations.view",
-          "audit.view",
-          "inbound.create",
-        ]),
-        warehouseScopes: [
-          expect.objectContaining({
-            warehouseId,
-            code: "DEMO",
-            permissions: expect.arrayContaining(["operations.view"]),
-          }),
-        ],
+      access: {
+        principal: {
+          kind: "human",
+          subject: "legacy-demo-admin",
+          identityProvider: "demo-credentials",
+          permissions: expect.arrayContaining([
+            "operations.view",
+            "audit.view",
+            "inbound.create",
+          ]),
+          warehouseScopes: [
+            expect.objectContaining({
+              warehouseId,
+              code: "DEMO",
+              permissions: expect.arrayContaining(["operations.view"]),
+            }),
+          ],
+        },
+        currentWarehouseId: warehouseId,
       },
-      currentWarehouseId: warehouseId,
+      session: {
+        sessionId: expect.any(String),
+        expiresAt: expect.any(String),
+      },
     });
 
     const evidence = await pool.query(
       `SELECT warehouse_id, actor_type, actor_id, action, aggregate_type,
+        aggregate_id,
         details, correlation_id
        FROM audit_events
        WHERE action = 'access.login_succeeded'`,
@@ -528,11 +535,41 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         actor_type: "user",
         actor_id: "legacy-demo-admin",
         action: "access.login_succeeded",
-        aggregate_type: "Principal",
+        aggregate_type: "Session",
+        aggregate_id: expect.any(String),
         details: {},
         correlation_id: "request:login-integration-001",
       },
     ]);
+
+    const active = await pool.query<{
+      id: string;
+      current_warehouse_id: string;
+    }>(
+      `SELECT id, current_warehouse_id
+       FROM human_access_sessions
+       WHERE revoked_at IS NULL`,
+    );
+    const issuedSessionId = active.rows[0].id;
+    await expect(
+      service.validate(
+        issuedSessionId,
+        "demo-credentials",
+        "legacy-demo-admin",
+        warehouseId,
+      ),
+    ).resolves.toMatchObject({ access: { currentWarehouseId: warehouseId } });
+    await expect(
+      service.revoke(issuedSessionId, "administrative", "integration-admin"),
+    ).resolves.toEqual({ revoked: true });
+    await expect(
+      service.validate(
+        issuedSessionId,
+        "demo-credentials",
+        "legacy-demo-admin",
+        warehouseId,
+      ),
+    ).rejects.toMatchObject({ status: 401 });
   });
 
   it("returns data-backed operations projections without inferring missing state", async () => {

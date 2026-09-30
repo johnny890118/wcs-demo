@@ -14,6 +14,7 @@ Configure secrets in provider dashboards, never in `vercel.json`, `render.yaml`,
 
 Vercel requires `NEXTAUTH_URL`, `PUBLIC_SITE_URL`, `NEXTAUTH_SECRET`,
 `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`,
+`HUMAN_SESSION_TTL_SECONDS`,
 `SWP_LIFECYCLE_ENVIRONMENT`, `SWP_DEPLOYMENT_PROFILE`,
 `SWP_EQUIPMENT_SOURCE`, `INTERNAL_API_BASE_URL`,
 `INTERNAL_API_TIMEOUT_MS`, and the same `API_SERVICE_TOKEN` assigned to the
@@ -21,6 +22,8 @@ web-to-API service identity. The current managed demo uses the seeded warehouse
 UUID/code/name, `SWP_LIFECYCLE_ENVIRONMENT=production`,
 `SWP_DEPLOYMENT_PROFILE=private_demo`, and
 `SWP_EQUIPMENT_SOURCE=simulation`. The Render API requires the same three values.
+Configure the same bounded `HUMAN_SESSION_TTL_SECONDS` value on Vercel and
+Render; the current baseline is 28800 seconds (eight hours).
 The demo username/password prove only the configured demo identity. Human
 permissions and warehouse scopes come from `access_principals` and
 `warehouse_access_assignments`; the web service identity therefore requires

@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   fetchAuditEvents,
+  issueHumanOperationalSession,
   loadWcsApiTimeoutMs,
   recordWarehouseContextChange,
-  resolveHumanOperationalAccess,
+  revokeHumanOperationalSession,
+  validateHumanOperationalSession,
 } from "../../src/infrastructure/http/wcs-api-client";
 import { testOperationalAccess } from "../fixtures/operational-access";
 
@@ -91,20 +93,25 @@ describe("WCS warehouse context client", () => {
   });
 });
 
-describe("WCS persisted assignment client", () => {
-  it("resolves a bounded human access contract using only the service identity", async () => {
+describe("WCS persisted human session client", () => {
+  const session = {
+    sessionId: "90000000-0000-4000-8000-000000000099",
+    expiresAt: "2099-01-01T00:00:00.000Z",
+  };
+
+  it("issues and validates a bounded session using only the service identity", async () => {
     process.env.API_SERVICE_TOKEN = "service-token-for-test";
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => testOperationalAccess,
+      json: async () => ({ access: testOperationalAccess, session }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(
-      resolveHumanOperationalAccess("test", "test-operator"),
-    ).resolves.toEqual(testOperationalAccess);
+      issueHumanOperationalSession("test", "test-operator"),
+    ).resolves.toEqual({ access: testOperationalAccess, session });
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/api/v1/access-context/human/resolve"),
+      expect.stringContaining("/api/v1/access-context/human/sessions"),
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({
@@ -116,6 +123,29 @@ describe("WCS persisted assignment client", () => {
           "Content-Type": "application/json",
         },
       }),
+    );
+
+    await expect(
+      validateHumanOperationalSession(session, testOperationalAccess),
+    ).resolves.toEqual({ access: testOperationalAccess, session });
+    expect(fetchMock.mock.calls[1][0]).toContain(
+      `/sessions/${session.sessionId}/validate`,
+    );
+    delete process.env.API_SERVICE_TOKEN;
+  });
+
+  it("sends an explicit reason when revoking a session", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ revoked: true }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await revokeHumanOperationalSession(session, "sign_out");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/sessions/${session.sessionId}/revoke`),
+      expect.objectContaining({ body: JSON.stringify({ reason: "sign_out" }) }),
     );
     delete process.env.API_SERVICE_TOKEN;
   });

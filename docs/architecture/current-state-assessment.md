@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-10-01. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, S1B command isolation, S1C principal semantics, and S1D role-aware runtime UX, accountable warehouse context switching, and persisted human access assignments.
+Assessment date: 2026-10-01. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, S1B command isolation, S1C principal semantics, and S1D role-aware runtime UX, accountable warehouse context switching, persisted human access assignments, and revocable human sessions.
 
 ## Supported product path
 
@@ -15,10 +15,11 @@ Assessment date: 2026-10-01. Baseline: verified M8A, system-first frontend bound
 - Operations pages derive action capabilities from the validated server-side access context. Inbound, outbound, execution, acknowledgement, recovery, audit navigation, and workflow-evidence links are hidden or disabled when their permission is absent, with an operator-readable explanation; BFF/API enforcement remains authoritative. Expired anonymous-demo sessions return to `/login` with a validated operations callback and an explicit bilingual notice.
 - Multi-scope human sessions expose a responsive, bilingual current-warehouse selector. The browser proposes only a target UUID; the signed-session callback and authenticated API independently revalidate scope, atomically record source/destination warehouse audit evidence, and update the current claim only after persistence succeeds. Single-scope sessions retain a static context label.
 - Human identity is resolved by stable provider/subject into persisted, warehouse-local assignments after the demo credentials adapter proves identity. The resolver requires the dedicated `access.resolve` service permission, fails closed for disabled/expired/ambiguous grants, and records successful login evidence without storing credentials or cross-warehouse grant details.
+- Human sessions now have a persisted UUID, bounded expiry, current warehouse, and revocation state. Every JWT restore revalidates the session and current assignments; sign-out and administrative revocation are idempotent and attributable.
 
 ## Product limitations
 
-- Authentication is still a single environment-backed demo identity proof. Human grants are persisted, and service permissions/identities remain deny-by-default, but production OIDC, assignment/role administration, active-session persistence and revocation, complete authentication lifecycle evidence, and persisted anonymous-demo lifecycle are not implemented.
+- Authentication is still a single environment-backed demo identity proof. Human grants and sessions are persisted, and service permissions/identities remain deny-by-default, but production OIDC, assignment/role administration, failed-login evidence/throttling, revocation retry/administration UI, and persisted anonymous-demo lifecycle are not implemented.
 - The shell exposes current warehouse, principal, lifecycle environment, deployment profile, equipment source, and projection freshness. The simulator fault-injection endpoint is attributed to its configured service principal; Public Demo issuance and validation contracts exist, but UI entry, persisted sessions, quotas, reset ownership, and cleanup remain S3.
 - `/operations` and focused projections expose useful facts but do not yet form the approved actionable Home, task-centered work center, or human-readable next-action experience.
 - The current warehouse map is primarily a readable topology/observation view. It is not yet the approved Operations Live View, and topology usability remains limited.
@@ -44,7 +45,7 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. Complete S1 active-session persistence, revocation, and authentication/access-lifecycle evidence before production identity is enabled.
+1. Complete S1 failed-login evidence/throttling and revocation delivery/retry observability before production identity is enabled.
 2. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
 3. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
 4. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.

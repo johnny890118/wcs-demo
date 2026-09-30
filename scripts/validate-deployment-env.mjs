@@ -107,6 +107,7 @@ function validateOperationalRuntime() {
 const deploymentProfile = validateOperationalRuntime();
 
 if (target === "api" || target === "all") {
+  integer("HUMAN_SESSION_TTL_SECONDS", 28_800, 900, 86_400);
   const database = url("DATABASE_URL", ["postgres:", "postgresql:"]);
   if (
     process.env.DEPLOYMENT_ENV === "production" &&
@@ -137,6 +138,7 @@ if (target === "api" || target === "all") {
 }
 
 if (target === "web" || target === "all") {
+  integer("HUMAN_SESSION_TTL_SECONDS", 28_800, 900, 86_400);
   const nextAuth = url("NEXTAUTH_URL", ["http:", "https:"]);
   const publicSite = url("PUBLIC_SITE_URL", ["http:", "https:"]);
   if (

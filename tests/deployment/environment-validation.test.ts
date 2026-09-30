@@ -148,4 +148,21 @@ describe("deployment environment validation", () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("INTERNAL_API_TIMEOUT_MS");
   });
+
+  it("rejects a human session lifetime outside the bounded work period", () => {
+    const result = validate("web", {
+      ...webAccessEnvironment,
+      NEXTAUTH_URL: "https://warehouse.example.com",
+      PUBLIC_SITE_URL: "https://warehouse.example.com",
+      INTERNAL_API_BASE_URL: "https://warehouse-api.example.com",
+      NEXTAUTH_SECRET: `validation-${"s".repeat(32)}`,
+      DEMO_ADMIN_USERNAME: "validation-operator",
+      DEMO_ADMIN_PASSWORD: `validation-${"p".repeat(20)}`,
+      API_SERVICE_TOKEN: "validation-token-with-at-least-32-characters",
+      HUMAN_SESSION_TTL_SECONDS: "86401",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("HUMAN_SESSION_TTL_SECONDS");
+  });
 });

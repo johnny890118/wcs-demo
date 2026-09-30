@@ -1,14 +1,21 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loadOperationalRuntime } from "../../../src/infrastructure/auth/demo-identity";
+import {
+  isHumanSessionExpired,
+  isHumanSessionReference,
+  loadHumanSessionTtlSeconds,
+} from "../../../src/application/access/human-session";
 import { absoluteAuthRedirect } from "../../../src/ui/auth/login-routing";
 import {
   isOperationalAccess,
   selectCurrentWarehouse,
 } from "../../../src/application/access/operational-access";
 import {
+  issueHumanOperationalSession,
   recordWarehouseContextChange,
-  resolveHumanOperationalAccess,
+  revokeHumanOperationalSession,
+  validateHumanOperationalSession,
 } from "../../../src/infrastructure/http/wcs-api-client";
 
 export async function authorize(credentials) {
@@ -22,14 +29,15 @@ export async function authorize(credentials) {
   }
 
   if (credentials.username === username && credentials.password === password) {
-    const access = await resolveHumanOperationalAccess(
+    const resolution = await issueHumanOperationalSession(
       "demo-credentials",
       "legacy-demo-admin",
     );
     return {
-      id: access.principal.subject,
-      name: access.principal.displayName,
-      access,
+      id: resolution.access.principal.subject,
+      name: resolution.access.principal.displayName,
+      access: resolution.access,
+      humanSession: resolution.session,
     };
   }
 
@@ -51,9 +59,35 @@ export const authOptions = {
   // JWT_SECRET is read only as a local migration fallback for the legacy .env.
   // New environments must use NEXTAUTH_SECRET.
   secret: process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET,
+  session: {
+    maxAge: loadHumanSessionTtlSeconds(),
+  },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      if (user?.access) token.access = user.access;
+      if (user?.access && user?.humanSession) {
+        token.access = user.access;
+        token.humanSession = user.humanSession;
+      } else if (isOperationalAccess(token.access)) {
+        if (token.access.principal.kind === "human") {
+          if (
+            !isHumanSessionReference(token.humanSession) ||
+            isHumanSessionExpired(token.humanSession)
+          ) {
+            clearHumanSession(token);
+          } else {
+            try {
+              const resolution = await validateHumanOperationalSession(
+                token.humanSession,
+                token.access,
+              );
+              token.access = resolution.access;
+              token.humanSession = resolution.session;
+            } catch {
+              clearHumanSession(token);
+            }
+          }
+        }
+      }
       if (trigger === "update") {
         if (!isOperationalAccess(token.access)) {
           throw new Error(
@@ -69,7 +103,15 @@ export const authOptions = {
             token.access,
             selected.currentWarehouseId,
           );
-          token.access = selected;
+          if (!isHumanSessionReference(token.humanSession)) {
+            throw new Error("Cannot update an invalid human session.");
+          }
+          const resolution = await validateHumanOperationalSession(
+            token.humanSession,
+            selected,
+          );
+          token.access = resolution.access;
+          token.humanSession = resolution.session;
         }
       }
       return token;
@@ -83,6 +125,18 @@ export const authOptions = {
       return absoluteAuthRedirect(url, baseUrl);
     },
   },
+  events: {
+    async signOut({ token }) {
+      if (isHumanSessionReference(token?.humanSession)) {
+        await revokeHumanOperationalSession(token.humanSession, "sign_out");
+      }
+    },
+  },
 };
 
 export default NextAuth(authOptions);
+
+function clearHumanSession(token) {
+  delete token.access;
+  delete token.humanSession;
+}
