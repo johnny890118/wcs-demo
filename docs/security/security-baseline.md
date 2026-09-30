@@ -11,6 +11,7 @@ The supported product entry and authenticated, simulator-backed operations conso
 - `API_TRUST_PROXY_HOPS` is an exact trusted-hop count, not a blanket proxy trust switch. Keep it at `0` for direct/Compose access and set it only to the verified provider hop count (Render currently uses `1`). Incorrect proxy trust can allow client-IP spoofing and defeat per-client limits.
 - Runtime credentials come only from environment or provider secret stores. Placeholder credentials are accepted in committed examples but rejected when the API boots.
 - Operational access is an effective-permission plus warehouse-scope contract. A multi-warehouse context change accepts only an in-scope target UUID through the CSRF-protected signed-session update path, persists source/destination-scoped audit evidence before changing the claim, and leaves the prior context active on failure.
+- Human grants are resolved from active, time-bounded persisted assignments by stable identity-provider/subject after identity proof. Each warehouse assignment owns its effective permissions; the BFF needs the dedicated `access.resolve` service permission, and no browser or environment value grants human authorization.
 
 ## Required baseline
 

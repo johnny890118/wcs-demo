@@ -20,6 +20,7 @@ const multiWarehouseAccess = {
         warehouseId: targetWarehouseId,
         code: "SECOND",
         name: "Second Warehouse",
+        permissions: ["operations.view"] as const,
       },
     ],
   },

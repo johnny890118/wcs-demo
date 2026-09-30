@@ -7,6 +7,48 @@ INSERT INTO warehouses (id, code, name)
 VALUES ('10000000-0000-4000-8000-000000000001', 'DEMO', 'Deterministic Demo Warehouse')
 ON CONFLICT (id) DO UPDATE SET code = EXCLUDED.code, name = EXCLUDED.name;
 
+INSERT INTO access_principals
+  (id, principal_kind, identity_provider, subject, display_name, status)
+VALUES (
+  'a0000000-0000-4000-8000-000000000001',
+  'human',
+  'demo-credentials',
+  'legacy-demo-admin',
+  'Demo Administrator',
+  'active'
+)
+ON CONFLICT (identity_provider, subject) DO UPDATE
+SET display_name = EXCLUDED.display_name,
+  status = EXCLUDED.status,
+  updated_at = now();
+
+INSERT INTO warehouse_access_assignments
+  (principal_id, warehouse_id, permissions, status, is_default)
+SELECT
+  principal.id,
+  '10000000-0000-4000-8000-000000000001',
+  ARRAY[
+    'operations.view',
+    'audit.view',
+    'inbound.create',
+    'outbound.create',
+    'transport.execute',
+    'alarm.acknowledge',
+    'alarm.recover'
+  ]::text[],
+  'active',
+  true
+FROM access_principals principal
+WHERE principal.identity_provider = 'demo-credentials'
+  AND principal.subject = 'legacy-demo-admin'
+ON CONFLICT (principal_id, warehouse_id) DO UPDATE
+SET permissions = EXCLUDED.permissions,
+  status = EXCLUDED.status,
+  is_default = EXCLUDED.is_default,
+  valid_from = now(),
+  valid_until = NULL,
+  updated_at = now();
+
 INSERT INTO locations (id, warehouse_id, code, kind, capabilities)
 VALUES
   ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'RECEIVING-01', 'receiving', ARRAY['load.pickup']),

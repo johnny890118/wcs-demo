@@ -160,7 +160,8 @@ Status: Active
 - [x] Define human, anonymous-demo, and service principal semantics plus a bounded server-issued demo-session carrier without prematurely implementing the S3 data lifecycle
 - [x] Add permission-aware navigation/actions plus explicit access-denied and expired anonymous-demo session behavior; the backend remains authoritative
 - [x] Add bounded multi-warehouse context selection and warehouse-scoped context-change evidence
-- [ ] Add observability evidence for authentication/access lifecycle events without guessing production retention duration
+- [x] Resolve human permissions and warehouse-local grants from persistent assignments rather than deployment environment
+- [ ] Persist active sessions and add revocation plus authentication/access lifecycle evidence without guessing production retention duration
 
 ## S2 — Operational Work Center and Inventory Visibility
 
@@ -220,4 +221,4 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S1 by replacing environment-derived human grants with a persistent assignment boundary and access-lifecycle evidence before production identity is enabled; keep OIDC provider integration replaceable and out of this foundation slice.
+Continue S1 with persisted active-session identity, revocation, and authentication/access-lifecycle evidence; keep OIDC provider integration replaceable and out of this foundation slice.

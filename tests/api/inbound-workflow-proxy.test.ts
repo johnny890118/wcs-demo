@@ -130,6 +130,9 @@ describe("inbound workflow browser boundary", () => {
         principal: {
           ...testOperationalAccess.principal,
           permissions: ["operations.view"],
+          warehouseScopes: testOperationalAccess.principal.warehouseScopes.map(
+            (scope) => ({ ...scope, permissions: ["operations.view"] }),
+          ),
         },
       },
     });

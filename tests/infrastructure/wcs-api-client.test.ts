@@ -3,6 +3,7 @@ import {
   fetchAuditEvents,
   loadWcsApiTimeoutMs,
   recordWarehouseContextChange,
+  resolveHumanOperationalAccess,
 } from "../../src/infrastructure/http/wcs-api-client";
 import { testOperationalAccess } from "../fixtures/operational-access";
 
@@ -84,6 +85,36 @@ describe("WCS warehouse context client", () => {
         headers: expect.objectContaining({
           "X-SWP-Warehouse": testOperationalAccess.currentWarehouseId,
         }),
+      }),
+    );
+    delete process.env.API_SERVICE_TOKEN;
+  });
+});
+
+describe("WCS persisted assignment client", () => {
+  it("resolves a bounded human access contract using only the service identity", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => testOperationalAccess,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      resolveHumanOperationalAccess("test", "test-operator"),
+    ).resolves.toEqual(testOperationalAccess);
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/v1/access-context/human/resolve"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          identityProvider: "test",
+          subject: "test-operator",
+        }),
+        headers: {
+          Authorization: "Bearer service-token-for-test",
+          "Content-Type": "application/json",
+        },
       }),
     );
     delete process.env.API_SERVICE_TOKEN;

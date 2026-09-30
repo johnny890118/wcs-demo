@@ -2,6 +2,7 @@ import { SetMetadata } from "@nestjs/common";
 import type { UserPermission } from "../../../../src/application/access/operational-access";
 
 export const servicePermissions = [
+  "access.resolve",
   "audit.view",
   "operations.view",
   "inbound.create",

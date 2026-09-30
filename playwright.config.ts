@@ -23,7 +23,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: `NEXTAUTH_URL=${baseURL} PUBLIC_SITE_URL=${baseURL} NEXTAUTH_SECRET=e2e-nextauth-secret DEMO_ADMIN_USERNAME=e2e-operator DEMO_ADMIN_PASSWORD=e2e-password DEMO_WAREHOUSE_SCOPES_JSON='[{"warehouseId":"10000000-0000-4000-8000-000000000001","code":"DEMO","name":"Deterministic Demo Warehouse"},{"warehouseId":"20000000-0000-4000-8000-000000000010","code":"SECOND","name":"Second Demo Warehouse"}]' API_SERVICE_TOKEN=e2e-service-token INTERNAL_API_BASE_URL=http://127.0.0.1:${apiPort} SWP_LIFECYCLE_ENVIRONMENT=test SWP_DEPLOYMENT_PROFILE=private_demo SWP_EQUIPMENT_SOURCE=simulation npm run start -- --hostname 127.0.0.1 --port ${webPort}`,
+      command: `NEXTAUTH_URL=${baseURL} PUBLIC_SITE_URL=${baseURL} NEXTAUTH_SECRET=e2e-nextauth-secret DEMO_ADMIN_USERNAME=e2e-operator DEMO_ADMIN_PASSWORD=e2e-password API_SERVICE_TOKEN=e2e-service-token INTERNAL_API_BASE_URL=http://127.0.0.1:${apiPort} SWP_LIFECYCLE_ENVIRONMENT=test SWP_DEPLOYMENT_PROFILE=private_demo SWP_EQUIPMENT_SOURCE=simulation npm run start -- --hostname 127.0.0.1 --port ${webPort}`,
       url: `${baseURL}/`,
       reuseExistingServer: false,
     },

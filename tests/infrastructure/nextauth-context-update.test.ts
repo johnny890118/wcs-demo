@@ -3,10 +3,14 @@ import { testOperationalAccess } from "../fixtures/operational-access";
 
 vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   recordWarehouseContextChange: vi.fn(),
+  resolveHumanOperationalAccess: vi.fn(),
 }));
 
-import { authOptions } from "../../pages/api/auth/[...nextauth]";
-import { recordWarehouseContextChange } from "../../src/infrastructure/http/wcs-api-client";
+import { authOptions, authorize } from "../../pages/api/auth/[...nextauth]";
+import {
+  recordWarehouseContextChange,
+  resolveHumanOperationalAccess,
+} from "../../src/infrastructure/http/wcs-api-client";
 
 const targetWarehouseId = "20000000-0000-4000-8000-000000000001";
 const multiWarehouseAccess = {
@@ -19,6 +23,7 @@ const multiWarehouseAccess = {
         warehouseId: targetWarehouseId,
         code: "SECOND",
         name: "Second Warehouse",
+        permissions: ["operations.view", "audit.view"] as const,
       },
     ],
   },
@@ -30,6 +35,33 @@ describe("NextAuth warehouse context updates", () => {
     vi.mocked(recordWarehouseContextChange).mockResolvedValue({
       currentWarehouseId: targetWarehouseId,
     });
+    vi.mocked(resolveHumanOperationalAccess).mockResolvedValue(
+      testOperationalAccess,
+    );
+  });
+
+  it("uses credentials only as identity proof and resolves grants from persistence", async () => {
+    const password = ["configured", "password"].join("-");
+    process.env.DEMO_ADMIN_USERNAME = "configured-user";
+    process.env.DEMO_ADMIN_PASSWORD = password;
+
+    await expect(
+      authorize({
+        username: "configured-user",
+        password,
+      }),
+    ).resolves.toEqual({
+      id: testOperationalAccess.principal.subject,
+      name: testOperationalAccess.principal.displayName,
+      access: testOperationalAccess,
+    });
+    expect(resolveHumanOperationalAccess).toHaveBeenCalledWith(
+      "demo-credentials",
+      "legacy-demo-admin",
+    );
+
+    delete process.env.DEMO_ADMIN_USERNAME;
+    delete process.env.DEMO_ADMIN_PASSWORD;
   });
 
   it("records evidence before changing only the signed current warehouse claim", async () => {
@@ -47,9 +79,12 @@ describe("NextAuth warehouse context updates", () => {
     );
     expect(result.access).toEqual({
       ...multiWarehouseAccess,
+      principal: {
+        ...multiWarehouseAccess.principal,
+        permissions: ["operations.view", "audit.view"],
+      },
       currentWarehouseId: targetWarehouseId,
     });
-    expect(result.access.principal).toBe(multiWarehouseAccess.principal);
   });
 
   it("rejects a client-proposed warehouse outside the signed scope", async () => {

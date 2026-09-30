@@ -30,6 +30,7 @@ const multiWarehouseAccess = {
         warehouseId: targetWarehouseId,
         code: "SECOND",
         name: "Second Warehouse",
+        permissions: ["operations.view"] as const,
       },
     ],
   },
@@ -82,6 +83,10 @@ describe("warehouse context control", () => {
     update.mockResolvedValue({
       access: {
         ...multiWarehouseAccess,
+        principal: {
+          ...multiWarehouseAccess.principal,
+          permissions: ["operations.view"],
+        },
         currentWarehouseId: targetWarehouseId,
       },
     });

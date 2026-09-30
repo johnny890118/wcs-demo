@@ -46,7 +46,7 @@ services:
       API_SERVICE_ID: ${API_SERVICE_ID:-warehouse-web}
       SIMULATOR_HEARTBEAT_MS: ${SIMULATOR_HEARTBEAT_MS:-10000}
       API_SERVICE_TOKEN: ${API_SERVICE_TOKEN:?API_SERVICE_TOKEN is required}
-      API_SERVICE_PERMISSIONS: ${API_SERVICE_PERMISSIONS:-audit.view,operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover}
+      API_SERVICE_PERMISSIONS: ${API_SERVICE_PERMISSIONS:-access.resolve,audit.view,operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover}
       OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS:-1000}
       API_RATE_LIMIT_MAX: ${API_RATE_LIMIT_MAX:-120}
       API_RATE_LIMIT_WINDOW_MS: ${API_RATE_LIMIT_WINDOW_MS:-60000}
@@ -89,10 +89,11 @@ services:
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required}
       DEMO_ADMIN_USERNAME: ${DEMO_ADMIN_USERNAME:?DEMO_ADMIN_USERNAME is required}
       DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:?DEMO_ADMIN_PASSWORD is required}
-      DEMO_USER_PERMISSIONS: ${DEMO_USER_PERMISSIONS:?DEMO_USER_PERMISSIONS is required}
-      DEMO_WAREHOUSE_ID: ${DEMO_WAREHOUSE_ID:?DEMO_WAREHOUSE_ID is required}
-      DEMO_WAREHOUSE_CODE: ${DEMO_WAREHOUSE_CODE:?DEMO_WAREHOUSE_CODE is required}
-      DEMO_WAREHOUSE_NAME: ${DEMO_WAREHOUSE_NAME:?DEMO_WAREHOUSE_NAME is required}
+      # These values configure only the optional anonymous public-demo adapter.
+      # Human warehouse grants are resolved from persisted assignments.
+      DEMO_WAREHOUSE_ID: ${DEMO_WAREHOUSE_ID:-10000000-0000-4000-8000-000000000001}
+      DEMO_WAREHOUSE_CODE: ${DEMO_WAREHOUSE_CODE:-DEMO}
+      DEMO_WAREHOUSE_NAME: ${DEMO_WAREHOUSE_NAME:-Deterministic Demo Warehouse}
       SWP_LIFECYCLE_ENVIRONMENT: ${SWP_LIFECYCLE_ENVIRONMENT:?SWP_LIFECYCLE_ENVIRONMENT is required}
       SWP_DEPLOYMENT_PROFILE: ${SWP_DEPLOYMENT_PROFILE:?SWP_DEPLOYMENT_PROFILE is required}
       SWP_EQUIPMENT_SOURCE: ${SWP_EQUIPMENT_SOURCE:?SWP_EQUIPMENT_SOURCE is required}

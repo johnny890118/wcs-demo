@@ -28,6 +28,12 @@ describe("operational session decisions", () => {
       principal: {
         ...testOperationalAccess.principal,
         permissions: ["operations.view"] as const,
+        warehouseScopes: testOperationalAccess.principal.warehouseScopes.map(
+          (scope) => ({
+            ...scope,
+            permissions: ["operations.view"] as const,
+          }),
+        ),
       },
     };
     expect(

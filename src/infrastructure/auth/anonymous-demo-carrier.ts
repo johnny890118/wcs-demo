@@ -183,13 +183,14 @@ export function createAnonymousDemoAccess(
     "10000000-0000-4000-8000-000000000001",
     36,
   );
+  const permissions = configuredPermissions();
   const access: OperationalAccess = {
     principal: {
       kind: "anonymous_demo",
       subject: `anonymous-demo:${scope.sessionId}`,
       displayName: "Anonymous Demo",
       identityProvider: "anonymous-demo-carrier",
-      permissions: configuredPermissions(),
+      permissions,
       warehouseScopes: [
         {
           warehouseId,
@@ -199,6 +200,7 @@ export function createAnonymousDemoAccess(
             "Deterministic Demo Warehouse",
             160,
           ),
+          permissions,
         },
       ],
     },

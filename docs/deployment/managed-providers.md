@@ -13,8 +13,7 @@ Validated against official provider documentation on 2026-09-18. These adapters 
 Configure secrets in provider dashboards, never in `vercel.json`, `render.yaml`, Git, build arguments, or client-visible variables.
 
 Vercel requires `NEXTAUTH_URL`, `PUBLIC_SITE_URL`, `NEXTAUTH_SECRET`,
-`DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`, `DEMO_USER_PERMISSIONS`,
-`DEMO_WAREHOUSE_ID`, `DEMO_WAREHOUSE_CODE`, `DEMO_WAREHOUSE_NAME`,
+`DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`,
 `SWP_LIFECYCLE_ENVIRONMENT`, `SWP_DEPLOYMENT_PROFILE`,
 `SWP_EQUIPMENT_SOURCE`, `INTERNAL_API_BASE_URL`,
 `INTERNAL_API_TIMEOUT_MS`, and the same `API_SERVICE_TOKEN` assigned to the
@@ -22,19 +21,20 @@ web-to-API service identity. The current managed demo uses the seeded warehouse
 UUID/code/name, `SWP_LIFECYCLE_ENVIRONMENT=production`,
 `SWP_DEPLOYMENT_PROFILE=private_demo`, and
 `SWP_EQUIPMENT_SOURCE=simulation`. The Render API requires the same three values.
-These values are server-only access/runtime
-adapter configuration, not browser-exposed product truth. Set `PUBLIC_SITE_URL`
+The demo username/password prove only the configured demo identity. Human
+permissions and warehouse scopes come from `access_principals` and
+`warehouse_access_assignments`; the web service identity therefore requires
+`access.resolve`. Runtime values remain server-only deployment context. Set `PUBLIC_SITE_URL`
 to the canonical public HTTPS origin and `INTERNAL_API_BASE_URL` to the Render
 API HTTPS origin. The free demo sets `INTERNAL_API_TIMEOUT_MS=55000` so the first
 BFF request can wait through most of Render's documented idle wake-up while
 retaining response time inside the Hobby plan's 60-second function limit. Keep
 every variable server-only (no `NEXT_PUBLIC_` prefix).
 
-The demo adapter can replace the three single-warehouse values with a bounded
-`DEMO_WAREHOUSE_SCOPES_JSON` array and optional in-scope
-`DEMO_CURRENT_WAREHOUSE_ID` when multi-warehouse context switching must be
-verified. This remains demo/test configuration; do not treat environment values
-as production role or warehouse assignment storage.
+Public Demo additionally requires `DEMO_WAREHOUSE_ID`,
+`DEMO_WAREHOUSE_CODE`, `DEMO_WAREHOUSE_NAME`,
+`PUBLIC_DEMO_USER_PERMISSIONS`, and the anonymous-demo carrier settings. These
+configure the separate anonymous adapter and never grant human access.
 
 Render prompts for `DATABASE_URL` and `API_SERVICE_TOKEN` because the Blueprint marks them `sync: false`. Existing Blueprint services do not automatically receive newly added `sync: false` variables; add them manually when updating an existing service. Keep the API permission list least-privileged for the deployed web capabilities.
 

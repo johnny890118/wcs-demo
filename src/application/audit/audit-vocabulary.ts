@@ -1,4 +1,5 @@
 export const auditActions = [
+  "access.login_succeeded",
   "access_context.warehouse_entered",
   "access_context.warehouse_left",
   "alarm.acknowledge",
@@ -19,6 +20,7 @@ export const auditResourceTypes = [
   "Alarm",
   "InboundReceipt",
   "OutboundOrder",
+  "Principal",
   "TransportTask",
   "Warehouse",
 ] as const;

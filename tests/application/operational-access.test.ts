@@ -64,12 +64,17 @@ describe("operational access contract", () => {
             warehouseId: secondWarehouseId,
             code: "SECOND",
             name: "Second Warehouse",
+            permissions: ["operations.view"] as const,
           },
         ],
       },
     };
     expect(selectCurrentWarehouse(access, secondWarehouseId)).toEqual({
       ...access,
+      principal: {
+        ...access.principal,
+        permissions: ["operations.view"],
+      },
       currentWarehouseId: secondWarehouseId,
     });
     expect(selectCurrentWarehouse(access, access.currentWarehouseId)).toBe(

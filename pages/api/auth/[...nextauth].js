@@ -1,17 +1,17 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import {
-  createDemoOperationalAccess,
-  loadOperationalRuntime,
-} from "../../../src/infrastructure/auth/demo-identity";
+import { loadOperationalRuntime } from "../../../src/infrastructure/auth/demo-identity";
 import { absoluteAuthRedirect } from "../../../src/ui/auth/login-routing";
 import {
   isOperationalAccess,
   selectCurrentWarehouse,
 } from "../../../src/application/access/operational-access";
-import { recordWarehouseContextChange } from "../../../src/infrastructure/http/wcs-api-client";
+import {
+  recordWarehouseContextChange,
+  resolveHumanOperationalAccess,
+} from "../../../src/infrastructure/http/wcs-api-client";
 
-async function authorize(credentials) {
+export async function authorize(credentials) {
   const username = process.env.DEMO_ADMIN_USERNAME;
   const password = process.env.DEMO_ADMIN_PASSWORD;
 
@@ -22,10 +22,14 @@ async function authorize(credentials) {
   }
 
   if (credentials.username === username && credentials.password === password) {
+    const access = await resolveHumanOperationalAccess(
+      "demo-credentials",
+      "legacy-demo-admin",
+    );
     return {
-      id: "legacy-demo-admin",
-      name: username,
-      access: createDemoOperationalAccess(username),
+      id: access.principal.subject,
+      name: access.principal.displayName,
+      access,
     };
   }
 

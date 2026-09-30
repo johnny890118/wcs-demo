@@ -14,6 +14,7 @@ export type WarehouseScope = Readonly<{
   warehouseId: string;
   code: string;
   name: string;
+  permissions: readonly UserPermission[];
 }>;
 
 export const principalKinds = ["human", "anonymous_demo", "service"] as const;
@@ -105,7 +106,11 @@ export function isWarehouseScope(value: unknown): value is WarehouseScope {
     typeof scope.warehouseId === "string" &&
     uuidPattern.test(scope.warehouseId) &&
     isNonBlank(scope.code, 50) &&
-    isNonBlank(scope.name, 160)
+    isNonBlank(scope.name, 160) &&
+    Array.isArray(scope.permissions) &&
+    scope.permissions.length > 0 &&
+    new Set(scope.permissions).size === scope.permissions.length &&
+    scope.permissions.every(isUserPermission)
   );
 }
 
@@ -163,10 +168,17 @@ export function isOperationalAccess(
             (demoSession as Record<string, unknown>).sessionId,
           )}`
       : demoSession === undefined;
+  const currentScope = (principal.warehouseScopes as WarehouseScope[]).find(
+    (scope) => scope.warehouseId === access.currentWarehouseId,
+  );
   return (
     scopeMatchesPrincipal &&
     new Set(warehouseIds).size === warehouseIds.length &&
-    warehouseIds.includes(access.currentWarehouseId)
+    currentScope !== undefined &&
+    principal.permissions.length === currentScope.permissions.length &&
+    principal.permissions.every((permission) =>
+      currentScope.permissions.includes(permission as UserPermission),
+    )
   );
 }
 
@@ -232,5 +244,14 @@ export function selectCurrentWarehouse(
   }
   return warehouseId === access.currentWarehouseId
     ? access
-    : { ...access, currentWarehouseId: warehouseId };
+    : {
+        ...access,
+        principal: {
+          ...access.principal,
+          permissions: access.principal.warehouseScopes.find(
+            (scope) => scope.warehouseId === warehouseId,
+          )!.permissions,
+        },
+        currentWarehouseId: warehouseId,
+      };
 }

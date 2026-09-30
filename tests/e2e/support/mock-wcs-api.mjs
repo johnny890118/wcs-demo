@@ -384,6 +384,64 @@ const server = createServer(async (request, response) => {
     return;
   }
   if (
+    request.method === "POST" &&
+    request.url === "/api/v1/access-context/human/resolve"
+  ) {
+    const body = await readBody(request);
+    if (
+      body.identityProvider !== "demo-credentials" ||
+      body.subject !== expectedPrincipal
+    ) {
+      response.statusCode = 401;
+      response.end(JSON.stringify({ code: "ACCESS_ASSIGNMENT_UNAVAILABLE" }));
+      return;
+    }
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({
+        principal: {
+          kind: "human",
+          subject: expectedPrincipal,
+          displayName: "e2e-operator",
+          identityProvider: "demo-credentials",
+          permissions: [
+            "operations.view",
+            "audit.view",
+            "inbound.create",
+            "outbound.create",
+            "transport.execute",
+            "alarm.acknowledge",
+            "alarm.recover",
+          ],
+          warehouseScopes: [
+            {
+              warehouseId: expectedWarehouseId,
+              code: "DEMO",
+              name: "Deterministic Demo Warehouse",
+              permissions: [
+                "operations.view",
+                "audit.view",
+                "inbound.create",
+                "outbound.create",
+                "transport.execute",
+                "alarm.acknowledge",
+                "alarm.recover",
+              ],
+            },
+            {
+              warehouseId: secondWarehouseId,
+              code: "SECOND",
+              name: "Second Demo Warehouse",
+              permissions: ["operations.view", "audit.view"],
+            },
+          ],
+        },
+        currentWarehouseId: expectedWarehouseId,
+      }),
+    );
+    return;
+  }
+  if (
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
       request.url === "/api/v1/operations/details" ||

@@ -15,7 +15,7 @@ services:
       - key: API_SERVICE_TOKEN
         sync: false
       - key: API_SERVICE_PERMISSIONS
-        value: audit.view,operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover
+        value: access.resolve,audit.view,operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover
       - key: OUTBOX_POLL_INTERVAL_MS
         value: 1000
       - key: SIMULATOR_HEARTBEAT_MS

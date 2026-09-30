@@ -35,7 +35,10 @@ import {
   type AuditEventPage,
   type AuditEventQuery,
 } from "../../application/audit/audit-projection";
-import type { OperationalAccess } from "../../application/access/operational-access";
+import {
+  isOperationalAccess,
+  type OperationalAccess,
+} from "../../application/access/operational-access";
 import { operationalAccessHeaders } from "./operational-access-headers";
 
 const defaultTimeoutMs = 55_000;
@@ -115,6 +118,32 @@ async function postWcsCommand(
         ? error.message
         : `WCS API returned HTTP ${response.status}.`,
     );
+  }
+  return payload;
+}
+
+export async function resolveHumanOperationalAccess(
+  identityProvider: string,
+  subject: string,
+): Promise<OperationalAccess> {
+  const baseUrl = process.env.INTERNAL_API_BASE_URL ?? "http://127.0.0.1:3001";
+  const token = process.env.API_SERVICE_TOKEN;
+  if (!token) throw new Error("API_SERVICE_TOKEN is required.");
+  const response = await fetch(
+    `${baseUrl}/api/v1/access-context/human/resolve`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ identityProvider, subject }),
+      signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+    },
+  );
+  const payload: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isOperationalAccess(payload)) {
+    throw new Error("No valid persisted operational assignment is available.");
   }
   return payload;
 }

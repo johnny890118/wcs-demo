@@ -40,10 +40,9 @@ environment configuration an authorization boundary.
   refresh the current route so SSR projections are fetched in the new context.
   Every subsequent BFF/API request continues to enforce permission plus that
   explicit current warehouse.
-- The demo credentials adapter may receive a bounded JSON list of warehouse
-  scopes for development, test, and demo verification. This is temporary
-  adapter configuration; it is not persistent production assignment or
-  customer warehouse truth.
+- Human warehouse scopes and their warehouse-local effective permissions are
+  supplied by the persisted assignment resolver defined in ADR 0017. The
+  credentials adapter proves only the demo identity and never supplies grants.
 
 ## Consequences
 
@@ -57,5 +56,5 @@ the global investigation seam; each warehouse-local projection remains isolated.
 The existing demo reset still truncates these rows, so reset-governance evidence
 and retention hardening remain S3 and production-operability work.
 
-Environment-derived demo scopes must be replaced by persisted assignments and
-an access-review lifecycle before production identity is enabled.
+Persisted assignment administration, access review, and session revocation must
+still be completed before production identity is enabled.

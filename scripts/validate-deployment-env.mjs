@@ -5,6 +5,7 @@ if (!knownTargets.includes(target)) {
 }
 
 const knownPermissions = new Set([
+  "access.resolve",
   "audit.view",
   "operations.view",
   "inbound.create",
@@ -103,23 +104,6 @@ function validateOperationalRuntime() {
   return profile;
 }
 
-function validWarehouseScope(scope) {
-  return (
-    scope &&
-    typeof scope === "object" &&
-    !Array.isArray(scope) &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      scope.warehouseId ?? "",
-    ) &&
-    typeof scope.code === "string" &&
-    scope.code.trim().length > 0 &&
-    scope.code.length <= 50 &&
-    typeof scope.name === "string" &&
-    scope.name.trim().length > 0 &&
-    scope.name.length <= 160
-  );
-}
-
 const deploymentProfile = validateOperationalRuntime();
 
 if (target === "api" || target === "all") {
@@ -173,44 +157,8 @@ if (target === "web" || target === "all") {
   required("NEXTAUTH_SECRET", 32);
   required("DEMO_ADMIN_USERNAME", 3);
   required("DEMO_ADMIN_PASSWORD", 16);
-  const userPermissions = required("DEMO_USER_PERMISSIONS")
-    .split(",")
-    .map((permission) => permission.trim())
-    .filter(Boolean);
-  if (
-    userPermissions.length === 0 ||
-    new Set(userPermissions).size !== userPermissions.length ||
-    userPermissions.some((permission) => !knownUserPermissions.has(permission))
-  ) {
-    errors.push("DEMO_USER_PERMISSIONS must be non-empty, unique, and known.");
-  }
-  const configuredScopes = process.env.DEMO_WAREHOUSE_SCOPES_JSON?.trim();
-  if (configuredScopes) {
-    try {
-      if (configuredScopes.length > 20_000) throw new Error();
-      const scopes = JSON.parse(configuredScopes);
-      if (
-        !Array.isArray(scopes) ||
-        scopes.length === 0 ||
-        scopes.length > 100 ||
-        !scopes.every(validWarehouseScope) ||
-        new Set(scopes.map((scope) => scope.warehouseId)).size !== scopes.length
-      ) {
-        throw new Error();
-      }
-      const currentWarehouseId =
-        process.env.DEMO_CURRENT_WAREHOUSE_ID?.trim() || scopes[0].warehouseId;
-      if (!scopes.some((scope) => scope.warehouseId === currentWarehouseId)) {
-        errors.push(
-          "DEMO_CURRENT_WAREHOUSE_ID must belong to DEMO_WAREHOUSE_SCOPES_JSON.",
-        );
-      }
-    } catch {
-      errors.push(
-        "DEMO_WAREHOUSE_SCOPES_JSON must define unique valid warehouse scopes.",
-      );
-    }
-  } else {
+  required("API_SERVICE_TOKEN", 32);
+  if (deploymentProfile === "public_demo") {
     const warehouseId = required("DEMO_WAREHOUSE_ID");
     if (
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -221,9 +169,6 @@ if (target === "web" || target === "all") {
     }
     required("DEMO_WAREHOUSE_CODE");
     required("DEMO_WAREHOUSE_NAME");
-  }
-  required("API_SERVICE_TOKEN", 32);
-  if (deploymentProfile === "public_demo") {
     required("ANONYMOUS_DEMO_SECRET", 32);
     integer("ANONYMOUS_DEMO_SESSION_TTL_SECONDS", 1_800, 300, 7_200);
     const publicDemoPermissions = required("PUBLIC_DEMO_USER_PERMISSIONS")

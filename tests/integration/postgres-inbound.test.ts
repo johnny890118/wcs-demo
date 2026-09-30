@@ -6,6 +6,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-inbound-execution.repository";
 import { AuditProjectionService } from "../../apps/api/src/audit/audit-projection.service";
 import { AccessContextService } from "../../apps/api/src/access-context/access-context.service";
+import { HumanAccessAssignmentService } from "../../apps/api/src/access-context/human-access-assignment.service";
 import { requestContext } from "../../apps/api/src/logging/request-context";
 import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
@@ -484,6 +485,54 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         },
       ],
     });
+  });
+
+  it("resolves seeded human grants from persistence and records login evidence", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const service = new HumanAccessAssignmentService(pool);
+
+    await expect(
+      requestContext.run({ requestId: "request:login-integration-001" }, () =>
+        service.resolve("demo-credentials", "legacy-demo-admin"),
+      ),
+    ).resolves.toMatchObject({
+      principal: {
+        kind: "human",
+        subject: "legacy-demo-admin",
+        identityProvider: "demo-credentials",
+        permissions: expect.arrayContaining([
+          "operations.view",
+          "audit.view",
+          "inbound.create",
+        ]),
+        warehouseScopes: [
+          expect.objectContaining({
+            warehouseId,
+            code: "DEMO",
+            permissions: expect.arrayContaining(["operations.view"]),
+          }),
+        ],
+      },
+      currentWarehouseId: warehouseId,
+    });
+
+    const evidence = await pool.query(
+      `SELECT warehouse_id, actor_type, actor_id, action, aggregate_type,
+        details, correlation_id
+       FROM audit_events
+       WHERE action = 'access.login_succeeded'`,
+    );
+    expect(evidence.rows).toEqual([
+      {
+        warehouse_id: warehouseId,
+        actor_type: "user",
+        actor_id: "legacy-demo-admin",
+        action: "access.login_succeeded",
+        aggregate_type: "Principal",
+        details: {},
+        correlation_id: "request:login-integration-001",
+      },
+    ]);
   });
 
   it("returns data-backed operations projections without inferring missing state", async () => {
