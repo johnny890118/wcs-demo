@@ -451,13 +451,12 @@ export const en = {
   contactEyebrow: "Project contact",
   contactTitle: "Start with the warehouse problem, not a protocol assumption.",
   contactIntro:
-    "Use the project issue tracker for reproducible product questions, integration requirements, and verified defects.",
-  projectContact: "Public project channel",
+    "Contact Smart Warehouse Platform by email for product questions and verified defects.",
+  projectContact: "Email contact",
   projectContactBody:
-    "Open a GitHub issue with the operating context, expected outcome, and evidence needed to reproduce the request. Do not include credentials, customer data, or sensitive facility details.",
-  openIssue: "Open GitHub issues",
+    "Include the operating context, expected outcome, and non-sensitive evidence needed to reproduce the request. Do not include credentials, customer data, or sensitive facility details.",
   securityContactNotice:
-    "Do not disclose a vulnerability in a public issue. Use the repository host's private security reporting channel when it is enabled, or contact the deployment owner through an established private channel.",
+    "For security concerns, first request a secure reporting channel from the deployment owner. Do not send credentials or sensitive evidence by ordinary email.",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -892,13 +891,12 @@ export const zhTW: Catalog = {
   contactEyebrow: "專案聯絡",
   contactTitle: "從倉儲問題出發，而不是預設一套協定。",
   contactIntro:
-    "請透過專案 issue tracker 提出可重現的產品問題、整合需求與已驗證缺陷。",
-  projectContact: "公開專案管道",
+    "請透過電子郵件聯絡 Smart Warehouse Platform，提出產品問題與已驗證缺陷。",
+  projectContact: "電子郵件聯絡",
   projectContactBody:
-    "建立 GitHub issue 時，請提供營運情境、預期結果與重現所需證據；不要附上憑證、客戶資料或敏感場域細節。",
-  openIssue: "開啟 GitHub Issues",
+    "請提供營運情境、預期結果與重現所需的非敏感證據；不要附上憑證、客戶資料或敏感場域細節。",
   securityContactNotice:
-    "請勿在公開 issue 揭露弱點。若 repository host 已啟用私人安全回報，請使用該管道；否則請透過既有私人管道聯絡部署責任人。",
+    "安全疑慮請先向部署責任人詢問安全回報管道；不要透過一般電子郵件傳送憑證或敏感證據。",
 };
 
 export const catalogs: Record<Locale, Catalog> = { "zh-TW": zhTW, en };

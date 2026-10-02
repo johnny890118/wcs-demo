@@ -472,6 +472,27 @@ test("public entry supports keyboard skip navigation and automated accessibility
   expect(await sitemap.text()).not.toContain(`${siteOrigin}/contact`);
 });
 
+test("dormant contact exposes only the approved email, not private repository channels", async ({
+  page,
+}) => {
+  await page.goto("/contact");
+  await expect(
+    page.getByRole("link", { name: "johnny0929560027@gmail.com" }),
+  ).toHaveAttribute("href", "mailto:johnny0929560027@gmail.com");
+  expect(await page.content()).not.toMatch(
+    /github\.com|wcs-demo\/issues|issue tracker/i,
+  );
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Email contact" }),
+  ).toBeVisible();
+  expect(await page.content()).not.toMatch(
+    /github\.com|wcs-demo\/issues|issue tracker/i,
+  );
+  await page.goto("/");
+  await expect(page.locator('a[href="/contact"]')).toHaveCount(0);
+});
+
 test("the public root is a thin unauthenticated system entry", async ({
   page,
 }) => {

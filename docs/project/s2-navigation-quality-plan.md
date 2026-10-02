@@ -145,3 +145,24 @@ Separate security follow-up discovered during inventory: dormant `/contact`
 still exposes the private repository's issues link, contrary to AGENTS. After
 this identity checkpoint, remove only that disclosure with the already approved
 public email; do not turn it into marketing work or restore public navigation.
+
+## Dormant contact disclosure correction
+
+Low-risk, separate security hygiene checkpoint: the dormant Contact route now
+links only to the Owner-approved public email. Both locales remove private issue
+tracker directions and request a secure channel before sensitive security
+evidence is sent. No support SLA, legal claims, marketing navigation, Footer,
+route redesign or new public SEO is introduced. The browser regression visits
+both locales, rejects repository disclosure and confirms Contact is absent from
+the active entry navigation. Authentication and operational contracts are unchanged.
+
+Verification: full `npm run verify` passes 369 fast tests, 19 PostgreSQL
+integration tests and 29 production-build Chromium checks; API build also passes.
+The first run caught a test-only incorrect locale button name; corrected to the
+existing `EN` control and reran the complete gate. Dependency audit has no
+findings; the 15 characterized legacy lint warnings remain unchanged.
+
+| Before                                                  | After                                                                | Why                                                     |
+| ------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------- |
+| Public route points to private repository issues        | Approved email contact only                                          | Honor repository confidentiality even on dormant routes |
+| Security copy assumes repository reporting availability | Request a secure reporting channel before sending sensitive evidence | Do not advertise an unverified security channel         |

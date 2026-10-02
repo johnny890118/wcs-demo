@@ -1,4 +1,3 @@
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import { PublicHeader } from "../components/platform/PublicHeader";
@@ -6,7 +5,7 @@ import { PublicPageHead } from "../components/platform/PublicPageHead";
 import { useLocale } from "../src/ui/i18n/locale-provider";
 import { publicSiteUrl } from "../src/ui/seo/public-site";
 
-const repositoryIssues = "https://github.com/johnny890118/wcs-demo/issues";
+const contactEmail = "johnny0929560027@gmail.com";
 
 type PublicPageProps = { siteOrigin: string };
 
@@ -45,13 +44,10 @@ export default function ContactPage({ siteOrigin }: PublicPageProps) {
             {t("projectContactBody")}
           </p>
           <a
-            href={repositoryIssues}
-            target="_blank"
-            rel="noreferrer"
+            href={`mailto:${contactEmail}`}
             className="ui-pressable mt-7 inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-bold text-[var(--on-accent)]"
           >
-            {t("openIssue")}
-            <ArrowTopRightOnSquareIcon className="h-4 w-4" aria-hidden="true" />
+            {contactEmail}
           </a>
           <p className="mt-6 border-t border-[var(--border)] pt-6 text-sm leading-6 text-[var(--text-muted)]">
             {t("securityContactNotice")}
