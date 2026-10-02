@@ -12,6 +12,55 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("task queue and detail expose contextual evidence across accessible warehouse views", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/tasks");
+  await expect(
+    page.getByRole("heading", { name: "任務", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("link", { name: /開啟任務/ })
+    .first()
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "工作與載具情境" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "查看任務稽核證據" }),
+  ).toHaveAttribute("href", /resourceType=TransportTask&resourceId=50000000/);
+  await page.screenshot({
+    path: test.info().outputPath("task-detail-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Work and load context" }),
+  ).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: test.info().outputPath("task-detail-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByRole("link", { name: "Return to tasks" }).click();
+  await page.getByRole("link", { name: "All work", exact: true }).click();
+  await expect(page).toHaveURL(/view=all/);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole("combobox")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(page.getByRole("link", { name: /Open task/ })).toHaveCount(0);
+});
+
 test("operations home prioritizes readable work and supports bilingual mobile accessibility", async ({
   page,
 }) => {
@@ -118,6 +167,8 @@ test("login and every operations route enforce the private surface boundary", as
 }) => {
   for (const path of [
     "/operations",
+    "/operations/tasks",
+    "/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/operations/warehouse",
     "/operations/projections",
     "/operations/inbound",

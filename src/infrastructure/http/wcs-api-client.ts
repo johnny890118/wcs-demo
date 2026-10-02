@@ -11,6 +11,13 @@ import {
   type OperationsHome,
 } from "../../application/operations/operations-home";
 import {
+  isTaskQueuePage,
+  isTaskDetail,
+  type TaskQueuePage,
+  type TaskDetail,
+  type TaskQueueQuery,
+} from "../../application/operations/task-projection";
+import {
   isInboundExecutionCompleted,
   isInboundReceiptCreated,
   type CreateInboundWorkflowRequest,
@@ -81,9 +88,44 @@ async function fetchWcsProjection(
     signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
   });
   if (!response.ok) {
-    throw new Error(`WCS API returned HTTP ${response.status}.`);
+    throw new WcsProjectionError(response.status);
   }
   return response.json();
+}
+
+export class WcsProjectionError extends Error {
+  constructor(readonly status: number) {
+    super(`WCS API returned HTTP ${status}.`);
+    this.name = "WcsProjectionError";
+  }
+}
+
+export async function fetchTaskQueue(
+  access: OperationalAccess,
+  query: TaskQueueQuery = {},
+): Promise<TaskQueuePage> {
+  const search = new URLSearchParams();
+  if (query.view) search.set("view", query.view);
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/tasks${search.size ? `?${search}` : ""}`,
+    access,
+  );
+  if (!isTaskQueuePage(result))
+    throw new Error("Invalid task queue projection.");
+  return result;
+}
+export async function fetchTaskDetail(
+  access: OperationalAccess,
+  taskId: string,
+): Promise<TaskDetail> {
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/tasks/${encodeURIComponent(taskId)}`,
+    access,
+  );
+  if (!isTaskDetail(result)) throw new Error("Invalid task detail projection.");
+  return result;
 }
 
 export class WcsCommandError extends Error {

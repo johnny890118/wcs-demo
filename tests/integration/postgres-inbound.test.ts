@@ -16,6 +16,7 @@ import { IdempotencyConflictError } from "../../apps/api/src/inbound/inbound.err
 import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repository";
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
+import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
 import { InsufficientInventoryError } from "../../apps/api/src/outbound/outbound.errors";
 import { PgOutboundRepository } from "../../apps/api/src/outbound/pg-outbound.repository";
 import type {
@@ -817,6 +818,92 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect((await service.getHome(otherWarehouseId)).work).toEqual([]);
   });
 
+  it("pages task work with exact timestamp ties and scopes detail, load and cursor", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      `UPDATE transport_tasks SET created_at = '2026-10-03T00:00:00.000001Z', status = 'unknown' WHERE id = $1`,
+      [identifiers.transportTaskId],
+    );
+    await pool.query(
+      `INSERT INTO transport_tasks (id,receipt_id,load_id,source_location_id,destination_location_id,status,created_at)
+      SELECT ('51000000-0000-4000-8000-' || lpad(sequence::text,12,'0'))::uuid,
+        receipt_id,load_id,source_location_id,destination_location_id,
+        CASE WHEN sequence = 1 THEN 'completed' ELSE 'queued' END,'2026-10-03T00:00:00.000001Z'
+      FROM transport_tasks CROSS JOIN generate_series(1,2) sequence WHERE id = $1`,
+      [identifiers.transportTaskId],
+    );
+    const service = new TaskProjectionService(pool);
+    const first = await service.getQueue(warehouseId, {
+      view: "all",
+      limit: 1,
+    });
+    const second = await service.getQueue(warehouseId, {
+      view: "all",
+      limit: 1,
+      cursor: first.nextCursor!,
+    });
+    const third = await service.getQueue(warehouseId, {
+      view: "all",
+      limit: 1,
+      cursor: second.nextCursor!,
+    });
+    expect(
+      new Set(
+        [...first.tasks, ...second.tasks, ...third.tasks].map((t) => t.taskId),
+      ).size,
+    ).toBe(3);
+    expect(third.nextCursor).toBeNull();
+    expect(first.tasks[0]?.createdAt).toBe("2026-10-03T00:00:00.000001Z");
+    expect((await service.getQueue(warehouseId)).tasks).toHaveLength(2);
+    await expect(
+      service.getQueue(otherWarehouseId, {
+        view: "all",
+        cursor: first.nextCursor!,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      service.getQueue(warehouseId, {
+        view: "active",
+        cursor: first.nextCursor!,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    const detail = await service.getDetail(
+      warehouseId,
+      identifiers.transportTaskId,
+    );
+    expect(detail.task).toMatchObject({
+      status: "unknown",
+      source: "RECEIVING-01",
+      destination: "STORAGE-A-01",
+      sku: command.load.sku,
+      quantity: 24,
+    });
+    expect(detail.load).toMatchObject({
+      externalId: command.load.externalId,
+      location: "RECEIVING-01",
+    });
+    expect(detail.originResource).toEqual({
+      type: "InboundReceipt",
+      id: identifiers.receiptId,
+    });
+    expect(detail.route).toBeNull();
+    await expect(
+      service.getDetail(otherWarehouseId, identifiers.transportTaskId),
+    ).rejects.toMatchObject({ status: 404 });
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id = 'OTHER-AMR' WHERE id = $1",
+      [identifiers.transportTaskId],
+    );
+    await expect(
+      service.getDetail(warehouseId, identifiers.transportTaskId),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
   it("persists only monotonic equipment observations and rejects older evidence", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const sink = new PgEquipmentObservationSink(pool);
@@ -1011,6 +1098,21 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       requestHash(outboundCommand),
     );
     expect(replay).toEqual({ ...allocated, duplicate: true });
+    const outboundDetail = await new TaskProjectionService(pool).getDetail(
+      warehouseId,
+      allocated.transportTaskIds[0]!,
+    );
+    expect(outboundDetail.task).toMatchObject({
+      flow: "outbound",
+      quantity: 10,
+      sku: outboundCommand.sku,
+      externalReference: outboundCommand.externalReference,
+    });
+    expect(outboundDetail.originResource).toEqual({
+      type: "OutboundOrder",
+      id: outboundIdentifiers.outboundOrderId,
+    });
+    expect(outboundDetail.load.externalId).toBe(command.load.externalId);
 
     const unavailable = {
       ...outboundCommand,

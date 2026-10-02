@@ -28,6 +28,14 @@
 
 ## Current S2 Home baseline
 
+The task queue/detail checkpoint passes the complete `npm run verify`: 300 fast
+tests, 16 ephemeral PostgreSQL integration tests, and 23 production-build Chromium
+E2E checks. `npm run build:api` also passes. Task coverage adds scoped read guards,
+BFF scalar-query/error contracts, microsecond keyset pagination, active/all view
+binding, outbound allocation quantity, absent/foreign detail semantics, protected
+SSR, contextual audit links, warehouse switching, bilingual mobile dark-theme
+axe/reflow, and screenshot review. This supersedes the counts below.
+
 The first S2 Home slice passes 277 fast tests, 15 ephemeral PostgreSQL integration
 tests, and 22 production-build Chromium E2E checks. New checks cover nonterminal
 work selection, older unknown tasks surviving newer completed history, equipment

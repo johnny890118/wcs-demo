@@ -1,4 +1,39 @@
 export const en = {
+  taskQueueTitle: "Tasks",
+  taskQueueDescription:
+    "Review warehouse work by source, destination, order, and outcome. Open a task for its load, route, exception, and history context.",
+  taskQueueView: "Task queue view",
+  taskActiveView: "Waiting and active",
+  taskAllView: "All work",
+  taskDataUnavailable: "Task data is temporarily unavailable.",
+  openTaskDetail: "Open task",
+  loadMoreTasks: "Load more tasks",
+  refreshTaskQueue: "Refresh queue",
+  taskQueueCurrency:
+    "Newest-created tasks appear first. This is an observation, not a command precondition. Work can change while paging; refresh to see new or changed work.",
+  returnToTaskQueue: "Return to tasks",
+  homeTask_completed: "Completed",
+  homeTask_cancelled: "Cancelled",
+  taskCompletedHelp:
+    "Movement was recorded as completed. Review load context and audit evidence for the resulting outcome.",
+  taskCancelledHelp:
+    "This task was cancelled. Cancellation alone does not establish physical load position.",
+  taskContext: "Work and load context",
+  taskOrigin: "Originating work",
+  taskLoadLocation: "Recorded load location",
+  taskAssignedEquipment: "Assigned equipment",
+  taskAssignmentNotice:
+    "Assignment and recorded load location do not establish a current equipment position. Use qualified warehouse observations for physical state.",
+  taskException: "Exception evidence",
+  taskNoOpenAlarm: "No open alarm is attached to this task.",
+  taskBlockingEvidenceMissing:
+    "The task is blocked but no open alarm is available. Review operational evidence before resuming.",
+  taskRecordedRoute: "Recorded route",
+  taskRecordedRouteNotice:
+    "This is the persisted route revision for the task, not proof that its path is currently available or traversed.",
+  taskRoutePending: "No route has been persisted for this task yet.",
+  taskAuditPermissionNotice:
+    "Your current warehouse access does not include audit history permission.",
   operationsHome: "Operations Home",
   homeDescription:
     "Review work that needs attention, current movement, and the next place to act.",
@@ -362,6 +397,38 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  taskQueueTitle: "任務",
+  taskQueueDescription:
+    "依起點、終點、來源單據與結果檢視倉庫作業；開啟任務以查看載具、路線、異常與歷程。",
+  taskQueueView: "任務佇列檢視",
+  taskActiveView: "等待中與進行中",
+  taskAllView: "全部工作",
+  taskDataUnavailable: "任務資料暫時無法取得。",
+  openTaskDetail: "開啟任務",
+  loadMoreTasks: "載入更多任務",
+  refreshTaskQueue: "重新整理佇列",
+  taskQueueCurrency:
+    "依建立時間由新到舊排列。此為觀測，不是命令執行條件；翻頁期間工作可能改變，請重新整理以取得新增或更新的工作。",
+  returnToTaskQueue: "返回任務",
+  homeTask_completed: "已完成",
+  homeTask_cancelled: "已取消",
+  taskCompletedHelp: "搬運已記錄為完成；請檢視載具情境與稽核證據確認結果。",
+  taskCancelledHelp: "此任務已取消；取消本身不能證明載具的實體位置。",
+  taskContext: "工作與載具情境",
+  taskOrigin: "來源作業",
+  taskLoadLocation: "載具記錄位置",
+  taskAssignedEquipment: "指派設備",
+  taskAssignmentNotice:
+    "指派與載具記錄位置不能證明設備目前的實體位置；請以合格倉庫觀測確認實體狀態。",
+  taskException: "異常證據",
+  taskNoOpenAlarm: "此任務沒有未處置警報。",
+  taskBlockingEvidenceMissing:
+    "任務受阻，但目前沒有可用的未處置警報；繼續作業前請檢視營運證據。",
+  taskRecordedRoute: "已記錄路線",
+  taskRecordedRouteNotice:
+    "此為任務保存的路線版本，不能證明路徑目前可通行或已經行經。",
+  taskRoutePending: "此任務尚未保存路線。",
+  taskAuditPermissionNotice: "目前倉庫存取權限不包含稽核歷程。",
   operationsHome: "營運首頁",
   homeDescription: "掌握待處理事項、目前搬運工作與下一個處理入口。",
   attentionRequired: "需要注意",

@@ -34,6 +34,8 @@ import { getServerSideProps as getAlarmProps } from "../../pages/operations/alar
 import { getServerSideProps as getAuditProps } from "../../pages/operations/audit";
 import { getServerSideProps as getInboundProps } from "../../pages/operations/inbound";
 import { getServerSideProps as getOverviewProps } from "../../pages/operations/index";
+import { getServerSideProps as getTaskQueueProps } from "../../pages/operations/tasks";
+import { getServerSideProps as getTaskDetailProps } from "../../pages/operations/tasks/[taskId]";
 import { getServerSideProps as getOutboundProps } from "../../pages/operations/outbound";
 import { getServerSideProps as getProjectionProps } from "../../pages/operations/projections";
 import { getServerSideProps as getWarehouseProps } from "../../pages/operations/warehouse";
@@ -78,6 +80,7 @@ describe("frontend surface boundary", () => {
 
   it.each([
     ["/operations", getOverviewProps],
+    ["/operations/tasks", getTaskQueueProps],
     ["/operations/warehouse", getWarehouseProps],
     ["/operations/projections", getProjectionProps],
     ["/operations/inbound", getInboundProps],
@@ -129,6 +132,22 @@ describe("frontend surface boundary", () => {
     ).resolves.toEqual({
       redirect: {
         destination: "/operations/warehouse?focus=task-1",
+        permanent: false,
+      },
+    });
+  });
+
+  it("preserves the protected task detail destination without reading data", async () => {
+    const path = "/operations/tasks/50000000-0000-4000-8000-000000000001";
+    await expect(
+      getTaskDetailProps({
+        ...context,
+        params: { taskId: "50000000-0000-4000-8000-000000000001" },
+        resolvedUrl: path,
+      } as never),
+    ).resolves.toEqual({
+      redirect: {
+        destination: `/login?callbackUrl=${encodeURIComponent(path)}`,
         permanent: false,
       },
     });

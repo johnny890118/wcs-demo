@@ -75,7 +75,39 @@ notice preserve last-known evidence without claiming it is current.
 | Overview has no bounded-coverage warning                 | Explicit collection-limit warning and projection timestamp                  | A partial overview cannot assert warehouse-wide absence of faults |
 
 Remaining limitations: existing deeper pages are still broad evidence views;
-task-specific navigation, manual/help, paginated queue/detail, exact aggregate
+manual/help, exact aggregate
 inventory visibility, and reducing unused topology data in the reused query are
 follow-up S2 slices. Read-model queries are separate observations, not an atomic
 warehouse snapshot or command precondition.
+
+## Task queue/detail slice
+
+Read-only `/api/v1/operations/tasks` and `/:taskId` require `operations.view`
+and current warehouse scope. The BFF and SSR use existing session authorization.
+Source/destination, assigned equipment, inventory/load location, and outbound
+allocation/order lineage are scoped; inconsistent lineage fails closed. Missing
+and outside-scope details share 404 semantics. Queue ordering uses immutable
+creation time plus task UUID, preserving PostgreSQL microseconds in an opaque
+cursor bound to warehouse and view. It is observation pagination, not a snapshot:
+status changes require refresh. A warehouse/view change remounts queue state.
+
+Home links to task detail. Detail shows readable work origin, allocated quantity
+(not the whole outbound load quantity), recorded route, open alarm, and scoped
+history links. `audit.view` gates links without expanding `operations.view` into
+audit access. Assignment is not physical position; recorded routes are not live
+availability. No command timeline is invented: full lifecycle controls remain S4.
+
+| Before                                            | After                                                                | Why                                                              |
+| ------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Home tasks lead to a broad technical projection   | Dedicated readable task context                                      | Operators can investigate the selected work                      |
+| Fixed bounded task list                           | Active/all keyset queue with explicit refresh semantics              | Older work remains reachable without claiming an atomic snapshot |
+| Task/order/load facts must be correlated manually | Persisted receipt/order, allocation quantity, load and alarm context | Preserve accountable warehouse meaning                           |
+| Raw identifiers dominate                          | Human context first; recorded route IDs under keyboard disclosure    | Reduce routine technical burden without hiding evidence          |
+
+Self-review found and fixed invalid calendar cursor handling, ambiguous query
+arrays, and inconsistent receipt/load lineage. Verification covers API/BFF
+permission and validation, PostgreSQL microsecond pagination and cross-warehouse
+rejection, protected SSR, production browser navigation, audit links, language,
+theme, mobile reflow, and axe accessibility. The existing legacy-only 15 lint
+warnings remain; no checks were disabled. Remaining S2 work: inventory workspace,
+Live View/readable topology, and manual/contextual help.

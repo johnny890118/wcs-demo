@@ -249,15 +249,11 @@ export default function OperationsPage({ summary, home }: PageProps) {
                   </p>
                   <Link
                     className="ui-pressable mt-2 inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
-                    href={
-                      task.status === "blocked"
-                        ? "/operations/alarms"
-                        : task.status === "unknown"
-                          ? "/operations/projections"
-                          : "/operations/warehouse"
-                    }
+                    href={`/operations/tasks/${encodeURIComponent(
+                      task.taskId,
+                    )}`}
                   >
-                    {t("reviewOperationalEvidence")}
+                    {t("openTaskDetail")}
                   </Link>
                   <details className="mt-2 text-xs text-[var(--text-muted)]">
                     <summary className="min-h-8 cursor-pointer py-2">
@@ -282,6 +278,7 @@ export default function OperationsPage({ summary, home }: PageProps) {
         className="mt-6 flex flex-wrap gap-3"
       >
         {[
+          ["/operations/tasks", "taskQueueTitle"],
           ["/operations/inbound", "inbound"],
           ["/operations/outbound", "outbound"],
           ["/operations/projections", "inventory"],

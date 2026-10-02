@@ -300,6 +300,28 @@ const auditEvents = [
 
 let summary = structuredClone(baseSummary);
 let details = structuredClone(baseDetails);
+function fixtureTaskId(task) {
+  return /^[0-9a-f-]{36}$/i.test(task.taskId)
+    ? task.taskId
+    : `50000000-0000-4000-8000-${String(
+        details.tasks.indexOf(task) + 1,
+      ).padStart(12, "0")}`;
+}
+function fixtureQueue() {
+  return details.tasks.map((task) => ({
+    taskId: fixtureTaskId(task),
+    status: task.status,
+    source: task.source,
+    destination: task.destination,
+    equipmentId: task.equipmentId,
+    flow: task.taskId.includes("outbound") ? "outbound" : "inbound",
+    externalReference: "ASN-E2E-001",
+    sku: "SKU-E2E",
+    quantity: 12,
+    createdAt: generatedAt,
+    updatedAt: task.updatedAt,
+  }));
+}
 
 function reset() {
   summary = structuredClone(baseSummary);
@@ -508,6 +530,7 @@ const server = createServer(async (request, response) => {
   if (
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
+      request.url?.startsWith("/api/v1/operations/tasks") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
@@ -546,6 +569,76 @@ const server = createServer(async (request, response) => {
     response.end(JSON.stringify(summary));
     return;
   }
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/tasks")
+  ) {
+    const url = new URL(request.url, "http://127.0.0.1");
+    const queue =
+      request.headers["x-swp-warehouse"] === secondWarehouseId
+        ? []
+        : fixtureQueue();
+    const taskId = url.pathname.split("/")[5];
+    if (taskId) {
+      const task = queue.find((t) => t.taskId === taskId);
+      if (!task) {
+        response.statusCode = 404;
+        response.end(JSON.stringify({ code: "TASK_NOT_FOUND" }));
+        return;
+      }
+      const alarm = details.alarms.find(
+        (a) =>
+          a.taskId ===
+            details.tasks.find((t) => fixtureTaskId(t) === taskId)?.taskId &&
+          a.status !== "cleared",
+      );
+      response.end(
+        JSON.stringify({
+          task,
+          originResource: {
+            type: task.flow === "inbound" ? "InboundReceipt" : "OutboundOrder",
+            id: "30000000-0000-4000-8000-000000000001",
+          },
+          load: {
+            externalId: "PALLET-E2E-001",
+            status: "received",
+            location: task.source,
+          },
+          route: {
+            topologyId: "90000000-0000-4000-8000-000000000001",
+            revision: 3,
+            edges: ["RECEIVING-TO-STORAGE"],
+          },
+          alarm: alarm
+            ? {
+                alarmId: "70000000-0000-4000-8000-000000000001",
+                code: alarm.code,
+                message: alarm.message,
+                status: alarm.status,
+                severity: alarm.severity,
+              }
+            : null,
+          generatedAt,
+        }),
+      );
+      return;
+    }
+    const active = url.searchParams.get("view") !== "all";
+    const filtered = queue.filter(
+      (t) => !active || !["completed", "cancelled"].includes(t.status),
+    );
+    const offset = Number(url.searchParams.get("cursor") ?? 0);
+    const limit = Number(url.searchParams.get("limit") ?? 50);
+    response.end(
+      JSON.stringify({
+        tasks: filtered.slice(offset, offset + limit),
+        nextCursor:
+          filtered.length > offset + limit ? String(offset + limit) : null,
+        generatedAt,
+      }),
+    );
+    return;
+  }
   if (request.url === "/api/v1/operations/home") {
     response.end(
       JSON.stringify({
@@ -571,6 +664,7 @@ const server = createServer(async (request, response) => {
           )
           .map((task) => ({
             ...task,
+            taskId: fixtureTaskId(task),
             needsAttention: ["blocked", "unknown"].includes(task.status),
             nextStep: ["blocked", "unknown"].includes(task.status)
               ? "review_exception"

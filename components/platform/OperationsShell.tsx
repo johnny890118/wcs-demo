@@ -29,6 +29,7 @@ export function OperationsShell({
   children: ReactNode;
   current?:
     | "overview"
+    | "tasks"
     | "warehouse"
     | "inbound"
     | "outbound"
@@ -93,6 +94,18 @@ export function OperationsShell({
             <span className="font-bold tracking-tight">{t("brand")}</span>
           </Link>
           <nav aria-label={t("desktopNavigation")} className="space-y-1">
+            <Link
+              href="/operations/tasks"
+              aria-current={current === "tasks" ? "page" : undefined}
+              className={`ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "tasks"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <QueueListIcon className="h-5 w-5" aria-hidden="true" />
+              {t("taskQueueTitle")}
+            </Link>
             <Link
               href="/operations"
               aria-current={current === "overview" ? "page" : undefined}
@@ -250,6 +263,17 @@ export function OperationsShell({
               aria-label={t("mobileNavigation")}
               className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
             >
+              <Link
+                href="/operations/tasks"
+                aria-current={current === "tasks" ? "page" : undefined}
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "tasks"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("taskQueueTitle")}
+              </Link>
               <Link
                 href="/operations"
                 aria-current={current === "overview" ? "page" : undefined}
