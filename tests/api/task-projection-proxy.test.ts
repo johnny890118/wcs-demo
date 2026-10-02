@@ -6,14 +6,17 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
   fetchTaskQueue: vi.fn(),
   fetchTaskDetail: vi.fn(),
   fetchInventory: vi.fn(),
+  fetchLoads: vi.fn(),
 }));
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/tasks/[[...segments]]";
 import inventoryHandler from "../../pages/api/operations/inventory";
+import loadsHandler from "../../pages/api/operations/loads";
 import {
   fetchTaskDetail,
   fetchTaskQueue,
   fetchInventory,
+  fetchLoads,
   WcsProjectionError,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
@@ -75,6 +78,28 @@ describe("task read browser boundary", () => {
     );
     expect(unavailable.statusCode).toBe(503);
     expect(unavailable.body).toEqual({ code: "INVENTORY_UNAVAILABLE" });
+  });
+  it("bounds load reads and rejects unauthenticated sessions", async () => {
+    const invalid = response();
+    await loadsHandler(
+      { method: "GET", query: { limit: "101" } } as never,
+      invalid as never,
+    );
+    expect(invalid.statusCode).toBe(400);
+    expect(fetchLoads).not.toHaveBeenCalled();
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const denied = response();
+    await loadsHandler({ method: "GET", query: {} } as never, denied as never);
+    expect(denied.statusCode).toBe(401);
+  });
+  it("sanitizes load diagnostics", async () => {
+    vi.mocked(fetchLoads).mockRejectedValue(
+      new Error("private upstream diagnostics"),
+    );
+    const res = response();
+    await loadsHandler({ method: "GET", query: {} } as never, res as never);
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toEqual({ code: "LOADS_UNAVAILABLE" });
   });
   it.each([
     { view: ["all"] },

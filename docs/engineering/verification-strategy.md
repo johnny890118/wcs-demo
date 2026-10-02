@@ -28,6 +28,15 @@
 
 ## Current S2 Home baseline
 
+The Loads UI checkpoint passes 334 fast tests, 18 PostgreSQL integration tests
+and 25 production-build E2E checks via the complete gate, plus the API build.
+New browser evidence covers protected Loads entry, unknown inventory versus
+shipped zero balance, keyboard search/empty results, receipt/history and stock
+navigation, warehouse switching, bilingual mobile light/dark axe/reflow and
+desktop/mobile screenshot review. The shared Inventory subnavigation provides
+visible current state and accessible `aria-current`; no movement controls were
+added.
+
 The shipped-history correction and Loads read foundation add contract checks for
 terminal zero stock, scoped load guards/query validation, and PostgreSQL
 unrecorded/partial/shipped load inventory plus foreign receipt isolation. The

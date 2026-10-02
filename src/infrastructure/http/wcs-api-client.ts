@@ -23,6 +23,10 @@ import {
   type InventoryPage,
 } from "../../application/operations/inventory-projection";
 import {
+  isLoadPage,
+  type LoadPage,
+} from "../../application/operations/load-projection";
+import {
   isInboundExecutionCompleted,
   isInboundReceiptCreated,
   type CreateInboundWorkflowRequest,
@@ -119,6 +123,22 @@ export async function fetchInventory(
   );
   if (!isInventoryPage(result))
     throw new Error("Invalid inventory projection.");
+  return result;
+}
+
+export async function fetchLoads(
+  access: OperationalAccess,
+  query: InventoryQuery = {},
+): Promise<LoadPage> {
+  const search = new URLSearchParams();
+  if (query.search) search.set("search", query.search);
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/loads${search.size ? `?${search}` : ""}`,
+    access,
+  );
+  if (!isLoadPage(result)) throw new Error("Invalid load projection.");
   return result;
 }
 

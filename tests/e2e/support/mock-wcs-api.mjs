@@ -532,6 +532,7 @@ const server = createServer(async (request, response) => {
     (request.url === "/api/v1/operations/summary" ||
       request.url?.startsWith("/api/v1/operations/tasks") ||
       request.url?.startsWith("/api/v1/operations/inventory") ||
+      request.url?.startsWith("/api/v1/operations/loads") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
@@ -675,6 +676,45 @@ const server = createServer(async (request, response) => {
         ? []
         : [item, shippedItem].filter((row) =>
             [row.sku, row.location, row.loadExternalId].some((value) =>
+              value.toLowerCase().includes(search),
+            ),
+          );
+    response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
+    return;
+  }
+
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/loads")
+  ) {
+    const search = (
+      new URL(request.url, "http://fixture").searchParams.get("search") ?? ""
+    ).toLowerCase();
+    const load = {
+      loadId: "41000000-0000-4000-8000-000000000001",
+      externalId: "PALLET-RECEIVED-001",
+      sku: "SKU-LOAD",
+      receivedQuantity: 24,
+      status: "received",
+      location: "RECEIVING-01",
+      receiptId: "30000000-0000-4000-8000-000000000001",
+      receiptReference: "ASN-LOAD",
+      inventory: null,
+      updatedAt: generatedAt,
+    };
+    const history = {
+      ...load,
+      loadId: "41000000-0000-4000-8000-000000000002",
+      externalId: "PALLET-SHIPPED-001",
+      status: "stored",
+      location: "STORAGE-01",
+      inventory: { quantity: 0, status: "shipped", location: "STORAGE-01" },
+    };
+    const items =
+      request.headers["x-swp-warehouse"] === secondWarehouseId
+        ? []
+        : [load, history].filter((item) =>
+            [item.externalId, item.sku, item.location].some((value) =>
               value.toLowerCase().includes(search),
             ),
           );

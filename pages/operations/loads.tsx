@@ -6,22 +6,22 @@ import { OperationsShell } from "../../components/platform/OperationsShell";
 import { InventoryNavigation } from "../../components/platform/InventoryNavigation";
 import { hasUserPermission } from "../../src/application/access/operational-access";
 import {
-  isInventoryPage,
-  type InventoryPage,
-} from "../../src/application/operations/inventory-projection";
-import { fetchInventory } from "../../src/infrastructure/http/wcs-api-client";
+  isLoadPage,
+  type LoadPage,
+} from "../../src/application/operations/load-projection";
+import { fetchLoads } from "../../src/infrastructure/http/wcs-api-client";
 import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 type Props = {
-  initialPage: InventoryPage | null;
+  initialPage: LoadPage | null;
   search: string;
   warehouseId: string;
   canViewAudit: boolean;
 };
 const control =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
-function Inventory({
+function Loads({
   initialPage,
   search,
   canViewAudit,
@@ -37,15 +37,15 @@ function Inventory({
     setFailed(false);
     try {
       const response = await fetch(
-        `/api/operations/inventory?${new URLSearchParams({ search, cursor })}`,
+        `/api/operations/loads?${new URLSearchParams({ search, cursor })}`,
       );
       const payload: unknown = await response.json();
-      if (!response.ok || !isInventoryPage(payload)) throw new Error();
+      if (!response.ok || !isLoadPage(payload)) throw new Error();
       setItems((current) => {
-        const ids = new Set(current.map((item) => item.inventoryUnitId));
+        const ids = new Set(current.map((item) => item.loadId));
         return [
           ...current,
-          ...payload.items.filter((item) => !ids.has(item.inventoryUnitId)),
+          ...payload.items.filter((item) => !ids.has(item.loadId)),
         ];
       });
       setCursor(payload.nextCursor);
@@ -57,12 +57,12 @@ function Inventory({
   }
   return (
     <>
-      <h1 className="text-3xl font-black">{t("inventory")}</h1>
+      <h1 className="text-3xl font-black">{t("loads")}</h1>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("inventoryDescription")}
+        {t("loadsDescription")}
       </p>
       <form
-        action="/operations/inventory"
+        action="/operations/loads"
         method="get"
         className="mt-5 flex flex-wrap items-end gap-2"
       >
@@ -78,13 +78,13 @@ function Inventory({
         <button type="submit" className={control}>
           {t("inventorySearchAction")}
         </button>
-        <Link className={control} href="/operations/inventory">
+        <Link className={control} href="/operations/loads">
           {t("inventoryClearSearch")}
         </Link>
       </form>
       {failed ? (
         <p role="alert" className="mt-4 text-sm">
-          {t("inventoryUnavailable")}
+          {t("loadsUnavailable")}
         </p>
       ) : null}
       {initialPage ? (
@@ -99,31 +99,29 @@ function Inventory({
       <ul className="mt-5 space-y-4">
         {items.map((item) => (
           <li
-            key={item.inventoryUnitId}
+            key={item.loadId}
             className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
           >
-            <h2 className="break-words text-xl font-bold">
-              {item.sku} · {item.location}
-            </h2>
+            <h2 className="break-words text-xl font-bold">{item.externalId}</h2>
             <p className="mt-2 text-sm font-semibold">
               {t(
-                item.status === "available"
-                  ? "inventoryStateAvailable"
-                  : item.status === "reserved"
-                    ? "inventoryStateReserved"
-                    : item.status === "shipped"
-                      ? "inventoryStateShipped"
-                      : "inventoryStateQuarantined",
+                item.status === "received"
+                  ? "loadReceived"
+                  : item.status === "in_transit"
+                    ? "loadInTransit"
+                    : "loadStored",
               )}
             </p>
             <dl className="mt-4 grid gap-4 sm:grid-cols-3">
               {(
                 [
-                  ["inventoryBalance", item.quantity],
-                  ["inventoryReserved", item.reservedQuantity],
-                  ["inventoryUnreserved", item.unreservedQuantity],
-                  ["externalLoadId", item.loadExternalId],
-                  ["taskLoadLocation", item.loadLocation],
+                  ["sku", item.sku],
+                  ["taskLoadLocation", item.location],
+                  ["loadReceivedQuantity", item.receivedQuantity],
+                  [
+                    "inventoryBalance",
+                    item.inventory?.quantity ?? t("loadInventoryUnknown"),
+                  ],
                   ["inventoryOrigin", item.receiptReference],
                 ] as const
               ).map(([key, value]) => (
@@ -133,13 +131,35 @@ function Inventory({
                 </div>
               ))}
             </dl>
-            {item.locationStatus !== "available" ||
-            item.location !== item.loadLocation ||
-            item.reservedQuantity > item.quantity ? (
-              <p className="mt-4 text-sm font-semibold">
+            {item.inventory ? (
+              <p className="mt-3 text-sm font-semibold">
+                <span>
+                  {t(
+                    item.inventory.status === "shipped"
+                      ? "inventoryStateShipped"
+                      : item.inventory.status === "quarantined"
+                        ? "inventoryStateQuarantined"
+                        : item.inventory.status === "reserved"
+                          ? "inventoryStateReserved"
+                          : "inventoryStateAvailable",
+                  )}
+                </span>{" "}
+                · {item.inventory.location}
+              </p>
+            ) : null}
+            {item.inventory && item.inventory.location !== item.location ? (
+              <p className="mt-3 text-sm font-semibold">
                 {t("inventoryReviewRequired")}
               </p>
             ) : null}
+            <Link
+              className={`${control} mt-3`}
+              href={`/operations/inventory?${new URLSearchParams({
+                search: item.externalId,
+              })}`}
+            >
+              {t("loadViewInventory")}
+            </Link>
             {canViewAudit ? (
               <Link
                 className={`${control} mt-3`}
@@ -155,13 +175,13 @@ function Inventory({
               <summary className="min-h-11 cursor-pointer py-3">
                 {t("homeTechnicalDetails")}
               </summary>
-              <p className="break-all">{item.inventoryUnitId}</p>
+              <p className="break-all">{item.loadId}</p>
             </details>
           </li>
         ))}
       </ul>
       {!failed && items.length === 0 ? (
-        <p className="mt-5 text-sm">{t("inventoryEmpty")}</p>
+        <p className="mt-5 text-sm">{t("loadsEmpty")}</p>
       ) : null}
       {cursor ? (
         <button
@@ -170,26 +190,26 @@ function Inventory({
           disabled={loading}
           onClick={() => void loadMore()}
         >
-          {loading ? t("loadingAudit") : t("inventoryLoadMore")}
+          {loading ? t("loadingAudit") : t("loadMoreLoads")}
         </button>
       ) : null}
       <p className="mt-6 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">
-        {t("inventoryQuantityNotice")}
+        {t("loadsEvidenceNotice")}
       </p>
       <Link
         className={control}
-        href={`/operations/inventory?${new URLSearchParams({ search })}`}
+        href={`/operations/loads?${new URLSearchParams({ search })}`}
       >
-        {t("inventoryRefresh")}
+        {t("loadsRefresh")}
       </Link>
     </>
   );
 }
-export default function InventoryPageView(props: Props) {
+export default function LoadsPage(props: Props) {
   return (
     <OperationsShell current="inventory">
-      <InventoryNavigation current="inventory" />
-      <Inventory
+      <InventoryNavigation current="loads" />
+      <Loads
         key={`${props.warehouseId}:${props.search}:${
           props.initialPage?.generatedAt ?? "none"
         }`}
@@ -207,7 +227,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   const access = operationalPageAccess(
     session,
     "operations.view",
-    "/operations/inventory",
+    "/operations/loads",
   );
   if (!access.allowed)
     return { redirect: { destination: access.destination, permanent: false } };
@@ -218,9 +238,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   )
     return { notFound: true };
   const search = ((context.query.search ?? "") as string).trim();
-  let initialPage: InventoryPage | null = null;
+  let initialPage: LoadPage | null = null;
   try {
-    initialPage = await fetchInventory(access.access, { search });
+    initialPage = await fetchLoads(access.access, { search });
   } catch {
     initialPage = null;
   }

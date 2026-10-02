@@ -31,6 +31,31 @@ contracts and PostgreSQL partial/shipped/unrecorded balances, literal search,
 pagination, cursor replay and foreign receipt tests cover this foundation. The
 operator Loads UI is the next slice, not implied complete by the API checkpoint.
 
+## Loads operator workspace
+
+`/operations/loads` uses the scoped read projection, SSR authentication and a
+read-only BFF. Shared Inventory workspace navigation connects stock and loads
+without adding marketing or another top-level application concern. Search is
+literal and bounded; load-more state resets by warehouse/search/projection.
+Unavailable results are visibly noncurrent. Null inventory is not recorded,
+shipped inventory is zero current balance, and original receipt quantity is
+separate. Both load and inventory recorded states remain readable; location
+disagreement warns rather than fabricating a position. `audit.view` gates receipt
+history links while inventory context remains available under `operations.view`.
+
+| Before                                              | After                                                                       | Why                                                                           |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Loads exist only in task/diagnostic context         | Searchable dedicated read workspace                                         | Investigate received loads even before inventory exists                       |
+| Received quantity can be mistaken for current stock | Separate original quantity and optional current balance                     | Missing stock evidence is not zero and shipped history is not available stock |
+| Inventory/load navigation is disconnected           | Shared local workspace navigation with visible and accessible current state | Preserve the approved Inventory information architecture                      |
+| Stock state could be hidden behind a number         | Readable quarantine/reserved/shipped state plus inventory context link      | Quantity alone is not allocation readiness                                    |
+
+The slice is medium-risk UI/read security work with no mutation or auth-model
+change. Contract/BFF/SSR tests and production-browser keyboard search, empty
+state, unknown/shipped evidence, stock deep link, warehouse switching, theme,
+locale, axe/reflow and desktop/mobile screenshot review are the acceptance gates.
+Locations workspace, Live View and Help remain subsequent S2 slices.
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

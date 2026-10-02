@@ -12,6 +12,60 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("loads preserve unknown inventory and zero shipped stock across readable bilingual views", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/loads");
+  await expect(page.getByText("尚未記錄庫存", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("已出庫 — 無現存庫存", { exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("loads-desktop.png"),
+    fullPage: true,
+  });
+  await page.getByLabel("搜尋 SKU、載具或位置").fill("missing");
+  await page.getByLabel("搜尋 SKU、載具或位置").press("Enter");
+  await expect(
+    page.getByText("目前倉庫與搜尋條件沒有符合的載具。"),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "清除", exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: test.info().outputPath("loads-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Light", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole("link", { name: "View inventory context" })
+    .first()
+    .click();
+  await expect(page).toHaveURL(
+    /\/operations\/inventory\?search=PALLET-RECEIVED-001/,
+  );
+  await page
+    .getByRole("navigation", { name: "Inventory workspace" })
+    .getByRole("link", { name: "Loads", exact: true })
+    .click();
+  await page
+    .getByRole("combobox")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(
+    page.getByRole("heading", { name: "PALLET-RECEIVED-001" }),
+  ).toHaveCount(0);
+});
+
 test("inventory explains partial reservations with searchable accessible warehouse context", async ({
   page,
 }) => {
@@ -216,6 +270,7 @@ test("login and every operations route enforce the private surface boundary", as
     "/operations",
     "/operations/tasks",
     "/operations/inventory",
+    "/operations/loads",
     "/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/operations/warehouse",
     "/operations/projections",

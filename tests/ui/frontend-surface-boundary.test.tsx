@@ -36,6 +36,7 @@ import { getServerSideProps as getInboundProps } from "../../pages/operations/in
 import { getServerSideProps as getOverviewProps } from "../../pages/operations/index";
 import { getServerSideProps as getTaskQueueProps } from "../../pages/operations/tasks";
 import { getServerSideProps as getInventoryProps } from "../../pages/operations/inventory";
+import { getServerSideProps as getLoadProps } from "../../pages/operations/loads";
 import { getServerSideProps as getTaskDetailProps } from "../../pages/operations/tasks/[taskId]";
 import { getServerSideProps as getOutboundProps } from "../../pages/operations/outbound";
 import { getServerSideProps as getProjectionProps } from "../../pages/operations/projections";
@@ -83,6 +84,7 @@ describe("frontend surface boundary", () => {
     ["/operations", getOverviewProps],
     ["/operations/tasks", getTaskQueueProps],
     ["/operations/inventory", getInventoryProps],
+    ["/operations/loads", getLoadProps],
     ["/operations/warehouse", getWarehouseProps],
     ["/operations/projections", getProjectionProps],
     ["/operations/inbound", getInboundProps],
