@@ -1,4 +1,7 @@
+import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  operationsMetaDescription:
+    "Authenticated warehouse operations, work and accountable operational evidence.",
   navigationPending: "Opening workspace…",
   locations: "Locations",
   locationsDescription:
@@ -137,7 +140,7 @@ export const en = {
   homeNext_monitor: "Monitor the current warehouse observation.",
   homeNext_review_exception:
     "Review task and alarm evidence. Unknown outcomes require reconciliation; do not assume completion.",
-  brand: "Smart Warehouse Platform",
+  brand: PRODUCT_NAME,
   productTagline: "One operational truth, from dock to device.",
   productDescription:
     "A hardware-independent warehouse execution platform for controlled inventory movement, deterministic simulation, and accountable operations.",
@@ -416,7 +419,7 @@ export const en = {
   learnMore: "Learn more",
   aboutPlatform: "About the platform",
   contactTeam: "Contact the project",
-  platformMetaTitle: "Smart Warehouse Platform",
+  platformMetaTitle: PRODUCT_NAME,
   aboutMetaTitle: "About | Smart Warehouse Platform",
   contactMetaTitle: "Contact | Smart Warehouse Platform",
   loginMetaTitle: "Sign in | Smart Warehouse Platform",
@@ -462,6 +465,7 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  operationsMetaDescription: "需登入的倉庫營運、工作與可追溯營運證據。",
   navigationPending: "正在開啟工作區…",
   locations: "位置",
   locationsDescription:
@@ -589,7 +593,7 @@ export const zhTW: Catalog = {
   homeNext_monitor: "追蹤目前倉庫觀測。",
   homeNext_review_exception:
     "檢視任務與警報證據；未知結果需要核對處置，不可假定已完成。",
-  brand: "Smart Warehouse Platform",
+  brand: PRODUCT_NAME,
   productTagline: "從月台到設備，共享單一營運事實。",
   productDescription:
     "硬體獨立的倉儲執行平台，整合受控庫存移動、決定性模擬與可追溯作業。",
@@ -857,7 +861,7 @@ export const zhTW: Catalog = {
   learnMore: "進一步了解",
   aboutPlatform: "關於平台",
   contactTeam: "聯絡專案",
-  platformMetaTitle: "Smart Warehouse Platform",
+  platformMetaTitle: PRODUCT_NAME,
   aboutMetaTitle: "關於｜Smart Warehouse Platform",
   contactMetaTitle: "聯絡｜Smart Warehouse Platform",
   loginMetaTitle: "登入｜Smart Warehouse Platform",

@@ -200,7 +200,7 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
 }
 export default function LocationsPage(props: Props) {
   return (
-    <OperationsShell current="inventory">
+    <OperationsShell current="inventory" titleKey="locations">
       <InventoryNavigation current="locations" />
       <Locations
         key={`${props.warehouseId}:${props.search}:${

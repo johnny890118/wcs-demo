@@ -28,6 +28,13 @@
 
 ## Current S2 Home baseline
 
+The active-identity slice adds catalog/asset contracts and source-derived icon
+drift checking to the gate: 369 fast tests, 19 PostgreSQL integration tests,
+28 production-build E2E checks and API build. Browser checks cover owned icon
+availability and all active workspace titles/noindex/Open Graph identity, while
+existing locale/theme/mobile/keyboard/axe checks review the shared mark. This
+does not add marketing or index private surfaces.
+
 The navigation-quality slice adds overview query-budget/partial-contract,
 per-request BFF authorization, route-event cleanup and PostgreSQL scoped output
 equivalence checks. Full acceptance is 366 fast tests, 19 PostgreSQL integration

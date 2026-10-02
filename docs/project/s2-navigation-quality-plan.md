@@ -102,3 +102,46 @@ Inventory active titles, favicon/app icon, metadata/Open Graph, login, operation
 entry and navigation. Replace legacy WCS Demo/female.png identity with Smart
 Warehouse Platform and a neutral replaceable SWP icon, without redesigning the
 Public Website. Dormant legacy source is explicitly reference-only.
+
+## Identity implementation and inventory
+
+Low-risk assets/metadata/shared-mark slice; no authentication, routing, SEO
+expansion or new ADR. One `PRODUCT_NAME` backs both locale brand/entry titles.
+Entry retains its thin system role and canonical; Login has localized SWP title,
+description and noindex; Operations now has a localized workspace title plus
+Smart Warehouse Platform, generic non-personal description and explicit noindex.
+Loads/Locations keep Inventory navigation but their own workspace title. Private
+metadata never contains principal, warehouse, task or resource identity. Legacy
+is titled migration/reference, not a formal product capability. API boundaries
+remain endpoint policy, not page metadata.
+
+The shared `_app` browser metadata previously referenced `/female.png`; implicit
+`/favicon.ico` was also a legacy asset. Both active references/fallback are now
+owned SWP icons. `public/swp-icon.svg` is a neutral warehouse mark, not a final
+brand commission. SVG, 32px PNG, PNG-compressed ICO and 180px Apple icon share that
+source; `npm run icons:generate` updates derivatives and `icons:check` verifies
+drift in the full gate. Explicit development Sharp dependency reuses the locked
+version already required by Next. Entry/Login/Operations use the same decorative
+mark and meaningful accessible link name. No PWA/CMS/marketing redesign is added.
+`female.png` remains an unused/reference asset; no unrelated legacy source is
+discarded.
+
+| Before                                           | After                                                       | Why                                                             |
+| ------------------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------- |
+| Explicit old female favicon and implicit old ICO | Source-owned SVG/PNG/ICO/Apple derivatives                  | Browser/tab and saved shortcut identity agree                   |
+| Operations has only generic global title         | Localized workspace title with exact product name           | Users can identify the active product and workspace             |
+| Three unrelated letter-mark snippets             | Shared neutral accessible ProductMark                       | Consistent entry, login and operational brand                   |
+| Global/page Open Graph titles can coexist        | Explicit shared Head key and browser single-title assertion | Next Head does not deduplicate the property attribute by itself |
+
+Emil review keeps existing footprint, no motion, high-contrast neutral icon and
+decorative alternative text so branding does not duplicate the link name. Test
+coverage checks both catalogs, no legacy active reference, valid icon formats,
+source/derivative drift and HTTP availability, all shipped active workspace
+titles/noindex/OG single-title contracts, plus existing bilingual theme/mobile
+keyboard/axe flows. Source scanning found no active WCS Demo title/navigation;
+dormant About/Contact are not promoted, polished or added to navigation.
+
+Separate security follow-up discovered during inventory: dormant `/contact`
+still exposes the private repository's issues link, contrary to AGENTS. After
+this identity checkpoint, remove only that disclosure with the already approved
+public email; do not turn it into marketing work or restore public navigation.

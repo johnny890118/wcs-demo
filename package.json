@@ -23,7 +23,9 @@
     "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",
     "security:dependencies": "npm audit --omit=dev --audit-level=high",
     "security:secrets": "node scripts/check-secrets.mjs",
-    "verify": "npm run format:check && npm run security:secrets && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
+    "icons:generate": "node scripts/generate-product-icons.mjs",
+    "icons:check": "node scripts/generate-product-icons.mjs --check",
+    "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -67,6 +69,7 @@
     "postcss": "^8.5.28",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
+    "sharp": "^0.35.4",
     "supertest": "^7.1.4",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.20.6",

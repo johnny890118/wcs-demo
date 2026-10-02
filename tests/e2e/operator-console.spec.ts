@@ -12,6 +12,75 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("active surfaces share SWP identity and owned browser icons", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle("Smart Warehouse Platform");
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+    "content",
+    "Smart Warehouse Platform",
+  );
+  await expect(
+    page.locator('link[rel="icon"][type="image/svg+xml"]'),
+  ).toHaveAttribute("href", "/swp-icon.svg");
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+    "href",
+    "/swp-apple-touch-icon.png",
+  );
+  await expect(page.locator('img[src="/swp-icon.svg"]')).toBeVisible();
+  for (const asset of [
+    "/swp-icon.svg",
+    "/swp-icon-32.png",
+    "/swp-apple-touch-icon.png",
+    "/favicon.ico",
+  ]) {
+    expect((await page.request.get(asset)).status()).toBe(200);
+  }
+  await page.goto("/login");
+  await expect(page).toHaveTitle(/Smart Warehouse Platform/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    await page.title(),
+  );
+  await signIn(page, "/operations");
+  for (const destination of [
+    "/operations",
+    "/operations/tasks",
+    "/operations/inventory",
+    "/operations/loads",
+    "/operations/locations",
+    "/operations/warehouse",
+    "/operations/inbound",
+    "/operations/outbound",
+    "/operations/alarms",
+    "/operations/audit",
+    "/operations/projections",
+  ]) {
+    await page.goto(destination);
+    await expect(page).toHaveTitle(/Smart Warehouse Platform/);
+    expect(await page.title()).not.toMatch(/wcs.?demo/i);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex, nofollow",
+    );
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      await page.title(),
+    );
+    await expect(
+      page.locator('link[rel="icon"][href="/female.png"]'),
+    ).toHaveCount(0);
+  }
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page).toHaveTitle(/Smart Warehouse Platform/);
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await page.screenshot({
+    path: test.info().outputPath("swp-identity-operations-dark.png"),
+    fullPage: true,
+  });
+});
+
 test("navigation signals SSR waiting and Home refresh uses one bounded read", async ({
   page,
 }) => {

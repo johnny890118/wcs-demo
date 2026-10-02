@@ -12,6 +12,12 @@ import Head from "next/head";
 import { LocaleProvider } from "@/src/ui/i18n/locale-provider";
 import { useRouter } from "next/router";
 import { classifyFrontendSurface } from "@/src/ui/navigation/frontend-surfaces";
+import {
+  PRODUCT_NAME,
+  PRODUCT_ICON,
+  PRODUCT_ICON_PNG,
+  PRODUCT_APP_ICON,
+} from "@/src/ui/identity/product-identity";
 
 const ubuntu = Ubuntu({
   subsets: ["latin"],
@@ -44,12 +50,38 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <>
       <Head>
-        <title>Smart Warehouse Platform</title>
+        <title>
+          {surface === "legacy"
+            ? `Legacy reference | ${PRODUCT_NAME}`
+            : PRODUCT_NAME}
+        </title>
+        <meta name="application-name" content={PRODUCT_NAME} />
+        <meta name="apple-mobile-web-app-title" content={PRODUCT_NAME} />
+        <meta property="og:site_name" content={PRODUCT_NAME} />
+        <meta
+          property="og:title"
+          content={PRODUCT_NAME}
+          key="product-og-title"
+        />
         <meta
           name="description"
           content="Hardware-independent warehouse execution, deterministic simulation, and accountable inventory movement."
         />
-        <link rel="icon" href="/female.png" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={PRODUCT_ICON_PNG}
+          key="product-png-icon"
+        />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          sizes="any"
+          href={PRODUCT_ICON}
+          key="product-svg-icon"
+        />
+        <link rel="apple-touch-icon" sizes="180x180" href={PRODUCT_APP_ICON} />
       </Head>
       <div className={ubuntu.className}>{content}</div>
     </>

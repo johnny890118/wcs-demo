@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { ProductMark } from "./ProductMark";
 
 export function PublicHeader() {
   const { t } = useLocale();
@@ -21,12 +22,7 @@ export function PublicHeader() {
             aria-label={t("brand")}
             className="ui-pressable flex items-center gap-3 rounded-lg"
           >
-            <span
-              className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
-              aria-hidden="true"
-            >
-              S
-            </span>
+            <ProductMark />
             <span className="hidden text-sm font-bold tracking-tight sm:inline">
               {t("brand")}
             </span>

@@ -207,7 +207,7 @@ function Loads({
 }
 export default function LoadsPage(props: Props) {
   return (
-    <OperationsShell current="inventory">
+    <OperationsShell current="inventory" titleKey="loads">
       <InventoryNavigation current="loads" />
       <Loads
         key={`${props.warehouseId}:${props.search}:${

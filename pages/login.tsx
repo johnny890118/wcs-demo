@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import { LocaleControl } from "../components/platform/LocaleControl";
 import { ThemeControl } from "../components/platform/ThemeControl";
+import { ProductMark } from "../components/platform/ProductMark";
 import { safeOperationsCallback } from "../src/ui/auth/login-routing";
 import { useLocale } from "../src/ui/i18n/locale-provider";
 import { authOptions } from "./api/auth/[...nextauth]";
@@ -52,6 +53,12 @@ export default function LoginPage({
         <title>{t("loginMetaTitle")}</title>
         <meta name="description" content={t("loginDescription")} />
         <meta name="robots" content="noindex, nofollow" />
+        <meta
+          property="og:title"
+          content={t("loginMetaTitle")}
+          key="product-og-title"
+        />
+        <meta property="og:description" content={t("loginDescription")} />
       </Head>
       <a
         href="#main-content"
@@ -66,12 +73,7 @@ export default function LoginPage({
             aria-label={t("brand")}
             className="ui-pressable flex items-center gap-3 rounded-lg"
           >
-            <span
-              className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]"
-              aria-hidden="true"
-            >
-              S
-            </span>
+            <ProductMark />
             <span className="hidden text-sm font-bold tracking-tight sm:inline">
               {t("brand")}
             </span>

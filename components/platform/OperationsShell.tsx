@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import Head from "next/head";
 import type { ReactNode } from "react";
 import {
   hasUserPermission,
@@ -18,16 +19,20 @@ import {
   isOperationalRuntime,
 } from "../../src/application/access/operational-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
 import { WarehouseContextControl } from "./WarehouseContextControl";
 import { NavigationProgress } from "./NavigationProgress";
+import { ProductMark } from "./ProductMark";
 
 export function OperationsShell({
   children,
   current = "overview",
+  titleKey,
 }: {
   children: ReactNode;
+  titleKey?: MessageKey;
   current?:
     | "overview"
     | "tasks"
@@ -75,9 +80,33 @@ export function OperationsShell({
         }[runtime.equipmentSource] as Parameters<typeof t>[0],
       )
     : null;
+  const title = `${t(
+    titleKey ??
+      ({
+        overview: "operationsHome",
+        tasks: "taskQueueTitle",
+        inventory: "inventory",
+        warehouse: "warehouseMap",
+        inbound: "inbound",
+        outbound: "outbound",
+        alarms: "alarmWorkflowTitle",
+        audit: "auditHistory",
+        projections: "projectionsTitle",
+      }[current] as MessageKey),
+  )} | ${t("brand")}`;
 
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
+      <Head>
+        <title>{title}</title>
+        <meta name="description" content={t("operationsMetaDescription")} />
+        <meta name="robots" content="noindex, nofollow" />
+        <meta property="og:title" content={title} key="product-og-title" />
+        <meta
+          property="og:description"
+          content={t("operationsMetaDescription")}
+        />
+      </Head>
       <NavigationProgress />
       <a
         href="#main-content"
@@ -91,9 +120,7 @@ export function OperationsShell({
             href="/"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent)] text-sm font-black text-[var(--on-accent)]">
-              S
-            </span>
+            <ProductMark />
             <span className="font-bold tracking-tight">{t("brand")}</span>
           </Link>
           <nav aria-label={t("desktopNavigation")} className="space-y-1">
