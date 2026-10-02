@@ -78,7 +78,7 @@ export class InventoryProjectionService {
       JOIN locations location ON location.id = inventory.location_id AND location.warehouse_id = $1
       JOIN loads load ON load.id = inventory.load_id
       JOIN locations load_location ON load_location.id = load.current_location_id AND load_location.warehouse_id = $1
-      JOIN inbound_receipts receipt ON receipt.id = load.receipt_id
+      JOIN inbound_receipts receipt ON receipt.id = load.receipt_id AND receipt.warehouse_id = $1
       LEFT JOIN LATERAL (SELECT sum(allocation.quantity) AS quantity FROM inventory_allocations allocation WHERE allocation.inventory_unit_id = inventory.id AND allocation.status = 'reserved') reservation ON true
       WHERE ($2::uuid IS NULL OR inventory.id > $2::uuid)
         AND ($3::text = '' OR strpos(lower(inventory.sku), lower($3)) > 0 OR strpos(lower(load.external_id), lower($3)) > 0 OR strpos(lower(location.code), lower($3)) > 0)

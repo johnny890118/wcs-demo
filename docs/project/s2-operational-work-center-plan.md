@@ -2,6 +2,35 @@
 
 Status: Active
 
+## Autonomous continuation
+
+Owner confirmed on 2026-10-03: after each verified, pushed, CI-stable clean
+checkpoint, continue directly to the next coherent roadmap slice. Routine
+checkpoint acceptance is not an Owner gate. Stop only for an Owner-only decision
+or authorization blocker; do not broaden scope or skip verification to continue.
+
+## Next load-read foundation
+
+Before Loads UI, add a scoped searchable paginated load projection. Preserve
+original received quantity separately from optional current inventory balance;
+missing inventory is unknown/not recorded, never asserted zero. Read load's
+persisted location without inferring live position. Scope both load and optional
+inventory location; inconsistent foreign inventory lineage fails closed. Receipt
+context is readable; audit access remains separately enforced. No load mutation,
+transfer, adjustment, or reconciliation is added. This is a medium-risk read
+boundary using the existing plan and authorization, not a new ADR decision.
+
+Loads foundation implementation: `/api/v1/operations/loads` requires
+`operations.view` plus current warehouse scope; source receipt, recorded load
+location and optional inventory location all belong to that warehouse. Inventory
+reads also validate receipt warehouse ownership. Literal search, bounded UUID
+keyset pages and surface/warehouse/search-bound cursors preserve isolation.
+Missing inventory remains null; shipped historical inventory projects zero
+current stock; original received quantity stays separate. API permission/query
+contracts and PostgreSQL partial/shipped/unrecorded balances, literal search,
+pagination, cursor replay and foreign receipt tests cover this foundation. The
+operator Loads UI is the next slice, not implied complete by the API checkpoint.
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

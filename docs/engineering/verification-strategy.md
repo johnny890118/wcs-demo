@@ -28,6 +28,13 @@
 
 ## Current S2 Home baseline
 
+The shipped-history correction and Loads read foundation add contract checks for
+terminal zero stock, scoped load guards/query validation, and PostgreSQL
+unrecorded/partial/shipped load inventory plus foreign receipt isolation. The
+complete gate now passes 326 fast tests, 18 PostgreSQL integration tests and 24
+production-build E2E checks; API build passes separately. Loads UI remains a
+follow-up, so these checks do not imply user-facing Loads completion.
+
 The first inventory visibility checkpoint passes 313 fast tests, 17 ephemeral
 PostgreSQL integration tests and 24 production-build Chromium E2E checks in the
 complete `npm run verify`; the API build passes separately. New evidence covers

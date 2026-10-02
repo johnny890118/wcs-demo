@@ -18,6 +18,7 @@ import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.reposito
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
 import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
+import { LoadProjectionService } from "../../apps/api/src/operations/load-projection.service";
 import { InsufficientInventoryError } from "../../apps/api/src/outbound/outbound.errors";
 import { PgOutboundRepository } from "../../apps/api/src/outbound/pg-outbound.repository";
 import type {
@@ -1000,6 +1001,65 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         (item) => item.inventoryUnitId,
       ),
     ).toEqual([second.items[0].inventoryUnitId]);
+  });
+
+  it("projects load origins and distinguishes unrecorded, partial and shipped inventory", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    const service = new LoadProjectionService(pool);
+    expect((await service.list(warehouseId)).items[0]).toMatchObject({
+      receivedQuantity: 24,
+      inventory: null,
+      receiptReference: command.externalReference,
+    });
+    await pool.query(
+      "INSERT INTO inventory_units (id,load_id,sku,quantity,location_id,status) VALUES ('81000000-0000-4000-8000-000000000001',$1,$2,14,$3,'available')",
+      [identifiers.loadId, command.load.sku, command.sourceLocationId],
+    );
+    expect(
+      (await service.list(warehouseId, { search: "integration" })).items[0],
+    ).toMatchObject({
+      receivedQuantity: 24,
+      inventory: { quantity: 14, status: "available" },
+    });
+    expect((await service.list(otherWarehouseId)).items).toEqual([]);
+    expect((await service.list(warehouseId, { search: "%" })).items).toEqual(
+      [],
+    );
+    await pool.query("UPDATE inventory_units SET status = 'shipped'");
+    expect((await service.list(warehouseId)).items[0]).toMatchObject({
+      receivedQuantity: 24,
+      inventory: { quantity: 0, status: "shipped" },
+    });
+    await pool.query(
+      "INSERT INTO loads (id,external_id,receipt_id,sku,quantity,status,current_location_id) SELECT '41000000-0000-4000-8000-000000000002','SECOND-LOAD',receipt_id,sku,5,status,current_location_id FROM loads WHERE id = $1",
+      [identifiers.loadId],
+    );
+    const first = await service.list(warehouseId, { limit: 1 });
+    const second = await service.list(warehouseId, {
+      limit: 1,
+      cursor: first.nextCursor,
+    });
+    expect(first.items[0].loadId).not.toBe(second.items[0].loadId);
+    expect(second.nextCursor).toBeNull();
+    await expect(
+      service.list(otherWarehouseId, { cursor: first.nextCursor }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      service.list(warehouseId, { search: "other", cursor: first.nextCursor }),
+    ).rejects.toMatchObject({ status: 400 });
+    await pool.query(
+      "UPDATE inbound_receipts SET warehouse_id = $1 WHERE id = $2",
+      [otherWarehouseId, identifiers.receiptId],
+    );
+    expect((await service.list(warehouseId)).items).toEqual([]);
+    expect(
+      (await new InventoryProjectionService(pool).list(warehouseId)).items,
+    ).toEqual([]);
   });
 
   it("persists only monotonic equipment observations and rejects older evidence", async () => {
