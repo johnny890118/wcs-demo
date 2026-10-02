@@ -768,12 +768,53 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     expect(details.equipment.map((item) => item.equipmentId)).not.toContain(
       "OTHER-AMR",
     );
+    const home = await new OperationsSummaryService(pool).getHome(warehouseId);
+    expect(home.work).toEqual([]);
+    expect(home.attention).toEqual([]);
+    expect(home.inventory.visibleUnits).toBe(0);
+    expect(home.coverage.tasksMayBeLimited).toBe(false);
     expect(details.equipment[0]?.telemetry?.ageMs).toBeGreaterThanOrEqual(0);
     expect(
       Number.isNaN(
         Date.parse(details.equipment[0]?.telemetry?.observedAt ?? ""),
       ),
     ).toBe(false);
+  });
+
+  it("keeps older unknown work visible ahead of recent completed history", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "UPDATE transport_tasks SET status = 'unknown', updated_at = '2020-01-01' WHERE id = $1",
+      [identifiers.transportTaskId],
+    );
+    await pool.query(
+      `INSERT INTO transport_tasks
+      (id, receipt_id, load_id, source_location_id, destination_location_id, status)
+      SELECT ('51000000-0000-4000-8000-' || lpad(sequence::text, 12, '0'))::uuid,
+        receipt_id, load_id, source_location_id, destination_location_id, 'completed'
+      FROM transport_tasks CROSS JOIN generate_series(1, 101) AS sequence
+      WHERE id = $1`,
+      [identifiers.transportTaskId],
+    );
+    const service = new OperationsSummaryService(pool);
+    expect((await service.getDetails(warehouseId)).tasks).toHaveLength(100);
+    const home = await service.getHome(warehouseId);
+    expect(home.work).toHaveLength(1);
+    expect(home.work[0]).toMatchObject({
+      taskId: identifiers.transportTaskId,
+      status: "unknown",
+      source: "RECEIVING-01",
+      destination: "STORAGE-A-01",
+    });
+    expect(home.attention.some((item) => item.reason === "unknown_task")).toBe(
+      true,
+    );
+    expect((await service.getHome(otherWarehouseId)).work).toEqual([]);
   });
 
   it("persists only monotonic equipment observations and rejects older evidence", async () => {

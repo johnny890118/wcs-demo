@@ -1,4 +1,42 @@
 export const en = {
+  operationsHome: "Operations Home",
+  homeDescription:
+    "Review work that needs attention, current movement, and the next place to act.",
+  attentionRequired: "Attention required",
+  noAttentionRequired: "No attention items in the current projection.",
+  currentWork: "Waiting and active work",
+  noCurrentWork: "No waiting or active work in the current projection.",
+  homeStaleDescription:
+    "Current observation could not be refreshed. Review current evidence before acting; any visible records are last known.",
+  homeCoverageNotice:
+    "This overview has a record limit. Additional records may be omitted; absence here does not confirm the warehouse is clear.",
+  reviewOperationalEvidence: "Review operational evidence",
+  homeTechnicalDetails: "Technical details",
+  homeWorkNavigation: "Work areas",
+  homeReason_active_alarm: "An alarm requires acknowledgement",
+  homeReason_acknowledged_alarm:
+    "An acknowledged alarm still requires resolution",
+  homeReason_blocked_task: "Movement is blocked",
+  homeReason_unknown_task:
+    "Movement outcome is unknown — review evidence before resuming",
+  homeReason_inactive_equipment: "Equipment registration is inactive",
+  homeReason_missing_telemetry: "Equipment observation is unavailable",
+  homeReason_disconnected_equipment: "Equipment is disconnected",
+  homeReason_stale_telemetry: "Equipment observation is out of date",
+  homeReason_uncertain_telemetry: "Equipment observation quality is uncertain",
+  homeReason_faulted_equipment: "Equipment reports a fault",
+  homeReason_unknown_equipment: "Equipment state is unknown",
+  homeReason_offline_equipment: "Equipment is offline",
+  homeTask_queued: "Waiting for assignment",
+  homeTask_assigned: "Assigned to equipment",
+  homeTask_in_progress: "Movement in progress",
+  homeTask_blocked: "Movement blocked",
+  homeTask_unknown: "Outcome unknown",
+  homeNext_await_assignment:
+    "Assignment is pending. Check work context and current equipment evidence.",
+  homeNext_monitor: "Monitor the current warehouse observation.",
+  homeNext_review_exception:
+    "Review task and alarm evidence. Unknown outcomes require reconciliation; do not assume completion.",
   brand: "Smart Warehouse Platform",
   productTagline: "One operational truth, from dock to device.",
   productDescription:
@@ -324,6 +362,40 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  operationsHome: "營運首頁",
+  homeDescription: "掌握待處理事項、目前搬運工作與下一個處理入口。",
+  attentionRequired: "需要注意",
+  noAttentionRequired: "目前投影沒有待處理事項。",
+  currentWork: "等待中與進行中工作",
+  noCurrentWork: "目前投影沒有等待中或進行中的工作。",
+  homeStaleDescription:
+    "目前觀測無法更新；可見資料為最後已知狀態，採取動作前請確認最新證據。",
+  homeCoverageNotice:
+    "此總覽有筆數上限，可能省略其他紀錄；未出現在此處不代表整座倉庫沒有異常。",
+  reviewOperationalEvidence: "檢視營運證據",
+  homeTechnicalDetails: "技術細節",
+  homeWorkNavigation: "作業入口",
+  homeReason_active_alarm: "警報需要確認",
+  homeReason_acknowledged_alarm: "已確認的警報仍需處置",
+  homeReason_blocked_task: "搬運受阻",
+  homeReason_unknown_task: "搬運結果未知，繼續作業前需檢視證據",
+  homeReason_inactive_equipment: "設備登錄已停用",
+  homeReason_missing_telemetry: "無法取得設備觀測",
+  homeReason_disconnected_equipment: "設備已失聯",
+  homeReason_stale_telemetry: "設備觀測已過期",
+  homeReason_uncertain_telemetry: "設備觀測品質不確定",
+  homeReason_faulted_equipment: "設備回報故障",
+  homeReason_unknown_equipment: "設備狀態未知",
+  homeReason_offline_equipment: "設備離線",
+  homeTask_queued: "等待指派",
+  homeTask_assigned: "已指派設備",
+  homeTask_in_progress: "搬運中",
+  homeTask_blocked: "搬運受阻",
+  homeTask_unknown: "結果未知",
+  homeNext_await_assignment: "指派尚未完成，請檢查作業情境與目前設備證據。",
+  homeNext_monitor: "追蹤目前倉庫觀測。",
+  homeNext_review_exception:
+    "檢視任務與警報證據；未知結果需要核對處置，不可假定已完成。",
   brand: "Smart Warehouse Platform",
   productTagline: "從月台到設備，共享單一營運事實。",
   productDescription:

@@ -508,6 +508,7 @@ const server = createServer(async (request, response) => {
   if (
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
+      request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
     !requireOperationalContext(
@@ -543,6 +544,59 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/summary") {
     response.end(JSON.stringify(summary));
+    return;
+  }
+  if (request.url === "/api/v1/operations/home") {
+    response.end(
+      JSON.stringify({
+        attention: details.tasks
+          .filter((task) => ["unknown", "blocked"].includes(task.status))
+          .map((task) => ({
+            kind: "task",
+            severity: task.status === "unknown" ? "critical" : "warning",
+            reference: `${task.source} → ${task.destination}`,
+            reason: `${task.status}_task`,
+            taskId: task.taskId,
+            equipmentId: task.equipmentId,
+          })),
+        work: details.tasks
+          .filter((task) =>
+            [
+              "queued",
+              "assigned",
+              "in_progress",
+              "blocked",
+              "unknown",
+            ].includes(task.status),
+          )
+          .map((task) => ({
+            ...task,
+            needsAttention: ["blocked", "unknown"].includes(task.status),
+            nextStep: ["blocked", "unknown"].includes(task.status)
+              ? "review_exception"
+              : task.status === "queued"
+                ? "await_assignment"
+                : "monitor",
+          })),
+        inventory: {
+          visibleUnits: details.inventory.length,
+          visibleQuantity: details.inventory.reduce(
+            (total, item) => total + item.quantity,
+            0,
+          ),
+          occupiedLocations: new Set(
+            details.inventory.map((item) => item.location),
+          ).size,
+        },
+        coverage: {
+          tasksMayBeLimited: false,
+          alarmsMayBeLimited: false,
+          equipmentMayBeLimited: false,
+          inventoryMayBeLimited: false,
+        },
+        generatedAt,
+      }),
+    );
     return;
   }
   if (request.url === "/api/v1/operations/details") {

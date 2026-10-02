@@ -5,14 +5,17 @@ vi.mock("../../pages/api/auth/[...nextauth]", () => ({ authOptions: {} }));
 vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   fetchOperationsSummary: vi.fn(),
   fetchOperationsDetails: vi.fn(),
+  fetchOperationsHome: vi.fn(),
 }));
 
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/summary";
 import detailsHandler from "../../pages/api/operations/details";
+import homeHandler from "../../pages/api/operations/home";
 import {
   fetchOperationsDetails,
   fetchOperationsSummary,
+  fetchOperationsHome,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
   testOperationalAccess,
@@ -39,6 +42,28 @@ function createResponse() {
   };
   return response;
 }
+
+describe("operations home browser boundary", () => {
+  beforeEach(() => vi.clearAllMocks());
+  it("rejects anonymous access before requesting warehouse data", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const response = createResponse();
+    await homeHandler({ method: "GET" } as never, response as never);
+    expect(response.statusCode).toBe(401);
+    expect(fetchOperationsHome).not.toHaveBeenCalled();
+  });
+  it("forwards authorized scope and conceals upstream failure details", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    vi.mocked(fetchOperationsHome).mockRejectedValue(
+      new Error("secret upstream"),
+    );
+    const response = createResponse();
+    await homeHandler({ method: "GET" } as never, response as never);
+    expect(fetchOperationsHome).toHaveBeenCalledWith(testOperationalAccess);
+    expect(response.statusCode).toBe(503);
+    expect(JSON.stringify(response.body)).not.toContain("secret upstream");
+  });
+});
 
 describe("operations summary browser boundary", () => {
   beforeEach(() => vi.clearAllMocks());

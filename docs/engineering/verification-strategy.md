@@ -26,7 +26,16 @@
 - Accessibility combines automated checks with keyboard, zoom, screen-reader, contrast, and reduced-motion review.
 - `exit 0` from the complete gate is the only meaning of “verification passed.”
 
-## Current baseline
+## Current S2 Home baseline
+
+The first S2 Home slice passes 277 fast tests, 15 ephemeral PostgreSQL integration
+tests, and 22 production-build Chromium E2E checks. New checks cover nonterminal
+work selection, older unknown tasks surviving newer completed history, equipment
+observation failure meaning, bounded coverage, Home permission/scope enforcement,
+and bilingual mobile light/dark accessibility. The API build passes separately.
+The prior S1 evidence below remains relevant; its counts are the S1 checkpoint.
+
+## S1 checkpoint baseline
 
 - `npm run lint`: passes; 15 warnings isolate the effect-driven legacy map/task state machine.
 - `npm run typecheck`: strict TypeScript checks the new domain/application/infrastructure modules.

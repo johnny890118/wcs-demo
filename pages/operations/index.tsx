@@ -7,22 +7,32 @@ import {
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsSummary } from "../../src/application/operations/operations-summary";
 import { isOperationsSummary } from "../../src/application/operations/operations-summary";
+import {
+  isOperationsHome,
+  type OperationsHome,
+} from "../../src/application/operations/operations-home";
 import { fetchOperationsSummary } from "../../src/infrastructure/http/wcs-api-client";
+import { fetchOperationsHome } from "../../src/infrastructure/http/wcs-api-client";
+import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
 type PageProps = {
   summary: OperationsSummary | null;
+  home: OperationsHome | null;
 };
 
-export default function OperationsPage({ summary }: PageProps) {
+export default function OperationsPage({ summary, home }: PageProps) {
   const { locale, t } = useLocale();
   const [liveSummary, setLiveSummary] = useState(summary);
   const [isLive, setIsLive] = useState(summary !== null);
+  const [liveHome, setLiveHome] = useState(home);
+  const [homeLive, setHomeLive] = useState(home !== null);
 
   useEffect(() => {
     let active = true;
@@ -42,6 +52,37 @@ export default function OperationsPage({ summary }: PageProps) {
     const interval = window.setInterval(() => void refresh(), 10_000);
     return () => {
       active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    let refreshing = false;
+    const controller = new AbortController();
+    const refresh = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const response = await fetch("/api/operations/home", {
+          signal: controller.signal,
+        });
+        const payload: unknown = await response.json();
+        if (!response.ok || !isOperationsHome(payload)) throw new Error();
+        if (active) {
+          setLiveHome(payload);
+          setHomeLive(true);
+        }
+      } catch {
+        if (active) setHomeLive(false);
+      } finally {
+        refreshing = false;
+      }
+    };
+    const interval = window.setInterval(() => void refresh(), 10_000);
+    return () => {
+      active = false;
+      controller.abort();
       window.clearInterval(interval);
     };
   }, []);
@@ -77,10 +118,10 @@ export default function OperationsPage({ summary }: PageProps) {
             {t("overview")}
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-            {t("operationsOverview")}
+            {t("operationsHome")}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
-            {t("overviewDescription")}
+            {t("homeDescription")}
           </p>
         </div>
         {liveSummary ? (
@@ -122,6 +163,138 @@ export default function OperationsPage({ summary }: PageProps) {
         </div>
       ) : null}
 
+      <section
+        aria-labelledby="home-attention"
+        className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+      >
+        <h2 id="home-attention" className="text-xl font-bold">
+          {t("attentionRequired")}
+        </h2>
+        {liveHome ? (
+          <p className="mt-2 text-xs text-[var(--text-muted)]">
+            {t("refreshedAt")} ·{" "}
+            {new Intl.DateTimeFormat(locale, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(new Date(liveHome.generatedAt))}
+          </p>
+        ) : null}
+        {!homeLive ? (
+          <p className="mt-3 text-sm text-[var(--text-muted)]" role="status">
+            {t("homeStaleDescription")}
+          </p>
+        ) : null}
+        {liveHome && Object.values(liveHome.coverage).some(Boolean) ? (
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
+            {t("homeCoverageNotice")}
+          </p>
+        ) : null}
+        {liveHome ? (
+          liveHome.attention.length ? (
+            <ul className="mt-4 divide-y divide-[var(--border)]">
+              {liveHome.attention.map((item, index) => (
+                <li
+                  key={`${item.kind}-${item.reference}-${index}`}
+                  className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold">
+                      {t(`homeReason_${item.reason}` as MessageKey)}
+                    </p>
+                    <p className="mt-1 break-words text-sm text-[var(--text-muted)]">
+                      {item.reference}
+                    </p>
+                  </div>
+                  <Link
+                    className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                    href={
+                      item.kind === "alarm" || item.reason === "blocked_task"
+                        ? "/operations/alarms"
+                        : "/operations/projections"
+                    }
+                  >
+                    {t("reviewOperationalEvidence")}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-[var(--text-muted)]">
+              {t("noAttentionRequired")}
+            </p>
+          )
+        ) : null}
+      </section>
+      <section
+        aria-labelledby="home-work"
+        className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+      >
+        <h2 id="home-work" className="text-xl font-bold">
+          {t("currentWork")}
+        </h2>
+        {liveHome ? (
+          liveHome.work.length ? (
+            <ul className="mt-4 divide-y divide-[var(--border)]">
+              {liveHome.work.map((task) => (
+                <li key={task.taskId} className="py-4">
+                  <h3 className="break-words font-bold">
+                    {task.source} → {task.destination}
+                  </h3>
+                  <p className="mt-2 text-sm">
+                    {t(`homeTask_${task.status}` as MessageKey)} ·{" "}
+                    {task.equipmentId ?? t("unassigned")}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)]">
+                    {t(`homeNext_${task.nextStep}` as MessageKey)}
+                  </p>
+                  <Link
+                    className="ui-pressable mt-2 inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                    href={
+                      task.status === "blocked"
+                        ? "/operations/alarms"
+                        : task.status === "unknown"
+                          ? "/operations/projections"
+                          : "/operations/warehouse"
+                    }
+                  >
+                    {t("reviewOperationalEvidence")}
+                  </Link>
+                  <details className="mt-2 text-xs text-[var(--text-muted)]">
+                    <summary className="min-h-8 cursor-pointer py-2">
+                      {t("homeTechnicalDetails")}
+                    </summary>
+                    <p className="break-all py-2">
+                      {t("taskId")}: {task.taskId}
+                    </p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-[var(--text-muted)]">
+              {t("noCurrentWork")}
+            </p>
+          )
+        ) : null}
+      </section>
+      <nav
+        aria-label={t("homeWorkNavigation")}
+        className="mt-6 flex flex-wrap gap-3"
+      >
+        {[
+          ["/operations/inbound", "inbound"],
+          ["/operations/outbound", "outbound"],
+          ["/operations/projections", "inventory"],
+        ].map(([href, label]) => (
+          <Link
+            key={href}
+            href={href}
+            className="ui-pressable inline-flex min-h-11 items-center rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold"
+          >
+            {t(label as MessageKey)}
+          </Link>
+        ))}
+      </nav>
       <section aria-label={t("systemStatus")} className="mt-8">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {cards.map(({ label, value, Icon }) => (
@@ -144,7 +317,10 @@ export default function OperationsPage({ summary }: PageProps) {
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-panel)]">
+      <details className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-panel)]">
+        <summary className="min-h-11 cursor-pointer px-5 py-4 font-semibold">
+          {t("homeTechnicalDetails")}
+        </summary>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
           <h2 className="font-bold">{t("recentTasks")}</h2>
           <p className="text-xs text-[var(--text-muted)]">
@@ -205,7 +381,7 @@ export default function OperationsPage({ summary }: PageProps) {
             {t("noTasks")}
           </p>
         )}
-      </section>
+      </details>
     </OperationsShell>
   );
 }
@@ -228,12 +404,12 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     };
   }
 
-  let summary: OperationsSummary | null = null;
-  try {
-    summary = await fetchOperationsSummary(access.access);
-  } catch {
-    summary = null;
-  }
-
-  return { props: { session, summary } };
+  const [summaryResult, homeResult] = await Promise.allSettled([
+    fetchOperationsSummary(access.access),
+    fetchOperationsHome(access.access),
+  ]);
+  const summary =
+    summaryResult.status === "fulfilled" ? summaryResult.value : null;
+  const home = homeResult.status === "fulfilled" ? homeResult.value : null;
+  return { props: { session, summary, home } };
 };

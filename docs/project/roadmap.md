@@ -169,7 +169,11 @@ Status: Complete — verified 2026-10-03
 
 ## S2 — Operational Work Center and Inventory Visibility
 
-Status: Planned
+Status: In progress
+
+Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
+
+- [x] First actionable Home slice: server-classified attention/work, readable locations/states, bounded coverage, freshness, and responsive bilingual presentation
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
@@ -225,7 +229,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Begin S2 with a repository-grounded, task-centered read model for the actionable
-Operations Home and work queue/detail. Reuse the existing summary/detail,
-inventory, audit, task, alarm, and equipment projections; do not build a second
-dashboard aggregate or start Public Demo lifecycle work early.
+Continue S2 with task queue/detail and contextual history links from the first
+actionable Home projection. Reuse the existing warehouse-scoped facts and keep
+unknown outcomes explicit. Inventory, Live View, and manual slices follow the
+active plan; Public Demo lifecycle remains S3.

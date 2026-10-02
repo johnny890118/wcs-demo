@@ -13,7 +13,11 @@ import {
 
 describe("warehouse-scoped operations read HTTP contract", () => {
   let app: INestApplication;
-  const summaries = { getSummary: vi.fn(), getDetails: vi.fn() };
+  const summaries = {
+    getSummary: vi.fn(),
+    getDetails: vi.fn(),
+    getHome: vi.fn(),
+  };
   const serviceToken = "test-service-token-with-safe-length";
 
   beforeEach(async () => {
@@ -114,5 +118,23 @@ describe("warehouse-scoped operations read HTTP contract", () => {
     expect((await authorized("/api/v1/operations/details")).status).toBe(200);
     expect(summaries.getSummary).toHaveBeenCalledWith(testWarehouseId);
     expect(summaries.getDetails).toHaveBeenCalledWith(testWarehouseId);
+    expect((await authorized("/api/v1/operations/home")).status).toBe(200);
+    expect(summaries.getHome).toHaveBeenCalledWith(testWarehouseId);
+  });
+
+  it("protects the home projection with the same permission and scope boundary", async () => {
+    expect(
+      (await request(app.getHttpServer()).get("/api/v1/operations/home"))
+        .status,
+    ).toBe(401);
+    expect(
+      (
+        await authorized("/api/v1/operations/home").set(
+          "X-SWP-Warehouse",
+          "20000000-0000-4000-8000-000000000001",
+        )
+      ).status,
+    ).toBe(403);
+    expect(summaries.getHome).not.toHaveBeenCalled();
   });
 });

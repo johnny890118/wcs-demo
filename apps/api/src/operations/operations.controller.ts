@@ -3,6 +3,7 @@ import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
+import type { OperationsHome } from "../../../../src/application/operations/operations-home";
 import { OperationsSummaryService } from "./operations-summary.service";
 
 @Controller("v1/operations")
@@ -24,5 +25,12 @@ export class OperationsController {
     @Headers("x-swp-warehouse") warehouseId: string,
   ): Promise<OperationsDetails> {
     return this.summaries.getDetails(warehouseId);
+  }
+
+  @Get("home")
+  getHome(
+    @Headers("x-swp-warehouse") warehouseId: string,
+  ): Promise<OperationsHome> {
+    return this.summaries.getHome(warehouseId);
   }
 }

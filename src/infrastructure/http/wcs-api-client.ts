@@ -7,6 +7,10 @@ import {
   type OperationsDetails,
 } from "../../application/operations/operations-details";
 import {
+  isOperationsHome,
+  type OperationsHome,
+} from "../../application/operations/operations-home";
+import {
   isInboundExecutionCompleted,
   isInboundReceiptCreated,
   type CreateInboundWorkflowRequest,
@@ -340,6 +344,16 @@ export async function fetchOperationsSummary(
   );
   if (!isOperationsSummary(payload)) {
     throw new Error("WCS operations API returned an invalid projection.");
+  }
+  return payload;
+}
+
+export async function fetchOperationsHome(
+  access: OperationalAccess,
+): Promise<OperationsHome> {
+  const payload = await fetchWcsProjection("/api/v1/operations/home", access);
+  if (!isOperationsHome(payload)) {
+    throw new Error("WCS API returned an invalid operations home projection.");
   }
   return payload;
 }

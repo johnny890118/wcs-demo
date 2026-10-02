@@ -11,6 +11,42 @@ async function signIn(page: Page, destination: string) {
 }
 
 const scenarioApi = "http://127.0.0.1:3101";
+
+test("operations home prioritizes readable work and supports bilingual mobile accessibility", async ({
+  page,
+}) => {
+  await signIn(page, "/operations");
+  await expect(page.getByRole("heading", { name: "營運首頁" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "需要注意" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "等待中與進行中工作" }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("home-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "深色" }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.getByRole("button", { name: "EN" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Operations Home" }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("home-mobile-dark.png"),
+    fullPage: true,
+  });
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.getByRole("button", { name: "Light" }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
 const serviceHeaders = {
   Authorization: "Bearer e2e-service-token",
   "X-SWP-Principal": "legacy-demo-admin",

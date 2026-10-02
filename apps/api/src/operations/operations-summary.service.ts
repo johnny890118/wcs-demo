@@ -2,6 +2,10 @@ import { Inject, Injectable } from "@nestjs/common";
 import type { Pool } from "pg";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
+import {
+  projectOperationsHome,
+  type OperationsHome,
+} from "../../../../src/application/operations/operations-home";
 import type { TopologyNode } from "../../../../src/domain/topology/warehouse-topology";
 import { DATABASE_POOL } from "../database/database.module";
 
@@ -173,7 +177,14 @@ export class OperationsSummaryService {
     };
   }
 
-  async getDetails(warehouseId: string): Promise<OperationsDetails> {
+  async getHome(warehouseId: string): Promise<OperationsHome> {
+    return projectOperationsHome(await this.getDetails(warehouseId, true));
+  }
+
+  async getDetails(
+    warehouseId: string,
+    home = false,
+  ): Promise<OperationsDetails> {
     const [tasks, equipment, inventory, alarms, locations, topology] =
       await Promise.all([
         this.pool.query<FocusedTaskRow>(
@@ -183,9 +194,11 @@ export class OperationsSummaryService {
          JOIN locations source ON source.id = t.source_location_id
          JOIN locations destination ON destination.id = t.destination_location_id
          WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
-         ORDER BY t.updated_at DESC, t.id
+           AND (NOT $2::boolean OR t.status IN ('queued', 'assigned', 'in_progress', 'blocked', 'unknown'))
+         ORDER BY CASE WHEN $2::boolean THEN CASE t.status WHEN 'unknown' THEN 0 WHEN 'blocked' THEN 1 ELSE 2 END ELSE 0 END,
+           t.updated_at DESC, t.id
          LIMIT 100`,
-          [warehouseId],
+          [warehouseId, home],
         ),
         this.pool.query<EquipmentRow>(
           `SELECT descriptor.equipment_id, descriptor.adapter_key,
@@ -230,9 +243,10 @@ export class OperationsSummaryService {
          JOIN transport_tasks task ON task.id = alarm.transport_task_id
          JOIN locations source ON source.id = task.source_location_id
          WHERE source.warehouse_id = $1
+           AND (NOT $2::boolean OR alarm.status IN ('active', 'acknowledged'))
          ORDER BY alarm.raised_at DESC, alarm.id
          LIMIT 100`,
-          [warehouseId],
+          [warehouseId, home],
         ),
         this.pool.query<LocationRow>(
           `SELECT location.id, location.code, location.kind, location.status,
