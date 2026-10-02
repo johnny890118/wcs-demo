@@ -56,6 +56,30 @@ state, unknown/shipped evidence, stock deep link, warehouse switching, theme,
 locale, axe/reflow and desktop/mobile screenshot review are the acceptance gates.
 Locations workspace, Live View and Help remain subsequent S2 slices.
 
+## Locations read/view acceptance
+
+Medium-risk read-only inventory workspace slice. Use persisted warehouse-local
+locations, active versioned bindings, recorded load counts and non-shipped stock
+record counts. Never sum mixed SKU quantities, infer physical occupancy/capacity,
+or equate matching codes to topology identity. Search and keyset pagination stay
+bounded and scoped; disabled/blocked/unbound locations remain visible. Link to
+related load/stock searches with explicit search semantics, not exact location
+filters. No configuration mutation (S6), task control (S4) or hardware inference.
+Verify permissions/scope, binding revision, foreign/terminal record counts,
+pagination, empty/unavailable states, keyboard, language/theme, and mobile.
+
+Locations is split into independently verifiable read-model and operator UI
+checkpoints, as Loads was. The foundation exposes
+`/api/v1/operations/locations` under existing `operations.view` and current
+warehouse guards. SQL selects explicit bindings for the active topology revision;
+codes never substitute for node identity. Receipt/load/inventory lineage is
+warehouse-scoped. Recorded load counts retain shipped history; non-shipped stock
+record counts are not quantity or occupancy. Literal code/kind search and UUID
+keyset cursors are surface/warehouse/search-bound. Disabled, blocked and unbound
+configuration remains readable. HTTP/query/contract and PostgreSQL lineage,
+pagination, active binding and shipped-record checks cover the foundation; UI
+acceptance remains pending until the subsequent workspace slice.
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

@@ -28,6 +28,12 @@
 
 ## Current S2 Home baseline
 
+The Locations read-model foundation adds bounded query/contract and HTTP guard
+coverage plus a PostgreSQL location/binding/record-count regression. Its full
+gate covers 350 fast tests, 19 PostgreSQL integration tests and the existing
+25 production-build browser checks; API build is separate. The user-facing
+Locations workspace is not included in this foundation checkpoint.
+
 The Loads UI checkpoint passes 334 fast tests, 18 PostgreSQL integration tests
 and 25 production-build E2E checks via the complete gate, plus the API build.
 New browser evidence covers protected Loads entry, unknown inventory versus

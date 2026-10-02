@@ -178,7 +178,8 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] First inventory workspace: scoped search/keyset pages, stock/reservation balances, load/location context and receipt evidence links
 - [x] Loads read-model foundation: scoped receipt/location lineage, separate received/current quantities, null unrecorded inventory and paginated literal search
 - [x] Loads operator workspace: searchable received/current quantity context, null/shipped semantics and inventory/history navigation
-- [ ] Dedicated Locations read/view slice
+- [x] Locations read-model foundation: scoped configured locations, active version bindings and separately labelled record counts
+- [ ] Dedicated Locations operator workspace
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links

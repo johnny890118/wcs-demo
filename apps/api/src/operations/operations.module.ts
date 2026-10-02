@@ -8,6 +8,8 @@ import { InventoryProjectionController } from "./inventory-projection.controller
 import { InventoryProjectionService } from "./inventory-projection.service";
 import { LoadProjectionController } from "./load-projection.controller";
 import { LoadProjectionService } from "./load-projection.service";
+import { LocationProjectionController } from "./location-projection.controller";
+import { LocationProjectionService } from "./location-projection.service";
 
 @Module({
   controllers: [
@@ -15,12 +17,14 @@ import { LoadProjectionService } from "./load-projection.service";
     TaskProjectionController,
     InventoryProjectionController,
     LoadProjectionController,
+    LocationProjectionController,
   ],
   providers: [
     OperationsSummaryService,
     TaskProjectionService,
     InventoryProjectionService,
     LoadProjectionService,
+    LocationProjectionService,
     ServiceTokenGuard,
   ],
 })

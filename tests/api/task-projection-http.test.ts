@@ -9,6 +9,8 @@ import { InventoryProjectionController } from "../../apps/api/src/operations/inv
 import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
 import { LoadProjectionController } from "../../apps/api/src/operations/load-projection.controller";
 import { LoadProjectionService } from "../../apps/api/src/operations/load-projection.service";
+import { LocationProjectionController } from "../../apps/api/src/operations/location-projection.controller";
+import { LocationProjectionService } from "../../apps/api/src/operations/location-projection.service";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
 import {
   testOperationalAccess,
@@ -28,12 +30,14 @@ describe("task projection HTTP authorization", () => {
         TaskProjectionController,
         InventoryProjectionController,
         LoadProjectionController,
+        LocationProjectionController,
       ],
       providers: [
         ServiceTokenGuard,
         { provide: TaskProjectionService, useValue: service },
         { provide: InventoryProjectionService, useValue: service },
         { provide: LoadProjectionService, useValue: service },
+        { provide: LocationProjectionService, useValue: service },
       ],
     }).compile();
     app = testingModule.createNestApplication();
@@ -59,6 +63,7 @@ describe("task projection HTTP authorization", () => {
   it.each([
     "/api/v1/operations/inventory",
     "/api/v1/operations/loads",
+    "/api/v1/operations/locations",
     "/api/v1/operations/tasks",
     "/api/v1/operations/tasks/50000000-0000-4000-8000-000000000001",
   ])(
