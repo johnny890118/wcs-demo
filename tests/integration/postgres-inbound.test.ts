@@ -971,6 +971,15 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       first.items[0].inventoryUnitId,
     );
     expect(second.nextCursor).toBeNull();
+    await pool.query(
+      "UPDATE inventory_units SET status = 'shipped' WHERE id = $1",
+      [second.items[0].inventoryUnitId],
+    );
+    expect(
+      (await service.list(warehouseId)).items.find(
+        (item) => item.inventoryUnitId === second.items[0].inventoryUnitId,
+      ),
+    ).toMatchObject({ status: "shipped", quantity: 0, unreservedQuantity: 0 });
     await expect(
       service.list(otherWarehouseId, { cursor: first.nextCursor }),
     ).rejects.toMatchObject({ status: 400 });

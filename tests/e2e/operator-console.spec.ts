@@ -19,9 +19,14 @@ test("inventory explains partial reservations with searchable accessible warehou
   await expect(
     page.getByRole("heading", { name: "SKU-STOCK-001 · STORAGE-01" }),
   ).toBeVisible();
-  await expect(page.getByText("出庫保留量", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "查看入庫單稽核證據" }),
+    page.getByText("出庫保留量", { exact: true }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("已出庫 — 無現存庫存", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "查看入庫單稽核證據" }).first(),
   ).toHaveAttribute("href", /resourceType=InboundReceipt/);
   await page.getByLabel("搜尋 SKU、載具或位置").fill("missing");
   await page.getByLabel("搜尋 SKU、載具或位置").press("Enter");

@@ -67,7 +67,8 @@ export class InventoryProjectionService {
       Omit<InventoryItem, "updatedAt"> & { updatedAt: Date }
     >(
       `
-      SELECT inventory.id AS "inventoryUnitId", inventory.sku, inventory.quantity,
+      SELECT inventory.id AS "inventoryUnitId", inventory.sku,
+        CASE WHEN inventory.status = 'shipped' THEN 0 ELSE inventory.quantity END AS quantity,
         COALESCE(reservation.quantity, 0)::integer AS "reservedQuantity",
         CASE WHEN inventory.status = 'available' THEN GREATEST(0, inventory.quantity - COALESCE(reservation.quantity, 0)) ELSE 0 END::integer AS "unreservedQuantity",
         inventory.status, location.code AS location, location.status AS "locationStatus",

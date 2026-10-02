@@ -110,7 +110,9 @@ function Inventory({
                   ? "inventoryStateAvailable"
                   : item.status === "reserved"
                     ? "inventoryStateReserved"
-                    : "inventoryStateQuarantined",
+                    : item.status === "shipped"
+                      ? "inventoryStateShipped"
+                      : "inventoryStateQuarantined",
               )}
             </p>
             <dl className="mt-4 grid gap-4 sm:grid-cols-3">

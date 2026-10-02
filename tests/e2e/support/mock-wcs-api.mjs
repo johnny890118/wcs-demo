@@ -661,13 +661,23 @@ const server = createServer(async (request, response) => {
       updatedAt: generatedAt,
     };
     const search = (query.get("search") ?? "").toLowerCase();
+    const shippedItem = {
+      ...item,
+      inventoryUnitId: "81000000-0000-4000-8000-000000000002",
+      sku: "SKU-SHIPPED-001",
+      quantity: 0,
+      reservedQuantity: 0,
+      unreservedQuantity: 0,
+      status: "shipped",
+    };
     const items =
-      request.headers["x-swp-warehouse"] === secondWarehouseId ||
-      ![item.sku, item.location, item.loadExternalId].some((value) =>
-        value.toLowerCase().includes(search),
-      )
+      request.headers["x-swp-warehouse"] === secondWarehouseId
         ? []
-        : [item];
+        : [item, shippedItem].filter((row) =>
+            [row.sku, row.location, row.loadExternalId].some((value) =>
+              value.toLowerCase().includes(search),
+            ),
+          );
     response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
     return;
   }

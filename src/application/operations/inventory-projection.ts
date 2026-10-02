@@ -4,7 +4,7 @@ export type InventoryItem = Readonly<{
   quantity: number;
   reservedQuantity: number;
   unreservedQuantity: number;
-  status: "available" | "reserved" | "quarantined";
+  status: "available" | "reserved" | "quarantined" | "shipped";
   location: string;
   locationStatus: "available" | "blocked" | "disabled";
   loadExternalId: string;
@@ -48,8 +48,10 @@ export function isInventoryPage(value: unknown): value is InventoryPage {
         [item.quantity, item.reservedQuantity, item.unreservedQuantity].every(
           (x) => Number.isSafeInteger(x) && x >= 0,
         ) &&
-        item.quantity > 0 &&
-        ["available", "reserved", "quarantined"].includes(item.status) &&
+        (item.status === "shipped" ? item.quantity === 0 : item.quantity > 0) &&
+        ["available", "reserved", "quarantined", "shipped"].includes(
+          item.status,
+        ) &&
         ["available", "blocked", "disabled"].includes(item.locationStatus) &&
         typeof item.updatedAt === "string" &&
         !Number.isNaN(Date.parse(item.updatedAt)),

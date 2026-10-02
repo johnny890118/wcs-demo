@@ -14,6 +14,7 @@ export const en = {
   inventoryStateAvailable: "Available-state stock",
   inventoryStateReserved: "Reserved-state stock",
   inventoryStateQuarantined: "Quarantined — not available for allocation",
+  inventoryStateShipped: "Shipped — no current stock",
   inventoryReviewRequired:
     "Review location or reservation evidence before any movement. This read view does not authorize execution.",
   inventoryLoadMore: "Load more inventory",
@@ -432,6 +433,7 @@ export const zhTW: Catalog = {
   inventoryStateAvailable: "可用狀態庫存",
   inventoryStateReserved: "保留狀態庫存",
   inventoryStateQuarantined: "隔離中 — 不可配貨",
+  inventoryStateShipped: "已出庫 — 無現存庫存",
   inventoryReviewRequired:
     "搬移前請檢查位置或保留量證據，此唯讀畫面不授權執行。",
   inventoryLoadMore: "載入更多庫存",
