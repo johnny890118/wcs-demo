@@ -5,7 +5,7 @@ Status: Active
 Risk: High — authentication, authorization, tenant-like warehouse isolation, and
 operator attribution are load-bearing security boundaries.
 
-Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md), [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md), [ADR 0015](../decisions/0015-principal-and-anonymous-demo-carrier.md), [ADR 0016](../decisions/0016-accountable-warehouse-context-switching.md), [ADR 0017](../decisions/0017-persisted-human-access-assignments.md), [ADR 0018](../decisions/0018-persisted-human-session-revocation.md), and [ADR 0019](../decisions/0019-persisted-login-protection-and-revocation-delivery.md)
+Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-warehouse-context.md), [ADR 0014](../decisions/0014-deployment-profile-and-equipment-source-safety.md), [ADR 0015](../decisions/0015-principal-and-anonymous-demo-carrier.md), [ADR 0016](../decisions/0016-accountable-warehouse-context-switching.md), [ADR 0017](../decisions/0017-persisted-human-access-assignments.md), [ADR 0018](../decisions/0018-persisted-human-session-revocation.md), [ADR 0019](../decisions/0019-persisted-login-protection-and-revocation-delivery.md), and [ADR 0020](../decisions/0020-deny-direct-platform-table-access.md)
 
 ## Slice A — Delivery and deployment-safety contract
 
@@ -64,6 +64,8 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
       restore, and add explicit sign-out/administrative revocation evidence.
 - [x] Add failed-login evidence and throttling plus revocation delivery/retry
       observability before production identity is enabled.
+- [x] Deny direct non-owner access to platform tables while preserving the
+      authorized API as the only operational data path.
 
 ## Verification and review
 

@@ -112,6 +112,43 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await pool?.end();
   });
 
+  it("denies direct platform table access to granted non-owner roles", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const tables = await client.query<{ table_name: string }>(
+        `SELECT class.relname AS table_name
+         FROM pg_class class
+         JOIN pg_namespace namespace ON namespace.oid = class.relnamespace
+         WHERE namespace.nspname = 'public'
+           AND class.relkind = 'r'
+           AND class.relrowsecurity = false
+         ORDER BY class.relname`,
+      );
+      expect(tables.rows).toEqual([]);
+
+      await client.query("CREATE ROLE swp_data_api_probe NOLOGIN");
+      await client.query("GRANT USAGE ON SCHEMA public TO swp_data_api_probe");
+      await client.query(
+        "GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA public TO swp_data_api_probe",
+      );
+      await client.query("SET LOCAL ROLE swp_data_api_probe");
+      await expect(
+        client.query<{ count: string }>("SELECT count(*) FROM warehouses"),
+      ).resolves.toMatchObject({ rows: [{ count: "0" }] });
+      await expect(
+        client.query(
+          `INSERT INTO warehouses (id, code, name)
+           VALUES ('10000000-0000-4000-8000-000000000098', 'PROBE', 'Probe')`,
+        ),
+      ).rejects.toMatchObject({ code: "42501" });
+    } finally {
+      await client.query("ROLLBACK");
+      client.release();
+    }
+  });
+
   it("backfills stable correlation when upgrading an existing audit table", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const client = await pool.connect();

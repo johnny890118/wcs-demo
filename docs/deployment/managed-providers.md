@@ -12,6 +12,12 @@ Validated against official provider documentation on 2026-09-18. These adapters 
 
 Configure secrets in provider dashboards, never in `vercel.json`, `render.yaml`, Git, build arguments, or client-visible variables.
 
+The managed PostgreSQL Data API is not an application integration surface. All
+SWP-owned tables have row-level security enabled with no browser/provider-role
+policies; only the server-side table-owning `DATABASE_URL` connection is used by
+the API, migration, seed/reset, backup, and worker processes. Do not add a
+Supabase anon or service key to the web deployment or browser bundle.
+
 Vercel requires `NEXTAUTH_URL`, `PUBLIC_SITE_URL`, `NEXTAUTH_SECRET`,
 `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD`,
 `HUMAN_SESSION_TTL_SECONDS`,
