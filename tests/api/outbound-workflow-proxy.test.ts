@@ -57,15 +57,19 @@ const createBody = {
   destinationLocationId: "20000000-0000-4000-8000-000000000003",
 };
 const taskId = "c0000000-0000-4000-8000-000000000099";
+const trustedHeaders = { origin: "https://app.example.test" };
 
 describe("outbound workflow browser boundary", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.NEXTAUTH_URL = trustedHeaders.origin;
+  });
 
   it("does not forward mutations without an authenticated operator", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null);
     const response = createResponse();
     await createHandler(
-      { method: "POST", body: createBody } as never,
+      { method: "POST", headers: trustedHeaders, body: createBody } as never,
       response as never,
     );
     expect(response.statusCode).toBe(401);
@@ -83,7 +87,7 @@ describe("outbound workflow browser boundary", () => {
     });
     const response = createResponse();
     await createHandler(
-      { method: "POST", body: createBody } as never,
+      { method: "POST", headers: trustedHeaders, body: createBody } as never,
       response as never,
     );
     expect(response.statusCode).toBe(201);
@@ -108,7 +112,12 @@ describe("outbound workflow browser boundary", () => {
     });
     const response = createResponse();
     await executeHandler(
-      { method: "POST", query: { taskId }, body } as never,
+      {
+        method: "POST",
+        headers: trustedHeaders,
+        query: { taskId },
+        body,
+      } as never,
       response as never,
     );
     expect(response.statusCode).toBe(200);

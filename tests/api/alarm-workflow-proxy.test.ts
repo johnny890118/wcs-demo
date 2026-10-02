@@ -51,9 +51,13 @@ function createResponse() {
 
 const alarmId = "80000000-0000-4000-8000-000000000001";
 const taskId = "50000000-0000-4000-8000-000000000001";
+const trustedHeaders = { origin: "https://app.example.test" };
 
 describe("alarm workflow browser boundary", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.NEXTAUTH_URL = trustedHeaders.origin;
+  });
 
   it("does not forward acknowledgement without an authenticated operator", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null);
@@ -61,6 +65,7 @@ describe("alarm workflow browser boundary", () => {
     await acknowledgeHandler(
       {
         method: "POST",
+        headers: trustedHeaders,
         query: { alarmId },
         body: {
           confirmedAction: "acknowledge_alarm",
@@ -85,7 +90,12 @@ describe("alarm workflow browser boundary", () => {
     });
     const response = createResponse();
     await acknowledgeHandler(
-      { method: "POST", query: { alarmId }, body } as never,
+      {
+        method: "POST",
+        headers: trustedHeaders,
+        query: { alarmId },
+        body,
+      } as never,
       response as never,
     );
     expect(response.statusCode).toBe(200);
@@ -113,7 +123,12 @@ describe("alarm workflow browser boundary", () => {
     });
     const response = createResponse();
     await recoverHandler(
-      { method: "POST", query: { alarmId }, body } as never,
+      {
+        method: "POST",
+        headers: trustedHeaders,
+        query: { alarmId },
+        body,
+      } as never,
       response as never,
     );
     expect(response.statusCode).toBe(200);

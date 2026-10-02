@@ -16,6 +16,7 @@ Assessment date: 2026-10-01. Baseline: verified M8A, system-first frontend bound
 - Multi-scope human sessions expose a responsive, bilingual current-warehouse selector. The browser proposes only a target UUID; the signed-session callback and authenticated API independently revalidate scope, atomically record source/destination warehouse audit evidence, and update the current claim only after persistence succeeds. Single-scope sessions retain a static context label.
 - Human identity is resolved by stable provider/subject into persisted, warehouse-local assignments after the demo credentials adapter proves identity. The resolver requires the dedicated `access.resolve` service permission, fails closed for disabled/expired/ambiguous grants, and records successful login evidence without storing credentials or cross-warehouse grant details.
 - Human sessions now have a persisted UUID, bounded expiry, current warehouse, and revocation state. Every JWT restore revalidates the session and current assignments; sign-out and administrative revocation are idempotent and attributable.
+- Custom browser-facing operational mutations require the configured `NEXTAUTH_URL` application origin before session resolution; this remains independent of the public-site origin for a future `www`/`app` deployment split.
 
 ## Product limitations
 

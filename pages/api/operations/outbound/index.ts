@@ -9,6 +9,7 @@ import {
   WcsCommandError,
 } from "../../../../src/infrastructure/http/wcs-api-client";
 import { authorizeOperationalSession } from "../../../../src/infrastructure/auth/operational-session";
+import { requireTrustedMutationOrigin } from "../../../../src/infrastructure/http/browser-mutation-origin";
 import { authOptions } from "../../auth/[...nextauth]";
 
 type ErrorResponse = Readonly<{ code: string; message: string }>;
@@ -25,6 +26,7 @@ export default async function handler(
     });
     return;
   }
+  if (!requireTrustedMutationOrigin(request, response)) return;
   const session = await getServerSession(request, response, authOptions);
   const decision = authorizeOperationalSession(session, "outbound.create");
   if (!decision.allowed) {

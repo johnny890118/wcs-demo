@@ -57,15 +57,19 @@ const createBody = {
   load: { externalId: "PALLET-UI-01", sku: "SKU-UI", quantity: 6 },
 };
 const taskId = "50000000-0000-4000-8000-000000000001";
+const trustedHeaders = { origin: "https://app.example.test" };
 
 describe("inbound workflow browser boundary", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.env.NEXTAUTH_URL = trustedHeaders.origin;
+  });
 
   it("does not forward mutations without an authenticated operator", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null);
     const response = createResponse();
     await createHandler(
-      { method: "POST", body: createBody } as never,
+      { method: "POST", headers: trustedHeaders, body: createBody } as never,
       response as never,
     );
 
@@ -84,7 +88,7 @@ describe("inbound workflow browser boundary", () => {
     });
     const response = createResponse();
     await createHandler(
-      { method: "POST", body: createBody } as never,
+      { method: "POST", headers: trustedHeaders, body: createBody } as never,
       response as never,
     );
 
@@ -110,7 +114,12 @@ describe("inbound workflow browser boundary", () => {
     });
     const response = createResponse();
     await executeHandler(
-      { method: "POST", query: { taskId }, body } as never,
+      {
+        method: "POST",
+        headers: trustedHeaders,
+        query: { taskId },
+        body,
+      } as never,
       response as never,
     );
 
@@ -138,11 +147,27 @@ describe("inbound workflow browser boundary", () => {
     });
     const response = createResponse();
     await createHandler(
-      { method: "POST", body: createBody } as never,
+      { method: "POST", headers: trustedHeaders, body: createBody } as never,
       response as never,
     );
 
     expect(response.statusCode).toBe(403);
+    expect(createInboundReceipt).not.toHaveBeenCalled();
+  });
+
+  it("rejects a cross-origin mutation before session resolution", async () => {
+    const response = createResponse();
+    await createHandler(
+      {
+        method: "POST",
+        headers: { origin: "https://attacker.example" },
+        body: createBody,
+      } as never,
+      response as never,
+    );
+
+    expect(response.statusCode).toBe(403);
+    expect(getServerSession).not.toHaveBeenCalled();
     expect(createInboundReceipt).not.toHaveBeenCalled();
   });
 });

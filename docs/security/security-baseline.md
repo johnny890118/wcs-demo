@@ -17,6 +17,7 @@ The supported product entry and authenticated, simulator-backed operations conso
 - Sign-out revocation retries bounded transient delivery failures and emits structured retry/recovered/exhausted outcomes without session identifiers. This is observable but not a durable queue; production identity enablement requires provider-specific sign-out and alert policy.
 - The persisted per-identifier throttle is not an edge abuse-control substitute. Production identity enablement requires trusted ingress rate controls plus an approved security-event retention/export policy so attempts spread across arbitrary identifiers cannot create unbounded evidence growth.
 - Every SWP-owned PostgreSQL table has row-level security enabled without browser/provider-role policies. Non-owner roles are deny-by-default even when table privileges are granted; the dedicated table-owning API connection remains the only data path and continues to enforce effective permission plus warehouse scope.
+- Every custom browser-facing operational mutation rejects missing, malformed, or foreign `Origin` values before session resolution. The trusted origin is derived from `NEXTAUTH_URL`, not `PUBLIC_SITE_URL`, so a future public-site/application split does not grant the marketing origin command authority.
 
 ## Required baseline
 
