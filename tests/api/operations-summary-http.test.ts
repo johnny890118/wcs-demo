@@ -7,6 +7,7 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   fetchOperationsDetails: vi.fn(),
   fetchOperationsHome: vi.fn(),
   fetchOperationsOverview: vi.fn(),
+  fetchOperationsLiveView: vi.fn(),
 }));
 
 import { getServerSession } from "next-auth/next";
@@ -14,11 +15,13 @@ import handler from "../../pages/api/operations/summary";
 import detailsHandler from "../../pages/api/operations/details";
 import homeHandler from "../../pages/api/operations/home";
 import overviewHandler from "../../pages/api/operations/overview";
+import liveViewHandler from "../../pages/api/operations/live-view";
 import {
   fetchOperationsDetails,
   fetchOperationsSummary,
   fetchOperationsHome,
   fetchOperationsOverview,
+  fetchOperationsLiveView,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
   testOperationalAccess,
@@ -106,6 +109,69 @@ describe("combined operations overview boundary", () => {
     const denied = createResponse();
     await overviewHandler({ method: "POST" } as never, denied as never);
     expect(denied.statusCode).toBe(405);
+  });
+});
+
+describe("live view browser boundary", () => {
+  beforeEach(() => vi.clearAllMocks());
+  it("rejects missing permission and forwards only the revalidated current warehouse", async () => {
+    vi.mocked(getServerSession).mockResolvedValue({
+      ...testOperationalSession,
+      access: {
+        ...testOperationalAccess,
+        principal: {
+          ...testOperationalAccess.principal,
+          permissions: ["audit.view"],
+          warehouseScopes: testOperationalAccess.principal.warehouseScopes.map(
+            (scope) => ({ ...scope, permissions: ["audit.view"] }),
+          ),
+        },
+      },
+    });
+    const denied = createResponse();
+    await liveViewHandler({ method: "GET" } as never, denied as never);
+    expect(denied.statusCode).toBe(403);
+    expect(fetchOperationsLiveView).not.toHaveBeenCalled();
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    vi.mocked(fetchOperationsLiveView).mockResolvedValue({
+      equipment: [],
+      work: [],
+      alarms: [],
+      locations: [],
+      topology: null,
+      generatedAt: "2026-10-03T00:00:00Z",
+      coverage: {
+        workMayBeLimited: false,
+        equipmentMayBeLimited: false,
+        locationsMayBeLimited: false,
+        alarmsMayBeLimited: false,
+      },
+    });
+    const allowed = createResponse();
+    await liveViewHandler({ method: "GET" } as never, allowed as never);
+    expect(allowed.statusCode).toBe(200);
+    expect(fetchOperationsLiveView).toHaveBeenCalledWith(testOperationalAccess);
+  });
+  it("fails closed and revalidates every request without caching authority", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const anonymous = createResponse();
+    await liveViewHandler({ method: "GET" } as never, anonymous as never);
+    expect(anonymous.statusCode).toBe(401);
+    expect(fetchOperationsLiveView).not.toHaveBeenCalled();
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    vi.mocked(fetchOperationsLiveView).mockRejectedValue(
+      new Error("private diagnostic"),
+    );
+    const failed = createResponse();
+    await liveViewHandler({ method: "GET" } as never, failed as never);
+    expect(getServerSession).toHaveBeenCalledTimes(2);
+    expect(fetchOperationsLiveView).toHaveBeenCalledWith(testOperationalAccess);
+    expect(failed.headers["Cache-Control"]).toBe("no-store");
+    expect(failed.statusCode).toBe(503);
+    expect(failed.body).toEqual({ code: "OPERATIONS_LIVE_VIEW_UNAVAILABLE" });
+    const write = createResponse();
+    await liveViewHandler({ method: "POST" } as never, write as never);
+    expect(write.statusCode).toBe(405);
   });
 });
 

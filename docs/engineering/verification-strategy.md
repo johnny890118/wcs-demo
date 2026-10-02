@@ -28,6 +28,15 @@
 
 ## Current S2 Home baseline
 
+Live View read foundation passes the complete gate: 396 fast tests, 19 PostgreSQL
+integration checks and 29 production-build browser flows, plus API build. New
+read contracts cover qualifier/unknown semantics, scoped observed and assigned
+work, private diagnostic omission, guard consistency, query budgets, HTTP/BFF
+permission and per-request scope validation, no-store, sanitized failures,
+revision-race rejection, PostgreSQL current/stale bindings and older unknown
+work. These checks establish an API foundation, not completed user-facing Live
+View. The previous topology correction passed 373/19/29; no checks were disabled.
+
 The active-identity slice adds catalog/asset contracts and source-derived icon
 drift checking to the gate: 369 fast tests, 19 PostgreSQL integration tests,
 28 production-build E2E checks and API build. Browser checks cover owned icon

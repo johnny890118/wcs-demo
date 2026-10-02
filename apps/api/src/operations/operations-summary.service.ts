@@ -4,6 +4,10 @@ import type { OperationsSummary } from "../../../../src/application/operations/o
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
 import type { OperationsOverview } from "../../../../src/application/operations/operations-overview";
 import {
+  projectOperationsLiveView,
+  type OperationsLiveView,
+} from "../../../../src/application/operations/operations-live-view";
+import {
   projectOperationsHome,
   type OperationsHome,
 } from "../../../../src/application/operations/operations-home";
@@ -86,6 +90,8 @@ type LocationRow = {
   status: "available" | "blocked" | "disabled";
   capabilities: string[];
   active_node_id: string | null;
+  active_topology_id: string | null;
+  active_topology_revision: number | null;
 };
 
 type NodeRow = {
@@ -180,7 +186,13 @@ export class OperationsSummaryService {
   }
 
   async getHome(warehouseId: string): Promise<OperationsHome> {
-    return projectOperationsHome(await this.getDetails(warehouseId, true));
+    return projectOperationsHome(await this.getDetails(warehouseId, "home"));
+  }
+
+  async getLiveView(warehouseId: string): Promise<OperationsLiveView> {
+    return projectOperationsLiveView(
+      await this.getDetails(warehouseId, "live-view"),
+    );
   }
 
   async getOverview(warehouseId: string): Promise<OperationsOverview> {
@@ -203,8 +215,10 @@ export class OperationsSummaryService {
 
   async getDetails(
     warehouseId: string,
-    home = false,
+    purpose: "inspection" | "home" | "live-view" = "inspection",
   ): Promise<OperationsDetails> {
+    const home = purpose === "home";
+    const activeWorkOnly = purpose !== "inspection";
     const [tasks, equipment, inventory, alarms, locations, topology] =
       await Promise.all([
         this.pool.query<FocusedTaskRow>(
@@ -218,7 +232,7 @@ export class OperationsSummaryService {
          ORDER BY CASE WHEN $2::boolean THEN CASE t.status WHEN 'unknown' THEN 0 WHEN 'blocked' THEN 1 ELSE 2 END ELSE 0 END,
            t.updated_at DESC, t.id
          LIMIT 100`,
-          [warehouseId, home],
+          [warehouseId, activeWorkOnly],
         ),
         this.pool.query<EquipmentRow>(
           `SELECT descriptor.equipment_id, descriptor.adapter_key,
@@ -244,16 +258,18 @@ export class OperationsSummaryService {
          LIMIT 100`,
           [warehouseId],
         ),
-        this.pool.query<InventoryRow>(
-          `SELECT inventory.id, inventory.sku, inventory.quantity,
+        purpose === "live-view"
+          ? Promise.resolve({ rows: [] as InventoryRow[] })
+          : this.pool.query<InventoryRow>(
+              `SELECT inventory.id, inventory.sku, inventory.quantity,
           location.code AS location, inventory.status, inventory.updated_at
          FROM inventory_units inventory
          JOIN locations location ON location.id = inventory.location_id
          WHERE location.warehouse_id = $1
          ORDER BY inventory.updated_at DESC, inventory.id
          LIMIT 100`,
-          [warehouseId],
-        ),
+              [warehouseId],
+            ),
         this.pool.query<AlarmRow>(
           `SELECT alarm.id, alarm.transport_task_id, alarm.equipment_id,
           alarm.code, alarm.severity, alarm.message, alarm.status,
@@ -266,13 +282,15 @@ export class OperationsSummaryService {
            AND (NOT $2::boolean OR alarm.status IN ('active', 'acknowledged'))
          ORDER BY alarm.raised_at DESC, alarm.id
          LIMIT 100`,
-          [warehouseId, home],
+          [warehouseId, activeWorkOnly],
         ),
         home
           ? Promise.resolve({ rows: [] as LocationRow[] })
           : this.pool.query<LocationRow>(
               `SELECT location.id, location.code, location.kind, location.status,
-          location.capabilities, binding.node_id AS active_node_id
+          location.capabilities, binding.node_id AS active_node_id,
+          binding.topology_id AS active_topology_id,
+          binding.topology_revision AS active_topology_revision
          FROM locations location
          LEFT JOIN warehouse_topologies topology
            ON topology.warehouse_id = location.warehouse_id
@@ -398,7 +416,12 @@ export class OperationsSummaryService {
         kind: location.kind,
         status: location.status,
         capabilities: location.capabilities,
-        activeNodeId: location.active_node_id,
+        activeNodeId:
+          activeTopology &&
+          location.active_topology_id === activeTopology.id &&
+          location.active_topology_revision === activeTopology.revision
+            ? location.active_node_id
+            : null,
       })),
       topology: activeTopology
         ? {

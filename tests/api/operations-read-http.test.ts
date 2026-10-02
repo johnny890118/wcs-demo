@@ -18,6 +18,7 @@ describe("warehouse-scoped operations read HTTP contract", () => {
     getDetails: vi.fn(),
     getHome: vi.fn(),
     getOverview: vi.fn(),
+    getLiveView: vi.fn(),
   };
   const serviceToken = "test-service-token-with-safe-length";
 
@@ -123,9 +124,11 @@ describe("warehouse-scoped operations read HTTP contract", () => {
     expect(summaries.getHome).toHaveBeenCalledWith(testWarehouseId);
     expect((await authorized("/api/v1/operations/overview")).status).toBe(200);
     expect(summaries.getOverview).toHaveBeenCalledWith(testWarehouseId);
+    expect((await authorized("/api/v1/operations/live-view")).status).toBe(200);
+    expect(summaries.getLiveView).toHaveBeenCalledWith(testWarehouseId);
   });
 
-  it.each(["home", "overview"])(
+  it.each(["home", "overview", "live-view"])(
     "protects the %s projection with the same permission and scope boundary",
     async (projection) => {
       expect(
@@ -145,6 +148,7 @@ describe("warehouse-scoped operations read HTTP contract", () => {
       ).toBe(403);
       expect(summaries.getHome).not.toHaveBeenCalled();
       expect(summaries.getOverview).not.toHaveBeenCalled();
+      expect(summaries.getLiveView).not.toHaveBeenCalled();
     },
   );
 });

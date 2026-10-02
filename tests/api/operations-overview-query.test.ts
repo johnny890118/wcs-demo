@@ -5,6 +5,64 @@ import { OperationsSummaryService } from "../../apps/api/src/operations/operatio
 import { isOperationsOverview } from "../../src/application/operations/operations-overview";
 import { testWarehouseId } from "../fixtures/operational-access";
 describe("overview read budget and partial evidence", () => {
+  it("does not merge location bindings from a concurrently replaced topology revision", async () => {
+    const pool = {
+      query: vi.fn().mockImplementation(async (sql: string) => ({
+        rows: sql.includes("FROM locations location")
+          ? [
+              {
+                id: "location",
+                code: "Storage",
+                kind: "storage",
+                status: "available",
+                capabilities: [],
+                active_node_id: "same-node",
+                active_topology_id: "topology",
+                active_topology_revision: 1,
+              },
+            ]
+          : sql.includes("FROM warehouse_topologies")
+            ? [{ id: "topology", revision: 2 }]
+            : sql.includes("FROM topology_nodes")
+              ? [
+                  {
+                    node_id: "same-node",
+                    kind: "storage",
+                    capabilities: [],
+                    position: null,
+                  },
+                ]
+              : [],
+      })),
+    };
+    const live = await new OperationsSummaryService(
+      pool as unknown as Pool,
+    ).getLiveView(testWarehouseId);
+    expect(live.locations[0].activeNodeId).toBeNull();
+  });
+  it("live view prioritizes active work and skips inventory without skipping versioned topology", async () => {
+    const pool = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    const live = await new OperationsSummaryService(
+      pool as unknown as Pool,
+    ).getLiveView(testWarehouseId);
+    expect(pool.query).toHaveBeenCalledTimes(5);
+    expect(
+      pool.query.mock.calls.some(([sql]) =>
+        sql.includes("FROM inventory_units"),
+      ),
+    ).toBe(false);
+    expect(
+      pool.query.mock.calls.find(([sql]) =>
+        sql.includes("FROM transport_tasks t"),
+      )?.[1],
+    ).toEqual([testWarehouseId, true]);
+    expect(
+      pool.query.mock.calls.some(([sql]) =>
+        sql.includes("FROM warehouse_topologies"),
+      ),
+    ).toBe(true);
+    expect(live.work).toEqual([]);
+  });
   it("reads only four Home collections and no unused topology", async () => {
     const pool = { query: vi.fn().mockResolvedValue({ rows: [] }) };
     const home = await new OperationsSummaryService(

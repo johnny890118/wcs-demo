@@ -180,6 +180,9 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Loads operator workspace: searchable received/current quantity context, null/shipped semantics and inventory/history navigation
 - [x] Locations read-model foundation: scoped configured locations, active version bindings and separately labelled record counts
 - [x] Dedicated Locations operator workspace: configured-state meaning, active binding diagnostics and related stock/load searches
+- [x] Navigation/identity quality checkpoints: reduced overview reads, pending navigation feedback and owned SWP icons/metadata; authenticated production p95 remains unmeasured
+- [x] Topology inspection evidence correction: explicit bindings, bounded stock row counts and obsolete/stale projection handling
+- [x] Live View read foundation: server-qualified current/last-known/unknown equipment position, scoped observed-versus-assigned work and conservative coverage
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links

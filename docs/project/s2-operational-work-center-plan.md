@@ -161,6 +161,51 @@ stock/task binding and 503 refresh downgrading current telemetry; desktop
 screenshot and mobile axe/reflow were reviewed. The inspector remains technical
 by design; S6 calibrated layout, S4 controls and full Live View are not claimed.
 
+## Live View read foundation acceptance
+
+Next coherent slice: a server-classified, warehouse-scoped Live View projection
+under existing `operations.view`, before its operator UI. Medium-risk read
+boundary; this plan is persistent and no new ADR is warranted because it applies
+the approved observation/binding architecture without new authority or state.
+Keep topology inspector separate. Current position requires matching active
+topology/revision/node, connected/current/good telemetry and active equipment;
+other usable observations are last-known, unmatched/missing position unknown.
+Bad/unknown observation quality is unusable position evidence, not last-known;
+retain only its explicit status/quality, without a marker or readable location.
+Readable location codes come only from explicit active bindings. Position state
+is not equipment health, allocation readiness or safety authorization.
+
+Observed task context and assigned work are separate, and links resolve only to
+warehouse-local projected work, never arbitrary telemetry IDs. A missing task
+context is unresolved, not proof of no work. Do not expose raw load/fault IDs or
+adapter payloads in the new primary contract. Prioritize active/unknown work
+before bounded collection limits; publish conservative coverage flags. No mixed
+SKU stock aggregate, physical geometry, fabricated route progress or animation.
+Reuse persisted queries without weakening S1 revalidation or caching authority.
+
+Acceptance: pure classification/guard tests, scoped query budget, HTTP permission
+and warehouse denial, BFF per-request session validation/no-store/sanitized
+failure, PostgreSQL bindings/foreign lineage/stale/current observations and older
+unknown task preservation, full repository gate, API build, runtime private
+boundary check, independent clean checkpoint/push/CI/deployment confirmation.
+User-facing Live View remains the subsequent slice, not implied by this API.
+
+Self-review found a parallel-read activation race: the location-binding query
+and active-topology query could observe different revisions. Binding topology
+identity/revision is now carried internally and compared again during projection
+assembly; mismatches become unbound, even when the node label exists in both
+versions. This is conservative read evidence, not an atomic snapshot guarantee.
+
+Implementation exposes `/api/v1/operations/live-view` and read-only no-store BFF
+`/api/operations/live-view`; the browser session is validated on every request.
+Named read purposes replace the old internal boolean without changing Home or
+inspection semantics. Live View skips unused inventory and selects active work
+before the bound. Full gate passes 396 fast, 19 PostgreSQL and 29 existing
+production-build E2E checks; API build passes. A test-only inconsistent grant
+fixture was corrected after S1 correctly rejected it; auth validation was not
+weakened. Self-review fixed binding revision races and rejects fabricated
+current/foreign-link payloads. UI implementation follows the clean checkpoint.
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

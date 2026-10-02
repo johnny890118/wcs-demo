@@ -76,8 +76,24 @@ import {
   isOperationsOverview,
   type OperationsOverview,
 } from "../../application/operations/operations-overview";
+import {
+  isOperationsLiveView,
+  type OperationsLiveView,
+} from "../../application/operations/operations-live-view";
 
 const defaultTimeoutMs = 55_000;
+
+export async function fetchOperationsLiveView(
+  access: OperationalAccess,
+): Promise<OperationsLiveView> {
+  const payload = await fetchWcsProjection(
+    "/api/v1/operations/live-view",
+    access,
+  );
+  if (!isOperationsLiveView(payload))
+    throw new Error("Invalid operations live-view projection.");
+  return payload;
+}
 
 export function loadWcsApiTimeoutMs(): number {
   const value = Number(process.env.INTERNAL_API_TIMEOUT_MS ?? defaultTimeoutMs);

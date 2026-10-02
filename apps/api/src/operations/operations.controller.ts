@@ -5,6 +5,7 @@ import type { OperationsSummary } from "../../../../src/application/operations/o
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
 import type { OperationsHome } from "../../../../src/application/operations/operations-home";
 import type { OperationsOverview } from "../../../../src/application/operations/operations-overview";
+import type { OperationsLiveView } from "../../../../src/application/operations/operations-live-view";
 import { OperationsSummaryService } from "./operations-summary.service";
 
 @Controller("v1/operations")
@@ -13,6 +14,13 @@ import { OperationsSummaryService } from "./operations-summary.service";
 @RequireUserPermission("operations.view")
 export class OperationsController {
   constructor(private readonly summaries: OperationsSummaryService) {}
+
+  @Get("live-view")
+  getLiveView(
+    @Headers("x-swp-warehouse") warehouseId: string,
+  ): Promise<OperationsLiveView> {
+    return this.summaries.getLiveView(warehouseId);
+  }
 
   @Get("overview")
   getOverview(

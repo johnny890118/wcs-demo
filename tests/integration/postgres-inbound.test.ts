@@ -711,6 +711,17 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     const details = await new OperationsSummaryService(pool).getDetails(
       warehouseId,
     );
+    const liveView = await new OperationsSummaryService(pool).getLiveView(
+      warehouseId,
+    );
+    expect(liveView.equipment.map((item) => item.equipmentId)).not.toContain(
+      "OTHER-AMR",
+    );
+    expect(liveView.equipment[0].position).toMatchObject({
+      state: "current",
+      locations: ["RECEIVING-01"],
+      reason: "observed",
+    });
     expect(details).toMatchObject({
       tasks: [],
       inventory: [],
@@ -829,6 +840,10 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       true,
     );
     expect((await service.getHome(otherWarehouseId)).work).toEqual([]);
+    expect(
+      (await service.getLiveView(warehouseId)).work.map((task) => task.taskId),
+    ).toEqual([identifiers.transportTaskId]);
+    expect((await service.getLiveView(otherWarehouseId)).work).toEqual([]);
   });
 
   it("pages task work with exact timestamp ties and scopes detail, load and cursor", async () => {
@@ -1195,6 +1210,14 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       connectionStatus: "connected",
       sequence: 10,
     });
+    expect(
+      (await new OperationsSummaryService(pool).getLiveView(warehouseId))
+        .equipment[0].position,
+    ).toMatchObject({
+      state: "last_known",
+      reason: "stale",
+      locations: ["STORAGE-A-01"],
+    });
 
     await expect(
       sink.publish({
@@ -1210,6 +1233,10 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       freshness: "current",
       sequence: 11,
     });
+    expect(
+      (await new OperationsSummaryService(pool).getLiveView(warehouseId))
+        .equipment[0].position.state,
+    ).toBe("current");
   });
 
   it("loads persisted capabilities and atomically activates a valid topology revision", async () => {
