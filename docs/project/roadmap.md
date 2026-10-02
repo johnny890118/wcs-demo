@@ -148,7 +148,7 @@ The governing detail is the [Approved Product Experience Direction](../product/a
 
 ## S1 — Accountable Access and Deployment Safety
 
-Status: Active
+Status: Complete — verified 2026-10-03
 
 - [x] Establish provider-neutral principal/session contracts while retaining the demo identity as a replaceable adapter
 - [x] Define effective user permissions independently from service permissions and role-name conditionals
@@ -163,6 +163,9 @@ Status: Active
 - [x] Resolve human permissions and warehouse-local grants from persistent assignments rather than deployment environment
 - [x] Persist active human sessions and add assignment revalidation, bounded expiry, sign-out/administrative revocation, and lifecycle evidence
 - [x] Add failed-login evidence/throttling and revocation delivery/retry observability without guessing production retention duration
+- [x] Enable deny-by-default non-owner PostgreSQL access and verify the managed database security advisor
+- [x] Require the configured application origin on every custom browser operational mutation
+- [x] Complete the S1 security review and record unresolved production-identity/operability gates without blocking S2
 
 ## S2 — Operational Work Center and Inventory Visibility
 
@@ -222,7 +225,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Run the required fresh-context S1 security review, resolve any load-bearing
-findings, and then reassess whether the next coherent milestone is S2 or a
-remaining S1 production-identity prerequisite. Keep OIDC provider integration
-replaceable and do not start Public Demo lifecycle work early.
+Begin S2 with a repository-grounded, task-centered read model for the actionable
+Operations Home and work queue/detail. Reuse the existing summary/detail,
+inventory, audit, task, alarm, and equipment projections; do not build a second
+dashboard aggregate or start Public Demo lifecycle work early.

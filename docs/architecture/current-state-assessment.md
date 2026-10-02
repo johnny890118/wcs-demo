@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-10-01. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, S1A deployment safety, S1B command isolation, S1C principal semantics, and S1D role-aware runtime UX, accountable warehouse context switching, persisted human access assignments, and revocable human sessions.
+Assessment date: 2026-10-03. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, and completed S1 accountable access/deployment safety including persisted assignments/sessions, failed-proof protection, database direct-access denial, and operational mutation-origin enforcement.
 
 ## Supported product path
 
@@ -47,10 +47,9 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. Complete the fresh-context S1 security review before selecting S2 or any remaining production-identity prerequisite.
-2. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
-3. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
-4. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.
-5. S7–S8 external integration, commissioning, and commercial production operability.
+1. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
+2. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
+3. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.
+4. S7–S8 external integration, production identity, commissioning, and commercial production operability.
 
 See the approved [Product Experience Direction](../product/approved-product-experience-direction.md) for the governing sequence and user-facing definition of done.

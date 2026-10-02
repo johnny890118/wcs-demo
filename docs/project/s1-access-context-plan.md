@@ -1,6 +1,6 @@
 # S1 Accountable Access and Warehouse Context Plan
 
-Status: Active
+Status: Complete — verified 2026-10-03
 
 Risk: High — authentication, authorization, tenant-like warehouse isolation, and
 operator attribution are load-bearing security boundaries.
@@ -77,5 +77,8 @@ Governing decisions: [ADR 0013](../decisions/0013-principal-permission-and-wareh
   locales, all theme preferences, keyboard navigation, responsive layouts, and
   permission/scope denial.
 - A fresh-context security review is required before S1 is declared complete.
+- [x] The fresh-context security review resolved direct database exposure and
+      missing browser mutation-origin enforcement, recorded residual production
+      gates, and found no blocker to S2 in the private-demo/simulation path.
 - Each independently verified slice is committed and pushed separately; CI must
   pass before the next checkpoint is treated as stable.
