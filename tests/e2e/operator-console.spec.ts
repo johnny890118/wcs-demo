@@ -12,6 +12,97 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("locations explain configured states and record counts without occupancy claims", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/locations");
+  await expect(
+    page.getByText("設定為阻擋 — 需要檢查", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("未綁定有效路由版本 — 需要檢查", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("載具紀錄筆數（含歷史）", { exact: true }),
+  ).toHaveCount(2);
+  await expect(
+    page.getByText("未出庫的庫存紀錄筆數", { exact: true }),
+  ).toHaveCount(2);
+  await page.route("**/api/operations/locations?*", (route) =>
+    route.fulfill({ status: 503, json: { code: "LOCATIONS_UNAVAILABLE" } }),
+  );
+  await page.getByRole("button", { name: "載入更多位置", exact: true }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "位置資料暫時無法取得" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "STORAGE-01", exact: true }),
+  ).toBeVisible();
+  await page.unroute("**/api/operations/locations?*");
+  await page.getByRole("button", { name: "載入更多位置", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "載入更多位置", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "STORAGE-01", exact: true }),
+  ).toHaveCount(1);
+  await page.screenshot({
+    path: test.info().outputPath("locations-desktop.png"),
+    fullPage: true,
+  });
+  await page.getByLabel("搜尋位置或類型").fill("missing");
+  await page.getByLabel("搜尋位置或類型").press("Enter");
+  await expect(
+    page.getByText("目前倉庫與搜尋條件沒有符合的位置。"),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "清除", exact: true }).click();
+  const disclosure = page.locator("summary").first();
+  await disclosure.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText(/routing-storage-node/)).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: test.info().outputPath("locations-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Light", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole("link", { name: "Search related loads", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/operations\/loads\?search=STORAGE-01/);
+  await page
+    .getByRole("navigation", { name: "Inventory workspace" })
+    .getByRole("link", { name: "Locations", exact: true })
+    .click();
+  await page
+    .getByRole("link", { name: "Search related inventory", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/operations\/inventory\?search=STORAGE-01/);
+  await page
+    .getByRole("navigation", { name: "Inventory workspace" })
+    .getByRole("link", { name: "Locations", exact: true })
+    .click();
+  await page
+    .getByRole("combobox")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(
+    page.getByRole("heading", { name: "STORAGE-01", exact: true }),
+  ).toHaveCount(0);
+});
+
 test("loads preserve unknown inventory and zero shipped stock across readable bilingual views", async ({
   page,
 }) => {
@@ -271,6 +362,7 @@ test("login and every operations route enforce the private surface boundary", as
     "/operations/tasks",
     "/operations/inventory",
     "/operations/loads",
+    "/operations/locations",
     "/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/operations/warehouse",
     "/operations/projections",

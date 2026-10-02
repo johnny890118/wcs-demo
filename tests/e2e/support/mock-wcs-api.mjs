@@ -533,6 +533,7 @@ const server = createServer(async (request, response) => {
       request.url?.startsWith("/api/v1/operations/tasks") ||
       request.url?.startsWith("/api/v1/operations/inventory") ||
       request.url?.startsWith("/api/v1/operations/loads") ||
+      request.url?.startsWith("/api/v1/operations/locations") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
@@ -719,6 +720,51 @@ const server = createServer(async (request, response) => {
             ),
           );
     response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
+    return;
+  }
+
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/locations")
+  ) {
+    const query = new URL(request.url, "http://fixture").searchParams;
+    const search = (query.get("search") ?? "").toLowerCase();
+    const location = {
+      locationId: "20000000-0000-4000-8000-000000000001",
+      code: "STORAGE-01",
+      kind: "storage",
+      status: "blocked",
+      capabilities: ["store"],
+      recordedLoads: 2,
+      stockRecords: 1,
+      binding: {
+        topologyId: "90000000-0000-4000-8000-000000000001",
+        revision: 3,
+        nodeId: "routing-storage-node",
+      },
+    };
+    const unbound = {
+      ...location,
+      locationId: "20000000-0000-4000-8000-000000000002",
+      code: "UNBOUND-01",
+      status: "disabled",
+      recordedLoads: 0,
+      stockRecords: 0,
+      binding: null,
+    };
+    const items =
+      request.headers["x-swp-warehouse"] === secondWarehouseId
+        ? []
+        : [location, unbound].filter((item) =>
+            [item.code, item.kind].some((value) =>
+              value.toLowerCase().includes(search),
+            ),
+          );
+    const nextCursor =
+      !search && items.length > 0 && !query.has("cursor")
+        ? "location-next"
+        : null;
+    response.end(JSON.stringify({ items, nextCursor, generatedAt }));
     return;
   }
 

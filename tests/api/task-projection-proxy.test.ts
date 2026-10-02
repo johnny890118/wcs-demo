@@ -7,16 +7,19 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
   fetchTaskDetail: vi.fn(),
   fetchInventory: vi.fn(),
   fetchLoads: vi.fn(),
+  fetchLocations: vi.fn(),
 }));
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/tasks/[[...segments]]";
 import inventoryHandler from "../../pages/api/operations/inventory";
 import loadsHandler from "../../pages/api/operations/loads";
+import locationsHandler from "../../pages/api/operations/locations";
 import {
   fetchTaskDetail,
   fetchTaskQueue,
   fetchInventory,
   fetchLoads,
+  fetchLocations,
   WcsProjectionError,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
@@ -100,6 +103,32 @@ describe("task read browser boundary", () => {
     await loadsHandler({ method: "GET", query: {} } as never, res as never);
     expect(res.statusCode).toBe(503);
     expect(res.body).toEqual({ code: "LOADS_UNAVAILABLE" });
+  });
+  it("bounds location queries, session and upstream diagnostics", async () => {
+    const invalid = response();
+    await locationsHandler(
+      { method: "GET", query: { search: ["ambiguous"] } } as never,
+      invalid as never,
+    );
+    expect(invalid.statusCode).toBe(400);
+    expect(fetchLocations).not.toHaveBeenCalled();
+    vi.mocked(fetchLocations).mockRejectedValue(
+      new Error("private diagnostic"),
+    );
+    const unavailable = response();
+    await locationsHandler(
+      { method: "GET", query: {} } as never,
+      unavailable as never,
+    );
+    expect(unavailable.body).toEqual({ code: "LOCATIONS_UNAVAILABLE" });
+    expect(unavailable.statusCode).toBe(503);
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const denied = response();
+    await locationsHandler(
+      { method: "GET", query: {} } as never,
+      denied as never,
+    );
+    expect(denied.statusCode).toBe(401);
   });
   it.each([
     { view: ["all"] },

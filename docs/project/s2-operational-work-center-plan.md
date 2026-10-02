@@ -4,6 +4,17 @@ Status: Active
 
 ## Autonomous continuation
 
+Owner queued two product-quality slices on 2026-10-03, after the active Locations
+checkpoint: (1) measure and improve operations navigation latency, including SSR,
+persisted session revalidation and repeated Vercel/Render/PostgreSQL round trips;
+never weaken S1 fail-closed revalidation, scope, permissions or audit, and do not
+cache authority across requests; (2) inventory active titles/icons/metadata/OG,
+login/operations/entry/navigation and replace legacy WCS Demo/female.png identity
+with Smart Warehouse Platform and a neutral replaceable SWP placeholder icon.
+Each requires runtime review, full verification, clean commit/push/CI and deployed
+confirmation before resuming the next S2 feature slice. Keep both separate from
+the currently active Locations capability.
+
 Owner confirmed on 2026-10-03: after each verified, pushed, CI-stable clean
 checkpoint, continue directly to the next coherent roadmap slice. Routine
 checkpoint acceptance is not an Owner gate. Stop only for an Owner-only decision
@@ -79,6 +90,34 @@ keyset cursors are surface/warehouse/search-bound. Disabled, blocked and unbound
 configuration remains readable. HTTP/query/contract and PostgreSQL lineage,
 pagination, active binding and shipped-record checks cover the foundation; UI
 acceptance remains pending until the subsequent workspace slice.
+
+## Locations operator workspace
+
+`/operations/locations` completes the read-only Inventory subworkspace with
+authenticated SSR and scalar-query/session guarded BFF. Warehouse/search changes
+remount loaded state. Search, refresh, deduplicated load-more, empty and
+unavailable states preserve evidence without claiming currency. Configuration
+status is explicitly labelled as configured, not safe-to-command. Unbound active
+topology is visible as requiring review; raw version/node identity and capability
+codes stay in keyboard-accessible diagnostics. Related stock/load links are
+explicitly substring searches, not exact location inventories. Counts are rows,
+not mixed-SKU quantity or occupancy; shipped load history can remain recorded.
+No configuration writes, controls, marketing or reset/replay are included.
+
+| Before                                                  | After                                                    | Why                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------- |
+| Locations only appear inside technical diagnostics      | Searchable dedicated Inventory subworkspace              | Operators can investigate location context without source code |
+| Configuration may be mistaken for physical availability | Configured-state wording and safety caveat               | No read-only flag authorizes movement                          |
+| Binding identity is implicit in readable code           | Explicit active-version binding with diagnostic identity | Location codes are not topology node IDs                       |
+| Record counts may imply capacity or occupancy           | Separate historical load rows and non-shipped stock rows | Persisted records are not physical observations                |
+
+Self-review applies the Emil skill: calm token-based styling, 44px controls,
+localized human meaning before raw identifiers and native keyboard disclosure.
+Production-browser review covers blocked/disabled/unbound states, failed
+load-more retaining evidence, successful retry/deduplication, keyboard search and
+empty results, related searches, warehouse switch, mobile light/dark axe/reflow,
+and desktop/mobile screenshots. Locations configuration administration remains
+S6, task controls S4. Live View/readable topology is the next S2 slice.
 
 ## Outcome
 

@@ -27,6 +27,10 @@ import {
   type LoadPage,
 } from "../../application/operations/load-projection";
 import {
+  isLocationPage,
+  type LocationPage,
+} from "../../application/operations/location-projection";
+import {
   isInboundExecutionCompleted,
   isInboundReceiptCreated,
   type CreateInboundWorkflowRequest,
@@ -139,6 +143,22 @@ export async function fetchLoads(
     access,
   );
   if (!isLoadPage(result)) throw new Error("Invalid load projection.");
+  return result;
+}
+
+export async function fetchLocations(
+  access: OperationalAccess,
+  query: InventoryQuery = {},
+): Promise<LocationPage> {
+  const search = new URLSearchParams();
+  if (query.search) search.set("search", query.search);
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/locations${search.size ? `?${search}` : ""}`,
+    access,
+  );
+  if (!isLocationPage(result)) throw new Error("Invalid location projection.");
   return result;
 }
 

@@ -3,7 +3,7 @@ import { useLocale } from "../../src/ui/i18n/locale-provider";
 export function InventoryNavigation({
   current,
 }: {
-  current: "inventory" | "loads";
+  current: "inventory" | "loads" | "locations";
 }) {
   const { t } = useLocale();
   return (
@@ -11,7 +11,7 @@ export function InventoryNavigation({
       aria-label={t("inventoryWorkspace")}
       className="mb-5 flex flex-wrap gap-2"
     >
-      {(["inventory", "loads"] as const).map((surface) => (
+      {(["inventory", "loads", "locations"] as const).map((surface) => (
         <Link
           key={surface}
           href={`/operations/${surface}`}

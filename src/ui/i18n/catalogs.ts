@@ -1,4 +1,29 @@
 export const en = {
+  locations: "Locations",
+  locationsDescription:
+    "Read configured warehouse locations and related recorded load and stock context. Configuration is not a live safety assessment.",
+  locationSearch: "Search location or kind",
+  locationsUnavailable:
+    "Location data is temporarily unavailable. Existing results are not current.",
+  locationsEmpty: "No locations match this warehouse and search.",
+  locationAvailable: "Configured available",
+  locationBlocked: "Configured blocked — review required",
+  locationDisabled: "Configured disabled — not enabled for use",
+  locationKind: "Location kind",
+  locationReceiving: "Receiving",
+  locationStorage: "Storage",
+  locationShipping: "Shipping",
+  locationCustomKind: "Custom location kind",
+  locationRecordedLoads: "Recorded load rows (including history)",
+  locationStockRecords: "Non-shipped stock records",
+  locationBound: "Bound to active routing version",
+  locationUnbound: "No binding to active routing version — review required",
+  locationSearchStock: "Search related inventory",
+  locationSearchLoads: "Search related loads",
+  locationsMore: "Load more locations",
+  locationsRefresh: "Refresh locations",
+  locationsNotice:
+    "Counts are persisted record counts, not quantity, capacity or physical occupancy. Load rows may retain shipped history. Related links search the location code as a substring, not an exact location filter. Configuration and binding do not prove movement safety. Pages are observations, not a snapshot; refresh for changes.",
   inventoryDescription:
     "Persisted stock balances, reservations and readable load/location context for the current warehouse.",
   inventorySearch: "Search SKU, load or location",
@@ -436,6 +461,30 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  locations: "位置",
+  locationsDescription:
+    "查看倉庫位置設定，以及相關載具與庫存紀錄。設定狀態不代表即時安全判定。",
+  locationSearch: "搜尋位置或類型",
+  locationsUnavailable: "位置資料暫時無法取得。既有結果不代表目前狀態。",
+  locationsEmpty: "目前倉庫與搜尋條件沒有符合的位置。",
+  locationAvailable: "設定為可用",
+  locationBlocked: "設定為阻擋 — 需要檢查",
+  locationDisabled: "設定為停用 — 未啟用使用",
+  locationKind: "位置類型",
+  locationReceiving: "收貨",
+  locationStorage: "儲存",
+  locationShipping: "出貨",
+  locationCustomKind: "自訂位置類型",
+  locationRecordedLoads: "載具紀錄筆數（含歷史）",
+  locationStockRecords: "未出庫的庫存紀錄筆數",
+  locationBound: "已綁定有效路由版本",
+  locationUnbound: "未綁定有效路由版本 — 需要檢查",
+  locationSearchStock: "搜尋相關庫存",
+  locationSearchLoads: "搜尋相關載具",
+  locationsMore: "載入更多位置",
+  locationsRefresh: "重新整理位置",
+  locationsNotice:
+    "筆數來自持久化紀錄，不是數量、容量或實體佔用率；載具可能保留已出庫歷史。相關連結以位置代碼做部分比對搜尋，不是精確位置篩選。設定與綁定不能證明移動安全。分頁是個別觀測，不是快照；變更後請重新整理。",
   inventoryDescription:
     "目前倉庫的帳面庫存、配貨保留量，以及可閱讀的載具與位置情境。",
   inventorySearch: "搜尋 SKU、載具或位置",

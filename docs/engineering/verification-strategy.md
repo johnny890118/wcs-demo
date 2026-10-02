@@ -28,6 +28,13 @@
 
 ## Current S2 Home baseline
 
+The Locations operator workspace extends the baseline to 352 fast tests,
+19 PostgreSQL integration tests and 26 production-build E2E checks, plus API
+build. Authenticated keyboard search, failed pagination retaining existing
+evidence, retry/deduplication, configured blocked/disabled and unbound semantics,
+related stock/load searches, warehouse switch, bilingual mobile light/dark
+axe/reflow and desktop/mobile visual review cover the new read-only surface.
+
 The Locations read-model foundation adds bounded query/contract and HTTP guard
 coverage plus a PostgreSQL location/binding/record-count regression. Its full
 gate covers 350 fast tests, 19 PostgreSQL integration tests and the existing

@@ -179,7 +179,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Loads read-model foundation: scoped receipt/location lineage, separate received/current quantities, null unrecorded inventory and paginated literal search
 - [x] Loads operator workspace: searchable received/current quantity context, null/shipped semantics and inventory/history navigation
 - [x] Locations read-model foundation: scoped configured locations, active version bindings and separately labelled record counts
-- [ ] Dedicated Locations operator workspace
+- [x] Dedicated Locations operator workspace: configured-state meaning, active binding diagnostics and related stock/load searches
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
@@ -235,7 +235,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S2 with full load/location workspaces after Home, task queue/detail and
-the first inventory visibility checkpoint. Reuse scoped facts and keep unknown outcomes
-explicit. Live View and manual slices follow the
-active plan; Public Demo lifecycle remains S3.
+Continue S2 with Operations Live View/readable topology after Home, task
+queue/detail and Inventory/Loads/Locations workspaces. Reuse qualified
+observations and explicit versioned bindings; keep unknown outcomes explicit.
+Manual/contextual help follows the active plan; Public Demo lifecycle remains S3.
