@@ -18,6 +18,11 @@ import {
   type TaskQueueQuery,
 } from "../../application/operations/task-projection";
 import {
+  isInventoryPage,
+  type InventoryQuery,
+  type InventoryPage,
+} from "../../application/operations/inventory-projection";
+import {
   isInboundExecutionCompleted,
   isInboundReceiptCreated,
   type CreateInboundWorkflowRequest,
@@ -98,6 +103,23 @@ export class WcsProjectionError extends Error {
     super(`WCS API returned HTTP ${status}.`);
     this.name = "WcsProjectionError";
   }
+}
+
+export async function fetchInventory(
+  access: OperationalAccess,
+  query: InventoryQuery = {},
+): Promise<InventoryPage> {
+  const search = new URLSearchParams();
+  if (query.search) search.set("search", query.search);
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/inventory${search.size ? `?${search}` : ""}`,
+    access,
+  );
+  if (!isInventoryPage(result))
+    throw new Error("Invalid inventory projection.");
+  return result;
 }
 
 export async function fetchTaskQueue(

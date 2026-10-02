@@ -5,12 +5,15 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
   ...(await original<object>()),
   fetchTaskQueue: vi.fn(),
   fetchTaskDetail: vi.fn(),
+  fetchInventory: vi.fn(),
 }));
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/tasks/[[...segments]]";
+import inventoryHandler from "../../pages/api/operations/inventory";
 import {
   fetchTaskDetail,
   fetchTaskQueue,
+  fetchInventory,
   WcsProjectionError,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
@@ -44,6 +47,34 @@ describe("task read browser boundary", () => {
     await handler({ method: "GET", query: {} } as never, res as never);
     expect(res.statusCode).toBe(401);
     expect(fetchTaskQueue).not.toHaveBeenCalled();
+  });
+  it("enforces inventory BFF session and scalar-query boundary", async () => {
+    const invalid = response();
+    await inventoryHandler(
+      { method: "GET", query: { search: ["one", "two"] } } as never,
+      invalid as never,
+    );
+    expect(invalid.statusCode).toBe(400);
+    expect(fetchInventory).not.toHaveBeenCalled();
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const denied = response();
+    await inventoryHandler(
+      { method: "GET", query: {} } as never,
+      denied as never,
+    );
+    expect(denied.statusCode).toBe(401);
+  });
+  it("sanitizes inventory upstream errors", async () => {
+    vi.mocked(fetchInventory).mockRejectedValue(
+      new Error("upstream diagnostic must stay private"),
+    );
+    const unavailable = response();
+    await inventoryHandler(
+      { method: "GET", query: {} } as never,
+      unavailable as never,
+    );
+    expect(unavailable.statusCode).toBe(503);
+    expect(unavailable.body).toEqual({ code: "INVENTORY_UNAVAILABLE" });
   });
   it.each([
     { view: ["all"] },

@@ -531,6 +531,7 @@ const server = createServer(async (request, response) => {
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
       request.url?.startsWith("/api/v1/operations/tasks") ||
+      request.url?.startsWith("/api/v1/operations/inventory") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
@@ -639,6 +640,38 @@ const server = createServer(async (request, response) => {
     );
     return;
   }
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/inventory")
+  ) {
+    const query = new URL(request.url, "http://fixture").searchParams;
+    const item = {
+      inventoryUnitId: "81000000-0000-4000-8000-000000000001",
+      sku: "SKU-STOCK-001",
+      quantity: 24,
+      reservedQuantity: 10,
+      unreservedQuantity: 14,
+      status: "available",
+      location: "STORAGE-01",
+      locationStatus: "available",
+      loadExternalId: "PALLET-STOCK-001",
+      loadLocation: "STORAGE-01",
+      receiptId: "30000000-0000-4000-8000-000000000001",
+      receiptReference: "ASN-STOCK-001",
+      updatedAt: generatedAt,
+    };
+    const search = (query.get("search") ?? "").toLowerCase();
+    const items =
+      request.headers["x-swp-warehouse"] === secondWarehouseId ||
+      ![item.sku, item.location, item.loadExternalId].some((value) =>
+        value.toLowerCase().includes(search),
+      )
+        ? []
+        : [item];
+    response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
+    return;
+  }
+
   if (request.url === "/api/v1/operations/home") {
     response.end(
       JSON.stringify({

@@ -111,3 +111,52 @@ rejection, protected SSR, production browser navigation, audit links, language,
 theme, mobile reflow, and axe accessibility. The existing legacy-only 15 lint
 warnings remain; no checks were disabled. Remaining S2 work: inventory workspace,
 Live View/readable topology, and manual/contextual help.
+
+## Inventory visibility slice acceptance and decision
+
+Medium-risk read-model/UI change under the existing S2 plan; no new ADR or
+permission model is needed. First ship `/operations/inventory`: warehouse-scoped
+search and keyset pages with persisted stock, active reservation sum, unreserved
+quantity, state, readable location/load context and receipt history. Reuse
+`operations.view`; history remains gated by `audit.view`. This is not allocation
+authorization, stock adjustment, warehouse-wide totals, or physical observation.
+Never treat load's received quantity as current inventory balance. Quarantined or
+reserved inventory must not appear allocatable. Search/cursor are bounded and
+bound to warehouse/query. Test partial reservations, quarantined inventory,
+cross-warehouse lineage, pagination, unavailable/empty states and authenticated
+bilingual mobile accessibility. Full load/location workspaces remain subsequent
+S2 slices.
+
+## Inventory implementation and review
+
+Inventory search uses parameterized literal case-insensitive substring matching
+for SKU, external load ID and location (not SQL wildcard expansion). UUID keyset
+pagination is bound to warehouse and normalized search, with a 50-row default and
+100-row maximum. Inventory and load location joins both enforce warehouse scope.
+Active reservations are summed in the same SQL statement as each stock balance;
+released/consumed allocations do not count. Unreserved available-state stock is
+`max(0, balance - active reservations)` only for `available` inventory, otherwise
+zero. It is not allocation authorization or physical truth. Separate pages can
+observe mutations; refresh restarts traversal and resets loaded state.
+
+The existing outbound allocator currently considers available inventory state
+and active reservation quantity; subsequent execution validates configured
+location/topology/equipment. This read slice does not silently change allocation
+or claim that its residual quantity proves movement safety. Blocked/disabled
+locations, load-location disagreement and over-reservation display a review
+warning. Missing/foreign load lineage is excluded, not replaced with fabricated
+data. No global stock totals or unit-of-measure conversion is introduced.
+
+| Before                                             | After                                                           | Why                                                    |
+| -------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| Inventory is a bounded diagnostic table            | Dedicated searchable paginated workspace                        | Find older stock without reading code or raw IDs       |
+| Stock quantity appears without reservation context | Balance, active reservations and residual quantity are separate | Partial allocation must not make all stock appear free |
+| Inventory identity is detached from receipt/load   | Readable load/location/receipt context and gated evidence link  | Operators can trace the stock origin                   |
+| Primary navigation puts Tasks before Home          | Home, Tasks, Inventory precede warehouse diagnostics            | Preserve the system-first daily-work hierarchy         |
+
+Review scope is read authorization and warehouse isolation, not new identity or
+mutation enforcement. API/BFF guard tests, malformed-query tests, PostgreSQL
+partial-reservation/quarantine/pagination/foreign-lineage checks and production
+browser keyboard search, empty state, warehouse switching, locale/theme and axe
+mobile reflow cover this slice. Full Loads/Locations workspaces, outbound order
+history from stock and inventory adjustments remain unshipped.

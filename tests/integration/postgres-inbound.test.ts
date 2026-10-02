@@ -17,6 +17,7 @@ import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repos
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
+import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
 import { InsufficientInventoryError } from "../../apps/api/src/outbound/outbound.errors";
 import { PgOutboundRepository } from "../../apps/api/src/outbound/pg-outbound.repository";
 import type {
@@ -902,6 +903,94 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     await expect(
       service.getDetail(warehouseId, identifiers.transportTaskId),
     ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("projects scoped stock and reservation balances without treating received load quantity as current stock", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "UPDATE loads SET current_location_id = $1, status = 'stored' WHERE id = $2",
+      [command.destinationLocationId, identifiers.loadId],
+    );
+    await pool.query(
+      "INSERT INTO inventory_units (id, load_id, sku, quantity, location_id, status) VALUES ($1,$2,$3,24,$4,'available')",
+      [
+        "81000000-0000-4000-8000-000000000001",
+        identifiers.loadId,
+        command.load.sku,
+        command.destinationLocationId,
+      ],
+    );
+    await new PgOutboundRepository(pool).create(
+      outboundCommand,
+      outboundIdentifiers,
+      requestHash(outboundCommand),
+    );
+    const service = new InventoryProjectionService(pool);
+    const projected = await service.list(warehouseId, {
+      search: "integration",
+    });
+    expect(projected.items).toHaveLength(1);
+    expect(projected.items[0]).toMatchObject({
+      quantity: 24,
+      reservedQuantity: 10,
+      unreservedQuantity: 14,
+      loadExternalId: command.load.externalId,
+      receiptId: identifiers.receiptId,
+    });
+    expect((await service.list(otherWarehouseId)).items).toEqual([]);
+    expect((await service.list(warehouseId, { search: "%" })).items).toEqual(
+      [],
+    );
+    await pool.query(
+      "UPDATE inventory_units SET quantity = 20, status = 'quarantined'",
+    );
+    expect((await service.list(warehouseId)).items[0]).toMatchObject({
+      quantity: 20,
+      reservedQuantity: 10,
+      unreservedQuantity: 0,
+    });
+    await pool.query(
+      "INSERT INTO loads (id, external_id, receipt_id, sku, quantity, status, current_location_id) SELECT '41000000-0000-4000-8000-000000000002', 'SECOND-PALLET', receipt_id, sku, 5, status, current_location_id FROM loads WHERE id = $1",
+      [identifiers.loadId],
+    );
+    await pool.query(
+      "INSERT INTO inventory_units (id, load_id, sku, quantity, location_id, status) SELECT '81000000-0000-4000-8000-000000000002', id, sku, 5, current_location_id, 'available' FROM loads WHERE id = '41000000-0000-4000-8000-000000000002'",
+    );
+    const first = await service.list(warehouseId, { limit: 1 });
+    expect(first.nextCursor).toBeTruthy();
+    const second = await service.list(warehouseId, {
+      limit: 1,
+      cursor: first.nextCursor,
+    });
+    expect(second.items[0].inventoryUnitId).not.toBe(
+      first.items[0].inventoryUnitId,
+    );
+    expect(second.nextCursor).toBeNull();
+    await expect(
+      service.list(otherWarehouseId, { cursor: first.nextCursor }),
+    ).rejects.toMatchObject({ status: 400 });
+    await pool.query(
+      "INSERT INTO warehouses (id, code, name) VALUES ($1, 'FOREIGN-INVENTORY', 'Foreign') ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    await pool.query(
+      "INSERT INTO locations (id, warehouse_id, code, kind, capabilities) VALUES ('21000000-0000-4000-8000-000000000099',$1,'FOREIGN','storage',ARRAY['inventory.store']) ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    await pool.query(
+      "UPDATE loads SET current_location_id = '21000000-0000-4000-8000-000000000099' WHERE id = $1",
+      [identifiers.loadId],
+    );
+    expect(
+      (await service.list(warehouseId)).items.map(
+        (item) => item.inventoryUnitId,
+      ),
+    ).toEqual([second.items[0].inventoryUnitId]);
   });
 
   it("persists only monotonic equipment observations and rejects older evidence", async () => {

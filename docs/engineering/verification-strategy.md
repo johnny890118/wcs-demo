@@ -28,6 +28,16 @@
 
 ## Current S2 Home baseline
 
+The first inventory visibility checkpoint passes 313 fast tests, 17 ephemeral
+PostgreSQL integration tests and 24 production-build Chromium E2E checks in the
+complete `npm run verify`; the API build passes separately. New evidence covers
+inventory read permissions/scope, bounded scalar search, warehouse/search-bound
+keyset cursors, literal wildcard searches, partial outbound reservations,
+quarantined residual quantity, stock-versus-received-load quantity, foreign load
+lineage, keyboard search/empty state, audit links, warehouse switching and
+bilingual mobile light/dark axe/reflow. The prior slice counts below are retained
+as historical evidence. Legacy lint warnings remain at 15 with no new errors.
+
 The task queue/detail checkpoint passes the complete `npm run verify`: 300 fast
 tests, 16 ephemeral PostgreSQL integration tests, and 23 production-build Chromium
 E2E checks. `npm run build:api` also passes. Task coverage adds scoped read guards,

@@ -1,4 +1,25 @@
 export const en = {
+  inventoryDescription:
+    "Persisted stock balances, reservations and readable load/location context for the current warehouse.",
+  inventorySearch: "Search SKU, load or location",
+  inventorySearchAction: "Search",
+  inventoryClearSearch: "Clear",
+  inventoryUnavailable:
+    "Inventory data is temporarily unavailable. Existing results are not current.",
+  inventoryEmpty: "No inventory matches this warehouse and search.",
+  inventoryBalance: "Stock balance",
+  inventoryReserved: "Reserved for outbound",
+  inventoryUnreserved: "Unreserved available-state stock",
+  inventoryOrigin: "Inbound receipt",
+  inventoryStateAvailable: "Available-state stock",
+  inventoryStateReserved: "Reserved-state stock",
+  inventoryStateQuarantined: "Quarantined — not available for allocation",
+  inventoryReviewRequired:
+    "Review location or reservation evidence before any movement. This read view does not authorize execution.",
+  inventoryLoadMore: "Load more inventory",
+  inventoryRefresh: "Refresh inventory",
+  inventoryQuantityNotice:
+    "Balances are persisted inventory, not the load's original received quantity or a physical observation. Unreserved available-state stock deducts active outbound reservations; reserved/quarantined states show zero. These figures do not establish safe allocation or movement: location, topology, equipment and execution checks still apply. Pages are observations, not a snapshot or warehouse total; refresh for changes.",
   taskQueueTitle: "Tasks",
   taskQueueDescription:
     "Review warehouse work by source, destination, order, and outcome. Open a task for its load, route, exception, and history context.",
@@ -397,6 +418,26 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  inventoryDescription:
+    "目前倉庫的帳面庫存、配貨保留量，以及可閱讀的載具與位置情境。",
+  inventorySearch: "搜尋 SKU、載具或位置",
+  inventorySearchAction: "搜尋",
+  inventoryClearSearch: "清除",
+  inventoryUnavailable: "庫存資料暫時無法取得，現有結果不代表最新狀態。",
+  inventoryEmpty: "目前倉庫與搜尋條件沒有符合的庫存。",
+  inventoryBalance: "帳面庫存量",
+  inventoryReserved: "出庫保留量",
+  inventoryUnreserved: "可用狀態未保留量",
+  inventoryOrigin: "入庫單據",
+  inventoryStateAvailable: "可用狀態庫存",
+  inventoryStateReserved: "保留狀態庫存",
+  inventoryStateQuarantined: "隔離中 — 不可配貨",
+  inventoryReviewRequired:
+    "搬移前請檢查位置或保留量證據，此唯讀畫面不授權執行。",
+  inventoryLoadMore: "載入更多庫存",
+  inventoryRefresh: "重新整理庫存",
+  inventoryQuantityNotice:
+    "數量來自已保存的庫存帳，不是載具原始收貨量或實體觀測。可用狀態未保留量扣除有效出庫保留量，保留／隔離狀態顯示零；不代表可安全配貨或搬移，仍需位置、路線、設備與執行檢查。分頁是讀取觀測而非快照或全倉總計，變動後請重新整理。",
   taskQueueTitle: "任務",
   taskQueueDescription:
     "依起點、終點、來源單據與結果檢視倉庫作業；開啟任務以查看載具、路線、異常與歷程。",

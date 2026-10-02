@@ -30,6 +30,7 @@ export function OperationsShell({
   current?:
     | "overview"
     | "tasks"
+    | "inventory"
     | "warehouse"
     | "inbound"
     | "outbound"
@@ -95,6 +96,18 @@ export function OperationsShell({
           </Link>
           <nav aria-label={t("desktopNavigation")} className="space-y-1">
             <Link
+              href="/operations"
+              aria-current={current === "overview" ? "page" : undefined}
+              className={`ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                current === "overview"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                  : "text-[var(--text-muted)]"
+              }`}
+            >
+              <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
+              {t("overview")}
+            </Link>
+            <Link
               href="/operations/tasks"
               aria-current={current === "tasks" ? "page" : undefined}
               className={`ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
@@ -107,16 +120,19 @@ export function OperationsShell({
               {t("taskQueueTitle")}
             </Link>
             <Link
-              href="/operations"
-              aria-current={current === "overview" ? "page" : undefined}
+              href="/operations/inventory"
+              aria-current={current === "inventory" ? "page" : undefined}
               className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "overview"
+                current === "inventory"
                   ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                   : "text-[var(--text-muted)]"
               }`}
             >
-              <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-              {t("overview")}
+              <ClipboardDocumentListIcon
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
+              {t("inventory")}
             </Link>
             <Link
               href="/operations/warehouse"
@@ -264,6 +280,17 @@ export function OperationsShell({
               className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
             >
               <Link
+                href="/operations"
+                aria-current={current === "overview" ? "page" : undefined}
+                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
+                  current === "overview"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
+                {t("overview")}
+              </Link>
+              <Link
                 href="/operations/tasks"
                 aria-current={current === "tasks" ? "page" : undefined}
                 className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
@@ -275,15 +302,15 @@ export function OperationsShell({
                 {t("taskQueueTitle")}
               </Link>
               <Link
-                href="/operations"
-                aria-current={current === "overview" ? "page" : undefined}
+                href="/operations/inventory"
+                aria-current={current === "inventory" ? "page" : undefined}
                 className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "overview"
+                  current === "inventory"
                     ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                     : "text-[var(--text-muted)]"
                 }`}
               >
-                {t("overview")}
+                {t("inventory")}
               </Link>
               <Link
                 href="/operations/warehouse"

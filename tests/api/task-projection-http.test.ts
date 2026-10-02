@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
 import { TaskProjectionController } from "../../apps/api/src/operations/task-projection.controller";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
+import { InventoryProjectionController } from "../../apps/api/src/operations/inventory-projection.controller";
+import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
 import {
   testOperationalAccess,
@@ -13,17 +15,18 @@ import {
 
 describe("task projection HTTP authorization", () => {
   let app: INestApplication;
-  const service = { getQueue: vi.fn(), getDetail: vi.fn() };
+  const service = { getQueue: vi.fn(), getDetail: vi.fn(), list: vi.fn() };
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-task-projection-service-token";
     process.env.API_SERVICE_ID = "test-bff";
     process.env.API_SERVICE_PERMISSIONS = "operations.view";
     vi.clearAllMocks();
     const testingModule = await Test.createTestingModule({
-      controllers: [TaskProjectionController],
+      controllers: [TaskProjectionController, InventoryProjectionController],
       providers: [
         ServiceTokenGuard,
         { provide: TaskProjectionService, useValue: service },
+        { provide: InventoryProjectionService, useValue: service },
       ],
     }).compile();
     app = testingModule.createNestApplication();
@@ -47,6 +50,7 @@ describe("task projection HTTP authorization", () => {
     return pending;
   }
   it.each([
+    "/api/v1/operations/inventory",
     "/api/v1/operations/tasks",
     "/api/v1/operations/tasks/50000000-0000-4000-8000-000000000001",
   ])(
@@ -74,6 +78,7 @@ describe("task projection HTTP authorization", () => {
       ).toBe(403);
       expect(service.getQueue).not.toHaveBeenCalled();
       expect(service.getDetail).not.toHaveBeenCalled();
+      expect(service.list).not.toHaveBeenCalled();
     },
   );
   it("passes only the guard-validated warehouse to queue and detail", async () => {

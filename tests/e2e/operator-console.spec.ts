@@ -12,6 +12,48 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("inventory explains partial reservations with searchable accessible warehouse context", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/inventory");
+  await expect(
+    page.getByRole("heading", { name: "SKU-STOCK-001 · STORAGE-01" }),
+  ).toBeVisible();
+  await expect(page.getByText("出庫保留量", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "查看入庫單稽核證據" }),
+  ).toHaveAttribute("href", /resourceType=InboundReceipt/);
+  await page.getByLabel("搜尋 SKU、載具或位置").fill("missing");
+  await page.getByLabel("搜尋 SKU、載具或位置").press("Enter");
+  await expect(
+    page.getByText("目前倉庫與搜尋條件沒有符合的庫存。"),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "清除", exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(
+    await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth <=
+        document.documentElement.clientWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: test.info().outputPath("inventory-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Light", exact: true }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page
+    .getByRole("combobox")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(
+    page.getByRole("heading", { name: "SKU-STOCK-001 · STORAGE-01" }),
+  ).toHaveCount(0);
+});
+
 test("task queue and detail expose contextual evidence across accessible warehouse views", async ({
   page,
 }) => {
@@ -168,6 +210,7 @@ test("login and every operations route enforce the private surface boundary", as
   for (const path of [
     "/operations",
     "/operations/tasks",
+    "/operations/inventory",
     "/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/operations/warehouse",
     "/operations/projections",

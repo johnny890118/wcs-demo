@@ -175,6 +175,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 
 - [x] First actionable Home slice: server-classified attention/work, readable locations/states, bounded coverage, freshness, and responsive bilingual presentation
 - [x] Scoped active/all task queue with keyset pagination; task detail with work/load, recorded route, open alarm, and permission-gated audit context
+- [x] First inventory workspace: scoped search/keyset pages, stock/reservation balances, load/location context and receipt evidence links
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
@@ -230,7 +231,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S2 with inventory/load/location visibility after the Home and task
-queue/detail checkpoints. Reuse warehouse-scoped facts and keep unknown outcomes
+Continue S2 with full load/location workspaces after Home, task queue/detail and
+the first inventory visibility checkpoint. Reuse scoped facts and keep unknown outcomes
 explicit. Live View and manual slices follow the
 active plan; Public Demo lifecycle remains S3.
