@@ -3,6 +3,7 @@ import {
   type ServicePermission,
 } from "../auth/permissions";
 import type { OperationalRuntime } from "../../../../src/application/access/operational-access";
+import { loadHumanLoginProtectionPolicy } from "../../../../src/application/access/login-protection";
 import { loadOperationalRuntime } from "../../../../src/infrastructure/runtime/operational-runtime";
 
 export type ApiRuntimeConfig = Readonly<{
@@ -66,6 +67,8 @@ export function validateApiRuntimeEnvironment(): ApiRuntimeConfig {
   if (unknown.length > 0) {
     throw new Error("API_SERVICE_PERMISSIONS contains an unknown permission.");
   }
+
+  loadHumanLoginProtectionPolicy();
 
   return loadApiRuntimeConfig();
 }

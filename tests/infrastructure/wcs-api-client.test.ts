@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  evaluateHumanLoginAttempt,
   fetchAuditEvents,
   issueHumanOperationalSession,
   loadWcsApiTimeoutMs,
@@ -10,6 +11,9 @@ import {
 import { testOperationalAccess } from "../fixtures/operational-access";
 
 const originalTimeout = process.env.INTERNAL_API_TIMEOUT_MS;
+const originalRevocationAttempts =
+  process.env.HUMAN_SESSION_REVOCATION_ATTEMPTS;
+const originalRevocationRetryMs = process.env.HUMAN_SESSION_REVOCATION_RETRY_MS;
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -18,6 +22,17 @@ afterEach(() => {
   } else {
     process.env.INTERNAL_API_TIMEOUT_MS = originalTimeout;
   }
+  if (originalRevocationAttempts === undefined) {
+    delete process.env.HUMAN_SESSION_REVOCATION_ATTEMPTS;
+  } else {
+    process.env.HUMAN_SESSION_REVOCATION_ATTEMPTS = originalRevocationAttempts;
+  }
+  if (originalRevocationRetryMs === undefined) {
+    delete process.env.HUMAN_SESSION_REVOCATION_RETRY_MS;
+  } else {
+    process.env.HUMAN_SESSION_REVOCATION_RETRY_MS = originalRevocationRetryMs;
+  }
+  vi.restoreAllMocks();
 });
 
 describe("WCS audit projection client", () => {
@@ -134,6 +149,30 @@ describe("WCS persisted human session client", () => {
     delete process.env.API_SERVICE_TOKEN;
   });
 
+  it("evaluates an opaque login attempt through the service boundary", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ allowed: false, retryAfterSeconds: 120 }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      evaluateHumanLoginAttempt("demo-credentials", "a".repeat(64), false),
+    ).resolves.toEqual({ allowed: false, retryAfterSeconds: 120 });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/human/login-attempts/evaluate"),
+      expect.objectContaining({
+        body: JSON.stringify({
+          identityProvider: "demo-credentials",
+          identifierFingerprint: "a".repeat(64),
+          accepted: false,
+        }),
+      }),
+    );
+    delete process.env.API_SERVICE_TOKEN;
+  });
+
   it("sends an explicit reason when revoking a session", async () => {
     process.env.API_SERVICE_TOKEN = "service-token-for-test";
     const fetchMock = vi.fn().mockResolvedValue({
@@ -147,6 +186,56 @@ describe("WCS persisted human session client", () => {
       expect.stringContaining(`/sessions/${session.sessionId}/revoke`),
       expect.objectContaining({ body: JSON.stringify({ reason: "sign_out" }) }),
     );
+    delete process.env.API_SERVICE_TOKEN;
+  });
+
+  it("retries transient revocation delivery and records recovery", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    process.env.HUMAN_SESSION_REVOCATION_ATTEMPTS = "3";
+    process.env.HUMAN_SESSION_REVOCATION_RETRY_MS = "10";
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        json: async () => ({ code: "UNAVAILABLE" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ revoked: true }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+    const stderr = vi.spyOn(process.stderr, "write").mockReturnValue(true);
+
+    await revokeHumanOperationalSession(session, "sign_out");
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(stderr.mock.calls.join(" ")).toContain(
+      "human_session_revocation_retry",
+    );
+    expect(stderr.mock.calls.join(" ")).toContain(
+      "human_session_revocation_delivered",
+    );
+    expect(stderr.mock.calls.join(" ")).not.toContain(session.sessionId);
+    delete process.env.API_SERVICE_TOKEN;
+  });
+
+  it("does not retry a terminal revocation denial", async () => {
+    process.env.API_SERVICE_TOKEN = "service-token-for-test";
+    process.env.HUMAN_SESSION_REVOCATION_RETRY_MS = "10";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({ code: "UNAUTHENTICATED" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(process.stderr, "write").mockReturnValue(true);
+
+    await expect(
+      revokeHumanOperationalSession(session, "sign_out"),
+    ).rejects.toThrow(/persisted operational session/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     delete process.env.API_SERVICE_TOKEN;
   });
 });

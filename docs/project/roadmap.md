@@ -162,7 +162,7 @@ Status: Active
 - [x] Add bounded multi-warehouse context selection and warehouse-scoped context-change evidence
 - [x] Resolve human permissions and warehouse-local grants from persistent assignments rather than deployment environment
 - [x] Persist active human sessions and add assignment revalidation, bounded expiry, sign-out/administrative revocation, and lifecycle evidence
-- [ ] Add failed-login evidence/throttling and revocation delivery/retry observability without guessing production retention duration
+- [x] Add failed-login evidence/throttling and revocation delivery/retry observability without guessing production retention duration
 
 ## S2 — Operational Work Center and Inventory Visibility
 
@@ -222,4 +222,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S1 with failed-login evidence/throttling and revocation delivery/retry observability; keep OIDC provider integration replaceable and out of this foundation slice.
+Run the required fresh-context S1 security review, resolve any load-bearing
+findings, and then reassess whether the next coherent milestone is S2 or a
+remaining S1 production-identity prerequisite. Keep OIDC provider integration
+replaceable and do not start Public Demo lifecycle work early.

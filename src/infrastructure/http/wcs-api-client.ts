@@ -43,6 +43,10 @@ import {
   isHumanSessionReference,
   type HumanSessionReference,
 } from "../../application/access/human-session";
+import {
+  isHumanLoginAttemptDecision,
+  type HumanLoginAttemptDecision,
+} from "../../application/access/login-protection";
 import { operationalAccessHeaders } from "./operational-access-headers";
 
 const defaultTimeoutMs = 55_000;
@@ -146,9 +150,23 @@ async function postHumanSession(path: string, body: unknown): Promise<unknown> {
   });
   const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error("No valid persisted operational session is available.");
+    throw new HumanSessionApiError(response.status);
   }
   return payload;
+}
+
+class HumanSessionApiError extends Error {
+  constructor(readonly status: number) {
+    super("No valid persisted operational session is available.");
+    this.name = "HumanSessionApiError";
+  }
+}
+
+class HumanSessionResponseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "HumanSessionResponseError";
+  }
 }
 
 function requireHumanSessionResolution(
@@ -182,6 +200,21 @@ export async function issueHumanOperationalSession(
   );
 }
 
+export async function evaluateHumanLoginAttempt(
+  identityProvider: string,
+  identifierFingerprint: string,
+  accepted: boolean,
+): Promise<HumanLoginAttemptDecision> {
+  const payload = await postHumanSession(
+    "/api/v1/access-context/human/login-attempts/evaluate",
+    { identityProvider, identifierFingerprint, accepted },
+  );
+  if (!isHumanLoginAttemptDecision(payload)) {
+    throw new Error("The login protection response is invalid.");
+  }
+  return payload;
+}
+
 export async function validateHumanOperationalSession(
   session: HumanSessionReference,
   access: OperationalAccess,
@@ -204,20 +237,98 @@ export async function revokeHumanOperationalSession(
   session: HumanSessionReference,
   reason: "sign_out" | "administrative" = "sign_out",
 ): Promise<void> {
-  const payload = await postHumanSession(
-    `/api/v1/access-context/human/sessions/${encodeURIComponent(
-      session.sessionId,
-    )}/revoke`,
-    { reason },
+  const attempts = boundedInteger("HUMAN_SESSION_REVOCATION_ATTEMPTS", 3, 1, 5);
+  const retryMs = boundedInteger(
+    "HUMAN_SESSION_REVOCATION_RETRY_MS",
+    250,
+    10,
+    5_000,
   );
-  if (
-    !payload ||
-    typeof payload !== "object" ||
-    Array.isArray(payload) ||
-    typeof (payload as Record<string, unknown>).revoked !== "boolean"
-  ) {
-    throw new Error("The operational session revocation response is invalid.");
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const payload = await postHumanSession(
+        `/api/v1/access-context/human/sessions/${encodeURIComponent(
+          session.sessionId,
+        )}/revoke`,
+        { reason },
+      );
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        Array.isArray(payload) ||
+        typeof (payload as Record<string, unknown>).revoked !== "boolean"
+      ) {
+        throw new HumanSessionResponseError(
+          "The operational session revocation response is invalid.",
+        );
+      }
+      if (attempt > 1) {
+        writeSessionDeliveryLog("human_session_revocation_delivered", {
+          attempt,
+          reason,
+        });
+      }
+      return;
+    } catch (error) {
+      const retryable = isRetryableSessionDeliveryError(error);
+      if (!retryable || attempt === attempts) {
+        writeSessionDeliveryLog("human_session_revocation_failed", {
+          attempt,
+          reason,
+          retryable,
+        });
+        throw error;
+      }
+      writeSessionDeliveryLog("human_session_revocation_retry", {
+        attempt,
+        reason,
+      });
+      await delay(retryMs * attempt);
+    }
   }
+}
+
+function isRetryableSessionDeliveryError(error: unknown): boolean {
+  if (error instanceof HumanSessionResponseError) return false;
+  return (
+    !(error instanceof HumanSessionApiError) ||
+    error.status === 429 ||
+    error.status >= 500
+  );
+}
+
+function boundedInteger(
+  name: string,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  const value = Number(process.env[name] ?? fallback);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    throw new Error(
+      `${name} must be an integer from ${minimum} to ${maximum}.`,
+    );
+  }
+  return value;
+}
+
+function delay(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function writeSessionDeliveryLog(
+  event: string,
+  details: Record<string, boolean | number | string>,
+): void {
+  process.stderr.write(
+    `${JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level: event.endsWith("failed") ? "error" : "warn",
+      context: "HumanSessionDelivery",
+      event,
+      ...details,
+    })}\n`,
+  );
 }
 
 export async function fetchOperationsSummary(

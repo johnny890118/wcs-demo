@@ -108,6 +108,9 @@ const deploymentProfile = validateOperationalRuntime();
 
 if (target === "api" || target === "all") {
   integer("HUMAN_SESSION_TTL_SECONDS", 28_800, 900, 86_400);
+  integer("HUMAN_LOGIN_FAILURE_LIMIT", 5, 3, 20);
+  integer("HUMAN_LOGIN_FAILURE_WINDOW_SECONDS", 900, 60, 86_400);
+  integer("HUMAN_LOGIN_THROTTLE_SECONDS", 900, 60, 86_400);
   const database = url("DATABASE_URL", ["postgres:", "postgresql:"]);
   if (
     process.env.DEPLOYMENT_ENV === "production" &&
@@ -139,6 +142,8 @@ if (target === "api" || target === "all") {
 
 if (target === "web" || target === "all") {
   integer("HUMAN_SESSION_TTL_SECONDS", 28_800, 900, 86_400);
+  integer("HUMAN_SESSION_REVOCATION_ATTEMPTS", 3, 1, 5);
+  integer("HUMAN_SESSION_REVOCATION_RETRY_MS", 250, 10, 5_000);
   const nextAuth = url("NEXTAUTH_URL", ["http:", "https:"]);
   const publicSite = url("PUBLIC_SITE_URL", ["http:", "https:"]);
   if (

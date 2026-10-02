@@ -2,6 +2,10 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loadOperationalRuntime } from "../../../src/infrastructure/auth/demo-identity";
 import {
+  credentialsMatch,
+  fingerprintLoginIdentifier,
+} from "../../../src/infrastructure/auth/credential-protection";
+import {
   isHumanSessionExpired,
   isHumanSessionReference,
   loadHumanSessionTtlSeconds,
@@ -12,6 +16,7 @@ import {
   selectCurrentWarehouse,
 } from "../../../src/application/access/operational-access";
 import {
+  evaluateHumanLoginAttempt,
   issueHumanOperationalSession,
   recordWarehouseContextChange,
   revokeHumanOperationalSession,
@@ -19,6 +24,7 @@ import {
 } from "../../../src/infrastructure/http/wcs-api-client";
 
 export async function authorize(credentials) {
+  const identityProvider = "demo-credentials";
   const username = process.env.DEMO_ADMIN_USERNAME;
   const password = process.env.DEMO_ADMIN_PASSWORD;
 
@@ -28,9 +34,24 @@ export async function authorize(credentials) {
     return null;
   }
 
-  if (credentials.username === username && credentials.password === password) {
+  const providedUsername =
+    typeof credentials.username === "string" ? credentials.username : "";
+  const providedPassword =
+    typeof credentials.password === "string" ? credentials.password : "";
+  const accepted = credentialsMatch(
+    providedUsername,
+    providedPassword,
+    username,
+    password,
+  );
+  const decision = await evaluateHumanLoginAttempt(
+    identityProvider,
+    fingerprintLoginIdentifier(identityProvider, providedUsername),
+    accepted,
+  );
+  if (accepted && decision.allowed) {
     const resolution = await issueHumanOperationalSession(
-      "demo-credentials",
+      identityProvider,
       "legacy-demo-admin",
     );
     return {

@@ -49,7 +49,8 @@ its maximum lifetime. The internal BFF/API boundary continues to require the
 dedicated `access.resolve` service permission.
 
 NextAuth's sign-out event calls the durable revocation endpoint before clearing
-the local cookie, but framework-level event failure cannot guarantee retry.
-Administrative session UI, revocation delivery/retry observability, failed-login
-evidence and throttling, OIDC integration, access review, and anonymous-demo
-session persistence remain separate work.
+the local cookie. [ADR 0019](0019-persisted-login-protection-and-revocation-delivery.md)
+adds bounded retry and structured delivery outcomes while retaining the explicit
+non-durable-delivery limitation. Administrative session UI, OIDC integration,
+access review, deployment-specific security-event retention/export, and
+anonymous-demo session persistence remain separate work.

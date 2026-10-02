@@ -24,7 +24,7 @@
 
 The original table is retained as discovery history. Current system-side gaps, in dependency order, are:
 
-1. The application still has a single credentials-backed human identity proof. Human grants, warehouse-local permissions, bounded active sessions, and explicit revocation now persist; every JWT restore revalidates current authority. OIDC, assignment administration/access review, failed-login evidence/throttling, revocation retry/administration UI, and the persisted public-demo lifecycle remain incomplete (S1/S3).
+1. The application still has a single credentials-backed human identity proof. Human grants, warehouse-local permissions, bounded active sessions, failed-proof evidence/throttling, and explicit revocation now persist; every JWT restore revalidates current authority, and sign-out revocation has bounded observable retry. OIDC, assignment administration/access review, durable revocation delivery/administration UI, security-event retention/export, and the persisted public-demo lifecycle remain incomplete (S1/S3/S8).
 2. The operational UI does not yet provide the approved actionable Home, task-centered work context, Operations Live View, or built-in manual/contextual help foundation (S2).
 3. Demo reset is still a global truncate that deletes operational audit rows. There is no first-class demo session, TTL/cleanup/quota/capacity lifecycle, or accountable scenario/replay product; S3 must isolate sessions, retain reset-governance evidence separately, and hard-deny production controls.
 4. WCS execution lacks product-level reconciliation, scheduling, shared-resource coordination, and governed warehouse/equipment configuration (S4–S6).

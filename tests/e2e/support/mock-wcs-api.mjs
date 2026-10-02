@@ -429,6 +429,29 @@ const server = createServer(async (request, response) => {
   }
   if (
     request.method === "POST" &&
+    request.url === "/api/v1/access-context/human/login-attempts/evaluate"
+  ) {
+    const body = await readBody(request);
+    if (
+      body.identityProvider !== "demo-credentials" ||
+      !/^[0-9a-f]{64}$/.test(body.identifierFingerprint) ||
+      typeof body.accepted !== "boolean"
+    ) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ code: "INVALID_LOGIN_ATTEMPT" }));
+      return;
+    }
+    response.statusCode = 201;
+    response.end(
+      JSON.stringify({
+        allowed: body.accepted,
+        retryAfterSeconds: null,
+      }),
+    );
+    return;
+  }
+  if (
+    request.method === "POST" &&
     request.url === "/api/v1/access-context/human/sessions"
   ) {
     const body = await readBody(request);

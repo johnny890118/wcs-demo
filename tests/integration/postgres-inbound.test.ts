@@ -7,6 +7,7 @@ import { PgInboundExecutionRepository } from "../../apps/api/src/execution/pg-in
 import { AuditProjectionService } from "../../apps/api/src/audit/audit-projection.service";
 import { AccessContextService } from "../../apps/api/src/access-context/access-context.service";
 import { HumanAccessAssignmentService } from "../../apps/api/src/access-context/human-access-assignment.service";
+import { HumanLoginProtectionService } from "../../apps/api/src/access-context/human-login-protection.service";
 import { requestContext } from "../../apps/api/src/logging/request-context";
 import { PgFaultRecoveryRepository } from "../../apps/api/src/execution/pg-fault-recovery.repository";
 import { PgOutboundExecutionRepository } from "../../apps/api/src/execution/pg-outbound-execution.repository";
@@ -100,7 +101,8 @@ function idFactory(): () => string {
 describeIntegration("PostgreSQL inbound vertical slice", () => {
   beforeEach(async () => {
     await pool?.query(
-      `TRUNCATE human_access_sessions, route_plan_edges, route_plans, audit_events, outbox_events, alarms,
+      `TRUNCATE authentication_security_events, human_login_throttles,
+        human_access_sessions, route_plan_edges, route_plans, audit_events, outbox_events, alarms,
         inventory_allocations, transport_tasks, outbound_orders, inventory_units,
         loads, inbound_receipts`,
     );
@@ -570,6 +572,59 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
         warehouseId,
       ),
     ).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("persists shared failed-login evidence and throttle state", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    process.env.HUMAN_LOGIN_FAILURE_LIMIT = "3";
+    process.env.HUMAN_LOGIN_THROTTLE_SECONDS = "120";
+    const service = new HumanLoginProtectionService(pool);
+    const fingerprint = "b".repeat(64);
+
+    try {
+      await expect(
+        requestContext.run({ requestId: "request:failed-login-001" }, () =>
+          service.evaluate("demo-credentials", fingerprint, false),
+        ),
+      ).resolves.toEqual({ allowed: false, retryAfterSeconds: null });
+      await service.evaluate("demo-credentials", fingerprint, false);
+      await expect(
+        service.evaluate("demo-credentials", fingerprint, false),
+      ).resolves.toEqual({ allowed: false, retryAfterSeconds: 120 });
+      await expect(
+        service.evaluate("demo-credentials", fingerprint, true),
+      ).resolves.toMatchObject({ allowed: false });
+
+      const state = await pool.query(
+        `SELECT failure_count, blocked_until IS NOT NULL AS blocked
+         FROM human_login_throttles
+         WHERE identity_provider = 'demo-credentials'
+           AND identifier_fingerprint = $1`,
+        [fingerprint],
+      );
+      const evidence = await pool.query(
+        `SELECT outcome, count(*)::integer AS count
+         FROM authentication_security_events
+         GROUP BY outcome
+         ORDER BY outcome`,
+      );
+      const correlated = await pool.query(
+        `SELECT correlation_id
+         FROM authentication_security_events
+         WHERE correlation_id = 'request:failed-login-001'`,
+      );
+      expect(state.rows).toEqual([{ failure_count: 3, blocked: true }]);
+      expect(evidence.rows).toEqual([
+        { outcome: "failed", count: 3 },
+        { outcome: "throttled", count: 1 },
+      ]);
+      expect(correlated.rows).toEqual([
+        { correlation_id: "request:failed-login-001" },
+      ]);
+    } finally {
+      delete process.env.HUMAN_LOGIN_FAILURE_LIMIT;
+      delete process.env.HUMAN_LOGIN_THROTTLE_SECONDS;
+    }
   });
 
   it("returns data-backed operations projections without inferring missing state", async () => {

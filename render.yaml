@@ -28,6 +28,12 @@ services:
         value: 1
       - key: HUMAN_SESSION_TTL_SECONDS
         value: 28800
+      - key: HUMAN_LOGIN_FAILURE_LIMIT
+        value: 5
+      - key: HUMAN_LOGIN_FAILURE_WINDOW_SECONDS
+        value: 900
+      - key: HUMAN_LOGIN_THROTTLE_SECONDS
+        value: 900
       - key: SWP_LIFECYCLE_ENVIRONMENT
         value: production
       - key: SWP_DEPLOYMENT_PROFILE

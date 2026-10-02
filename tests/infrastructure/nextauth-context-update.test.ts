@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { testOperationalAccess } from "../fixtures/operational-access";
 
 vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
+  evaluateHumanLoginAttempt: vi.fn(),
   issueHumanOperationalSession: vi.fn(),
   recordWarehouseContextChange: vi.fn(),
   revokeHumanOperationalSession: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
 
 import { authOptions, authorize } from "../../pages/api/auth/[...nextauth]";
 import {
+  evaluateHumanLoginAttempt,
   issueHumanOperationalSession,
   recordWarehouseContextChange,
   revokeHumanOperationalSession,
@@ -40,6 +42,11 @@ const multiWarehouseAccess = {
 describe("NextAuth persisted human sessions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.NEXTAUTH_SECRET = "s".repeat(40);
+    vi.mocked(evaluateHumanLoginAttempt).mockResolvedValue({
+      allowed: true,
+      retryAfterSeconds: null,
+    });
     vi.mocked(recordWarehouseContextChange).mockResolvedValue({
       currentWarehouseId: targetWarehouseId,
     });
@@ -50,6 +57,10 @@ describe("NextAuth persisted human sessions", () => {
     vi.mocked(validateHumanOperationalSession).mockImplementation(
       async (session, access) => ({ session, access }),
     );
+  });
+
+  afterEach(() => {
+    delete process.env.NEXTAUTH_SECRET;
   });
 
   it("uses credentials only as identity proof and issues a persisted session", async () => {
@@ -72,6 +83,56 @@ describe("NextAuth persisted human sessions", () => {
       "demo-credentials",
       "legacy-demo-admin",
     );
+    expect(evaluateHumanLoginAttempt).toHaveBeenCalledWith(
+      "demo-credentials",
+      expect.stringMatching(/^[0-9a-f]{64}$/),
+      true,
+    );
+
+    delete process.env.DEMO_ADMIN_USERNAME;
+    delete process.env.DEMO_ADMIN_PASSWORD;
+  });
+
+  it("records rejected proof and returns the same generic denial", async () => {
+    const password = ["configured", "password", "safe-length"].join("-");
+    const rejectedPassword = ["wrong", "password"].join("-");
+    process.env.DEMO_ADMIN_USERNAME = "configured-user";
+    process.env.DEMO_ADMIN_PASSWORD = password;
+    vi.mocked(evaluateHumanLoginAttempt).mockResolvedValue({
+      allowed: false,
+      retryAfterSeconds: null,
+    });
+
+    await expect(
+      authorize({ username: "configured-user", password: rejectedPassword }),
+    ).resolves.toBeNull();
+    expect(evaluateHumanLoginAttempt).toHaveBeenCalledWith(
+      "demo-credentials",
+      expect.stringMatching(/^[0-9a-f]{64}$/),
+      false,
+    );
+    expect(issueHumanOperationalSession).not.toHaveBeenCalled();
+
+    delete process.env.DEMO_ADMIN_USERNAME;
+    delete process.env.DEMO_ADMIN_PASSWORD;
+  });
+
+  it("denies accepted proof while the persisted throttle is active", async () => {
+    const password = ["configured", "password", "safe-length"].join("-");
+    process.env.DEMO_ADMIN_USERNAME = "configured-user";
+    process.env.DEMO_ADMIN_PASSWORD = password;
+    vi.mocked(evaluateHumanLoginAttempt).mockResolvedValue({
+      allowed: false,
+      retryAfterSeconds: 300,
+    });
+
+    await expect(
+      authorize({
+        username: "configured-user",
+        password,
+      }),
+    ).resolves.toBeNull();
+    expect(issueHumanOperationalSession).not.toHaveBeenCalled();
 
     delete process.env.DEMO_ADMIN_USERNAME;
     delete process.env.DEMO_ADMIN_PASSWORD;

@@ -13,6 +13,9 @@ The supported product entry and authenticated, simulator-backed operations conso
 - Operational access is an effective-permission plus warehouse-scope contract. A multi-warehouse context change accepts only an in-scope target UUID through the CSRF-protected signed-session update path, persists source/destination-scoped audit evidence before changing the claim, and leaves the prior context active on failure.
 - Human grants are resolved from active, time-bounded persisted assignments by stable identity-provider/subject after identity proof. Each warehouse assignment owns its effective permissions; the BFF needs the dedicated `access.resolve` service permission, and no browser or environment value grants human authorization.
 - Human JWTs reference a persisted, bounded session that is revalidated against current principal, assignment, expiry, and revocation state on restore. Unknown registry state removes operational authority; sign-out and administrative revocation record session-linked evidence.
+- The demo credentials adapter compares fixed-size digests, sends only a keyed identifier fingerprint and proof outcome to the API, and uses PostgreSQL-backed failure windows shared across web instances. Failed and throttled attempts are durable security evidence without claiming an unproven actor or warehouse. Login denial remains generic.
+- Sign-out revocation retries bounded transient delivery failures and emits structured retry/recovered/exhausted outcomes without session identifiers. This is observable but not a durable queue; production identity enablement requires provider-specific sign-out and alert policy.
+- The persisted per-identifier throttle is not an edge abuse-control substitute. Production identity enablement requires trusted ingress rate controls plus an approved security-event retention/export policy so attempts spread across arbitrary identifiers cannot create unbounded evidence growth.
 
 ## Required baseline
 
