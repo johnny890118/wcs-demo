@@ -12,6 +12,72 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("navigation signals SSR waiting and Home refresh uses one bounded read", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await signIn(page, "/operations");
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (
+      [
+        "/api/operations/overview",
+        "/api/operations/home",
+        "/api/operations/summary",
+      ].some((path) => request.url().endsWith(path))
+    )
+      requests.push(new URL(request.url()).pathname);
+  });
+  const response = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/operations/overview") &&
+      response.status() === 200,
+  );
+  await page.clock.fastForward(10010);
+  const initialResponse = await response;
+  expect(requests).toEqual(["/api/operations/overview"]);
+  const initialPayload = await initialResponse.json();
+  await page.route("**/api/operations/overview", (route) =>
+    route.fulfill({
+      status: 200,
+      json: { home: null, summary: initialPayload.summary },
+    }),
+  );
+  await page.clock.fastForward(10010);
+  await expect(
+    page.getByRole("status").filter({ hasText: "目前觀測無法更新" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("目前投影沒有待處理事項。", { exact: true }),
+  ).toHaveCount(0);
+  await page.unroute("**/api/operations/overview");
+  let release: () => void = () => {};
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/_next/data/**/operations/tasks.json*", async (route) => {
+    await ready;
+    await route.continue();
+  });
+  const navigation = page
+    .getByRole("navigation", { name: "操作台桌面版導覽" })
+    .getByRole("link", { name: "任務", exact: true })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "正在開啟工作區" }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("navigation-pending.png"),
+    fullPage: true,
+  });
+  release();
+  await navigation;
+  await expect(page).toHaveURL("/operations/tasks");
+  await expect(
+    page.getByRole("status").filter({ hasText: "正在開啟工作區" }),
+  ).toHaveCount(0);
+});
+
 test("locations explain configured states and record counts without occupancy claims", async ({
   page,
 }) => {

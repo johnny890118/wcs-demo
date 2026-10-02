@@ -15,6 +15,11 @@ Each requires runtime review, full verification, clean commit/push/CI and deploy
 confirmation before resuming the next S2 feature slice. Keep both separate from
 the currently active Locations capability.
 
+Locations is now complete as two independent read-model/UI checkpoints.
+The queued navigation/identity cleanup is tracked in
+`s2-navigation-quality-plan.md`; after both clean deployed checkpoints, continue
+Live View and manual/contextual help without an Owner acceptance gate.
+
 Owner confirmed on 2026-10-03: after each verified, pushed, CI-stable clean
 checkpoint, continue directly to the next coherent roadmap slice. Routine
 checkpoint acceptance is not an Owner gate. Stop only for an Owner-only decision

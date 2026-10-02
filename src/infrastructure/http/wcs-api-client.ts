@@ -72,6 +72,10 @@ import {
   type HumanLoginAttemptDecision,
 } from "../../application/access/login-protection";
 import { operationalAccessHeaders } from "./operational-access-headers";
+import {
+  isOperationsOverview,
+  type OperationsOverview,
+} from "../../application/operations/operations-overview";
 
 const defaultTimeoutMs = 55_000;
 
@@ -437,6 +441,18 @@ function writeSessionDeliveryLog(
       ...details,
     })}\n`,
   );
+}
+
+export async function fetchOperationsOverview(
+  access: OperationalAccess,
+): Promise<OperationsOverview> {
+  const payload = await fetchWcsProjection(
+    "/api/v1/operations/overview",
+    access,
+  );
+  if (!isOperationsOverview(payload))
+    throw new Error("Invalid operations overview.");
+  return payload;
 }
 
 export async function fetchOperationsSummary(

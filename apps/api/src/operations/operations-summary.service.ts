@@ -1,7 +1,8 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import type { Pool } from "pg";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
+import type { OperationsOverview } from "../../../../src/application/operations/operations-overview";
 import {
   projectOperationsHome,
   type OperationsHome,
@@ -106,6 +107,7 @@ export const equipmentTelemetryFreshAfterMs = 30_000;
 
 @Injectable()
 export class OperationsSummaryService {
+  private readonly logger = new Logger(OperationsSummaryService.name);
   constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
   async getSummary(warehouseId: string): Promise<OperationsSummary> {
@@ -181,6 +183,24 @@ export class OperationsSummaryService {
     return projectOperationsHome(await this.getDetails(warehouseId, true));
   }
 
+  async getOverview(warehouseId: string): Promise<OperationsOverview> {
+    const [home, summary] = await Promise.allSettled([
+      this.getHome(warehouseId),
+      this.getSummary(warehouseId),
+    ]);
+    if (home.status !== "fulfilled" || summary.status !== "fulfilled") {
+      this.logger.warn({
+        event: "operations.overview.partial",
+        homeAvailable: home.status === "fulfilled",
+        summaryAvailable: summary.status === "fulfilled",
+      });
+    }
+    return {
+      home: home.status === "fulfilled" ? home.value : null,
+      summary: summary.status === "fulfilled" ? summary.value : null,
+    };
+  }
+
   async getDetails(
     warehouseId: string,
     home = false,
@@ -248,8 +268,10 @@ export class OperationsSummaryService {
          LIMIT 100`,
           [warehouseId, home],
         ),
-        this.pool.query<LocationRow>(
-          `SELECT location.id, location.code, location.kind, location.status,
+        home
+          ? Promise.resolve({ rows: [] as LocationRow[] })
+          : this.pool.query<LocationRow>(
+              `SELECT location.id, location.code, location.kind, location.status,
           location.capabilities, binding.node_id AS active_node_id
          FROM locations location
          LEFT JOIN warehouse_topologies topology
@@ -262,16 +284,18 @@ export class OperationsSummaryService {
          WHERE location.warehouse_id = $1
          ORDER BY location.code
          LIMIT 500`,
-          [warehouseId],
-        ),
-        this.pool.query<TopologyRow>(
-          `SELECT id, revision
+              [warehouseId],
+            ),
+        home
+          ? Promise.resolve({ rows: [] as TopologyRow[] })
+          : this.pool.query<TopologyRow>(
+              `SELECT id, revision
          FROM warehouse_topologies
          WHERE warehouse_id = $1 AND status = 'active'
          ORDER BY activated_at DESC NULLS LAST, revision DESC
          LIMIT 1`,
-          [warehouseId],
-        ),
+              [warehouseId],
+            ),
       ]);
     const activeTopology = topology.rows[0];
     const [nodes, edges] = activeTopology

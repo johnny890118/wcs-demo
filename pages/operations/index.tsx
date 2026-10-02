@@ -10,13 +10,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsSummary } from "../../src/application/operations/operations-summary";
-import { isOperationsSummary } from "../../src/application/operations/operations-summary";
-import {
-  isOperationsHome,
-  type OperationsHome,
-} from "../../src/application/operations/operations-home";
-import { fetchOperationsSummary } from "../../src/infrastructure/http/wcs-api-client";
-import { fetchOperationsHome } from "../../src/infrastructure/http/wcs-api-client";
+import { type OperationsHome } from "../../src/application/operations/operations-home";
+import { isOperationsOverview } from "../../src/application/operations/operations-overview";
+import { fetchOperationsOverview } from "../../src/infrastructure/http/wcs-api-client";
 import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
@@ -25,36 +21,25 @@ import { authOptions } from "../api/auth/[...nextauth]";
 type PageProps = {
   summary: OperationsSummary | null;
   home: OperationsHome | null;
+  warehouseId: string;
 };
 
-export default function OperationsPage({ summary, home }: PageProps) {
+export default function OperationsPage(props: PageProps) {
+  return (
+    <OperationsHomeView
+      key={`${props.warehouseId}:${props.home?.generatedAt ?? "none"}:${
+        props.summary?.generatedAt ?? "none"
+      }`}
+      {...props}
+    />
+  );
+}
+function OperationsHomeView({ summary, home }: PageProps) {
   const { locale, t } = useLocale();
   const [liveSummary, setLiveSummary] = useState(summary);
   const [isLive, setIsLive] = useState(summary !== null);
   const [liveHome, setLiveHome] = useState(home);
   const [homeLive, setHomeLive] = useState(home !== null);
-
-  useEffect(() => {
-    let active = true;
-    const refresh = async () => {
-      try {
-        const response = await fetch("/api/operations/summary");
-        const payload: unknown = await response.json();
-        if (!response.ok || !isOperationsSummary(payload)) throw new Error();
-        if (active) {
-          setLiveSummary(payload);
-          setIsLive(true);
-        }
-      } catch {
-        if (active) setIsLive(false);
-      }
-    };
-    const interval = window.setInterval(() => void refresh(), 10_000);
-    return () => {
-      active = false;
-      window.clearInterval(interval);
-    };
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -64,17 +49,22 @@ export default function OperationsPage({ summary, home }: PageProps) {
       if (refreshing) return;
       refreshing = true;
       try {
-        const response = await fetch("/api/operations/home", {
+        const response = await fetch("/api/operations/overview", {
           signal: controller.signal,
         });
         const payload: unknown = await response.json();
-        if (!response.ok || !isOperationsHome(payload)) throw new Error();
+        if (!response.ok || !isOperationsOverview(payload)) throw new Error();
         if (active) {
-          setLiveHome(payload);
-          setHomeLive(true);
+          if (payload.home) setLiveHome(payload.home);
+          if (payload.summary) setLiveSummary(payload.summary);
+          setHomeLive(payload.home !== null);
+          setIsLive(payload.summary !== null);
         }
       } catch {
-        if (active) setHomeLive(false);
+        if (active) {
+          setHomeLive(false);
+          setIsLive(false);
+        }
       } finally {
         refreshing = false;
       }
@@ -218,11 +208,11 @@ export default function OperationsPage({ summary, home }: PageProps) {
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : homeLive ? (
             <p className="mt-4 text-sm text-[var(--text-muted)]">
               {t("noAttentionRequired")}
             </p>
-          )
+          ) : null
         ) : null}
       </section>
       <section
@@ -266,11 +256,11 @@ export default function OperationsPage({ summary, home }: PageProps) {
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : homeLive ? (
             <p className="mt-4 text-sm text-[var(--text-muted)]">
               {t("noCurrentWork")}
             </p>
-          )
+          ) : null
         ) : null}
       </section>
       <nav
@@ -281,7 +271,7 @@ export default function OperationsPage({ summary, home }: PageProps) {
           ["/operations/tasks", "taskQueueTitle"],
           ["/operations/inbound", "inbound"],
           ["/operations/outbound", "outbound"],
-          ["/operations/projections", "inventory"],
+          ["/operations/inventory", "inventory"],
         ].map(([href, label]) => (
           <Link
             key={href}
@@ -401,12 +391,24 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     };
   }
 
-  const [summaryResult, homeResult] = await Promise.allSettled([
-    fetchOperationsSummary(access.access),
-    fetchOperationsHome(access.access),
-  ]);
-  const summary =
-    summaryResult.status === "fulfilled" ? summaryResult.value : null;
-  const home = homeResult.status === "fulfilled" ? homeResult.value : null;
-  return { props: { session, summary, home } };
+  try {
+    const { summary, home } = await fetchOperationsOverview(access.access);
+    return {
+      props: {
+        session,
+        summary,
+        home,
+        warehouseId: access.access.currentWarehouseId,
+      },
+    };
+  } catch {
+    return {
+      props: {
+        session,
+        summary: null,
+        home: null,
+        warehouseId: access.access.currentWarehouseId,
+      },
+    };
+  }
 };

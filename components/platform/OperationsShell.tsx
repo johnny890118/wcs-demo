@@ -21,6 +21,7 @@ import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
 import { WarehouseContextControl } from "./WarehouseContextControl";
+import { NavigationProgress } from "./NavigationProgress";
 
 export function OperationsShell({
   children,
@@ -77,6 +78,7 @@ export function OperationsShell({
 
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
+      <NavigationProgress />
       <a
         href="#main-content"
         className="absolute left-3 top-3 z-50 -translate-y-20 rounded-md bg-[var(--text)] px-3 py-2 text-sm font-semibold text-[var(--surface)] focus:translate-y-0"

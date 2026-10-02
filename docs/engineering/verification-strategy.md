@@ -28,6 +28,14 @@
 
 ## Current S2 Home baseline
 
+The navigation-quality slice adds overview query-budget/partial-contract,
+per-request BFF authorization, route-event cleanup and PostgreSQL scoped output
+equivalence checks. Full acceptance is 366 fast tests, 19 PostgreSQL integration
+tests and 27 production-build E2E checks plus API build. Browser evidence covers
+single combined background refresh, partial Home failure preserving stale
+evidence and feedback during held SSR navigation. Auth validation implementation
+and its existing revocation/context-switch regression coverage are unchanged.
+
 The Locations operator workspace extends the baseline to 352 fast tests,
 19 PostgreSQL integration tests and 26 production-build E2E checks, plus API
 build. Authenticated keyboard search, failed pagination retaining existing

@@ -1,4 +1,5 @@
 export const en = {
+  navigationPending: "Opening workspace…",
   locations: "Locations",
   locationsDescription:
     "Read configured warehouse locations and related recorded load and stock context. Configuration is not a live safety assessment.",
@@ -461,6 +462,7 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  navigationPending: "正在開啟工作區…",
   locations: "位置",
   locationsDescription:
     "查看倉庫位置設定，以及相關載具與庫存紀錄。設定狀態不代表即時安全判定。",

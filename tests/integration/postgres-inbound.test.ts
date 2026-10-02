@@ -773,6 +773,16 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
       "OTHER-AMR",
     );
     const home = await new OperationsSummaryService(pool).getHome(warehouseId);
+    const overview = await new OperationsSummaryService(pool).getOverview(
+      warehouseId,
+    );
+    expect(overview.home?.work).toEqual(home.work);
+    expect(overview.home?.attention).toEqual(home.attention);
+    expect(overview.summary).not.toBeNull();
+    expect(
+      (await new OperationsSummaryService(pool).getOverview(otherWarehouseId))
+        .home?.work,
+    ).toEqual([]);
     expect(home.work).toEqual([]);
     expect(home.attention).toEqual([]);
     expect(home.inventory.visibleUnits).toBe(0);

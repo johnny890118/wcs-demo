@@ -37,7 +37,12 @@ vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
   useSession: () => ({ data: testOperationalSession }),
 }));
-vi.mock("next/router", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
+vi.mock("next/router", () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+    events: { on: vi.fn(), off: vi.fn() },
+  }),
+}));
 vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "light", setTheme: vi.fn() }),
 }));

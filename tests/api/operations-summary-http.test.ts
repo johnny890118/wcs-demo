@@ -6,16 +6,19 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   fetchOperationsSummary: vi.fn(),
   fetchOperationsDetails: vi.fn(),
   fetchOperationsHome: vi.fn(),
+  fetchOperationsOverview: vi.fn(),
 }));
 
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/summary";
 import detailsHandler from "../../pages/api/operations/details";
 import homeHandler from "../../pages/api/operations/home";
+import overviewHandler from "../../pages/api/operations/overview";
 import {
   fetchOperationsDetails,
   fetchOperationsSummary,
   fetchOperationsHome,
+  fetchOperationsOverview,
 } from "../../src/infrastructure/http/wcs-api-client";
 import {
   testOperationalAccess,
@@ -62,6 +65,47 @@ describe("operations home browser boundary", () => {
     expect(fetchOperationsHome).toHaveBeenCalledWith(testOperationalAccess);
     expect(response.statusCode).toBe(503);
     expect(JSON.stringify(response.body)).not.toContain("secret upstream");
+  });
+});
+
+describe("combined operations overview boundary", () => {
+  beforeEach(() => vi.clearAllMocks());
+  it("revalidates once per refresh, forwards scope and forbids cache", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    vi.mocked(fetchOperationsOverview).mockResolvedValue({
+      home: null,
+      summary: null,
+    });
+    const response = createResponse();
+    await overviewHandler({ method: "GET" } as never, response as never);
+    expect(getServerSession).toHaveBeenCalledTimes(1);
+    expect(fetchOperationsOverview).toHaveBeenCalledWith(testOperationalAccess);
+    expect(response.headers["Cache-Control"]).toBe("no-store");
+    await overviewHandler(
+      { method: "GET" } as never,
+      createResponse() as never,
+    );
+    expect(getServerSession).toHaveBeenCalledTimes(2);
+  });
+  it("fails closed before upstream read for invalid identity", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const response = createResponse();
+    await overviewHandler({ method: "GET" } as never, response as never);
+    expect(response.statusCode).toBe(401);
+    expect(fetchOperationsOverview).not.toHaveBeenCalled();
+  });
+  it("conceals upstream failures and rejects writes", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    vi.mocked(fetchOperationsOverview).mockRejectedValue(
+      new Error("private diagnostic"),
+    );
+    const failed = createResponse();
+    await overviewHandler({ method: "GET" } as never, failed as never);
+    expect(failed.statusCode).toBe(503);
+    expect(failed.body).toEqual({ code: "OPERATIONS_OVERVIEW_UNAVAILABLE" });
+    const denied = createResponse();
+    await overviewHandler({ method: "POST" } as never, denied as never);
+    expect(denied.statusCode).toBe(405);
   });
 });
 
