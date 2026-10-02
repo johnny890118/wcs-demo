@@ -12,18 +12,35 @@ import { operationalPageAccess } from "../../src/ui/auth/operational-page-access
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
-type PageProps = { details: OperationsDetails | null };
+type PageProps = { details: OperationsDetails | null; warehouseId?: string };
 
-export default function WarehouseOperationsPage({ details }: PageProps) {
+export default function WarehouseOperationsPage(props: PageProps) {
+  return (
+    <WarehouseView
+      key={`${props.warehouseId ?? "unavailable"}:${
+        props.details?.generatedAt ?? "none"
+      }`}
+      {...props}
+    />
+  );
+}
+
+function WarehouseView({ details }: PageProps) {
   const { t } = useLocale();
   const [liveDetails, setLiveDetails] = useState(details);
   const [isLive, setIsLive] = useState(details !== null);
 
   useEffect(() => {
     let active = true;
+    let refreshing = false;
+    const controller = new AbortController();
     const refresh = async () => {
+      if (refreshing) return;
+      refreshing = true;
       try {
-        const response = await fetch("/api/operations/details");
+        const response = await fetch("/api/operations/details", {
+          signal: controller.signal,
+        });
         const payload: unknown = await response.json();
         if (!response.ok || !isOperationsDetails(payload)) throw new Error();
         if (active) {
@@ -32,11 +49,14 @@ export default function WarehouseOperationsPage({ details }: PageProps) {
         }
       } catch {
         if (active) setIsLive(false);
+      } finally {
+        refreshing = false;
       }
     };
     const interval = window.setInterval(() => void refresh(), 10_000);
     return () => {
       active = false;
+      controller.abort();
       window.clearInterval(interval);
     };
   }, []);
@@ -55,7 +75,10 @@ export default function WarehouseOperationsPage({ details }: PageProps) {
         </span>
       </div>
       {liveDetails ? (
-        <WarehouseTopologyMap details={liveDetails} />
+        <WarehouseTopologyMap
+          details={liveDetails}
+          projectionCurrent={isLive}
+        />
       ) : (
         <section
           role="status"
@@ -94,5 +117,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   } catch {
     details = null;
   }
-  return { props: { session, details } };
+  return {
+    props: { session, details, warehouseId: access.access.currentWarehouseId },
+  };
 };

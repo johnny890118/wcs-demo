@@ -2,13 +2,17 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "react";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { topologyNodeContext } from "../../src/ui/warehouse/topology-node-context";
 import {
   buildTopologyLayout,
   insetEdgeSegment,
   topologyCanvas,
 } from "../../src/ui/warehouse/topology-layout";
 
-type Props = Readonly<{ details: OperationsDetails }>;
+type Props = Readonly<{
+  details: OperationsDetails;
+  projectionCurrent?: boolean;
+}>;
 
 const activeTaskStatuses = new Set([
   "requested",
@@ -26,7 +30,10 @@ function shortLabel(value: string): string {
   return value.length > 18 ? `${value.slice(0, 15)}…` : value;
 }
 
-export function WarehouseTopologyMap({ details }: Props) {
+export function WarehouseTopologyMap({
+  details,
+  projectionCurrent = true,
+}: Props) {
   const { t } = useLocale();
   const topology = details.topology;
   const layout = useMemo(
@@ -58,20 +65,8 @@ export function WarehouseTopologyMap({ details }: Props) {
   const activeTasks = details.tasks.filter((task) =>
     activeTaskStatuses.has(task.status),
   );
-  const selectedTasks = selected
-    ? activeTasks.filter(
-        (task) =>
-          task.source === selected.nodeId ||
-          task.destination === selected.nodeId,
-      )
-    : [];
-  const selectedInventory = selected
-    ? details.inventory.filter((item) => item.location === selected.nodeId)
-    : [];
-  const selectedQuantity = selectedInventory.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const selectedContext = topologyNodeContext(details, selected?.nodeId ?? "");
+  const selectedTasks = selectedContext.tasks;
   const blockedEdges = topology.edges.filter(
     (edge) => edge.status === "blocked",
   ).length;
@@ -256,14 +251,8 @@ export function WarehouseTopologyMap({ details }: Props) {
 
               {layout.nodes.map(({ node, x, y }) => {
                 const isSelected = node.nodeId === effectiveSelectedNodeId;
-                const taskCount = activeTasks.filter(
-                  (task) =>
-                    task.source === node.nodeId ||
-                    task.destination === node.nodeId,
-                ).length;
-                const inventoryQuantity = details.inventory
-                  .filter((item) => item.location === node.nodeId)
-                  .reduce((total, item) => total + item.quantity, 0);
+                const context = topologyNodeContext(details, node.nodeId);
+                const taskCount = context.tasks.length;
                 return (
                   <g key={node.nodeId}>
                     {isSelected ? (
@@ -314,7 +303,6 @@ export function WarehouseTopologyMap({ details }: Props) {
                       fontSize="13"
                     >
                       {node.kind}
-                      {inventoryQuantity > 0 ? ` · ${inventoryQuantity}` : ""}
                       {taskCount > 0 ? ` · ${taskCount}×` : ""}
                     </text>
                     <title>{`${node.nodeId} · ${node.kind}`}</title>
@@ -327,7 +315,12 @@ export function WarehouseTopologyMap({ details }: Props) {
                 if (!telemetry?.nodeId) return null;
                 const point = points.get(telemetry.nodeId);
                 if (!point) return null;
-                const isCurrent = telemetry.freshness === "current";
+                const isCurrent =
+                  projectionCurrent &&
+                  item.active &&
+                  telemetry.connectionStatus === "connected" &&
+                  telemetry.freshness === "current" &&
+                  telemetry.quality === "good";
                 const markerX = point.x + 38 + (index % 3) * 8;
                 const markerY = point.y - 38 - (index % 3) * 8;
                 return (
@@ -408,7 +401,7 @@ export function WarehouseTopologyMap({ details }: Props) {
                       {t("inventoryAtNode")}
                     </dt>
                     <dd className="mt-1 text-lg font-black tabular-nums">
-                      {selectedQuantity}
+                      {selectedContext.stockRecords}
                     </dd>
                   </div>
                   <div className="rounded-lg bg-[var(--surface-muted)] p-3">
@@ -420,6 +413,19 @@ export function WarehouseTopologyMap({ details }: Props) {
                     </dd>
                   </div>
                 </dl>
+                <p className="text-xs leading-6 text-[var(--text-muted)]">
+                  {t("topologyRecordCaveat")}
+                </p>
+                <div>
+                  <h3 className="text-xs font-bold">
+                    {t("topologyBoundLocations")}
+                  </h3>
+                  <p className="mt-2 break-words text-sm">
+                    {selectedContext.locations
+                      .map((location) => location.code)
+                      .join(" · ") || t("topologyUnbound")}
+                  </p>
+                </div>
                 <div>
                   <h3 className="text-xs font-bold">{t("nodeCapabilities")}</h3>
                   <div className="mt-2 flex flex-wrap gap-1.5">
@@ -453,7 +459,12 @@ export function WarehouseTopologyMap({ details }: Props) {
                               {item.equipmentId}
                             </span>
                             <span className="text-[var(--text-muted)]">
-                              {item.telemetry?.freshness === "current"
+                              {projectionCurrent &&
+                              item.active &&
+                              item.telemetry?.connectionStatus ===
+                                "connected" &&
+                              item.telemetry.freshness === "current" &&
+                              item.telemetry.quality === "good"
                                 ? t("currentTelemetry")
                                 : t("staleTelemetry")}
                             </span>
@@ -477,7 +488,9 @@ export function WarehouseTopologyMap({ details }: Props) {
                         <p className="font-mono font-semibold">{task.taskId}</p>
                         <p className="mt-1 text-[var(--text-muted)]">
                           {task.status} ·{" "}
-                          {task.source === selected.nodeId
+                          {selectedContext.locations.some(
+                            (location) => location.code === task.source,
+                          )
                             ? t("sourceEndpoint")
                             : t("destinationEndpoint")}
                         </p>

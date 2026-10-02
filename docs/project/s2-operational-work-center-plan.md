@@ -124,6 +124,43 @@ empty results, related searches, warehouse switch, mobile light/dark axe/reflow,
 and desktop/mobile screenshots. Locations configuration administration remains
 S6, task controls S4. Live View/readable topology is the next S2 slice.
 
+## Live View prerequisite: topology evidence correction
+
+Medium-risk, read-only UI correctness slice under this persistent S2 plan. The
+existing warehouse screen is an engineering topology inspector, not a calibrated
+physical Live View. No new domain truth, permissions, command or ADR is introduced.
+Its task/stock labels previously compared readable location codes directly to
+node IDs, and quantities could be summed across SKUs. Display correlation now
+uses only the backend's explicit active-version location binding, counts bounded
+non-shipped stock records rather than units, and excludes completed work. Unbound
+matching labels do not imply identity. Qualified telemetry still requires the
+same topology identity/revision; current styling also requires connected,
+good/current observation, active equipment and a successful projection refresh.
+
+The warehouse view remounts by authorized warehouse/projection, aborts obsolete
+refreshes and allows at most one details request in flight. Failed refreshes
+retain evidence as last-known, not current. No authority cache, browser equipment
+control, fabricated physical movement or route precondition is added.
+
+| Before                                           | After                                                       | Why                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| Inspector titled live warehouse topology         | Explicit topology inspector and uncalibrated-diagram caveat | Avoid claiming a completed operator Live View                    |
+| Compare location codes to node IDs               | Correlate only through active location bindings             | Distinct identities must remain distinct                         |
+| Sum inventory quantities across SKUs             | Bounded non-shipped stock row count                         | Quantities cannot establish occupancy or comparable stock totals |
+| Old state/in-flight reads survive context change | Context-keyed remount, abort and nonoverlapping refresh     | No previous warehouse evidence under a new scope                 |
+
+Operator Live View, readable equipment/task selection, contextual help and manual
+remain subsequent S2 slices, not implied complete by this prerequisite.
+
+Verification: complete gate passes 373 fast tests, 19 PostgreSQL integration
+tests and 29 production-build browser checks; API build passes separately.
+New tests cover explicit binding versus coincident labels, mixed-SKU row counts,
+shipped exclusion, missing topology, warehouse remount, nonoverlapping refresh,
+obsolete-read abort and retained noncurrent evidence. Browser runtime checks
+stock/task binding and 503 refresh downgrading current telemetry; desktop
+screenshot and mobile axe/reflow were reviewed. The inspector remains technical
+by design; S6 calibrated layout, S4 controls and full Live View are not claimed.
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

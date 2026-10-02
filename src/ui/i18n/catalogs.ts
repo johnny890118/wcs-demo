@@ -151,7 +151,7 @@ export const en = {
   operations: "Operations",
   overview: "Overview",
   warehouseMap: "Warehouse map",
-  warehouseMapTitle: "Live warehouse topology",
+  warehouseMapTitle: "Topology inspector",
   warehouseMapDescription:
     "A presentation of the active topology and persisted operational facts. The map never defines routes, inventory, or equipment state.",
   configuredLayout: "Configured coordinates",
@@ -167,7 +167,12 @@ export const en = {
   selectedNode: "Node inspector",
   selectNode: "Select a topology node",
   noPresentationCoordinates: "schematic coordinates",
-  inventoryAtNode: "Inventory quantity",
+  inventoryAtNode: "Recorded stock rows",
+  topologyRecordCaveat:
+    "Bounded recorded evidence, not a warehouse total, mixed-SKU quantity or physical occupancy. This topology diagram is not a calibrated floorplan or permission to move equipment.",
+  topologyBoundLocations: "Locations bound to this node",
+  topologyUnbound:
+    "No active location binding; do not infer one from matching labels.",
   taskEndpointsAtNode: "Task endpoints",
   nodeCapabilities: "Node capabilities",
   noNodeActivity: "No active task starts or ends at this node.",
@@ -603,7 +608,7 @@ export const zhTW: Catalog = {
   operations: "操作台",
   overview: "總覽",
   warehouseMap: "倉庫地圖",
-  warehouseMapTitle: "即時倉庫拓撲",
+  warehouseMapTitle: "拓撲檢視",
   warehouseMapDescription:
     "呈現啟用中的拓撲與已持久化營運事實；此地圖不會定義路徑、庫存或設備狀態。",
   configuredLayout: "設定座標",
@@ -619,7 +624,11 @@ export const zhTW: Catalog = {
   selectedNode: "節點檢視",
   selectNode: "選擇拓撲節點",
   noPresentationCoordinates: "示意座標",
-  inventoryAtNode: "節點庫存數量",
+  inventoryAtNode: "已記錄庫存筆數",
+  topologyRecordCaveat:
+    "有限範圍的已記錄證據，不是倉庫總計、混合 SKU 數量或實體佔用。此拓撲示意圖不是已校準平面圖，也不代表可移動設備。",
+  topologyBoundLocations: "此節點綁定的庫位",
+  topologyUnbound: "沒有啟用中的庫位綁定；不要由相同標籤推測綁定。",
   taskEndpointsAtNode: "任務端點",
   nodeCapabilities: "節點能力",
   noNodeActivity: "此節點目前沒有進行中任務的起點或終點。",

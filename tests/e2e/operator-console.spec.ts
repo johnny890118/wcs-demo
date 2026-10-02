@@ -759,12 +759,13 @@ test("operator can read redacted, bilingual audit history", async ({
 test("warehouse map renders timestamped equipment observation without using assignment", async ({
   page,
 }) => {
+  await page.clock.install();
   await signIn(page, "/operations/warehouse");
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "即時倉庫拓撲" }),
+    page.getByRole("heading", { level: 1, name: "拓撲檢視" }),
   ).toBeVisible();
-  await expect(page.getByRole("img", { name: "即時倉庫拓撲" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "拓撲檢視" })).toBeVisible();
   await expect(page.getByText("設定座標", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "receiving-01" }),
@@ -773,9 +774,32 @@ test("warehouse map renders timestamped equipment observation without using assi
     page.getByText("設備標記來自帶有時間戳的後端觀測。"),
   ).toBeVisible();
   await expect(page.getByText("agv-e2e-01").first()).toBeVisible();
+  await expect(page.getByText("RECEIVING-01", { exact: true })).toBeVisible();
+  await expect(page.getByText("task-e2e-001", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "storage-01" }).click();
+  await expect(page.getByText("STORAGE-01", { exact: true })).toBeVisible();
+  await expect(page.getByText("已記錄庫存筆數", { exact: true })).toBeVisible();
+  await page.screenshot({
+    path: "test-results/topology-inspector-binding.png",
+    fullPage: true,
+  });
 
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
+  await page.getByRole("button", { name: "receiving-01" }).click();
+  await expect(page.getByText("目前遙測", { exact: true })).toBeVisible();
+  await page.route("**/api/operations/details", (route) =>
+    route.fulfill({ status: 503, json: { message: "Unavailable" } }),
+  );
+  const failedRefresh = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/operations/details") &&
+      response.status() === 503,
+  );
+  await page.clock.fastForward(10_000);
+  await failedRefresh;
+  await expect(page.getByText("過期遙測", { exact: true })).toBeVisible();
+  await expect(page.getByText("目前遙測", { exact: true })).toHaveCount(0);
 });
 
 test("warehouse map reflows without horizontal page overflow on mobile", async ({
@@ -789,7 +813,7 @@ test("warehouse map reflows without horizontal page overflow on mobile", async (
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
-  await expect(page.getByRole("img", { name: "即時倉庫拓撲" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "拓撲檢視" })).toBeVisible();
   await expect(page.getByRole("button", { name: "storage-01" })).toBeVisible();
 });
 
