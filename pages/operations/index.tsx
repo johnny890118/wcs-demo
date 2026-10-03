@@ -17,6 +17,7 @@ import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { operationalPageAccess } from "../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
+import { homeInvestigationDestination } from "../../src/ui/operations/home-investigation";
 
 type PageProps = {
   summary: OperationsSummary | null;
@@ -197,11 +198,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                   </div>
                   <Link
                     className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
-                    href={
-                      item.kind === "alarm" || item.reason === "blocked_task"
-                        ? "/operations/alarms"
-                        : "/operations/projections"
-                    }
+                    href={homeInvestigationDestination(item)}
                   >
                     {t("reviewOperationalEvidence")}
                   </Link>

@@ -363,6 +363,7 @@ function readBody(request) {
 
 function scenario(name) {
   reset();
+  if (name === "baseline") return true;
   if (name === "inbound-completed") {
     details.tasks = [
       {
@@ -406,6 +407,7 @@ function scenario(name) {
       },
     ];
   } else if (name === "faulted") {
+    details.equipment[0].telemetry.status = "faulted";
     details.tasks = [
       {
         taskId: "50000000-0000-4000-8000-000000000098",
@@ -888,16 +890,28 @@ const server = createServer(async (request, response) => {
     request.url === "/api/v1/operations/overview"
   ) {
     const home = {
-      attention: details.tasks
-        .filter((task) => ["unknown", "blocked"].includes(task.status))
-        .map((task) => ({
-          kind: "task",
-          severity: task.status === "unknown" ? "critical" : "warning",
-          reference: `${task.source} → ${task.destination}`,
-          reason: `${task.status}_task`,
-          taskId: task.taskId,
-          equipmentId: task.equipmentId,
-        })),
+      attention: [
+        ...details.equipment
+          .filter((equipment) => equipment.telemetry?.status === "faulted")
+          .map((equipment) => ({
+            kind: "equipment",
+            severity: "critical",
+            reference: equipment.equipmentId,
+            reason: "faulted_equipment",
+            taskId: null,
+            equipmentId: equipment.equipmentId,
+          })),
+        ...details.tasks
+          .filter((task) => ["unknown", "blocked"].includes(task.status))
+          .map((task) => ({
+            kind: "task",
+            severity: task.status === "unknown" ? "critical" : "warning",
+            reference: `${task.source} → ${task.destination}`,
+            reason: `${task.status}_task`,
+            taskId: task.taskId,
+            equipmentId: task.equipmentId,
+          })),
+      ],
       work: details.tasks
         .filter((task) =>
           ["queued", "assigned", "in_progress", "blocked", "unknown"].includes(

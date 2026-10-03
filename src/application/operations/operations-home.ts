@@ -62,6 +62,7 @@ export function projectOperationsHome(
   details: OperationsDetails,
 ): OperationsHome {
   const attention: OperationsHome["attention"][number][] = [];
+  const scopedTaskIds = new Set(details.tasks.map((task) => task.taskId));
 
   for (const alarm of details.alarms) {
     if (alarm.status === "active" || alarm.status === "acknowledged") {
@@ -120,7 +121,11 @@ export function projectOperationsHome(
         severity,
         reference: equipment.equipmentId,
         reason,
-        taskId: equipment.telemetry?.taskId ?? null,
+        taskId:
+          equipment.telemetry?.taskId &&
+          scopedTaskIds.has(equipment.telemetry.taskId)
+            ? equipment.telemetry.taskId
+            : null,
         equipmentId: equipment.equipmentId,
       });
     }

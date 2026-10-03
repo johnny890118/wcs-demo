@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Latest S2 contextual Home investigation: full verification passes 430 fast tests,
+21 PostgreSQL integration tests and 34 production-build browser tests; API build
+passes. Unit checks reject unresolved telemetry task references and verify internal
+contextual destinations/fallbacks. Browser keyboard investigation reaches scoped
+fault detail and readable exception evidence; equipment attention targets Live View.
+The new mutable scenario is restored in `finally`, so later tests remain independent.
+An initial fixture omission and a technical-code-versus-readable-message assertion
+were fixed; no production check was weakened. Existing bilingual/mobile/axe remain green.
+
 Latest S2 manual synchronization: full verification passes 427 fast tests,
 21 real PostgreSQL tests and 33 production-build browser tests; API build passes.
 The real drift gate rejects software-release mismatch as well as manual/source,

@@ -699,6 +699,42 @@ const serviceHeaders = {
   "X-SWP-Warehouse": "10000000-0000-4000-8000-000000000001",
 };
 
+test("Home attention investigates scoped fault work and qualified equipment using keyboard", async ({
+  page,
+}) => {
+  await loadScenario(page, "faulted");
+  try {
+    await signIn(page, "/operations");
+    const attention = page.getByRole("region", { name: "需要注意" });
+    const taskLink = attention
+      .getByRole("listitem")
+      .filter({ hasText: "搬運受阻" })
+      .getByRole("link", { name: "檢視營運證據" });
+    await expect(taskLink).toHaveAttribute(
+      "href",
+      "/operations/tasks/50000000-0000-4000-8000-000000000098",
+    );
+    const equipmentLink = attention
+      .getByRole("listitem")
+      .filter({ hasText: "設備回報故障" })
+      .getByRole("link", { name: "檢視營運證據" });
+    await expect(equipmentLink).toHaveAttribute(
+      "href",
+      "/operations/warehouse",
+    );
+    await taskLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(
+      "/operations/tasks/50000000-0000-4000-8000-000000000098",
+    );
+    await expect(
+      page.getByText("Travel path is blocked.", { exact: true }),
+    ).toBeVisible();
+  } finally {
+    await loadScenario(page, "baseline");
+  }
+});
+
 async function loadScenario(page: Page, name: string) {
   const response = await page.request.post(
     `${scenarioApi}/test/scenarios/${name}`,

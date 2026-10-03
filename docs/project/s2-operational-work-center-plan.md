@@ -2,6 +2,33 @@
 
 Status: Active
 
+## Acceptance finding: contextual Home investigation
+
+Verified implementation: Home links selected task/linked alarm work to task detail,
+equipment concern to Live View, and missing context to queue/alarms. Raw telemetry
+task identifiers not present in scoped task evidence are null. This does not claim
+no task exists when the bounded projection omits one. Destinations authorize again;
+no query, permission, command or observation-freshness change. Full verification
+passes 430 fast, 21 PostgreSQL, 34 production-build browser tests; API build passes.
+Self-review retained existing contextual manual guidance and queued the separately
+identified inaccurate task-search wording for the next manual correction checkpoint.
+Browser fixture isolation and readable exception assertions were corrected after
+initial failures; all tests pass without skip or relaxation of product assertions.
+
+After `db71201` is exact-HEAD CI/deployment/runtime stable, correct the remaining
+Home attention links: unknown/blocked work and task-linked alarms lead to scoped
+task detail, equipment evidence to Live View, and missing context to the appropriate
+queue/alarms workspace. Do not derive a destination from unresolved telemetry IDs;
+only bounded scoped work may resolve that field. Existing destination authorization
+and read freshness remain unchanged. Medium-risk read/presentation correction;
+reuse this plan, no new ADR or permission model. Add pure projection/navigation
+tests and real production-browser keyboard fault investigation, then full gate.
+
+| Before                                   | After                                       | Why                                           |
+| ---------------------------------------- | ------------------------------------------- | --------------------------------------------- |
+| Attention links open generic diagnostics | Work-specific task detail or Live View      | Start investigation from the selected concern |
+| Home forwards raw reported task IDs      | Only scoped projected task context resolves | Equipment reports are not reference authority |
+
 ## Procedural manual synchronization slice
 
 Completed verification: 427 fast, 21 PostgreSQL and 33 production-build browser

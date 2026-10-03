@@ -24,6 +24,53 @@ const task = {
 };
 
 describe("operational home meaning", () => {
+  it("does not forward an unresolved telemetry task identifier into Home attention", () => {
+    const details: OperationsDetails = {
+      ...empty,
+      tasks: [task],
+      equipment: [
+        {
+          equipmentId: "equipment",
+          adapterKey: "test",
+          capabilities: [],
+          active: false,
+          telemetry: {
+            status: "faulted",
+            taskId: "foreign-task",
+            loadId: null,
+            faultCode: null,
+            topologyId: null,
+            topologyRevision: null,
+            nodeId: null,
+            connectionStatus: "connected",
+            quality: "good",
+            freshness: "current",
+            ageMs: 0,
+            sequence: 1,
+            observedAt: empty.generatedAt,
+            receivedAt: empty.generatedAt,
+            source: "test",
+          },
+        },
+      ],
+    };
+    const home = projectOperationsHome(details);
+    expect(home.attention[0].taskId).toBeNull();
+    expect(JSON.stringify(home)).not.toContain("foreign-task");
+    const resolved = projectOperationsHome({
+      ...details,
+      equipment: [
+        {
+          ...details.equipment[0],
+          telemetry: {
+            ...details.equipment[0].telemetry!,
+            taskId: task.taskId,
+          },
+        },
+      ],
+    });
+    expect(resolved.attention[0].taskId).toBe(task.taskId);
+  });
   it("distinguishes waiting, active, blocked and unknown work from terminal history", () => {
     const home = projectOperationsHome({
       ...empty,
