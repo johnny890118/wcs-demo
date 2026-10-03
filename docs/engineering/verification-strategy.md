@@ -1,5 +1,12 @@
 # Verification Strategy
 
+Latest S2 manual correction: full gate passes 431 fast, 21 real PostgreSQL and
+34 production-build browser tests; API build passes. Regression tests assert real
+All work/load-more guidance instead of nonexistent task search. PDF source/release,
+hash and full text gates pass; all nine rendered pages inspected. Private download
+authorization, no-store/noindex and Web accessibility remain unchanged. The prior
+interruption did not invalidate or restart the completed verification process.
+
 Latest S2 contextual Home investigation: full verification passes 430 fast tests,
 21 PostgreSQL integration tests and 34 production-build browser tests; API build
 passes. Unit checks reject unresolved telemetry task references and verify internal

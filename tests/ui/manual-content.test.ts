@@ -10,6 +10,22 @@ import {
   searchManual,
 } from "../../src/ui/manual/manual-content";
 describe("single-source operational manual", () => {
+  it("documents the shipped queue traversal instead of claiming unavailable task search", () => {
+    const daily = manualArticles.find(
+      (article) => article.id === "daily-work",
+    )!;
+    const english = daily.paragraphs.map((paragraph) => paragraph.en).join(" ");
+    const chinese = daily.paragraphs
+      .map((paragraph) => paragraph["zh-TW"])
+      .join(" ");
+    expect(english).toContain("All work and use Load more");
+    expect(english).toContain(
+      "Text search is not provided in the task queue yet",
+    );
+    expect(chinese).toContain("切換全部工作並使用載入更多");
+    expect(chinese).toContain("目前尚未提供文字搜尋");
+    expect(english).not.toContain("use task search");
+  });
   it("has stable unique topics and complete localized content with only internal operational links", () => {
     expect(manualVersion).toMatch(/^\d{4}-\d{2}-\d{2}\.\d+$/);
     expect(manualSoftwareVersion).toBe(packageVersion);

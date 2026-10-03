@@ -2,6 +2,31 @@
 
 Status: Active
 
+## Current handoff-free continuation order
+
+Owner's latest instruction after accidental interruption: finish the current
+manual correction slice through full verification, checkpoint, push, exact-HEAD
+CI and runtime/deployment confirmation with a clean tree. Then independently
+evaluate and implement configurable read-only human-session freshness plus real
+navigation/auth/API/query timing. Do not silently weaken S1 revocation/expiry,
+warehouse/permission checks or immediate mutation/switch revalidation. Record the
+read-only revocation-delay trade-off and use independent security review. Resume
+S2 acceptance closure after that dedicated slice; no S3 implementation yet.
+
+Manual correction revision `2026-10-03.3` replaces the unshipped task-search claim
+with All work/load-more traversal, and describes contextual Home investigation.
+Single Web/PDF source, private delivery and release drift gates remain intact.
+Full verification passes 431 fast, 21 real PostgreSQL and 34 production-build
+browser tests; separate API build passes. All nine PDF pages were inspected for
+glyphs, wrapping, complete topic context and footer clearance. Security review
+found no permission/session/download-boundary change; UX review keeps accessible
+Web primary and never substitutes a fictional feature for a real queue action.
+
+| Before                                       | After                                                         | Why                                            |
+| -------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------- |
+| Manual suggests unavailable task text search | Explicit All work and Load more, no-search limitation         | Guidance must describe actual shipped controls |
+| Home attention destination is unspecified    | Task detail, Live View and missing-context fallback explained | Preserve operator evidence meaning             |
+
 ## Acceptance finding: contextual Home investigation
 
 Verified implementation: Home links selected task/linked alarm work to task detail,

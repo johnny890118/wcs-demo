@@ -1,17 +1,17 @@
 {
-  "version": "2026-10-03.2",
+  "version": "2026-10-03.3",
   "softwareVersion": "0.1.0",
-  "sourceSha256": "c8dcf6075df055985a355aadbb34c00a8cae4eb98f71c062daabc73669e7f68d",
+  "sourceSha256": "943dab2e7640b5de3a20d37f59335f1e9ac27ba95a45e96e8b15c54ba6dee3d1",
   "fontSource": "https://raw.githubusercontent.com/google/fonts/3be1884c48c3e45b52ecc725676a08f87776373e/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf",
   "fontSha256": "864727d210d54f2537bbe23b3a839436c3992af72de9322af5270897246bd44f",
   "artifacts": {
     "en": {
       "file": "swp-operation-manual-en.pdf",
-      "sha256": "fd57b2c4ac984e1a83ad4ee23bc547596d01e6438273a8465025f98d514adbf0"
+      "sha256": "4a75dabf2459f3d0b46b979153f5df8298158d2f306722562f608beb5228bdc1"
     },
     "zh-TW": {
       "file": "swp-operation-manual-zh-TW.pdf",
-      "sha256": "32355530c88095baa343505266f91ee679e77ee13f659c95b9049156550b7c57"
+      "sha256": "b1bd2f80845ab34bce9c3536528e93f880d1b1e7939862ae25bf204058b0aaf3"
     }
   }
 }

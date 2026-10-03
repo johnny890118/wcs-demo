@@ -2,7 +2,7 @@ import type { UserPermission } from "../../application/access/operational-access
 import type { Locale } from "../i18n/catalogs";
 import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-03.2";
+export const manualVersion = "2026-10-03.3";
 // Package release identity is distinct from the more granular manual revision.
 export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
@@ -55,12 +55,16 @@ export const manualArticles: readonly ManualArticle[] = [
         "先查看營運首頁的待處理事項，再進入任務清單與詳情。優先閱讀來源／目的地、記錄狀態、阻擋原因及相關警報，再看技術識別碼。",
       ),
       text(
-        "Task assignment records intended work, not physical movement. Unknown outcomes are unresolved, never success. The current queue is bounded; use task search and all-history view when a record is not visible.",
-        "任務指派記錄預定工作，不是實體移動。未知結果代表尚未解析，絕不是成功。目前清單有範圍上限；找不到紀錄時使用任務搜尋與全部歷史檢視。",
+        "Task assignment records intended work, not physical movement. Unknown outcomes are unresolved, never success. The current queue is bounded; switch to All work and use Load more when a record is not visible. Text search is not provided in the task queue yet.",
+        "任務指派記錄預定工作，不是實體移動。未知結果代表尚未解析，絕不是成功。目前清單有範圍上限；找不到紀錄時切換全部工作並使用載入更多。任務清單目前尚未提供文字搜尋。",
       ),
       text(
         "For shift operators, investigate work and freshness first; for exception responders, inspect alarms and affected tasks; for reviewers, follow permitted audit evidence. These are work paths, not hard-coded role grants.",
         "值班操作者先追查工作與新鮮度；例外處理人員追查警報與受影響任務；查核人員沿有權限的稽核證據檢查。這些是工作路徑，不是寫死的角色授權。",
+      ),
+      text(
+        "Home attention links open the selected task or task-linked alarm evidence in task detail; equipment concerns open Live View. Missing bounded work context falls back to Tasks or Alarms, not proof that no work exists. Every destination checks current warehouse access again.",
+        "首頁待處理事項會在任務詳情開啟所選任務或與任務相關的警報證據；設備問題開啟即時觀測。有範圍上限的工作情境缺少時導向任務或警報，不代表沒有工作存在。每個目的頁會重新檢查目前倉庫存取權限。",
       ),
     ],
     links: [
