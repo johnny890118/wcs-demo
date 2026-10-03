@@ -47,6 +47,7 @@ export const en = {
   helpDescription:
     "Guidance for shipped workflows in this deployment. Your current warehouse permissions determine available actions; this manual does not authorize equipment control.",
   helpVersion: "Manual version",
+  helpSoftwareVersion: "Software package release",
   helpSearch: "Search the operation manual",
   helpResults: "Matching topics",
   helpNoResults: "No matching topics. Try a workflow or state name.",
@@ -629,6 +630,7 @@ export const zhTW: Catalog = {
   helpDescription:
     "本部署已交付流程的操作指引。可用操作取決於目前倉庫的有效權限；手冊不授予設備控制權。",
   helpVersion: "手冊版本",
+  helpSoftwareVersion: "軟體套件版本",
   helpSearch: "搜尋操作手冊",
   helpResults: "符合的主題",
   helpNoResults: "沒有符合的主題，請改用流程或狀態名稱搜尋。",

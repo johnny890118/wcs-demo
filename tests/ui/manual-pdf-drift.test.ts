@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vitest";
 
-it.each(["source", "version", "filename", "artifact"])(
+it.each(["source", "version", "softwareVersion", "filename", "artifact"])(
   "fails the real PDF gate on %s drift before content extraction",
   (change) => {
     const directory = mkdtempSync(join(tmpdir(), "swp-manual-drift-"));
@@ -14,6 +14,8 @@ it.each(["source", "version", "filename", "artifact"])(
       );
       if (change === "source") manifest.sourceSha256 = "0".repeat(64);
       if (change === "version") manifest.version = "old-version";
+      if (change === "softwareVersion")
+        manifest.softwareVersion = "old-release";
       if (change === "filename")
         manifest.artifacts.en.file = "../unrelated.pdf";
       writeFileSync(join(directory, "manifest.json"), JSON.stringify(manifest));

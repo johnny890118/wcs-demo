@@ -11,6 +11,7 @@ import {
 import {
   manualTopic,
   manualVersion,
+  manualSoftwareVersion,
   normalizeManualSearch,
   searchManual,
 } from "../../src/ui/manual/manual-content";
@@ -49,7 +50,8 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
         {t("helpDescription")}
       </p>
       <p className="mt-2 text-xs text-[var(--text-muted)]">
-        {t("helpVersion")}: {manualVersion}
+        {t("helpVersion")}: {manualVersion} · {t("helpSoftwareVersion")}:{" "}
+        {manualSoftwareVersion}
       </p>
       <a
         href={`/api/operations/manual/${locale}`}

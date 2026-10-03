@@ -1,6 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
+import {
+  manualSoftwareVersion,
+  manualVersion,
+} from "../../src/ui/manual/manual-content";
 
 async function signIn(page: Page, destination: string) {
   await page.goto(destination);
@@ -230,6 +234,9 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
     .getByRole("link", { name: "此工作區的操作說明", exact: true })
     .click();
   await expect(page).toHaveURL("/operations/help?topic=live-view");
+  await expect(
+    page.getByText(`軟體套件版本: ${manualSoftwareVersion}`, { exact: false }),
+  ).toBeVisible();
   await expect(page.locator("main section").first()).toHaveAttribute(
     "id",
     "live-view",
@@ -247,6 +254,11 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
   await page.getByLabel("搜尋操作手冊").fill("");
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.getByLabel("Search the operation manual").fill("last-known");
+  await expect(
+    page.getByText(`Software package release: ${manualSoftwareVersion}`, {
+      exact: false,
+    }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", {
       name: "Live View and trustworthy observations",
@@ -322,7 +334,7 @@ test("versioned manual downloads are authenticated bilingual PDFs present in sta
     expect(response.headers()["cache-control"]).toBe("no-store");
     expect(response.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     expect(response.headers()["content-disposition"]).toContain(
-      `2026-10-03.1-${locale}.pdf`,
+      `${manualVersion}-${locale}.pdf`,
     );
     expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
     expect(

@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/manual/[locale]";
 import { testOperationalSession } from "../fixtures/operational-access";
+import { manualVersion } from "../../src/ui/manual/manual-content";
 function response() {
   const res = {
     statusCode: 0,
@@ -45,7 +46,7 @@ describe("authenticated operational manual PDF", () => {
     expect(first.statusCode).toBe(200);
     expect(first.headers["Content-Type"]).toBe("application/pdf");
     expect(first.headers["Content-Disposition"]).toContain(
-      "2026-10-03.1-zh-TW.pdf",
+      `${manualVersion}-zh-TW.pdf`,
     );
     expect(first.headers["Cache-Control"]).toBe("no-store");
     expect(first.headers["X-Robots-Tag"]).toBe("noindex, nofollow");

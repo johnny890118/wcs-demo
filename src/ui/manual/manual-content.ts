@@ -1,7 +1,10 @@
 import type { UserPermission } from "../../application/access/operational-access";
 import type { Locale } from "../i18n/catalogs";
+import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-03.1";
+export const manualVersion = "2026-10-03.2";
+// Package release identity is distinct from the more granular manual revision.
+export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
 export type ManualArticle = Readonly<{
   id: string;
@@ -81,6 +84,10 @@ export const manualArticles: readonly ManualArticle[] = [
         "Inventory changes follow accepted execution outcomes. A timeout, disconnected device or browser animation is not evidence of completion. Follow the task detail and permitted audit history when the outcome is unclear.",
         "庫存變更依據已接受的執行結果。逾時、設備斷線或瀏覽器動畫都不是完成證據。結果不清楚時追查任務詳情與有權限的稽核歷史。",
       ),
+      text(
+        "Before confirmation, task investigation opens a new tab to preserve the pending form. Review the submitted reference, item, quantity and configured locations. Outbound SKU suggestions are bounded recorded hints, not reservation-adjusted available quantities; the backend decides allocation. Related inventory search is a substring search, not an exact stock guarantee.",
+        "確認前的任務追查會開啟新分頁，保留待確認表單。檢查已送出參考、品項、數量與設定庫位。出庫 SKU 建議只是有範圍上限的記錄提示，不是扣除保留量後的可用數量；配置由後端判定。相關庫存搜尋是子字串搜尋，不保證精確存量。",
+      ),
     ],
     links: [
       link("/operations/inbound", "Open inbound", "開啟入庫"),
@@ -126,6 +133,10 @@ export const manualArticles: readonly ManualArticle[] = [
         "Live View is read-only and is not a calibrated physical floorplan or command authority. The topology inspector is an engineering diagram. Physical calibration, layout administration and commissioned hardware controls remain later capabilities.",
         "即時觀測是唯讀，並非已校準實體平面圖或命令授權。拓撲檢視是工程圖。實體校準、佈局管理與完成現場驗收的硬體控制仍是後續能力。",
       ),
+      text(
+        "A usable position reference identifies topology ID, revision and node; unknown positions have no reference. Configured diagram coordinate systems remain separate. Physical units, floor, coordinate frame and calibration are unrecorded: diagram X/Y/Z are not measured position, distance or safety evidence, and Z is not a floor number.",
+        "可用位置 reference 指明拓撲 ID、版本與節點；未知位置沒有 reference。設定的工程圖座標系統保持分開。實體單位、樓層、座標框架與校準未記錄：工程圖 X／Y／Z 不是量測位置、距離或安全證據，Z 也不是樓層編號。",
+      ),
     ],
     links: [
       link("/operations/warehouse", "Open Live View", "開啟即時觀測"),
@@ -151,6 +162,10 @@ export const manualArticles: readonly ManualArticle[] = [
       text(
         "No general-purpose manual override, automatic reset/replay or reconciliation editor is shipped yet. Preserve evidence and escalate unresolved divergence through your site's operating procedure; repository tests are not safety certification.",
         "目前尚未交付通用手動覆寫、自動 reset／replay 或 reconciliation 編輯器。保留證據，依現場作業程序升級處理未解差異；repository 測試不是安全認證。",
+      ),
+      text(
+        "Inspect affected work in a new tab before confirming acknowledgement or recovery. An accepted recovery with an unknown outcome is still unresolved, not resumed or completed. An empty bounded alarm projection does not prove fault clearance; investigate task evidence when context is missing.",
+        "確認警報或復原前，可在新分頁追查受影響工作。已接受但結果未知的復原仍未解析，不代表已繼續或完成。有範圍上限的警報投影為空不證明故障已解除；context 缺少時應追查任務證據。",
       ),
     ],
     links: [

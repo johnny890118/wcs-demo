@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Latest S2 manual synchronization: full verification passes 427 fast tests,
+21 real PostgreSQL tests and 33 production-build browser tests; API build passes.
+The real drift gate rejects software-release mismatch as well as manual/source,
+filename and byte drift. Both regenerated PDFs pass complete text extraction;
+all eight rendered pages were visually reviewed for wrapping/glyphs/continuity
+and footer clearance. Web runtime verifies bilingual package-release labels,
+keyboard navigation, mobile themes/axe and private downloads/standalone assets.
+One stale hard-coded filename assertion was fixed to use the canonical revision;
+no test or guard was disabled. PDFs remain untagged, with accessible Web primary.
+
 Latest S2 spatial-read checkpoint: full verification passes 426 fast tests,
 21 real ephemeral PostgreSQL tests and 33 production-build browser tests; separate
 API build passes. Contract tests reject fabricated physical metadata and invalid

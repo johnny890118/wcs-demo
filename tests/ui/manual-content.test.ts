@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { userPermissions } from "../../src/application/access/operational-access";
+import { version as packageVersion } from "../../package.json";
 import {
   manualArticles,
   manualTopic,
   manualVersion,
+  manualSoftwareVersion,
   normalizeManualSearch,
   searchManual,
 } from "../../src/ui/manual/manual-content";
 describe("single-source operational manual", () => {
   it("has stable unique topics and complete localized content with only internal operational links", () => {
     expect(manualVersion).toMatch(/^\d{4}-\d{2}-\d{2}\.\d+$/);
+    expect(manualSoftwareVersion).toBe(packageVersion);
     expect(new Set(manualArticles.map((a) => a.id)).size).toBe(
       manualArticles.length,
     );

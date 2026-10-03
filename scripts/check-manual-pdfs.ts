@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
-import { manualArticles, manualVersion } from "../src/ui/manual/manual-content";
+import {
+  manualArticles,
+  manualVersion,
+  manualSoftwareVersion,
+} from "../src/ui/manual/manual-content";
 const directory =
   process.env.MANUAL_PDF_DIRECTORY ?? join(process.cwd(), "output/pdf");
 const manifest = JSON.parse(
@@ -12,11 +16,13 @@ const sha256 = (value: string | Buffer) =>
   createHash("sha256").update(value).digest("hex");
 const source = JSON.stringify({
   version: manualVersion,
+  softwareVersion: manualSoftwareVersion,
   articles: manualArticles,
 });
 const integrityOnly = process.argv.includes("--integrity-only");
 if (
   manifest.version !== manualVersion ||
+  manifest.softwareVersion !== manualSoftwareVersion ||
   manifest.sourceSha256 !== sha256(source)
 )
   throw new Error("Manual source/version drift: regenerate both PDFs.");
@@ -59,6 +65,8 @@ for (const locale of ["en", "zh-TW"] as const) {
   }
   if (!extracted.includes(manualVersion))
     throw new Error("Manual PDF version missing.");
+  if (!extracted.includes(manualSoftwareVersion))
+    throw new Error("Manual software release missing.");
 }
 console.log(
   integrityOnly

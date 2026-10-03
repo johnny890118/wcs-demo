@@ -5,6 +5,15 @@ The authenticated web manual and both downloadable PDFs share
 together, then regenerate and verify artifacts. This is system guidance, not
 marketing or equipment authority. PDFs contain no warehouse/customer data.
 
+Manual revision `2026-10-03.2` synchronizes task-investigation tabs, bounded stock
+hints, unknown recovery outcomes and spatial read qualifications. Software package
+release comes from `package.json` (currently development version `0.1.0`), separately
+from the dated manual revision. Both appear on Web/PDF and in the hashed canonical
+payload/manifest; the date is the manual revision date, not an invented deployment
+timestamp. Package version does not prove a specific deployed commit or production
+readiness. Deployment evidence separately identifies exact commit SHA. Increment
+manual revision whenever shipped guidance changes, even within one package release.
+
 ## Generation
 
 Use an isolated Python environment with

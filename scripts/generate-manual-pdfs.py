@@ -66,17 +66,18 @@ class StableCanvas(canvas.Canvas):
         kwargs["invariant"] = 1
         super().__init__(*args, **kwargs)
 
-manifest = {"version": payload["version"], "sourceSha256": hashlib.sha256(payload_bytes).hexdigest(), "fontSource": FONT_URL, "fontSha256": hashlib.sha256(font_bytes).hexdigest(), "artifacts": {}}
+manifest = {"version": payload["version"], "softwareVersion": payload["softwareVersion"], "sourceSha256": hashlib.sha256(payload_bytes).hexdigest(), "fontSource": FONT_URL, "fontSha256": hashlib.sha256(font_bytes).hexdigest(), "artifacts": {}}
 for locale in ["en", "zh-TW"]:
     name = f"swp-operation-manual-{locale}.pdf"
     path = OUT / name
     title_text = "Operation manual" if locale == "en" else "操作手冊"
     version_label = "Version" if locale == "en" else "版本"
+    release_label = "Software package release" if locale == "en" else "軟體套件版本"
     body.wordWrap = "CJK" if locale == "zh-TW" else None
     heading.wordWrap = body.wordWrap
     small.wordWrap = body.wordWrap
     notice = "Guidance for shipped workflows. This document grants no permission or equipment control authority. Check the current warehouse and deployment; all destination routes independently authorize. Links are deployment-relative paths, not external customer URLs." if locale == "en" else "已交付流程的操作指引。本文件不授予權限或設備控制權。請確認目前倉庫與部署；所有目的路由獨立授權。連結以部署內相對路徑表示，不是外部客戶網址。"
-    story = [Paragraph("Smart Warehouse Platform", title), Paragraph(title_text, heading), Paragraph(f"{version_label}: {escape(payload['version'])}", small), Paragraph(notice, body), Spacer(1, 12)]
+    story = [Paragraph("Smart Warehouse Platform", title), Paragraph(title_text, heading), Paragraph(f"{version_label}: {escape(payload['version'])} | {release_label}: {escape(payload['softwareVersion'])} | {locale}", small), Paragraph(notice, body), Spacer(1, 12)]
     for article in payload["articles"]:
         section = [Paragraph(escape(clean(article["title"][locale])), heading)]
         for paragraph in article["paragraphs"]:

@@ -2,6 +2,29 @@
 
 Status: Active
 
+## Procedural manual synchronization slice
+
+Completed verification: 427 fast, 21 PostgreSQL and 33 production-build browser
+tests; API build passes. All eight PDF pages reviewed, with no clipping, missing
+glyphs, orphaned topic heading or footer collision. Self-review caught old filename
+assertions and replaced them with the canonical manual version. Release drift has
+its own negative test. Web runtime shows both localized release labels and keeps
+private downloads, responsive themes, keyboard links and axe checks green.
+
+After spatial checkpoint `b63b347` passed exact-HEAD Verify/deployment-smoke,
+Vercel/Render and managed runtime with a clean tree, synchronize recent inbound,
+outbound, recovery and spatial guidance from the existing single content source.
+Medium-low risk documentation/export/UI-label change; reuse this persistent plan,
+no new ADR or permission design. Package version and dated manual revision are
+distinct identities, not a production-readiness claim. Regenerate both PDFs,
+inspect every rendered page, test source/release/artifact drift and production
+private downloads; run full verification and API build before checkpoint.
+
+| Before                                                         | After                                        | Why                                                  |
+| -------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| Guidance predates readable confirmation and spatial qualifiers | Current procedures and evidence limitations  | Operators should follow shipped behavior             |
+| Manual revision only                                           | Separate package release and manual revision | Trace guidance without inventing deployment identity |
+
 ## Autonomous continuation
 
 Owner queued two product-quality slices on 2026-10-03, after the active Locations
