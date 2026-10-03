@@ -24,6 +24,10 @@ Assessment date: 2026-10-04. Baseline: verified M8A, system-first frontend bound
   evidence, verifies absence and atomically closes reservations to release
   capacity (ADR 0025). It refuses active/observed/assigned/operational resources;
   no cleanup worker is enabled and live simulator drain is not implemented.
+  Admission also spends a persisted global fixed-window creation budget only
+  for newly committed reservations, independently of capacity/cleanup. Retries
+  do not slide it; active-window policy disagreement fails closed (ADR 0026).
+  This is not edge/per-client abuse control or scenario/storage quota coverage.
 
 - Inbound/outbound reviews now lead with submitted reference, item/quantity and readable route context, with persisted task investigation and diagnostic disclosure. Recorded outbound SKU hints do not assert reservation-adjusted availability. Alarm/recovery views qualify bounded context and unknown outcomes; unknown recovery results are not reported as resumed/completed. Summary/alarm task endpoints and stock receipt/load-location lineage enforce warehouse isolation consistently. Independent review found no introduced read-scope blockers; production-scale query plans remain unmeasured.
 

@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Latest S3 persisted creation budget: full gate passes 487 fast, 68 real
+PostgreSQL (59 prior + 9 budget), 34 production-build browser checks and
+closed-public-boundary HTTP harness; API build passes. Independent review has no
+blockers. DB-time concurrent/restart window bounds, immutable replay, closed-slot
+cycling, policy mismatch, first-counter and existing-increment atomic rollback,
+capacity failure, immutable configuration, actual reset survival, singleton
+constraints and RLS are covered. This counts successful new reservations, not
+HTTP traffic or scenario/storage quotas; fixed-window boundary bursts are
+documented and public issuance remains unavailable (ADR 0026).
+
 Latest S3 fenced inactive-reference cleanup: full gate passes 486 fast, 59 real
 PostgreSQL (29 operational + 9 admission + 9 workspace + 12 cleanup), 34
 production-build browser tests and closed-public-boundary runtime harness;

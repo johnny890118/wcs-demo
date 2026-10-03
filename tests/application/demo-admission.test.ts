@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   requireDemoAdmissionPolicy,
+  requireDemoCreationBudgetPolicy,
+  defaultDemoCreationBudget,
   requireDemoExpiryBatch,
   requireDemoReservationInput,
 } from "../../src/application/demo/demo-admission";
@@ -15,6 +17,33 @@ const runtime: OperationalRuntime = {
 const policy = { ttlSeconds: 1_800, maximumReservations: 10 };
 
 describe("demo admission foundation", () => {
+  it("validates bounded global creation configuration before connecting", () => {
+    expect(() =>
+      requireDemoCreationBudgetPolicy(defaultDemoCreationBudget),
+    ).not.toThrow();
+    for (const windowSeconds of [0, 9, 3601, 10.5, NaN, Infinity]) {
+      expect(() =>
+        requireDemoCreationBudgetPolicy({ windowSeconds, maximumCreations: 1 }),
+      ).toThrow("INVALID");
+    }
+    for (const maximumCreations of [0, 1001, 1.5, NaN, Infinity]) {
+      expect(
+        () =>
+          new PgDemoAdmissionRepository({} as never, runtime, policy, {
+            windowSeconds: 60,
+            maximumCreations,
+          }),
+      ).toThrow("INVALID");
+    }
+    for (const windowSeconds of [10, 3600]) {
+      expect(() =>
+        requireDemoCreationBudgetPolicy({
+          windowSeconds,
+          maximumCreations: 1000,
+        }),
+      ).not.toThrow();
+    }
+  });
   it("allows hosted public simulation without confusing lifecycle and profile", () => {
     expect(() => requireDemoAdmissionPolicy(runtime, policy)).not.toThrow();
   });

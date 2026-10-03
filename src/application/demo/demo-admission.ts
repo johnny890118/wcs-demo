@@ -5,6 +5,30 @@ export type DemoAdmissionPolicy = Readonly<{
   maximumReservations: number;
 }>;
 
+export type DemoCreationBudgetPolicy = Readonly<{
+  windowSeconds: number;
+  maximumCreations: number;
+}>;
+export const defaultDemoCreationBudget: DemoCreationBudgetPolicy =
+  Object.freeze({
+    windowSeconds: 60,
+    maximumCreations: 60,
+  });
+export function requireDemoCreationBudgetPolicy(
+  policy: DemoCreationBudgetPolicy,
+): void {
+  if (
+    !Number.isSafeInteger(policy.windowSeconds) ||
+    policy.windowSeconds < 10 ||
+    policy.windowSeconds > 3_600 ||
+    !Number.isSafeInteger(policy.maximumCreations) ||
+    policy.maximumCreations < 1 ||
+    policy.maximumCreations > 1_000
+  ) {
+    throw new DemoAdmissionError("INVALID");
+  }
+}
+
 export type DemoReservation = Readonly<{
   sessionId: string;
   templateWarehouseId: string;
@@ -27,7 +51,12 @@ export interface DemoAdmissionRepository {
 
 export class DemoAdmissionError extends Error {
   constructor(
-    readonly code: "UNAVAILABLE" | "INVALID" | "CAPACITY" | "CONFLICT",
+    readonly code:
+      | "UNAVAILABLE"
+      | "INVALID"
+      | "CAPACITY"
+      | "CONFLICT"
+      | "RATE_LIMITED",
   ) {
     super(`Demo admission failed: ${code}.`);
     this.name = "DemoAdmissionError";

@@ -216,6 +216,9 @@ isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
 - Leased/fenced inactive-reference cleanup archives ownership evidence and only
   releases capacity after atomic verified removal (ADR 0025). Active simulator
   cleanup, enabled workers, persisted access and abuse gates remain unfinished.
+- Global committed-creation rate is independently bounded in a persistent
+  DB-time fixed window (ADR 0026); cleanup/retries cannot replenish it. This does
+  not complete HTTP abuse controls or scenario/per-session storage quotas.
 
 - [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
 - [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
@@ -261,8 +264,8 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-S2 and the S3 admission/reference-snapshot delivery gates are complete. Finish
-the independent inactive-reference cleanup checkpoint and its exact-commit
+S2 and S3 admission/reference-snapshot/inactive-cleanup delivery gates are complete. Finish
+the independent creation-budget checkpoint and its exact-commit
 delivery gates, then establish isolated virtual runtime ownership and
 every-request persisted access before any public entry. Do not implement an
 unscoped reset/replay UI prematurely. Preserve

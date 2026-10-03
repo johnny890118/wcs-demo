@@ -4,9 +4,12 @@ import type { OperationalRuntime } from "../../../../src/application/access/oper
 import {
   DemoAdmissionError,
   requireDemoAdmissionPolicy,
+  requireDemoCreationBudgetPolicy,
+  defaultDemoCreationBudget,
   requireDemoExpiryBatch,
   requireDemoReservationInput,
   type DemoAdmissionPolicy,
+  type DemoCreationBudgetPolicy,
   type DemoAdmissionRepository,
   type DemoReservation,
   type ReserveDemoSession,
@@ -37,15 +40,19 @@ function reservation(row: ReservationRow): DemoReservation {
 /** Control ledger only: never grants warehouse or equipment authorization. */
 export class PgDemoAdmissionRepository implements DemoAdmissionRepository {
   private readonly policy: DemoAdmissionPolicy;
+  private readonly creationBudget: DemoCreationBudgetPolicy;
 
   constructor(
     private readonly pool: Pool,
     runtime: OperationalRuntime,
     policy: DemoAdmissionPolicy,
+    creationBudget: DemoCreationBudgetPolicy = defaultDemoCreationBudget,
   ) {
     requireDemoAdmissionPolicy(runtime, policy);
+    requireDemoCreationBudgetPolicy(creationBudget);
     // Retain server-owned immutable configuration, not caller-mutable objects.
     this.policy = { ...policy };
+    this.creationBudget = { ...creationBudget };
   }
 
   private async transaction<T>(
@@ -95,6 +102,7 @@ export class PgDemoAdmissionRepository implements DemoAdmissionRepository {
       if (Number(capacity.rows[0].count) >= this.policy.maximumReservations) {
         throw new DemoAdmissionError("CAPACITY");
       }
+      await this.consumeCreationBudget(client);
       const created = await client.query<ReservationRow>(
         `WITH admission_time AS (SELECT clock_timestamp() AS value)
          INSERT INTO demo_session_reservations
@@ -110,6 +118,43 @@ export class PgDemoAdmissionRepository implements DemoAdmissionRepository {
       );
       return reservation(created.rows[0]);
     });
+  }
+
+  private async consumeCreationBudget(client: PoolClient): Promise<void> {
+    const current = await client.query<{
+      window_seconds: number;
+      maximum_creations: number;
+      creations: number;
+      fresh: boolean;
+    }>(
+      `SELECT *,clock_timestamp()<window_started_at+window_seconds*interval '1 second' AS fresh
+       FROM demo_creation_budget WHERE singleton=true FOR UPDATE`,
+    );
+    const row = current.rows[0];
+    if (row?.fresh) {
+      if (
+        row.window_seconds !== this.creationBudget.windowSeconds ||
+        row.maximum_creations !== this.creationBudget.maximumCreations
+      ) {
+        throw new DemoAdmissionError("CONFLICT");
+      }
+      if (row.creations >= row.maximum_creations)
+        throw new DemoAdmissionError("RATE_LIMITED");
+      await client.query(
+        "UPDATE demo_creation_budget SET creations=creations+1 WHERE singleton=true",
+      );
+    } else {
+      await client.query(
+        `INSERT INTO demo_creation_budget (singleton,window_started_at,window_seconds,maximum_creations,creations)
+         VALUES (true,clock_timestamp(),$1,$2,1)
+         ON CONFLICT (singleton) DO UPDATE SET window_started_at=EXCLUDED.window_started_at,
+         window_seconds=EXCLUDED.window_seconds,maximum_creations=EXCLUDED.maximum_creations,creations=1`,
+        [
+          this.creationBudget.windowSeconds,
+          this.creationBudget.maximumCreations,
+        ],
+      );
+    }
   }
 
   async expireBatch(limit: number): Promise<number> {

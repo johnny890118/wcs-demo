@@ -16,6 +16,10 @@ The supported product entry and authenticated, simulator-backed operations conso
   leases/fencing, parent locks, no active/observed/assigned/operational resources,
   archived ownership evidence and verified removal precede atomic capacity
   release. This is not active simulator drain or enabled public cleanup.
+  ADR 0026 separately bounds committed new reservations in one persisted global
+  fixed-window budget. Capacity release does not reset it, failures roll it back
+  and replay consumes no new credit. Fixed-window boundary bursts, HTTP attempts,
+  per-client fairness and scenario/storage quotas remain separate activation gates.
 
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.

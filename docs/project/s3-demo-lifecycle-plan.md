@@ -1,6 +1,6 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — fenced inactive-reference cleanup slice.
+Status: Active — persisted global creation-budget slice.
 
 ## Entry evidence and workflow
 
@@ -144,3 +144,29 @@ scan passes. Existing bilingual/theme/mobile/keyboard/accessibility regressions
 remain green; no new UI or PDF surface is introduced. Final independent review
 found no blockers after the competing-connection/deadline additions. Checkpoint
 delivery gates remain separate from this local evidence.
+
+## Current coherent slice — persisted creation budget
+
+Inactive-reference cleanup checkpoint `f23881d6f4e453ff1914b932f42c7388c9a90112`
+is pushed; Verify `37142430784` has both jobs successful, exact Vercel/Render
+deployment and post-deployment managed runtime pass, and working tree is clean.
+Do not redo prior work. Next high-risk admission/abuse foundation uses ADR 0026:
+bound committed new creations across processes and cleanup cycles in one DB-time
+control row, preserve replay and atomic rollback, fail closed for conflicting
+active-window configuration. No public endpoint enablement or UI change.
+Required gates: focused policy and PostgreSQL concurrency/replay/window/cleanup/
+rollback/reset/RLS tests, full verification, API build, independent security
+review, checkpoint/push, exact CI/deployment/runtime and clean tree.
+
+Focused evidence: 20 admission-policy tests and the sequential real PostgreSQL
+suites pass (59 prior + 8 initial budget checks); separate API build succeeds.
+Independent review found no blockers and correctly qualifies fixed-window bursts
+and unfinished HTTP/scenario/storage limits. The suggested existing-counter
+increment/evidence-failure rollback regression was also added before full gate.
+
+Full verification passes 487 fast, 68 real PostgreSQL (29 + 9 + 9 + 12 + 9),
+34 production-build browser checks and the closed-public-boundary HTTP harness.
+API build passes; secrets/dependency gates pass with zero vulnerabilities and
+only the existing 15 legacy lint warnings. Existing-counter rollback leaves
+both count and original window unchanged. UI/locale/theme/mobile/keyboard and
+manual/PDF drift gates remain green without introducing or regenerating UI/PDF.
