@@ -186,6 +186,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Authenticated bilingual searchable manual web foundation and shipped-workflow contextual help; effective-permission links, versioned single content source
 - [x] Versioned bilingual private PDF export from the same source; hash/source/extracted-content drift gate and standalone artifact tracing
 - [x] Inbound/outbound request review with readable item/location context, scoped task investigation and bounded stock-hint qualification; no mutation authority change
+- [x] Alarm/recovery work context: readable state/severity, bounded affected-work context, scoped investigation and explicit unknown-outcome/recovery-impact meaning
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links

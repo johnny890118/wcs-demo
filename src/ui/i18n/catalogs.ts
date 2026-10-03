@@ -1,6 +1,28 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
   helpTitle: "Operation manual",
+  alarmStateActive: "Awaiting acknowledgement",
+  alarmStateAcknowledged: "Acknowledged; resolution required",
+  alarmStateUnknown: "Unrecognized alarm state; investigate",
+  alarmSeverityCritical: "Critical",
+  alarmSeverityWarning: "Warning",
+  alarmSeverityInfo: "Information",
+  alarmSeverityUnknown: "Severity unknown",
+  alarmAffectedWork: "Affected work",
+  alarmTaskContextMissing:
+    "Task context is absent from this bounded read; inspect the task directly.",
+  alarmContextNotice:
+    "This is recorded alarm/work context, not physical clearance or current equipment safety. Inspect evidence before authorizing recovery.",
+  alarmResumeImpact:
+    "Resume retains the assigned equipment and requests continuation. It does not establish physical clearance; unknown outcomes require reconciliation.",
+  alarmReleaseImpact:
+    "Release returns work to the assignment queue. It does not prove the load moved or make the original equipment safe.",
+  alarmChooseImpact:
+    "Choose the intended task transition only after reviewing the task, equipment and recovery evidence.",
+  alarmReference: "Alarm reference",
+  alarmRecoveryUnknown: "Recovery outcome unknown",
+  alarmRecoveryUnknownHelp:
+    "The recorded result is unknown. Inspect task and equipment evidence and reconcile before continuing; do not repeat movement blindly.",
   submittedRequest: "Submitted request",
   workflowLoadReference: "Persisted load reference",
   requestedItemQuantity: "Requested item and quantity",
@@ -555,6 +577,26 @@ export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
   helpTitle: "操作手冊",
+  alarmStateActive: "等待確認",
+  alarmStateAcknowledged: "已確認；仍需處置",
+  alarmStateUnknown: "無法辨識警報狀態；需要追查",
+  alarmSeverityCritical: "嚴重",
+  alarmSeverityWarning: "警告",
+  alarmSeverityInfo: "資訊",
+  alarmSeverityUnknown: "嚴重程度未知",
+  alarmAffectedWork: "受影響作業",
+  alarmTaskContextMissing: "本次有限讀取沒有這筆任務資訊，請直接追查任務。",
+  alarmContextNotice:
+    "此處是已記錄的警報與作業資訊，不代表實體障礙已排除或設備目前安全。授權復原前請檢視證據。",
+  alarmResumeImpact:
+    "繼續會保留已指派設備並要求接續作業，不代表實體障礙已排除；未知結果仍需對帳確認。",
+  alarmReleaseImpact:
+    "釋放會讓作業回到待指派佇列，不代表載具已移動，也不代表原設備已安全。",
+  alarmChooseImpact: "檢視任務、設備與復原證據後，再選擇預期的任務狀態轉換。",
+  alarmReference: "警報識別碼",
+  alarmRecoveryUnknown: "復原結果未知",
+  alarmRecoveryUnknownHelp:
+    "已記錄結果為未知。繼續前需檢視任務與設備證據並對帳確認，不要盲目重送移動。",
   submittedRequest: "已送出的作業請求",
   workflowLoadReference: "已記錄載具識別碼",
   requestedItemQuantity: "請求的品項與數量",

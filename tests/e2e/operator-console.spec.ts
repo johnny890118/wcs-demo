@@ -1206,13 +1206,36 @@ test("operator acknowledges and releases a faulted task", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "確認警報並復原受阻作業" }),
   ).toBeVisible();
+  await expect(page.getByText("受影響作業", { exact: true })).toBeVisible();
+  await reviewCreatedWorkflow(page, "alarm-review");
+  const relatedTask = page.getByRole("link", {
+    name: "追查相關任務 · 開啟新分頁",
+    exact: true,
+  });
+  const taskPopup = page.waitForEvent("popup");
+  await relatedTask.focus();
+  await page.keyboard.press("Enter");
+  const taskWindow = await taskPopup;
+  await expect(taskWindow.locator("main h1")).toBeVisible();
+  await taskWindow.close();
   await page.getByLabel("確認理由").fill("已檢視警報、任務與設備證據。");
   await page
     .getByLabel("我已檢視警報、受影響任務、設備與目前營運證據。")
     .check();
   await page.getByRole("button", { name: "確認警報" }).click();
 
+  await expect(
+    page.getByRole("combobox", { name: "復原策略", exact: true }),
+  ).toBeVisible();
+  await reviewCreatedWorkflow(page, "alarm-recovery-review");
+
   await page.getByLabel("復原策略").selectOption("release");
+  await expect(
+    page.getByText(
+      "釋放會讓作業回到待指派佇列，不代表載具已移動，也不代表原設備已安全。",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await page.getByLabel("處置結果").fill("車輛已隔離，任務釋放回待指派佇列。");
   await page.getByLabel("確認理由").fill("主管已確認車輛隔離與任務釋放條件。");
   await page.getByLabel("我已確認復原條件，並授權所選的任務狀態轉換。").check();

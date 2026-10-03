@@ -342,7 +342,38 @@ both locales/themes/mobile, full gate, push/CI and deployed auth boundary.
 | Outbound SKU options show unqualified stock quantity | SKU choices with bounded-evidence caveat and qualified stock link  | Recorded quantity is not available balance after reservations  |
 | Workflow has no obvious task investigation link      | Explicit scoped task detail link preserving pending form           | Read evidence without accidentally losing confirmation context |
 
-## Outcome
+## Alarm/recovery work-context acceptance
+
+Medium-risk presentation slice under S2; reuse the authorized warehouse projection
+without changing acknowledgement/recovery endpoints, permission checks, or the
+state machine. Lead with localized alarm state/severity, readable affected task
+route when present, and explicit missing bounded-context meaning. Add scoped task
+investigation that preserves pending confirmation, explain resume/release impact
+without claiming physical clearance, and move technical references to native
+disclosure. Unknown states remain unknown, never a recovery recommendation.
+Test missing context, unknown status/severity, permissions, confirmed recovery,
+keyboard navigation, both locales/themes and mobile reflow/axe; run full verify
+and API build, then independent checkpoint/push/CI/deployed boundary checks.
+
+| Before                                         | After                                           | Why                                              |
+| ---------------------------------------------- | ----------------------------------------------- | ------------------------------------------------ |
+| Raw alarm enums and task UUID lead             | Readable state, affected route and evidence     | Operator can understand the selected exception   |
+| Recovery choice lacks local impact explanation | Resume/release consequences and evidence caveat | State transition is not physical clearance       |
+| Outcome points to broad diagnostics            | Scoped task investigation and optional audit    | Follow the work without interpreting raw records |
+
+## Overall outcome
+
+Alarm work-context review corrected the existing UI's false resumed/success
+message for an accepted `unknown` recovery outcome. Unknown outcomes now have
+warning icon/text and reconciliation guidance; the existing response guard still
+rejects blocking-alarm or malformed results. Unknown alarm states do not enable
+actions. No mutation endpoint, permissions, confirmation or domain transition
+changed. Technical IDs remain available through native disclosure. Missing task
+context is qualified as bounded-read absence, not an absent task or no impact.
+Runtime review covers acknowledgement and recovery preparation in both locales,
+light/dark, mobile reflow/axe and keyboard task investigation. Full verification
+passes 421 fast tests, 19 real PostgreSQL tests and 32 production-build browser
+tests; API build passes. Existing legacy warnings remain unchanged.
 
 Workflow-context self-review retained backend authorization, allocation,
 idempotency and explicit confirmation unchanged. Removed the unqualified raw

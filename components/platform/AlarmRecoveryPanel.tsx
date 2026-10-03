@@ -38,6 +38,20 @@ export function AlarmRecoveryPanel({
   canViewAudit,
 }: Props) {
   const { t } = useLocale();
+  const alarmState = (status: string) =>
+    status === "active"
+      ? t("alarmStateActive")
+      : status === "acknowledged"
+        ? t("alarmStateAcknowledged")
+        : t("alarmStateUnknown");
+  const severity = (value: string) =>
+    value === "critical"
+      ? t("alarmSeverityCritical")
+      : value === "warning"
+        ? t("alarmSeverityWarning")
+        : value === "info"
+          ? t("alarmSeverityInfo")
+          : t("alarmSeverityUnknown");
   const [alarms, setAlarms] = useState<AlarmItem[]>([...details.alarms]);
   const actionable = useMemo(
     () => alarms.filter((alarm) => alarm.status !== "cleared"),
@@ -55,7 +69,15 @@ export function AlarmRecoveryPanel({
   const [completed, setCompleted] = useState<AlarmRecovered | null>(null);
 
   const selected = alarms.find((alarm) => alarm.alarmId === selectedAlarmId);
-  const canAct = selected?.status === "active" ? canAcknowledge : canRecover;
+  const affectedTask = details.tasks.find(
+    (task) => task.taskId === selected?.taskId,
+  );
+  const canAct =
+    selected?.status === "active"
+      ? canAcknowledge
+      : selected?.status === "acknowledged"
+        ? canRecover
+        : false;
 
   function resetConfirmation() {
     setConfirmationReason("");
@@ -175,7 +197,8 @@ export function AlarmRecoveryPanel({
           >
             {actionable.map((alarm) => (
               <option key={alarm.alarmId} value={alarm.alarmId}>
-                {alarm.severity} · {alarm.code} · {alarm.status}
+                {severity(alarm.severity)} · {alarm.code} ·{" "}
+                {alarmState(alarm.status)}
               </option>
             ))}
           </select>
@@ -189,13 +212,17 @@ export function AlarmRecoveryPanel({
             <div>
               <dt className="text-[var(--text-muted)]">{t("status")}</dt>
               <dd className="mt-1 font-semibold">
-                {selected.severity} · {selected.status}
+                {severity(selected.severity)} · {alarmState(selected.status)}
               </dd>
             </div>
             <div>
-              <dt className="text-[var(--text-muted)]">{t("taskId")}</dt>
-              <dd className="mt-1 break-all font-mono font-semibold">
-                {selected.taskId ?? "—"}
+              <dt className="text-[var(--text-muted)]">
+                {t("alarmAffectedWork")}
+              </dt>
+              <dd className="mt-1 break-words font-semibold">
+                {affectedTask
+                  ? `${affectedTask.source} → ${affectedTask.destination}`
+                  : t("alarmTaskContextMissing")}
               </dd>
             </div>
             <div>
@@ -211,6 +238,43 @@ export function AlarmRecoveryPanel({
               <dd className="mt-1 leading-6">{selected.message}</dd>
             </div>
           </dl>
+        ) : null}
+        {selected ? (
+          <div className="mt-4 space-y-4">
+            <p className="text-sm leading-6 text-[var(--text-muted)]">
+              {t("alarmContextNotice")}
+            </p>
+            <Link
+              href={`/operations/tasks/${encodeURIComponent(selected.taskId)}`}
+              target={state === "complete" ? undefined : "_blank"}
+              rel={state === "complete" ? undefined : "noopener noreferrer"}
+              className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+            >
+              {t("inspectCreatedTask")}
+              {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
+            </Link>
+            <details className="border-t border-[var(--border)] pt-2">
+              <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
+                {t("workflowReferences")}
+              </summary>
+              <dl className="space-y-2 break-all text-xs text-[var(--text-muted)]">
+                <div>
+                  <dt>{t("alarmReference")}</dt>
+                  <dd>{selected.alarmId}</dd>
+                </div>
+                <div>
+                  <dt>{t("taskId")}</dt>
+                  <dd>{selected.taskId}</dd>
+                </div>
+                <div>
+                  <dt>{t("status")}</dt>
+                  <dd>
+                    {selected.severity} · {selected.status}
+                  </dd>
+                </div>
+              </dl>
+            </details>
+          </div>
         ) : null}
       </section>
 
@@ -229,24 +293,41 @@ export function AlarmRecoveryPanel({
         {state === "complete" && completed ? (
           <div
             role="status"
-            className="mt-5 rounded-lg border border-[color:color-mix(in_srgb,var(--success)_40%,var(--border))] bg-[color:color-mix(in_srgb,var(--success)_8%,var(--surface))] p-4"
+            className={`mt-5 rounded-lg border p-4 ${
+              completed.status === "unknown"
+                ? "border-[var(--warning)] bg-[var(--surface-muted)]"
+                : "border-[color:color-mix(in_srgb,var(--success)_40%,var(--border))] bg-[color:color-mix(in_srgb,var(--success)_8%,var(--surface))]"
+            }`}
           >
             <div className="flex gap-3">
-              <CheckCircleIcon
-                className="h-5 w-5 shrink-0 text-[var(--success)]"
-                aria-hidden="true"
-              />
+              {completed.status === "unknown" ? (
+                <ExclamationTriangleIcon
+                  className="h-5 w-5 shrink-0 text-[var(--warning)]"
+                  aria-hidden="true"
+                />
+              ) : (
+                <CheckCircleIcon
+                  className="h-5 w-5 shrink-0 text-[var(--success)]"
+                  aria-hidden="true"
+                />
+              )}
               <div>
-                <p className="text-sm font-bold">{t("recoveryCompleted")}</p>
+                <p className="text-sm font-bold">
+                  {completed.status === "unknown"
+                    ? t("alarmRecoveryUnknown")
+                    : t("recoveryCompleted")}
+                </p>
                 <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  {completed.status === "queued"
-                    ? t("taskReleased")
-                    : t("taskResumed")}
+                  {completed.status === "unknown"
+                    ? t("alarmRecoveryUnknownHelp")
+                    : completed.status === "queued"
+                      ? t("taskReleased")
+                      : t("taskResumed")}
                 </p>
               </div>
             </div>
             <Link
-              href="/operations/projections"
+              href={`/operations/tasks/${encodeURIComponent(completed.taskId)}`}
               className="mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
             >
               {t("viewRecoveryOutcome")}
@@ -276,9 +357,12 @@ export function AlarmRecoveryPanel({
           <div className="mt-5 space-y-5">
             {!canAct ? (
               <PermissionNotice>
-                {selected.status === "active"
-                  ? t("alarmAcknowledgePermissionRequired")
-                  : t("alarmRecoverPermissionRequired")}
+                {selected.status !== "active" &&
+                selected.status !== "acknowledged"
+                  ? t("alarmStateUnknown")
+                  : selected.status === "active"
+                    ? t("alarmAcknowledgePermissionRequired")
+                    : t("alarmRecoverPermissionRequired")}
               </PermissionNotice>
             ) : null}
             {selected.status === "acknowledged" ? (
@@ -300,6 +384,13 @@ export function AlarmRecoveryPanel({
                     <option value="release">{t("releaseTask")}</option>
                   </select>
                 </label>
+                <p className="text-sm leading-6 text-[var(--text-muted)]">
+                  {strategy === "resume"
+                    ? t("alarmResumeImpact")
+                    : strategy === "release"
+                      ? t("alarmReleaseImpact")
+                      : t("alarmChooseImpact")}
+                </p>
                 <label className="block text-sm font-semibold">
                   {t("recoveryResolution")}
                   <textarea

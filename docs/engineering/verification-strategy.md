@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Latest S2 alarm-context checkpoint: complete verification passes 421 fast tests,
+19 ephemeral PostgreSQL integration tests and 32 production-build Chromium tests;
+separate API build passes. Tests cover missing bounded task context, unknown alarm
+vocabulary with disabled action, permission denial and an accepted unknown
+recovery result that must not appear resumed/completed. Browser review covers
+acknowledgement and recovery preparation in both locales/themes at 390 px, zero
+axe findings, keyboard task investigation and confirmed recovery/audit navigation.
+The existing recovery-response guard and backend contracts are unchanged.
+
 Latest S2 workflow-context checkpoint: complete verification passes 418 fast
 tests, 19 ephemeral PostgreSQL integration tests and 32 production-build Chromium
 tests; separate API build passes. Browser checks review created inbound/outbound
