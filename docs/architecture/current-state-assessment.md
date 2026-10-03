@@ -1,6 +1,6 @@
 # Current architecture assessment
 
-Assessment date: 2026-10-03. Baseline: verified M8A, system-first frontend boundary, deterministic theme/operations fixes, approved product-experience alignment, and completed S1 accountable access/deployment safety including persisted assignments/sessions, failed-proof protection, database direct-access denial, and operational mutation-origin enforcement.
+Assessment date: 2026-10-04. Baseline: verified M8A, system-first frontend boundary, completed S1 accountable access/deployment safety, and accepted S2 operational read/workflow foundation. See the S2 acceptance matrix for tested responsibilities and remaining product limits.
 
 ## Supported product path
 
@@ -31,11 +31,11 @@ Assessment date: 2026-10-03. Baseline: verified M8A, system-first frontend bound
 - Authentication is still a single environment-backed demo identity proof. Human grants, sessions, opaque failed-proof evidence, and shared throttling are persisted; service permissions/identities remain deny-by-default, and sign-out revocation has bounded observable retry. Production OIDC, assignment/role administration, durable revocation delivery/administration UI, security-event retention/export, and persisted anonymous-demo lifecycle are not implemented.
 - PostgreSQL platform tables use deny-by-default row-level security for non-owner roles. The dedicated table-owning API connection remains the only data path; warehouse permission and scope enforcement stays at the authorized API boundary rather than being duplicated into provider-facing database policies.
 - The shell exposes current warehouse, principal, lifecycle environment, deployment profile, equipment source, and projection freshness. The simulator fault-injection endpoint is attributed to its configured service principal; Public Demo issuance and validation contracts exist, but UI entry, persisted sessions, quotas, reset ownership, and cleanup remain S3.
-- `/operations` prioritizes server-classified attention and active/waiting work with readable location/state meaning and evidence navigation. Home explicitly reports bounded coverage and last-known data on refresh failure. `/operations/tasks` provides a warehouse-scoped active/all paginated queue; detail exposes persisted work/load/route/alarm context and `audit.view`-gated evidence links. The full approved work-center experience remains S2 work.
+- `/operations` prioritizes server-classified attention and active/waiting work with readable location/state meaning and evidence navigation. Home explicitly reports bounded coverage and last-known data on refresh failure. `/operations/tasks` provides a warehouse-scoped active/all paginated queue; detail exposes persisted work/load/route/alarm context and `audit.view`-gated evidence links. The approved S2 foundation is accepted; advanced overrides and reconciliation remain S4, not an implied shipped capability.
 - `/operations/inventory` provides warehouse-scoped literal search and keyset pages, stock balances, active reservations, residual available-state stock, readable load/location context, and permission-gated receipt history. It is not physical observation or allocation authorization.
 - `/api/v1/operations/loads` and authenticated `/operations/loads` provide scoped paginated load context. Received quantity and optional current inventory remain distinct; shipped history is zero current stock, missing inventory is unknown. Inventory workspace navigation connects stock, loads and `/operations/locations`. Locations reads scoped configured state and active-version bindings, with separate historical load/non-shipped stock record counts and related substring searches; no physical occupancy, safety authorization or configuration mutation is implied.
 - `/operations/warehouse` provides the qualified daily Live View foundation: readable equipment state, current/last-known/unknown position, observed-versus-assigned work, alarm context and scoped deep links. Serialized observation deadlines allow browser downgrade only. `/operations/warehouse/topology` preserves the engineering diagram; neither is a calibrated floorplan or command authorization.
-- `/operations/help` provides a versioned bilingual searchable manual and workflow-specific contextual links. A single structured source produces offline PDF artifacts; authenticated no-store/noindex download routes revalidate session/permission/scope. Source/hash/extracted-text checks prevent drift, and standalone tracing includes private assets. The accessible web manual is primary; exported PDFs are searchable Unicode but not tagged/PDF-UA certified. S2 acceptance closure remains pending.
+- `/operations/help` provides a versioned bilingual searchable manual and workflow-specific contextual links. A single structured source produces offline PDF artifacts; authenticated no-store/noindex download routes revalidate session/permission/scope. Source/hash/extracted-text checks prevent drift, and standalone tracing includes private assets. The accessible web manual is primary; exported PDFs are searchable Unicode but not tagged/PDF-UA certified. See [S2 acceptance evidence](../project/s2-acceptance-evidence.md).
 - Warehouse, topology, equipment, and adapter models exist, but governed administration (draft, review, activation, rollback, compatibility impact) does not.
 - Execution proves deterministic vertical slices, not fleet-scale scheduling, resource coordination, or complete operator reconciliation.
 - External WMS and real equipment integrations are contracts/reference proofs rather than production integration products.
@@ -57,9 +57,8 @@ The original React/SVG prototype still contains large stateful map/task componen
 
 ## Next architecture priorities
 
-1. S2 actionable work center, inventory visibility, Operations Live View foundation, readable topology, and manual/contextual-help foundation.
-2. S3 guarded scenario lifecycle with evidence surviving reset and production hard-deny.
-3. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.
-4. S7–S8 external integration, production identity, commissioning, and commercial production operability.
+1. S3 isolated persisted demo-session lifecycle, with evidence surviving reset and production hard-deny; only after S2 delivery gates pass.
+2. S4–S6 reconciliation, scheduling/resource coordination, and governed configuration.
+3. S7–S8 external integration, production identity, commissioning, and commercial production operability.
 
 See the approved [Product Experience Direction](../product/approved-product-experience-direction.md) for the governing sequence and user-facing definition of done.

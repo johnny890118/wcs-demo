@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Latest S2 acceptance closure: full gate passes 452 fast, 29 real PostgreSQL
+and 34 production-build browser tests; separate API build passes. Four added
+persisted regressions reject foreign warehouse/node bindings and prove unbound
+or retired same-label locations remain unbound. Runtime screenshot review covers
+Home, stock/load/location views, Live View, manual and inbound review. Evidence
+classes and remaining S3–S8 limits are recorded in the S2 acceptance matrix;
+neither mocked browser fixtures nor local measurements imply hardware safety or
+authenticated production performance.
+
 Latest S2 bounded-session freshness: full gate passes 452 fast, 25 real
 PostgreSQL and 34 production-build browser tests; API build passes. Exact
 freshness/expiry, malformed stamps, strict update/mutations, read-vs-mutation

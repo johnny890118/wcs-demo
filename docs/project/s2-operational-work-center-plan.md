@@ -1,15 +1,32 @@
 # S2 Operational Work Center Plan
 
-Status: Active
+Status: Engineering complete for approved S2 foundation; checkpoint delivery gates pending.
 
 ## Current handoff-free continuation order
+
+Freshness checkpoint `9b24d83` now has exact remote SHA, successful Verify and
+deployment-smoke run `37135511926`, Vercel/Render exact-commit success, managed
+runtime pass and a clean working tree. The current independent slice is S2
+acceptance closure: trace each remaining checklist item to shipped code/tests,
+extend missing negative persisted-binding coverage, and publish an honest
+acceptance/remaining-limitations matrix. Medium-risk read-boundary verification;
+reuse this plan and existing product/architecture decisions, no new ADR or
+production configuration mutation. Do not rebuild shipped UI or start S3 before
+this slice's own full verification/checkpoint/deployment gates succeed.
+
+## Historical slice evidence (not active instructions)
+
+The following chronological notes preserve decisions and verification. Completed
+future imperatives below are historical, not instructions to redo shipped work.
+Once the current acceptance delivery gates pass, continue S3 under the autonomous
+charter; marketing remains deferred.
 
 Manual correction checkpoint `375d6f0` is pushed, CI/deployments/runtime verified
 and was clean before the independent freshness slice began. Freshness now has
 implementation, full verification and independent security review evidence in
 `s2-session-freshness-plan.md`. Complete its checkpoint/delivery gates before
 returning to S2 acceptance closure. No S3 implementation or marketing work is
-authorized by this ordering.
+authorized before those delivery gates by this ordering.
 
 Owner's latest instruction after accidental interruption: finish the current
 manual correction slice through full verification, checkpoint, push, exact-HEAD

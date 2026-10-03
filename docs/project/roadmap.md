@@ -169,9 +169,11 @@ Status: Complete — verified 2026-10-03
 
 ## S2 — Operational Work Center, Inventory Visibility and Spatial Read Foundation
 
-Status: In progress
+Status: Complete for approved S2 foundation; acceptance checkpoint delivery gates pending.
 
-Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
+Evidence: [S2 acceptance matrix](s2-acceptance-evidence.md) and
+[S2 work center plan](s2-operational-work-center-plan.md). Advanced controls,
+physical authoring and commercial readiness remain separate milestones.
 
 - [x] First actionable Home slice: server-classified attention/work, readable locations/states, bounded coverage, freshness, and responsive bilingual presentation
 - [x] Scoped active/all task queue with keyset pagination; task detail with work/load, recorded route, open alarm, and permission-gated audit context
@@ -190,10 +192,10 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Alarm/recovery work context: readable state/severity, bounded affected-work context, scoped investigation and explicit unknown-outcome/recovery-impact meaning
 - [x] Cross-workflow read hardening: both task endpoints and stock receipt/load lineage scoped; unresolved alarm evidence prioritized before bounded history
 
-- [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
-- [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
+- [x] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
+- [x] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links (advanced overrides remain S4)
 - [x] Operations Live View foundation distinct from readable engineering topology inspection
-- [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
+- [x] Preserve and extend explicit Location-to-Topology-Node binding correctness, including persisted unbound/retired/foreign-reference regressions
 - [x] Complete the approved spatial/normalized-position read vocabulary: qualify coordinate system, unknown floor/frame/unit/calibration and node-level versus physical evidence without adding S6 authoring
 - [x] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
@@ -245,11 +247,11 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Close S2 against cross-workflow acceptance and repository reality; do not rebuild
-the shipped Home/task/Inventory/Live View/manual foundations. Review outstanding
-human-readable context and explicit binding requirements before marking S2
-complete or starting S3. Synchronize procedural manual guidance and complete the
-approved spatial read vocabulary without claiming calibrated coordinates or
-adding a map editor. Authenticated production latency remains unmeasured;
-PDFs are searchable but not PDF/UA certified. Public Demo lifecycle remains S3;
-calibrated physical layout remains S6.
+After the S2 acceptance checkpoint passes exact-commit CI/deployment/runtime and
+clean-tree gates, begin S3 with the smallest persisted isolated demo-session
+lifecycle contract. Characterize current issuance/reset boundaries first; do not
+enable public entry or implement an unscoped reset/replay UI prematurely. Preserve
+audit evidence outside resettable scenario state, production hard-deny and bounded
+resource ownership. Follow the existing approved S3–S8 sequence, not a new roadmap.
+Authenticated production latency remains unmeasured; PDFs are searchable but not
+PDF/UA certified. Calibrated physical layout remains S6; marketing stays deferred.

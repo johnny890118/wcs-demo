@@ -1351,6 +1351,95 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).toBe(true);
   });
 
+  it.each(["unbound", "retired"])(
+    "does not infer a location binding from matching labels when %s",
+    async (state) => {
+      if (!pool) throw new Error("Integration pool was not configured.");
+      const saved = await pool.query<{
+        warehouse_id: string;
+        topology_id: string;
+        topology_revision: number;
+        node_id: string;
+      }>(
+        "SELECT binding.warehouse_id, binding.topology_id, binding.topology_revision, binding.node_id FROM location_topology_bindings binding JOIN warehouse_topologies topology ON topology.id=binding.topology_id AND topology.revision=binding.topology_revision AND topology.status='active' WHERE binding.location_id=$1",
+        [command.sourceLocationId],
+      );
+      const binding = saved.rows[0];
+      expect(binding).toBeDefined();
+      const service = new LocationProjectionService(pool);
+      const initial = (await service.list(warehouseId)).items.find(
+        (item) => item.locationId === command.sourceLocationId,
+      )!;
+      expect(initial.code).toBe(binding.node_id);
+      expect(initial.binding?.nodeId).toBe(binding.node_id);
+      try {
+        if (state === "unbound")
+          await pool.query(
+            "DELETE FROM location_topology_bindings WHERE location_id=$1 AND topology_id=$2 AND topology_revision=$3",
+            [
+              command.sourceLocationId,
+              binding.topology_id,
+              binding.topology_revision,
+            ],
+          );
+        else
+          await pool.query(
+            "UPDATE warehouse_topologies SET status='retired' WHERE id=$1 AND revision=$2",
+            [binding.topology_id, binding.topology_revision],
+          );
+        const item = (await service.list(warehouseId)).items.find(
+          (entry) => entry.locationId === command.sourceLocationId,
+        )!;
+        expect(item.code).toBe(binding.node_id);
+        expect(item.binding).toBeNull();
+        const details = await new OperationsSummaryService(pool).getDetails(
+          warehouseId,
+        );
+        expect(
+          details.locations.find(
+            (entry) => entry.locationId === command.sourceLocationId,
+          )?.activeNodeId,
+        ).toBeNull();
+      } finally {
+        await pool.query(
+          "UPDATE warehouse_topologies SET status='active' WHERE id=$1 AND revision=$2",
+          [binding.topology_id, binding.topology_revision],
+        );
+        await pool.query(
+          "INSERT INTO location_topology_bindings (location_id,warehouse_id,topology_id,topology_revision,node_id) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (location_id,topology_id,topology_revision) DO NOTHING",
+          [
+            command.sourceLocationId,
+            binding.warehouse_id,
+            binding.topology_id,
+            binding.topology_revision,
+            binding.node_id,
+          ],
+        );
+      }
+    },
+  );
+
+  it.each(["warehouse", "node"])(
+    "rejects a persisted binding to a foreign %s reference",
+    async (reference) => {
+      if (!pool) throw new Error("Integration pool was not configured.");
+      const query =
+        reference === "warehouse"
+          ? "UPDATE location_topology_bindings SET warehouse_id=$2 WHERE location_id=$1"
+          : "UPDATE location_topology_bindings SET node_id=$2 WHERE location_id=$1";
+      const invalid =
+        reference === "warehouse" ? otherWarehouseId : command.sourceLocationId;
+      await expect(
+        pool.query(query, [command.sourceLocationId, invalid]),
+      ).rejects.toMatchObject({ code: "23503" });
+      const item = (
+        await new LocationProjectionService(pool).list(warehouseId)
+      ).items.find((entry) => entry.locationId === command.sourceLocationId);
+      expect(item).toBeDefined();
+      expect(item?.binding).not.toBeNull();
+    },
+  );
+
   it("persists only monotonic equipment observations and rejects older evidence", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     const sink = new PgEquipmentObservationSink(pool);
