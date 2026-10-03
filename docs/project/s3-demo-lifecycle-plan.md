@@ -59,7 +59,7 @@ spawned Next process, following the independent robustness review.
 The initial SQL parameter inference failure was fixed with an integer cast,
 not by weakening tests. Independent security review found no blockers.
 
-Full verification passes 471 fast, 38 real PostgreSQL (29 existing + 9 ledger),
+Full verification passes 475 fast, 38 real PostgreSQL (29 existing + 9 ledger),
 34 production-build browser tests; API build passes. The added actual
 production-build public-profile HTTP harness verifies closed issuance, denial
 of an old valid carrier on read/mutation/SSR and zero upstream calls. It runs
@@ -67,3 +67,10 @@ in the full gate, uses generated in-memory loopback-only secrets, and is not a
 managed authenticated benchmark. Existing human UI/keyboard/theme/locale
 regressions pass; this slice adds no UI or PDF revision. Delivery gates follow
 the checkpoint, rather than being inferred from local tests.
+
+Checkpoint `be721e6` exposed a CI smoke defect: applied migration count was
+hardcoded at 15. Migration 0016 is valid, but smoke exited before backup/restore.
+The correction compares exact applied migration names with the repository for
+both fresh and restored databases, rejecting missing, wrong or duplicate names;
+four regression checks cover the manifest verifier. No check is disabled and
+no managed database reset is performed. Delivery remains pending corrected CI.
