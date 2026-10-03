@@ -193,7 +193,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
 - [x] Operations Live View foundation distinct from readable engineering topology inspection
 - [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
-- [ ] Complete the approved spatial/normalized-position read vocabulary: qualify coordinate system, unknown floor/frame/unit/calibration and node-level versus physical evidence without adding S6 authoring
+- [x] Complete the approved spatial/normalized-position read vocabulary: qualify coordinate system, unknown floor/frame/unit/calibration and node-level versus physical evidence without adding S6 authoring
 - [x] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
 ## S3 — Public and Private Demo Product

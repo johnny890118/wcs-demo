@@ -815,6 +815,14 @@ const server = createServer(async (request, response) => {
               state: current ? "current" : "unknown",
               reason: current ? "observed" : "missing_telemetry",
               nodeId: current ? telemetry.nodeId : null,
+              reference: current
+                ? {
+                    kind: "topology_node",
+                    topologyId: details.topology.topologyId,
+                    topologyRevision: details.topology.revision,
+                    nodeId: telemetry.nodeId,
+                  }
+                : null,
               locations: current
                 ? details.locations
                     .filter(
@@ -839,6 +847,29 @@ const server = createServer(async (request, response) => {
         equipment,
         work,
         alarms: [],
+        spatialContext: {
+          contractVersion: 1,
+          positionRepresentation: "versioned_topology_node",
+          physicalLayout: "unrecorded",
+          coordinateSystems: [
+            ...new Set(
+              scoped
+                ? details.topology?.nodes.flatMap((node) =>
+                    node.position ? [node.position.coordinateSystem] : [],
+                  ) ?? []
+                : [],
+            ),
+          ]
+            .sort()
+            .map((identifier) => ({
+              identifier,
+              interpretation: "configured_topology_diagram",
+              unit: null,
+              floorId: null,
+              coordinateFrameId: null,
+              calibration: "unrecorded",
+            })),
+        },
         locations: scoped ? details.locations : [],
         topology: scoped ? details.topology : null,
         generatedAt,

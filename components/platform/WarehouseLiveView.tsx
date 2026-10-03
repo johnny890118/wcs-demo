@@ -6,6 +6,7 @@ import type {
 } from "../../src/application/operations/operations-live-view";
 import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { SpatialReadNotice } from "./SpatialReadNotice";
 
 const contextLink =
   "ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-semibold text-[var(--accent-strong)]";
@@ -55,6 +56,7 @@ export function WarehouseLiveView({
       <p className="max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
         {t("liveScopeNotice")}
       </p>
+      <SpatialReadNotice context={view.spatialContext} />
       <p className="text-xs text-[var(--text-muted)]">
         {t("refreshedAt")}:{" "}
         <time dateTime={view.generatedAt}>{time(view.generatedAt)} UTC</time>

@@ -3,11 +3,13 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { WarehouseLiveView } from "../../components/platform/WarehouseLiveView";
 import type { OperationsLiveView } from "../../src/application/operations/operations-live-view";
+import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
 vi.mock("../../src/ui/i18n/locale-provider", () => ({
   useLocale: () => ({ locale: "en", t: (key: string) => key }),
 }));
 afterEach(cleanup);
 const view: OperationsLiveView = {
+  spatialContext: projectSpatialReadContext(null),
   generatedAt: "2026-10-03T00:00:00Z",
   topology: null,
   locations: [],
@@ -29,6 +31,7 @@ const view: OperationsLiveView = {
       state: "unknown",
       reason: "missing_telemetry",
       nodeId: null,
+      reference: null,
       locations: [],
       validUntil: null,
     },

@@ -136,6 +136,22 @@ test("Live View separates observations from assignments and expires retained pos
   const payload = await (
     await page.request.get("/api/operations/live-view")
   ).json();
+  expect(payload.spatialContext.positionRepresentation).toBe(
+    "versioned_topology_node",
+  );
+  expect(payload.spatialContext.physicalLayout).toBe("unrecorded");
+  expect(payload.equipment[0].position.reference).toEqual({
+    kind: "topology_node",
+    topologyId: payload.topology.topologyId,
+    topologyRevision: payload.topology.revision,
+    nodeId: payload.equipment[0].position.nodeId,
+  });
+  await expect(
+    page.getByText(
+      "位置證據識別特定拓撲版本中的節點，不是量測的 XY 位置，也不是樓層指派。",
+      { exact: true },
+    ),
+  ).toBeVisible();
   const taskLink = page
     .locator(`a[href="/operations/tasks/${payload.work[0].taskId}"]`)
     .first();

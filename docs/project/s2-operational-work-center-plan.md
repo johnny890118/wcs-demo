@@ -363,6 +363,41 @@ and API build, then independent checkpoint/push/CI/deployed boundary checks.
 
 ## Overall outcome
 
+## Spatial read foundation acceptance
+
+Implementation and review: spatial contract v1 now binds usable observations to
+topology ID, revision and node, while unknown positions have no reference. Strict
+guards reject unrecorded physical claims and foreign/version-mismatched references.
+Multiple configured diagram systems remain distinct. No schema, command authority,
+observation deadline, permission or query count changes are made.
+
+| Before                                                    | After                                          | Why                                             |
+| --------------------------------------------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| Node identifier without normalized version context        | Topology ID/revision/node reference            | Prevent detached location interpretation        |
+| Diagram coordinates can imply physical measurement        | Explicit unknown units/floor/frame/calibration | Avoid fabricated warehouse truth                |
+| Qualification differs between daily and engineering views | Shared localized accessible disclosure         | Keep one read contract without merging surfaces |
+
+Full verification: 426 fast, 21 real PostgreSQL, 33 production-build browser tests;
+API build and secret checks pass. Existing legacy-only lint warnings remain.
+Self-review keeps the notice after the page heading, uses native disclosure and
+preserves unknown/freshness semantics. Manual procedural synchronization and
+software-release labeling remain the next separate checkpoint; S2 stays active.
+
+Next medium-risk read-contract/UI slice after `5b2a67f` is CI/runtime stable.
+Owner Charter requires S2 spatial and normalized-position vocabulary, not S6 map
+authoring. Existing observations normalize to versioned topology nodes, not XY;
+topology node coordinates are persisted diagram metadata with no recorded unit,
+floor/frame entity or calibration. Make these distinctions explicit in a v1 read
+contract, preserve multiple coordinate-system identifiers, and expose qualified
+context in Live View/inspection without plotting invented movement or treating Z
+as floor identity. Unknown position must have no normalized node reference.
+Existing freshness, bindings, warehouse access and command authority remain
+unchanged. A focused spec records semantics; no new control architecture or ADR
+is necessary. Cover missing/mixed coordinate systems, mismatched topology,
+unknown/stale position, malicious unsupported physical claims, bilingual/mobile
+runtime and full verification. Procedural manual/PDF synchronization follows as
+its own coherent checkpoint, not manual duplication.
+
 ## Read projection scope and unresolved-evidence acceptance
 
 Cross-workflow review found summary tasks and alarms only checked source warehouse,

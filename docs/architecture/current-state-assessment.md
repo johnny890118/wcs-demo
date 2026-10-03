@@ -4,6 +4,12 @@ Assessment date: 2026-10-03. Baseline: verified M8A, system-first frontend bound
 
 ## Supported product path
 
+- Spatial read contract v1 qualifies positions as versioned topology-node references,
+  not measured physical coordinates. Diagram coordinate-system identifiers are
+  preserved separately; units, floors, coordinate frames and calibration remain
+  unrecorded. Live View and engineering inspection expose the same qualification.
+  Unknown position has no normalized reference. Physical authoring remains S6.
+
 - Inbound/outbound reviews now lead with submitted reference, item/quantity and readable route context, with persisted task investigation and diagnostic disclosure. Recorded outbound SKU hints do not assert reservation-adjusted availability. Alarm/recovery views qualify bounded context and unknown outcomes; unknown recovery results are not reported as resumed/completed. Summary/alarm task endpoints and stock receipt/load-location lineage enforce warehouse isolation consistently. Independent review found no introduced read-scope blockers; production-scale query plans remain unmeasured.
 
 - The repository is one Next.js Pages Router deployment with an internal NestJS API and PostgreSQL. `/operations` is the supported operational home; its focused workflows and projections are server-session protected. `/legacy/*` retains the original prototype only as migration reference.

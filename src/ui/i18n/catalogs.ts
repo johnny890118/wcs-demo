@@ -1,6 +1,14 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
   helpTitle: "Operation manual",
+  spatialPositionBasis:
+    "Position evidence identifies a node in a specific topology version; it is not a measured XY position or a floor assignment.",
+  spatialPhysicalUnrecorded:
+    "Physical layout, units, floor/frame identity and calibration are not recorded. Diagram coordinates must not be used as distance or safety evidence.",
+  spatialDiagramSystems: "Configured diagram coordinate systems",
+  spatialDiagramOnly: "diagram metadata only",
+  spatialNoSystem:
+    "No coordinate system is recorded; no default physical frame is assumed.",
   alarmStateActive: "Awaiting acknowledgement",
   alarmStateAcknowledged: "Acknowledged; resolution required",
   alarmStateUnknown: "Unrecognized alarm state; investigate",
@@ -578,6 +586,13 @@ export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
   helpTitle: "操作手冊",
+  spatialPositionBasis:
+    "位置證據識別特定拓撲版本中的節點，不是量測的 XY 位置，也不是樓層指派。",
+  spatialPhysicalUnrecorded:
+    "目前未記錄實體佈局、單位、樓層／座標框架識別與校準；工程圖座標不得當成距離或安全證據。",
+  spatialDiagramSystems: "已設定工程圖座標系統",
+  spatialDiagramOnly: "僅為工程圖 metadata",
+  spatialNoSystem: "未記錄座標系統，不假設預設實體座標框架。",
   alarmStateActive: "等待確認",
   alarmStateAcknowledged: "已確認；仍需處置",
   alarmStateUnknown: "無法辨識警報狀態；需要追查",

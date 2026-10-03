@@ -1,6 +1,11 @@
 import { equipmentStatuses } from "../../domain/equipment/equipment-state-machine";
 import { equipmentObservationFreshAfterMs } from "../equipment/observation-freshness";
 import {
+  isSpatialReadContext,
+  projectSpatialReadContext,
+  type SpatialReadContext,
+} from "./spatial-read-context";
+import {
   isOperationsDetails,
   type OperationsDetails,
 } from "./operations-details";
@@ -35,6 +40,12 @@ export type LiveEquipment = Readonly<{
     state: "current" | "last_known" | "unknown";
     reason: (typeof positionReasons)[number];
     nodeId: string | null;
+    reference: Readonly<{
+      kind: "topology_node";
+      topologyId: string;
+      topologyRevision: number;
+      nodeId: string;
+    }> | null;
     locations: readonly string[];
     validUntil: string | null;
   }>;
@@ -43,6 +54,7 @@ export type LiveEquipment = Readonly<{
   assignedTaskIds: readonly string[];
 }>;
 export type OperationsLiveView = Readonly<{
+  spatialContext: SpatialReadContext;
   equipment: readonly LiveEquipment[];
   work: OperationsDetails["tasks"];
   alarms: readonly Readonly<
@@ -150,6 +162,14 @@ export function projectOperationsLiveView(
               ).toISOString()
             : null,
         nodeId: usableNode ? telemetry!.nodeId : null,
+        reference: usableNode
+          ? {
+              kind: "topology_node" as const,
+              topologyId: topology!.topologyId,
+              topologyRevision: topology!.revision,
+              nodeId: telemetry!.nodeId!,
+            }
+          : null,
         locations: usableNode
           ? details.locations
               .filter((location) => location.activeNodeId === telemetry!.nodeId)
@@ -184,6 +204,7 @@ export function projectOperationsLiveView(
       status: alarm.status,
     }));
   return {
+    spatialContext: projectSpatialReadContext(topology),
     equipment,
     work,
     alarms,
@@ -309,6 +330,7 @@ export function isOperationsLiveView(
     );
   if (!shapeValid) return false;
   const view = value as unknown as OperationsLiveView;
+  if (!isSpatialReadContext(value.spatialContext, view.topology)) return false;
   const workIds = new Set(view.work.map((task) => task.taskId));
   const equipmentIds = new Set(view.equipment.map((item) => item.equipmentId));
   if (
@@ -342,11 +364,18 @@ export function isOperationsLiveView(
       if (position.state === "unknown")
         return (
           position.nodeId === null &&
+          position.reference === null &&
           position.locations.length === 0 &&
           position.reason !== "observed" &&
           position.validUntil === null
         );
       if (
+        !record(position.reference) ||
+        Object.keys(position.reference).length !== 4 ||
+        position.reference.kind !== "topology_node" ||
+        position.reference.topologyId !== view.topology?.topologyId ||
+        position.reference.topologyRevision !== view.topology?.revision ||
+        position.reference.nodeId !== position.nodeId ||
         !item.observation ||
         ["bad", "unknown"].includes(item.observation.quality) ||
         !view.topology?.nodes.some((node) => node.nodeId === position.nodeId)

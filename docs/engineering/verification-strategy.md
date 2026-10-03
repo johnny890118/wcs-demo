@@ -1,5 +1,13 @@
 # Verification Strategy
 
+Latest S2 spatial-read checkpoint: full verification passes 426 fast tests,
+21 real ephemeral PostgreSQL tests and 33 production-build browser tests; separate
+API build passes. Contract tests reject fabricated physical metadata and invalid
+topology/node/revision references. Live View runtime asserts the normalized
+reference and bilingual diagram-versus-physical qualification; existing theme,
+mobile, keyboard and axe checks remain green. No command authority, observation
+freshness rule, database schema or physical-coordinate claim is introduced.
+
 Latest S2 read-scope checkpoint: complete verification passes 422 fast tests,
 21 real ephemeral PostgreSQL tests and 33 production-build browser tests; API
 build passes. New PostgreSQL assertions reject cross-endpoint summary/alarm

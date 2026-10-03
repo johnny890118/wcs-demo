@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
 
 vi.mock("next-auth/next", () => ({ getServerSession: vi.fn() }));
 vi.mock("../../pages/api/auth/[...nextauth]", () => ({ authOptions: {} }));
@@ -134,6 +135,7 @@ describe("live view browser boundary", () => {
     expect(fetchOperationsLiveView).not.toHaveBeenCalled();
     vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
     vi.mocked(fetchOperationsLiveView).mockResolvedValue({
+      spatialContext: projectSpatialReadContext(null),
       equipment: [],
       work: [],
       alarms: [],

@@ -75,6 +75,52 @@ const details: OperationsDetails = {
 };
 
 describe("qualified operational Live View", () => {
+  it("binds usable position to an explicit versioned node reference and rejects manufactured references", () => {
+    const view = projectOperationsLiveView(details);
+    expect(view.equipment[0].position.reference).toEqual({
+      kind: "topology_node",
+      topologyId: "topology",
+      topologyRevision: 2,
+      nodeId: "node",
+    });
+    expect(isOperationsLiveView(view)).toBe(true);
+    for (const reference of [
+      null,
+      { ...view.equipment[0].position.reference, topologyRevision: 3 },
+      { ...view.equipment[0].position.reference, nodeId: "foreign" },
+    ]) {
+      expect(
+        isOperationsLiveView({
+          ...view,
+          equipment: [
+            {
+              ...view.equipment[0],
+              position: { ...view.equipment[0].position, reference },
+            },
+          ],
+        }),
+      ).toBe(false);
+    }
+    const unknown = projectOperationsLiveView({
+      ...details,
+      equipment: [{ ...details.equipment[0], telemetry: null }],
+    });
+    expect(unknown.equipment[0].position.reference).toBeNull();
+    expect(
+      isOperationsLiveView({
+        ...unknown,
+        equipment: [
+          {
+            ...unknown.equipment[0],
+            position: {
+              ...unknown.equipment[0].position,
+              reference: view.equipment[0].position.reference,
+            },
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
   it("bounds current position by the shared observation deadline, not client polling", () => {
     const view = projectOperationsLiveView(details);
     expect(view.equipment[0].position.validUntil).toBe(

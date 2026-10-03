@@ -2,6 +2,8 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "react";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
+import { SpatialReadNotice } from "./SpatialReadNotice";
 import { topologyNodeContext } from "../../src/ui/warehouse/topology-node-context";
 import {
   buildTopologyLayout,
@@ -114,6 +116,9 @@ export function WarehouseTopologyMap({
         </div>
       </div>
 
+      <div className="mt-4">
+        <SpatialReadNotice context={projectSpatialReadContext(topology)} />
+      </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           [t("topologyNodes"), topology.nodes.length],
