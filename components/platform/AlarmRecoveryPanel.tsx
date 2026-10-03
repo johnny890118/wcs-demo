@@ -1,6 +1,7 @@
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -166,11 +167,17 @@ export function AlarmRecoveryPanel({
         role="status"
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-panel)]"
       >
-        <CheckCircleIcon
-          className="h-6 w-6 text-[var(--success)]"
+        <InformationCircleIcon
+          className="h-6 w-6 text-[var(--text-muted)]"
           aria-hidden="true"
         />
         <p className="mt-3 font-bold">{t("noActionableAlarms")}</p>
+        <Link
+          href="/operations/tasks"
+          className="ui-pressable mt-4 inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+        >
+          {t("returnToTaskQueue")}
+        </Link>
       </div>
     );
   }

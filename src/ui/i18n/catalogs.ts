@@ -365,7 +365,8 @@ export const en = {
   alarmWorkflowDescription:
     "Review persisted alarm evidence, record accountable acknowledgement, then explicitly choose resume or release.",
   actionableAlarms: "Actionable alarms",
-  noActionableAlarms: "No active or acknowledged alarms require action.",
+  noActionableAlarms:
+    "No unresolved alarms appear in this bounded recorded read. Absence is not warehouse clearance; inspect Tasks and current evidence if work is blocked.",
   selectAlarm: "Select alarm",
   alarmEvidence: "Alarm evidence",
   acknowledgementDescription:
@@ -913,7 +914,8 @@ export const zhTW: Catalog = {
   alarmWorkflowDescription:
     "檢視已持久化警報證據、留下可追溯的確認紀錄，再明確選擇繼續或釋放任務。",
   actionableAlarms: "待處理警報",
-  noActionableAlarms: "目前沒有需要處理的作用中或已確認警報。",
+  noActionableAlarms:
+    "本次有限的已記錄讀取沒有未處置警報，不代表倉庫已排除問題；作業受阻時請追查任務與目前證據。",
   selectAlarm: "選擇警報",
   alarmEvidence: "警報證據",
   acknowledgementDescription:

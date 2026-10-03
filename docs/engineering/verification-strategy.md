@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Latest S2 read-scope checkpoint: complete verification passes 422 fast tests,
+21 real ephemeral PostgreSQL tests and 33 production-build browser tests; API
+build passes. New PostgreSQL assertions reject cross-endpoint summary/alarm
+access, foreign stock receipt/load-location lineage and prioritize older active
+and acknowledged alarms before 101 newer cleared records. Independent
+fresh-context review found no introduced blockers; query counts/bounds and
+mutation authority remain unchanged. Production-scale query plans are not measured.
+Empty alarm runtime review covers both locales/themes, mobile reflow, axe and
+keyboard task-queue investigation without a clearance claim.
+
 Latest S2 alarm-context checkpoint: complete verification passes 421 fast tests,
 19 ephemeral PostgreSQL integration tests and 32 production-build Chromium tests;
 separate API build passes. Tests cover missing bounded task context, unknown alarm

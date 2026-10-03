@@ -42,6 +42,16 @@ function show(value: OperationsDetails = details, allowed = true) {
     />,
   );
 }
+it("keeps empty bounded evidence informational with a task investigation path", () => {
+  show({ ...details, alarms: [] });
+  expect(screen.getByText("noActionableAlarms")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: "returnToTaskQueue" })
+      .getAttribute("href"),
+  ).toBe("/operations/tasks");
+  expect(screen.queryByRole("button")).toBeNull();
+});
 it("qualifies missing bounded work context and preserves scoped investigation without granting recovery", () => {
   show(details, false);
   expect(screen.getByText("alarmTaskContextMissing")).toBeTruthy();

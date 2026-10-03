@@ -124,17 +124,22 @@ export class OperationsSummaryService {
           (SELECT count(*)::integer
              FROM transport_tasks task
              JOIN locations source ON source.id = task.source_location_id
-            WHERE source.warehouse_id = $1
+             JOIN locations destination ON destination.id = task.destination_location_id
+            WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
               AND task.status IN ('assigned', 'in_progress', 'blocked', 'unknown')) AS active_tasks,
           (SELECT count(*)::integer
              FROM inventory_units inventory
              JOIN locations location ON location.id = inventory.location_id
-            WHERE location.warehouse_id = $1 AND inventory.status = 'available') AS stored_inventory,
+             JOIN loads stock_load ON stock_load.id = inventory.load_id
+             JOIN locations stock_load_location ON stock_load_location.id = stock_load.current_location_id
+             JOIN inbound_receipts stock_receipt ON stock_receipt.id = stock_load.receipt_id
+            WHERE location.warehouse_id = $1 AND stock_load_location.warehouse_id = $1
+              AND stock_receipt.warehouse_id = $1 AND inventory.status = 'available') AS stored_inventory,
           (SELECT count(DISTINCT receipt.id)::integer
              FROM inbound_receipts receipt
              JOIN loads load ON load.receipt_id = receipt.id
              JOIN locations location ON location.id = load.current_location_id
-            WHERE location.warehouse_id = $1
+            WHERE location.warehouse_id = $1 AND receipt.warehouse_id = $1
               AND receipt.status IN ('requested', 'in_progress')) AS open_receipts,
           (SELECT count(*)::integer FROM equipment_descriptors
             WHERE warehouse_id = $1 AND active = true) AS configured_equipment`,
@@ -153,7 +158,8 @@ export class OperationsSummaryService {
           task.equipment_id, task.updated_at
          FROM transport_tasks task
          JOIN locations source ON source.id = task.source_location_id
-         WHERE source.warehouse_id = $1
+         JOIN locations destination ON destination.id = task.destination_location_id
+         WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
          ORDER BY task.updated_at DESC, task.id
          LIMIT 5`,
         [warehouseId],
@@ -266,7 +272,11 @@ export class OperationsSummaryService {
           location.code AS location, inventory.status, inventory.updated_at
          FROM inventory_units inventory
          JOIN locations location ON location.id = inventory.location_id
-         WHERE location.warehouse_id = $1
+         JOIN loads stock_load ON stock_load.id = inventory.load_id
+         JOIN locations stock_load_location ON stock_load_location.id = stock_load.current_location_id
+         JOIN inbound_receipts stock_receipt ON stock_receipt.id = stock_load.receipt_id
+         WHERE location.warehouse_id = $1 AND stock_load_location.warehouse_id = $1
+           AND stock_receipt.warehouse_id = $1
          ORDER BY inventory.updated_at DESC, inventory.id
          LIMIT 100`,
               [warehouseId],
@@ -279,9 +289,11 @@ export class OperationsSummaryService {
          FROM alarms alarm
          JOIN transport_tasks task ON task.id = alarm.transport_task_id
          JOIN locations source ON source.id = task.source_location_id
-         WHERE source.warehouse_id = $1
+         JOIN locations destination ON destination.id = task.destination_location_id
+         WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
            AND (NOT $2::boolean OR alarm.status IN ('active', 'acknowledged'))
-         ORDER BY alarm.raised_at DESC, alarm.id
+         ORDER BY CASE WHEN alarm.status IN ('active', 'acknowledged') THEN 0 ELSE 1 END,
+           alarm.raised_at DESC, alarm.id
          LIMIT 100`,
           [warehouseId, activeWorkOnly],
         ),

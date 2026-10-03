@@ -806,6 +806,119 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).toBe(false);
   });
 
+  it("scopes summary and alarm endpoints plus stock receipt/load lineage", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "INSERT INTO warehouses (id,code,name) VALUES ($1,'OTHER','Other Warehouse') ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    const foreignLocation = "21000000-0000-4000-8000-000000000099";
+    await pool.query(
+      "INSERT INTO locations (id,warehouse_id,code,kind,capabilities) VALUES ($1,$2,'FOREIGN','storage',ARRAY['inventory.store']) ON CONFLICT DO NOTHING",
+      [foreignLocation, otherWarehouseId],
+    );
+    await pool.query(
+      "UPDATE transport_tasks SET status='blocked' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    await pool.query(
+      "INSERT INTO inventory_units (id,load_id,sku,quantity,location_id,status) VALUES ('81000000-0000-4000-8000-000000000001',$1,'SCOPED-STOCK',24,$2,'available')",
+      [identifiers.loadId, command.destinationLocationId],
+    );
+    await pool.query(
+      "INSERT INTO alarms (id,transport_task_id,equipment_id,source_id,code,severity,message,status,previous_task_status,raised_at) VALUES ('82000000-0000-4000-8000-000000000001',$1,'AMR-01','test','FAULT','critical','Scope evidence','active','assigned',now())",
+      [identifiers.transportTaskId],
+    );
+    const service = new OperationsSummaryService(pool);
+    expect((await service.getSummary(warehouseId)).counts).toMatchObject({
+      activeTasks: 1,
+      storedInventory: 1,
+      openReceipts: 1,
+    });
+    expect((await service.getDetails(warehouseId)).alarms).toHaveLength(1);
+    await pool.query(
+      "UPDATE transport_tasks SET destination_location_id=$1 WHERE id=$2",
+      [foreignLocation, identifiers.transportTaskId],
+    );
+    expect((await service.getSummary(warehouseId)).recentTasks).toEqual([]);
+    expect((await service.getSummary(warehouseId)).counts.activeTasks).toBe(0);
+    expect((await service.getDetails(warehouseId)).alarms).toEqual([]);
+    expect((await service.getSummary(otherWarehouseId)).recentTasks).toEqual(
+      [],
+    );
+    expect((await service.getDetails(otherWarehouseId)).alarms).toEqual([]);
+    expect(
+      (await service.getHome(warehouseId)).attention.some(
+        (item) => item.kind === "alarm",
+      ),
+    ).toBe(false);
+    await pool.query(
+      "UPDATE inbound_receipts SET warehouse_id=$1 WHERE id=$2",
+      [otherWarehouseId, identifiers.receiptId],
+    );
+    expect((await service.getSummary(warehouseId)).counts).toMatchObject({
+      storedInventory: 0,
+      openReceipts: 0,
+    });
+    expect((await service.getDetails(warehouseId)).inventory).toEqual([]);
+    await pool.query(
+      "UPDATE inbound_receipts SET warehouse_id=$1 WHERE id=$2",
+      [warehouseId, identifiers.receiptId],
+    );
+    await pool.query("UPDATE loads SET current_location_id=$1 WHERE id=$2", [
+      foreignLocation,
+      identifiers.loadId,
+    ]);
+    expect((await service.getSummary(warehouseId)).counts.storedInventory).toBe(
+      0,
+    );
+    expect((await service.getDetails(warehouseId)).inventory).toEqual([]);
+  });
+
+  it("keeps older unresolved alarm evidence ahead of recent cleared history", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    const openId = "82000000-0000-4000-8000-000000000001";
+    await pool.query(
+      "INSERT INTO alarms (id,transport_task_id,equipment_id,source_id,code,severity,message,status,previous_task_status,raised_at) VALUES ($1,$2,'AMR-01','test','OLD-OPEN','critical','Unresolved evidence','active','assigned','2020-01-01')",
+      [openId, identifiers.transportTaskId],
+    );
+    await pool.query(
+      `INSERT INTO alarms (id,transport_task_id,equipment_id,source_id,code,severity,message,status,previous_task_status,raised_at,acknowledged_at,acknowledged_by,cleared_at,cleared_by,resolution)
+      SELECT ('83000000-0000-4000-8000-'||lpad(sequence::text,12,'0'))::uuid,$1,'AMR-01','test','CLEARED','info','Historical evidence','cleared','assigned',now(),now(),'test',now(),'test','Resolved' FROM generate_series(1,101) AS sequence`,
+      [identifiers.transportTaskId],
+    );
+    const service = new OperationsSummaryService(pool);
+    const details = await service.getDetails(warehouseId);
+    expect(details.alarms).toHaveLength(100);
+    expect(details.alarms[0]).toMatchObject({
+      alarmId: openId,
+      status: "active",
+    });
+    await pool.query(
+      "UPDATE alarms SET status='acknowledged', acknowledged_at=now(), acknowledged_by='test' WHERE id=$1",
+      [openId],
+    );
+    expect((await service.getDetails(warehouseId)).alarms[0]).toMatchObject({
+      alarmId: openId,
+      status: "acknowledged",
+    });
+    expect(
+      (await service.getHome(warehouseId)).attention.some(
+        (item) => item.kind === "alarm" && item.reason === "acknowledged_alarm",
+      ),
+    ).toBe(true);
+  });
+
   it("keeps older unknown work visible ahead of recent completed history", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     await new PgInboundRepository(pool).create(

@@ -363,6 +363,39 @@ and API build, then independent checkpoint/push/CI/deployed boundary checks.
 
 ## Overall outcome
 
+## Read projection scope and unresolved-evidence acceptance
+
+Cross-workflow review found summary tasks and alarms only checked source warehouse,
+while focused tasks and dedicated task reads check both endpoints. Summary stock
+and the reused diagnostic stock read also lack the dedicated Inventory read's
+receipt/load ownership guard. Tighten these existing read joins without changing
+permissions, session validation, mutation behavior or DTOs. Prioritize unresolved
+alarms before cleared history at the existing 100-row bound. Qualify empty alarm
+results as bounded recorded evidence, not warehouse clearance. Medium-risk
+read-boundary correction under the existing warehouse-scoping decision; no new
+authorization model or ADR. Real PostgreSQL tests must prove cross-endpoint and
+foreign receipt/load rejection, and an older unresolved alarm surviving more than
+100 recent cleared records. Run full verification and separate API build, review
+all SQL/query-budget effects, then checkpoint/push/CI/runtime before continuing.
+
+Fresh-context independent review found no introduced blockers. It confirmed bound
+warehouse parameters, stock lineage joins, prioritization before LIMIT, unchanged
+query count/bounds and mutation authority, and unknown-outcome warning behavior.
+Review identified test omissions for symmetric foreign-source access and
+acknowledged-alarm priority; both are now explicit PostgreSQL assertions. Remaining
+limits: more than 100 unresolved alarms need future paginated exception control
+(S4); production-scale query plans/latency remain unmeasured. The unchanged manual
+already distinguishes recorded context, unknown outcomes and backend recovery
+authority; procedural investigation/stock-hint guidance will be synchronized in
+the next single-source manual checkpoint.
+
+| Before                                          | After                                               | Why                                                  |
+| ----------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------- |
+| Summary/alarm rows check task source only       | Both task endpoint warehouses required              | Inconsistent cross-warehouse data must fail closed   |
+| Raw stock reads trust inventory location alone  | Receipt, load location and stock location scoped    | Preserve provenance isolation consistently           |
+| New cleared history can evict an old open alarm | Unresolved-first ordering before the existing bound | Operational evidence precedes historical diagnostics |
+| Empty alarm result resembles clearance          | Bounded recorded absence and task investigation     | Absence of a row is not physical safety              |
+
 Alarm work-context review corrected the existing UI's false resumed/success
 message for an accepted `unknown` recovery outcome. Unknown outcomes now have
 warning icon/text and reconciliation guidance; the existing response guard still

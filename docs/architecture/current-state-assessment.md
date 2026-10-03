@@ -4,6 +4,8 @@ Assessment date: 2026-10-03. Baseline: verified M8A, system-first frontend bound
 
 ## Supported product path
 
+- Inbound/outbound reviews now lead with submitted reference, item/quantity and readable route context, with persisted task investigation and diagnostic disclosure. Recorded outbound SKU hints do not assert reservation-adjusted availability. Alarm/recovery views qualify bounded context and unknown outcomes; unknown recovery results are not reported as resumed/completed. Summary/alarm task endpoints and stock receipt/load-location lineage enforce warehouse isolation consistently. Independent review found no introduced read-scope blockers; production-scale query plans remain unmeasured.
+
 - The repository is one Next.js Pages Router deployment with an internal NestJS API and PostgreSQL. `/operations` is the supported operational home; its focused workflows and projections are server-session protected. `/legacy/*` retains the original prototype only as migration reference.
 - The framework-independent core covers versioned directed topology, capability-based routing/assignment, deterministic inbound and outbound execution, inventory allocation, equipment simulation/observations, alarms, recovery, unknown outcomes, outbox delivery, and adapter conformance contracts.
 - PostgreSQL migrations, transaction boundaries, container/deployment adapters, CI, unit/API/PostgreSQL/Chromium tests, bilingual catalogs, themes, accessibility checks, backup/restore tooling, structured logging, request IDs, health endpoints, and a persisted audit store exist.

@@ -1266,6 +1266,24 @@ test("alarm workflow reflows without horizontal page overflow on mobile", async 
   await expect(page.getByLabel("選擇警報")).toBeVisible();
 });
 
+test("empty alarm evidence stays qualified and provides accessible task investigation", async ({
+  page,
+}) => {
+  await loadScenario(page, "inbound-completed");
+  await signIn(page, "/operations/alarms");
+  await expect(
+    page.getByText(
+      "本次有限的已記錄讀取沒有未處置警報，不代表倉庫已排除問題；作業受阻時請追查任務與目前證據。",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await reviewCreatedWorkflow(page, "alarm-empty");
+  const tasks = page.locator('main a[href="/operations/tasks"]');
+  await tasks.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/operations/tasks");
+});
+
 test("completed inbound scenario projects stored inventory", async ({
   page,
 }) => {

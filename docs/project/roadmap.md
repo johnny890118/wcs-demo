@@ -167,7 +167,7 @@ Status: Complete — verified 2026-10-03
 - [x] Require the configured application origin on every custom browser operational mutation
 - [x] Complete the S1 security review and record unresolved production-identity/operability gates without blocking S2
 
-## S2 — Operational Work Center and Inventory Visibility
+## S2 — Operational Work Center, Inventory Visibility and Spatial Read Foundation
 
 Status: In progress
 
@@ -187,11 +187,13 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Versioned bilingual private PDF export from the same source; hash/source/extracted-content drift gate and standalone artifact tracing
 - [x] Inbound/outbound request review with readable item/location context, scoped task investigation and bounded stock-hint qualification; no mutation authority change
 - [x] Alarm/recovery work context: readable state/severity, bounded affected-work context, scoped investigation and explicit unknown-outcome/recovery-impact meaning
+- [x] Cross-workflow read hardening: both task endpoints and stock receipt/load lineage scoped; unresolved alarm evidence prioritized before bounded history
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
 - [x] Operations Live View foundation distinct from readable engineering topology inspection
 - [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
+- [ ] Complete the approved spatial/normalized-position read vocabulary: qualify coordinate system, unknown floor/frame/unit/calibration and node-level versus physical evidence without adding S6 authoring
 - [x] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
 ## S3 — Public and Private Demo Product
@@ -245,6 +247,8 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 Close S2 against cross-workflow acceptance and repository reality; do not rebuild
 the shipped Home/task/Inventory/Live View/manual foundations. Review outstanding
 human-readable context and explicit binding requirements before marking S2
-complete or starting S3. Authenticated production latency remains unmeasured;
+complete or starting S3. Synchronize procedural manual guidance and complete the
+approved spatial read vocabulary without claiming calibrated coordinates or
+adding a map editor. Authenticated production latency remains unmeasured;
 PDFs are searchable but not PDF/UA certified. Public Demo lifecycle remains S3;
 calibrated physical layout remains S6.
