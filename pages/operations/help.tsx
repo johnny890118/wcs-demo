@@ -51,6 +51,12 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
       <p className="mt-2 text-xs text-[var(--text-muted)]">
         {t("helpVersion")}: {manualVersion}
       </p>
+      <a
+        href={`/api/operations/manual/${locale}`}
+        className="ui-pressable mt-3 inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+      >
+        {t("helpDownloadPdf")}
+      </a>
       <label className="mt-6 block max-w-xl text-sm font-semibold">
         {t("helpSearch")}
         <input

@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 
 async function signIn(page: Page, destination: string) {
@@ -240,6 +241,46 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
     .focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL("/operations/audit");
+});
+
+test("versioned manual downloads are authenticated bilingual PDFs present in standalone output", async ({
+  page,
+}) => {
+  expect((await page.request.get("/api/operations/manual/en")).status()).toBe(
+    401,
+  );
+  await signIn(page, "/operations/help");
+  for (const locale of ["zh-TW", "en"]) {
+    if (locale === "en")
+      await page.getByRole("button", { name: "EN", exact: true }).click();
+    const link = page.getByRole("link", {
+      name:
+        locale === "en"
+          ? "Download versioned PDF manual"
+          : "下載版本化 PDF 手冊",
+      exact: true,
+    });
+    await expect(link).toHaveAttribute(
+      "href",
+      `/api/operations/manual/${locale}`,
+    );
+    const response = await page.request.get(`/api/operations/manual/${locale}`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    expect(response.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+    expect(response.headers()["content-disposition"]).toContain(
+      `2026-10-03.1-${locale}.pdf`,
+    );
+    expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
+    expect(
+      readFileSync(
+        `.next/standalone/output/pdf/swp-operation-manual-${locale}.pdf`,
+      )
+        .subarray(0, 5)
+        .toString(),
+    ).toBe("%PDF-");
+  }
 });
 
 test("navigation signals SSR waiting and Home refresh uses one bounded read", async ({

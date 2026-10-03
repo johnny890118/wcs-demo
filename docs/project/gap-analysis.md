@@ -24,7 +24,7 @@
 
 The original table is retained as discovery history. Current system-side gaps, in dependency order, are:
 
-1. The operational UI does not yet provide the approved actionable Home, task-centered work context, Operations Live View, or built-in manual/contextual help foundation (S2).
+1. S2 foundations now provide actionable Home, task queue/detail, Inventory/Loads/Locations, qualified daily Live View with separate engineering inspection, and the single-source bilingual manual/contextual help. Remaining S2 work is cross-workflow acceptance closure rather than rebuilding those surfaces. Calibrated physical layout stays S6; authenticated deployed performance remains unmeasured, and exported Unicode PDFs are not tagged/PDF-UA certified.
 2. Demo reset is still a global truncate that deletes operational audit rows. There is no first-class demo session, TTL/cleanup/quota/capacity lifecycle, or accountable scenario/replay product; S3 must isolate sessions, retain reset-governance evidence separately, and hard-deny production controls.
 3. WCS execution lacks product-level reconciliation, scheduling, shared-resource coordination, and governed warehouse/equipment configuration (S4–S6).
 4. The enabled product still uses a single credentials-backed private-demo identity proof. The S1 authorization/session foundation is complete, but production OIDC, provider logout, MFA/conditional-access policy, assignment administration/access review, durable revocation delivery, shared edge abuse controls, and security-event retention/export remain production gates rather than S2 blockers (S8).

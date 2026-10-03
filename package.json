@@ -10,7 +10,7 @@
     "db:seed:demo": "tsx apps/api/src/database/seed-demo.ts",
     "db:reset:demo": "tsx apps/api/src/database/reset-demo.ts",
     "deployment:validate": "node scripts/validate-deployment-env.mjs",
-    "build": "next build",
+    "build": "npm run manual:integrity && next build",
     "build:api": "tsc -p tsconfig.api.json && esbuild dist/api/apps/api/src/main.js dist/api/apps/api/src/database/migrate.js dist/api/apps/api/src/database/seed-demo.js dist/api/apps/api/src/database/reset-demo.js --bundle --platform=node --format=esm --packages=external --outdir=dist/runtime --out-extension:.js=.mjs",
     "start:api:compiled": "node dist/runtime/main.mjs",
     "start": "next start",
@@ -20,12 +20,14 @@
     "test:managed-demo": "node scripts/check-managed-demo.mjs",
     "test:postgres": "node scripts/test-postgres-integration.mjs",
     "typecheck": "tsc --noEmit",
-    "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.mjs\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",
+    "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.{mjs,ts}\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",
     "security:dependencies": "npm audit --omit=dev --audit-level=high",
     "security:secrets": "node scripts/check-secrets.mjs",
     "icons:generate": "node scripts/generate-product-icons.mjs",
     "icons:check": "node scripts/generate-product-icons.mjs --check",
-    "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
+    "manual:check": "tsx scripts/check-manual-pdfs.ts",
+    "manual:integrity": "tsx scripts/check-manual-pdfs.ts --integrity-only",
+    "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run manual:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

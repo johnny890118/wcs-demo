@@ -2,7 +2,19 @@
 
 ## Main entry point
 
-Latest S2 manual web checkpoint: complete verification passes 406 fast tests,
+Latest S2 manual PDF checkpoint: full verification passes 417 fast tests,
+19 ephemeral PostgreSQL tests and 32 production-build Chromium checks; API build
+passes. The complete gate includes source/version, PDF-byte integrity and all
+extracted bilingual paragraphs/paths/permissions; negative tests prove stale
+source/version, unsafe filenames and tampered artifacts fail. Builds separately
+enforce integrity without authoring dependencies. Authenticated download tests
+cover per-request revalidation, permission/scope denial, scalar locale/path
+allowlisting, no-store/noindex, sanitized failure, both languages and standalone
+asset presence. All seven final pages were rendered and reviewed; pinned-font
+repeated generation gives identical artifact manifests after fixing FontTools
+timestamp recalculation. These exports are not PDF/UA certified.
+
+S2 manual web checkpoint: complete verification passes 406 fast tests,
 19 ephemeral PostgreSQL tests and 31 production-build Chromium checks; API build
 also passes. Guard/query contracts, localized literal-search/version/link-source
 checks, unauthorized audit-link omission, contextual keyboard navigation and

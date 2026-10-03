@@ -1,6 +1,7 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
   helpTitle: "Operation manual",
+  helpDownloadPdf: "Download versioned PDF manual",
   helpDescription:
     "Guidance for shipped workflows in this deployment. Your current warehouse permissions determine available actions; this manual does not authorize equipment control.",
   helpVersion: "Manual version",
@@ -542,6 +543,7 @@ export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
   helpTitle: "操作手冊",
+  helpDownloadPdf: "下載版本化 PDF 手冊",
   helpDescription:
     "本部署已交付流程的操作指引。可用操作取決於目前倉庫的有效權限；手冊不授予設備控制權。",
   helpVersion: "手冊版本",

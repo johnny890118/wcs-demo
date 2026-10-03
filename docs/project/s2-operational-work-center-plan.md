@@ -286,6 +286,39 @@ Automated unknown-equipment selection and unresolved-context tests prevent
 fabricated positions/foreign work links. API compilation and the complete gate
 are required; authenticated deployed browser latency remains unmeasured.
 
+## Manual PDF acceptance and decision
+
+Medium-risk artifact/read-auth slice. Generate both language documents offline
+from the versioned web source; commit private artifacts plus a source/artifact
+hash manifest, serve only through session/scope-guarded GET, and trace assets into
+standalone output. No Python/font download in a production request or build and
+no anonymous public asset route. This applies the existing single-source manual
+decision, not a new authority contract or ADR. No customer data or credentials
+are embedded. PDF workflow links are relative path guidance with permission
+labels, not customer-specific URLs; destinations still independently authorize.
+Pinned Google Fonts revision and SHA-256, accompanied OFL notice, embedded font
+subsets and invariant generator metadata keep authoring reproducible. Poppler
+content extraction plus hash/version checks run in the repository/CI gate;
+generation dependencies are isolated authoring tools, not production packages.
+PDF skill review found orphaned sections/footer crowding; full-topic grouping and
+larger footer clearance fix it. All seven final pages were visually inspected.
+The accessible web manual remains the primary experience: these PDFs contain
+searchable Unicode text but are not tagged PDF/UA-certified documents.
+
+Complete gate passes 417 fast, 19 PostgreSQL and 32 production browser tests,
+plus API build. New runtime checks download both locales, verify attachment
+metadata and confirm assets exist in standalone output. Negative drift tests
+exercise the real verifier without changing committed artifacts. Repeated
+generation is byte-identical after disabling FontTools timestamp recalculation.
+Source/hash validation runs in production builds too; full text extraction is a
+separate mandatory repository/CI gate, never replaced by the lightweight guard.
+
+| Before                                               | After                                                        | Why                                                                |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Web-only guidance can drift from exported documents  | Source/version and PDF hash plus full extracted-content gate | Detect stale or tampered downloads                                 |
+| Font availability varies across machines             | Pinned source and embedded bilingual font subsets            | Avoid Chinese missing glyphs without production network dependence |
+| Section content spills into another page/footer area | Keep complete topics together with footer clearance          | Preserve readable context and page boundaries                      |
+
 ## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that

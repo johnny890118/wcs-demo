@@ -184,12 +184,13 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Topology inspection evidence correction: explicit bindings, bounded stock row counts and obsolete/stale projection handling
 - [x] Live View read foundation: server-qualified current/last-known/unknown equipment position, scoped observed-versus-assigned work and conservative coverage
 - [x] Authenticated bilingual searchable manual web foundation and shipped-workflow contextual help; effective-permission links, versioned single content source
+- [x] Versioned bilingual private PDF export from the same source; hash/source/extracted-content drift gate and standalone artifact tracing
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
 - [x] Operations Live View foundation distinct from readable engineering topology inspection
 - [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
-- [ ] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
+- [x] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
 ## S3 — Public and Private Demo Product
 
@@ -239,8 +240,9 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S2 with versioned bilingual PDF export and content drift verification
-from the shipped manual source. The authenticated searchable web manual and
-contextual links are complete; full single-source PDF acceptance is not yet
-complete. Reuse shipped workflows and effective permissions. Public Demo
-lifecycle remains S3; calibrated physical layout S6.
+Close S2 against cross-workflow acceptance and repository reality; do not rebuild
+the shipped Home/task/Inventory/Live View/manual foundations. Review outstanding
+human-readable context and explicit binding requirements before marking S2
+complete or starting S3. Authenticated production latency remains unmeasured;
+PDFs are searchable but not PDF/UA certified. Public Demo lifecycle remains S3;
+calibrated physical layout remains S6.

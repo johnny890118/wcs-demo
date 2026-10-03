@@ -6,6 +6,9 @@ const {
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/api/operations/manual/*": ["./output/pdf/*.pdf"],
+  },
   async redirects() {
     return [
       { source: "/platform", destination: "/", permanent: true },
