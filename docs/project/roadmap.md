@@ -213,6 +213,9 @@ isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
 - Inactive reference-workspace snapshots establish distinct persisted identities
   and versioned bindings (ADR 0024), not completed virtual equipment provisioning
   or public access. Do not mark the aggregate S3 requirements below complete.
+- Leased/fenced inactive-reference cleanup archives ownership evidence and only
+  releases capacity after atomic verified removal (ADR 0025). Active simulator
+  cleanup, enabled workers, persisted access and abuse gates remain unfinished.
 
 - [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
 - [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
@@ -258,10 +261,11 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-S2 delivery gates are complete. Finish the independent S3 admission/expiry
-control-ledger checkpoint and its exact-commit delivery gates, then establish
-isolated workspace provisioning and every-request persisted access before any
-public entry. Do not implement an unscoped reset/replay UI prematurely. Preserve
+S2 and the S3 admission/reference-snapshot delivery gates are complete. Finish
+the independent inactive-reference cleanup checkpoint and its exact-commit
+delivery gates, then establish isolated virtual runtime ownership and
+every-request persisted access before any public entry. Do not implement an
+unscoped reset/replay UI prematurely. Preserve
 audit evidence outside resettable scenario state, production hard-deny and bounded
 resource ownership. Follow the existing approved S3–S8 sequence, not a new roadmap.
 Authenticated production latency remains unmeasured; PDFs are searchable but not

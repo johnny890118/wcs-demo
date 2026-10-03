@@ -1,6 +1,6 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — isolated reference-workspace snapshot slice.
+Status: Active — fenced inactive-reference cleanup slice.
 
 ## Entry evidence and workflow
 
@@ -112,3 +112,35 @@ Opaque reference constraints/attributes and semantic resource IDs are not proof
 of runtime resource isolation. Activation must review their safe interpretation
 and public projection exposure, authoritative adapter ownership, persisted
 request authorization, cleanup and quotas before any public carrier is enabled.
+
+## Current coherent slice — inactive reference cleanup
+
+Snapshot checkpoint `ceee211169516e5903f2fd85c15b88f5b6559d06` is pushed;
+Verify `37141069003` has both jobs successful, Vercel/Render deploy that exact
+commit, managed runtime passes and working tree is clean. Do not redo it.
+
+Work type: high-risk resource lifecycle/security foundation. ADR 0025 and this
+persistent plan govern the next independent slice. Implement validated leased/
+fenced claims, atomic scoped deletion/archive/evidence and capacity release only
+after verified never-activated cleanup. Preserve reference ownership FKs and
+deny active/observed/assigned/operational or unexpected resources. No public
+endpoint, managed worker or live simulator cleanup. Required gates: focused
+policy tests, real PostgreSQL concurrent/restart/fencing/rollback/ownership/reset/
+RLS regressions, complete verification, API build, independent security review,
+checkpoint/push, exact CI/deployment/runtime and clean tree before continuing.
+
+Focused evidence: 3 policy checks and 12 new real PostgreSQL regressions pass.
+The existing 47 PostgreSQL checks also pass; API build succeeds. Initial audit
+fixture failures (required correlation and UUID/text parameter typing) were
+fixed to match the existing schema, without changing production audit contracts.
+Independent review found no code blockers and requested observation-insert lock
+races and evidence-time lease expiry. Both competing-connection orderings and
+event-time rollback are now proved. No UI/PDF changes; full gate remains required.
+
+Full verification now passes: 486 fast, 59 real PostgreSQL (29 + 9 + 9 + 12),
+34 production-build browser tests and closed-public-boundary runtime harness.
+Separate API build passes, dependency audit has zero vulnerabilities and secret
+scan passes. Existing bilingual/theme/mobile/keyboard/accessibility regressions
+remain green; no new UI or PDF surface is introduced. Final independent review
+found no blockers after the competing-connection/deadline additions. Checkpoint
+delivery gates remain separate from this local evidence.

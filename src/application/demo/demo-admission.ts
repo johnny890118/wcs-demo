@@ -10,7 +10,7 @@ export type DemoReservation = Readonly<{
   templateWarehouseId: string;
   deploymentProfile: "public_demo";
   ttlSeconds: number;
-  state: "provisioning" | "expired";
+  state: "provisioning" | "expired" | "closed";
   createdAt: string;
   expiresAt: string;
 }>;

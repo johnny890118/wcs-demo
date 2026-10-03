@@ -12,6 +12,10 @@ The supported product entry and authenticated, simulator-backed operations conso
   until isolated provisioning, persisted authorization and cleanup are complete.
   Trusted service-only anonymous forwarded context is compatibility, not a
   finished public isolation contract (ADR 0023). No public-demo enablement here.
+  ADR 0025 adds an unwired trusted inactive-reference cleanup repository: database
+  leases/fencing, parent locks, no active/observed/assigned/operational resources,
+  archived ownership evidence and verified removal precede atomic capacity
+  release. This is not active simulator drain or enabled public cleanup.
 
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.

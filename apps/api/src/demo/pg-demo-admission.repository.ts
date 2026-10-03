@@ -17,7 +17,7 @@ type ReservationRow = {
   template_warehouse_id: string;
   deployment_profile: "public_demo";
   ttl_seconds: number;
-  state: "provisioning" | "expired";
+  state: "provisioning" | "expired" | "closed";
   created_at: Date;
   expires_at: Date;
 };
@@ -56,7 +56,7 @@ export class PgDemoAdmissionRepository implements DemoAdmissionRepository {
       // Take the capacity snapshot after obtaining the lock, even when a
       // deployment changes its connection's default transaction isolation.
       await client.query("BEGIN ISOLATION LEVEL READ COMMITTED");
-      // Shared across processes and all templates. Expiry never releases capacity.
+      // Shared across processes/templates. Only verified cleanup releases capacity.
       await client.query("SELECT pg_advisory_xact_lock($1)", [870_041_003]);
       const result = await work(client);
       await client.query("COMMIT");
@@ -90,7 +90,7 @@ export class PgDemoAdmissionRepository implements DemoAdmissionRepository {
         return reservation(previous);
       }
       const capacity = await client.query<{ count: string }>(
-        "SELECT count(*) FROM demo_session_reservations",
+        "SELECT count(*) FROM demo_session_reservations WHERE state <> 'closed'",
       );
       if (Number(capacity.rows[0].count) >= this.policy.maximumReservations) {
         throw new DemoAdmissionError("CAPACITY");

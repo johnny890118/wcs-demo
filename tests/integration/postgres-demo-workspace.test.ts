@@ -39,7 +39,7 @@ suite("PostgreSQL isolated demo reference workspaces", () => {
     const ids = owned.rows.map((row) => row.workspace_warehouse_id);
     // Only the disposable suite's owned references; never delete template rows.
     await pool!.query(
-      "TRUNCATE demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
+      "TRUNCATE demo_reference_cleanup_jobs,demo_reference_cleanup_archives,demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
     );
     if (ids.length) {
       await pool!.query(

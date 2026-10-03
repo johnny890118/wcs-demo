@@ -1,5 +1,16 @@
 # Verification Strategy
 
+Latest S3 fenced inactive-reference cleanup: full gate passes 486 fast, 59 real
+PostgreSQL (29 operational + 9 admission + 9 workspace + 12 cleanup), 34
+production-build browser tests and closed-public-boundary runtime harness;
+separate API build passes. Independent security review found no blockers after
+adding both independent-connection observation insert/parent-lock orderings and
+evidence-time lease expiry. Other checks cover atomic deletion/archive/capacity,
+stable closed replay, concurrent claims, restart reclaim/stale fencing, missing
+namespace versus unknown orphan, active/observed/assigned/audit/unexpected
+reference refusal, failure/deadline rollback, actual reset-list survival and RLS.
+No managed deletion or live simulator drain is claimed; ADR 0025 is inactive-only.
+
 Latest S3 inactive reference-workspace snapshot: 483 fast, 47 real PostgreSQL
 (29 operational + 9 admission + 9 workspace), 34 production-build browser tests,
 public-profile denial harness and separate API build pass. Independent security

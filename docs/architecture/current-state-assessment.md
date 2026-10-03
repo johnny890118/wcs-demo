@@ -13,13 +13,17 @@ Assessment date: 2026-10-04. Baseline: verified M8A, system-first frontend bound
 - S3 begins with a bounded persisted anonymous admission/expiry control ledger,
   isolated from resettable operational audit. Database transactions serialize
   capacity/replay and atomically record evidence. Provisioning/expired rows grant
-  no access and remain capacity-consuming until future verified cleanup. Isolated
+  no access and remain capacity-consuming until verified cleanup. Isolated
   reference-workspace snapshots use new warehouse/topology/location/equipment
   identities, explicit bindings and inactive descriptors, without operational
   history, observation or human-grant copy. Virtual equipment runtime ownership
   and persisted request authorization are not yet implemented; browser issuance
   and old carriers fail closed. Source diagram/opaque metadata is not runtime
-  isolation or physical calibration evidence (ADR 0024).
+  isolation or physical calibration evidence (ADR 0024). A leased/fenced trusted
+  repository now removes only inactive reference namespaces, archives identity
+  evidence, verifies absence and atomically closes reservations to release
+  capacity (ADR 0025). It refuses active/observed/assigned/operational resources;
+  no cleanup worker is enabled and live simulator drain is not implemented.
 
 - Inbound/outbound reviews now lead with submitted reference, item/quantity and readable route context, with persisted task investigation and diagnostic disclosure. Recorded outbound SKU hints do not assert reservation-adjusted availability. Alarm/recovery views qualify bounded context and unknown outcomes; unknown recovery results are not reported as resumed/completed. Summary/alarm task endpoints and stock receipt/load-location lineage enforce warehouse isolation consistently. Independent review found no introduced read-scope blockers; production-scale query plans remain unmeasured.
 
