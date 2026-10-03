@@ -615,6 +615,93 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
     ).rejects.toMatchObject({ status: 401 });
   });
 
+  it.each(["principal", "assignment"])(
+    "fails persisted validation after %s access is withdrawn",
+    async (kind) => {
+      if (!pool) throw new Error("Integration pool was not configured.");
+      const service = new HumanAccessAssignmentService(pool);
+      const issued = await service.issue(
+        "demo-credentials",
+        "legacy-demo-admin",
+      );
+      const table =
+        kind === "principal"
+          ? "access_principals"
+          : "warehouse_access_assignments";
+      const status = kind === "principal" ? "disabled" : "revoked";
+      const predicate =
+        kind === "principal"
+          ? "subject = 'legacy-demo-admin'"
+          : `warehouse_id = '${warehouseId}'`;
+      try {
+        await pool.query(`UPDATE ${table} SET status = $1 WHERE ${predicate}`, [
+          status,
+        ]);
+        await expect(
+          service.validate(
+            issued.session.sessionId,
+            "demo-credentials",
+            "legacy-demo-admin",
+            warehouseId,
+          ),
+        ).rejects.toMatchObject({ status: 401 });
+      } finally {
+        await pool.query(
+          `UPDATE ${table} SET status = 'active' WHERE ${predicate}`,
+        );
+      }
+    },
+  );
+
+  it("refreshes persisted permissions without extending session expiry", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const service = new HumanAccessAssignmentService(pool);
+    const issued = await service.issue("demo-credentials", "legacy-demo-admin");
+    const original = await pool.query<{ permissions: string[] }>(
+      "SELECT permissions FROM warehouse_access_assignments WHERE warehouse_id = $1",
+      [warehouseId],
+    );
+    try {
+      await pool.query(
+        "UPDATE warehouse_access_assignments SET permissions = ARRAY['operations.view']::text[] WHERE warehouse_id = $1",
+        [warehouseId],
+      );
+      const validated = await service.validate(
+        issued.session.sessionId,
+        "demo-credentials",
+        "legacy-demo-admin",
+        warehouseId,
+      );
+      expect(validated.access.principal.permissions).toEqual([
+        "operations.view",
+      ]);
+      expect(validated.session.expiresAt).toBe(issued.session.expiresAt);
+    } finally {
+      await pool.query(
+        "UPDATE warehouse_access_assignments SET permissions = $2::text[] WHERE warehouse_id = $1",
+        [warehouseId, original.rows[0].permissions],
+      );
+    }
+  });
+
+  it("rejects an expired persisted human session", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const service = new HumanAccessAssignmentService(pool);
+    const issued = await service.issue("demo-credentials", "legacy-demo-admin");
+    await pool.query(
+      "UPDATE human_access_sessions SET issued_at = now() - interval '2 hours', expires_at = now() - interval '1 hour' WHERE id = $1",
+      [issued.session.sessionId],
+    );
+    await expect(
+      service.validate(
+        issued.session.sessionId,
+        "demo-credentials",
+        "legacy-demo-admin",
+        warehouseId,
+      ),
+    ).rejects.toMatchObject({ status: 401 });
+  });
+
   it("persists shared failed-login evidence and throttle state", async () => {
     if (!pool) throw new Error("Integration pool was not configured.");
     process.env.HUMAN_LOGIN_FAILURE_LIMIT = "3";

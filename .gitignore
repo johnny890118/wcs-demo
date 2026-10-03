@@ -47,3 +47,5 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+# Local authenticated navigation measurements (no credentials; not release artifacts).
+tmp/navigation/

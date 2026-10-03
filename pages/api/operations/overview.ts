@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { withReadOnlyOperationalBff } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { authorizeOperationalSession } from "../../../src/infrastructure/auth/operational-session";
 import { fetchOperationsOverview } from "../../../src/infrastructure/http/wcs-api-client";
 import { authOptions } from "../auth/[...nextauth]";
-export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse,
-) {
+async function handler(request: NextApiRequest, response: NextApiResponse) {
   response.setHeader("Cache-Control", "no-store");
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
@@ -31,3 +29,4 @@ export default async function handler(
     response.status(503).json({ code: "OPERATIONS_OVERVIEW_UNAVAILABLE" });
   }
 }
+export default withReadOnlyOperationalBff(handler);

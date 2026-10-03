@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { withReadOnlyOperationalBff } from "../../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { authorizeOperationalSession } from "../../../../src/infrastructure/auth/operational-session";
 import {
@@ -8,7 +9,7 @@ import {
 } from "../../../../src/infrastructure/http/wcs-api-client";
 import { authOptions } from "../../auth/[...nextauth]";
 
-export default async function handler(
+async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ): Promise<void> {
@@ -74,3 +75,4 @@ export default async function handler(
     });
   }
 }
+export default withReadOnlyOperationalBff(handler);

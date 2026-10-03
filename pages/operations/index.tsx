@@ -5,6 +5,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -370,42 +371,45 @@ function OperationsHomeView({ summary, home }: PageProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations",
-  );
-  if (!access.allowed) {
-    return {
-      redirect: {
-        destination: access.destination,
-        permanent: false,
-      },
-    };
-  }
+export const getServerSideProps: GetServerSideProps<PageProps> =
+  withReadOnlyOperationalNavigation<PageProps>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
+      session,
+      "operations.view",
+      "/operations",
+    );
+    if (!access.allowed) {
+      return {
+        redirect: {
+          destination: access.destination,
+          permanent: false,
+        },
+      };
+    }
 
-  try {
-    const { summary, home } = await fetchOperationsOverview(access.access);
-    return {
-      props: {
-        session,
-        summary,
-        home,
-        warehouseId: access.access.currentWarehouseId,
-      },
-    };
-  } catch {
-    return {
-      props: {
-        session,
-        summary: null,
-        home: null,
-        warehouseId: access.access.currentWarehouseId,
-      },
-    };
-  }
-};
+    try {
+      const { summary, home } = await fetchOperationsOverview(access.access);
+      return {
+        props: {
+          session,
+          summary,
+          home,
+          warehouseId: access.access.currentWarehouseId,
+        },
+      };
+    } catch {
+      return {
+        props: {
+          session,
+          summary: null,
+          home: null,
+          warehouseId: access.access.currentWarehouseId,
+        },
+      };
+    }
+  });

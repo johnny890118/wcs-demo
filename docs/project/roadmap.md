@@ -181,6 +181,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Locations read-model foundation: scoped configured locations, active version bindings and separately labelled record counts
 - [x] Dedicated Locations operator workspace: configured-state meaning, active binding diagnostics and related stock/load searches
 - [x] Navigation/identity quality checkpoints: reduced overview reads, pending navigation feedback and owned SWP icons/metadata; authenticated production p95 remains unmeasured
+- [x] Configurable GET-only human-session read freshness and stage timing; strict mutation/switch validation, independent security review and honest delayed-read revocation contract (ADR 0022)
 - [x] Topology inspection evidence correction: explicit bindings, bounded stock row counts and obsolete/stale projection handling
 - [x] Live View read foundation: server-qualified current/last-known/unknown equipment position, scoped observed-versus-assigned work and conservative coverage
 - [x] Authenticated bilingual searchable manual web foundation and shipped-workflow contextual help; effective-permission links, versioned single content source

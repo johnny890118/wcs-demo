@@ -2,6 +2,14 @@
 
 Status: Active
 
+Historical overview/identity checkpoints below are complete. Owner's newer
+session-freshness direction is an independent high-risk slice governed by
+[ADR 0022](../decisions/0022-bounded-human-read-session-freshness.md) and the
+[freshness plan](s2-session-freshness-plan.md); its explicit bounded read-revocation
+trade-off supersedes the no-authority-lifetime-change restriction below only for
+approved GET read surfaces. Do not reinterpret this historical evidence as a
+production authenticated latency measurement.
+
 Owner requested this cleanup after the verified Locations checkpoint. Two
 independent checkpoints follow: navigation latency, then active product identity.
 Both precede the next Live View slice. No marketing or new roadmap is introduced.

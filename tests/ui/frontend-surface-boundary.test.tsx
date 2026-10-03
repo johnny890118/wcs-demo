@@ -53,7 +53,7 @@ import { testOperationalSession } from "../fixtures/operational-access";
 
 const context = {
   req: { headers: { host: "warehouse.example.com" } },
-  res: {},
+  res: { setHeader: vi.fn(), headersSent: false },
   query: {},
 };
 

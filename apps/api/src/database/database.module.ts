@@ -1,5 +1,6 @@
 import { Global, Module } from "@nestjs/common";
 import { Pool } from "pg";
+import { instrumentQueryTiming } from "./query-timing";
 
 export const DATABASE_POOL = Symbol("DATABASE_POOL");
 
@@ -13,7 +14,9 @@ export const DATABASE_POOL = Symbol("DATABASE_POOL");
         if (!connectionString) {
           throw new Error("DATABASE_URL is required to start the API.");
         }
-        return new Pool({ connectionString, max: 10 });
+        const pool = new Pool({ connectionString, max: 10 });
+        pool.on("connect", instrumentQueryTiming);
+        return pool;
       },
     },
   ],

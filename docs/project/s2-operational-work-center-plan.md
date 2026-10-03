@@ -4,6 +4,13 @@ Status: Active
 
 ## Current handoff-free continuation order
 
+Manual correction checkpoint `375d6f0` is pushed, CI/deployments/runtime verified
+and was clean before the independent freshness slice began. Freshness now has
+implementation, full verification and independent security review evidence in
+`s2-session-freshness-plan.md`. Complete its checkpoint/delivery gates before
+returning to S2 acceptance closure. No S3 implementation or marketing work is
+authorized by this ordering.
+
 Owner's latest instruction after accidental interruption: finish the current
 manual correction slice through full verification, checkpoint, push, exact-HEAD
 CI and runtime/deployment confirmation with a clean tree. Then independently

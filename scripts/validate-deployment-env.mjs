@@ -141,6 +141,15 @@ if (target === "api" || target === "all") {
 }
 
 if (target === "web" || target === "all") {
+  integer("HUMAN_SESSION_READ_FRESHNESS_SECONDS", 3600, 0, 3600);
+  if (
+    process.env.HUMAN_SESSION_READ_FRESHNESS_SECONDS !== undefined &&
+    !/^\d+$/.test(process.env.HUMAN_SESSION_READ_FRESHNESS_SECONDS)
+  ) {
+    errors.push(
+      "HUMAN_SESSION_READ_FRESHNESS_SECONDS must contain decimal digits only.",
+    );
+  }
   integer("HUMAN_SESSION_TTL_SECONDS", 28_800, 900, 86_400);
   integer("HUMAN_SESSION_REVOCATION_ATTEMPTS", 3, 1, 5);
   integer("HUMAN_SESSION_REVOCATION_RETRY_MS", 250, 10, 5_000);

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { useEffect, useState } from "react";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
@@ -96,30 +97,37 @@ function WarehouseView({ details }: PageProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations/warehouse/topology",
-  );
-  if (!access.allowed) {
+export const getServerSideProps: GetServerSideProps<PageProps> =
+  withReadOnlyOperationalNavigation<PageProps>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
+      session,
+      "operations.view",
+      "/operations/warehouse/topology",
+    );
+    if (!access.allowed) {
+      return {
+        redirect: {
+          destination: access.destination,
+          permanent: false,
+        },
+      };
+    }
+    let details: OperationsDetails | null = null;
+    try {
+      details = await fetchOperationsDetails(access.access);
+    } catch {
+      details = null;
+    }
     return {
-      redirect: {
-        destination: access.destination,
-        permanent: false,
+      props: {
+        session,
+        details,
+        warehouseId: access.access.currentWarehouseId,
       },
     };
-  }
-  let details: OperationsDetails | null = null;
-  try {
-    details = await fetchOperationsDetails(access.access);
-  } catch {
-    details = null;
-  }
-  return {
-    props: { session, details, warehouseId: access.access.currentWarehouseId },
-  };
-};
+  });

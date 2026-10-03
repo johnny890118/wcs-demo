@@ -11,6 +11,7 @@ import { ThemeProvider } from "next-themes";
 import Head from "next/head";
 import { LocaleProvider } from "@/src/ui/i18n/locale-provider";
 import { useRouter } from "next/router";
+import { OperationalNavigationTiming } from "@/src/ui/observability/OperationalNavigationTiming";
 import { classifyFrontendSurface } from "@/src/ui/navigation/frontend-surfaces";
 import {
   PRODUCT_NAME,
@@ -84,6 +85,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         <link rel="apple-touch-icon" sizes="180x180" href={PRODUCT_APP_ICON} />
       </Head>
       <div className={ubuntu.className}>{content}</div>
+      <OperationalNavigationTiming enabled={surface === "operations"} />
     </>
   );
 }

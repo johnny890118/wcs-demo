@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { withReadOnlyOperationalBff } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { authorizeOperationalSession } from "../../../src/infrastructure/auth/operational-session";
 import {
@@ -6,10 +7,7 @@ import {
   WcsProjectionError,
 } from "../../../src/infrastructure/http/wcs-api-client";
 import { authOptions } from "../auth/[...nextauth]";
-export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse,
-) {
+async function handler(request: NextApiRequest, response: NextApiResponse) {
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     response.status(405).json({ code: "METHOD_NOT_ALLOWED" });
@@ -60,3 +58,4 @@ export default async function handler(
     });
   }
 }
+export default withReadOnlyOperationalBff(handler);

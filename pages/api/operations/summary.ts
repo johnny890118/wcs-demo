@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { withReadOnlyOperationalBff } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import type { OperationsSummary } from "../../../src/application/operations/operations-summary";
 import { fetchOperationsSummary } from "../../../src/infrastructure/http/wcs-api-client";
@@ -7,7 +8,7 @@ import { authOptions } from "../auth/[...nextauth]";
 
 type ErrorResponse = Readonly<{ code: string; message: string }>;
 
-export default async function handler(
+async function handler(
   request: NextApiRequest,
   response: NextApiResponse<OperationsSummary | ErrorResponse>,
 ): Promise<void> {
@@ -44,3 +45,4 @@ export default async function handler(
     });
   }
 }
+export default withReadOnlyOperationalBff(handler);

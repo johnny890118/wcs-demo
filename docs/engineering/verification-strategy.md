@@ -1,5 +1,18 @@
 # Verification Strategy
 
+Latest S2 bounded-session freshness: full gate passes 452 fast, 25 real
+PostgreSQL and 34 production-build browser tests; API build passes. Exact
+freshness/expiry, malformed stamps, strict update/mutations, read-vs-mutation
+isolation, registry failure, changed permissions and API warehouse denial are
+covered. Independent security review found no blockers. A separate real local
+production-stack harness checks all six mutation routes after four kinds of
+withdrawal (24 denials), explicitly verifies delayed reads, and compares 60
+authenticated sidebar navigations before/after. Validation spans drop 60→0;
+local total click timing remains approximately 50 ms, not a measured production
+speedup. Browser-local bounded Performance entries and server stage timing are
+privacy-safe diagnostics. See the S2 freshness plan/ADR 0022 for evidence and the
+read-revocation trade-off; session expiry/strict command authority remain.
+
 Latest S2 manual correction: full gate passes 431 fast, 21 real PostgreSQL and
 34 production-build browser tests; API build passes. Regression tests assert real
 All work/load-more guidance instead of nonexistent task search. PDF source/release,

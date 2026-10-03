@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { mayReuseHumanReadClaims } from "../../../src/infrastructure/auth/human-read-freshness";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loadOperationalRuntime } from "../../../src/infrastructure/auth/demo-identity";
 import {
@@ -88,6 +89,7 @@ export const authOptions = {
       if (user?.access && user?.humanSession) {
         token.access = user.access;
         token.humanSession = user.humanSession;
+        token.humanValidatedAt = Date.now();
       } else if (isOperationalAccess(token.access)) {
         if (token.access.principal.kind === "human") {
           if (
@@ -95,7 +97,13 @@ export const authOptions = {
             isHumanSessionExpired(token.humanSession)
           ) {
             clearHumanSession(token);
-          } else {
+          } else if (
+            !mayReuseHumanReadClaims(
+              token.humanSession,
+              token.humanValidatedAt,
+              trigger,
+            )
+          ) {
             try {
               const resolution = await validateHumanOperationalSession(
                 token.humanSession,
@@ -103,6 +111,7 @@ export const authOptions = {
               );
               token.access = resolution.access;
               token.humanSession = resolution.session;
+              token.humanValidatedAt = Date.now();
             } catch {
               clearHumanSession(token);
             }
@@ -133,6 +142,7 @@ export const authOptions = {
           );
           token.access = resolution.access;
           token.humanSession = resolution.session;
+          token.humanValidatedAt = Date.now();
         }
       }
       return token;
@@ -160,4 +170,5 @@ export default NextAuth(authOptions);
 function clearHumanSession(token) {
   delete token.access;
   delete token.humanSession;
+  delete token.humanValidatedAt;
 }

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { OutboundWorkflowPanel } from "../../components/platform/OutboundWorkflowPanel";
@@ -60,37 +61,40 @@ export default function OutboundOperationsPage({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations/outbound",
-  );
-  if (!access.allowed) {
-    return {
-      redirect: {
-        destination: access.destination,
-        permanent: false,
-      },
+export const getServerSideProps: GetServerSideProps<PageProps> =
+  withReadOnlyOperationalNavigation<PageProps>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
+      session,
+      "operations.view",
+      "/operations/outbound",
+    );
+    if (!access.allowed) {
+      return {
+        redirect: {
+          destination: access.destination,
+          permanent: false,
+        },
+      };
+    }
+    const capabilities = {
+      canCreate: hasUserPermission(access.access, "outbound.create"),
+      canExecute: hasUserPermission(access.access, "transport.execute"),
+      canViewAudit: hasUserPermission(access.access, "audit.view"),
     };
-  }
-  const capabilities = {
-    canCreate: hasUserPermission(access.access, "outbound.create"),
-    canExecute: hasUserPermission(access.access, "transport.execute"),
-    canViewAudit: hasUserPermission(access.access, "audit.view"),
-  };
-  try {
-    return {
-      props: {
-        session,
-        details: await fetchOperationsDetails(access.access),
-        ...capabilities,
-      },
-    };
-  } catch {
-    return { props: { session, details: null, ...capabilities } };
-  }
-};
+    try {
+      return {
+        props: {
+          session,
+          details: await fetchOperationsDetails(access.access),
+          ...capabilities,
+        },
+      };
+    } catch {
+      return { props: { session, details: null, ...capabilities } };
+    }
+  });

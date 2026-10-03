@@ -32,6 +32,16 @@ UUID/code/name, `SWP_LIFECYCLE_ENVIRONMENT=production`,
 `SWP_EQUIPMENT_SOURCE=simulation`. The Render API requires the same three values.
 Configure the same bounded `HUMAN_SESSION_TTL_SECONDS` value on Vercel and
 Render; the current baseline is 28800 seconds (eight hours).
+The web's separate `HUMAN_SESSION_READ_FRESHNESS_SECONDS` defaults to 3600
+and accepts decimal integers 0–3600. It bounds approved GET Operations claim
+reuse, not session expiry. Set 0 for immediate read revalidation; it is not a
+Render/API setting. Without event-driven invalidation, read authority can persist
+after principal/assignment/permission/session withdrawal until the earlier of
+freshness deadline and expiry. Mutations, warehouse updates, audit/manual and
+NextAuth-owned requests remain strict. See ADR 0022. Browser-local
+`swp.navigation_total` Performance entries and privacy-safe `Server-Timing`
+stages support diagnostics; they are not a remote metrics/SLO service or evidence
+of authenticated production latency.
 Configure `HUMAN_LOGIN_FAILURE_LIMIT`,
 `HUMAN_LOGIN_FAILURE_WINDOW_SECONDS`, and `HUMAN_LOGIN_THROTTLE_SECONDS` on
 Render. The checked-in private-demo baseline is 5 failures, a 900-second

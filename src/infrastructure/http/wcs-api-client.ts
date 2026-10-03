@@ -1,3 +1,4 @@
+import { measureRequestTiming, recordUpstreamTiming } from "./request-timing";
 import {
   isOperationsSummary,
   type OperationsSummary,
@@ -113,17 +114,20 @@ async function fetchWcsProjection(
   const token = process.env.API_SERVICE_TOKEN;
   if (!token) throw new Error("API_SERVICE_TOKEN is required.");
 
-  const response = await fetch(`${baseUrl}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...operationalAccessHeaders(access),
-    },
-    signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+  return measureRequestTiming("projection_api", async () => {
+    const response = await fetch(`${baseUrl}${path}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...operationalAccessHeaders(access),
+      },
+      signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
+    });
+    recordUpstreamTiming(response.headers?.get("server-timing") ?? null);
+    if (!response.ok) {
+      throw new WcsProjectionError(response.status);
+    }
+    return response.json();
   });
-  if (!response.ok) {
-    throw new WcsProjectionError(response.status);
-  }
-  return response.json();
 }
 
 export class WcsProjectionError extends Error {
@@ -277,6 +281,7 @@ async function postHumanSession(path: string, body: unknown): Promise<unknown> {
     signal: AbortSignal.timeout(loadWcsApiTimeoutMs()),
   });
   const payload: unknown = await response.json().catch(() => null);
+  recordUpstreamTiming(response.headers?.get("server-timing") ?? null);
   if (!response.ok) {
     throw new HumanSessionApiError(response.status);
   }
@@ -347,16 +352,18 @@ export async function validateHumanOperationalSession(
   session: HumanSessionReference,
   access: OperationalAccess,
 ): Promise<HumanSessionResolution> {
-  return requireHumanSessionResolution(
-    await postHumanSession(
-      `/api/v1/access-context/human/sessions/${encodeURIComponent(
-        session.sessionId,
-      )}/validate`,
-      {
-        identityProvider: access.principal.identityProvider,
-        subject: access.principal.subject,
-        currentWarehouseId: access.currentWarehouseId,
-      },
+  return measureRequestTiming("session_validation", async () =>
+    requireHumanSessionResolution(
+      await postHumanSession(
+        `/api/v1/access-context/human/sessions/${encodeURIComponent(
+          session.sessionId,
+        )}/validate`,
+        {
+          identityProvider: access.principal.identityProvider,
+          subject: access.principal.subject,
+          currentWarehouseId: access.currentWarehouseId,
+        },
+      ),
     ),
   );
 }

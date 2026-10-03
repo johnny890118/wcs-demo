@@ -2,6 +2,10 @@
 
 Status: Accepted
 
+ADR 0022 subsequently replaces per-restore validation only for explicitly
+approved GET Operations reads with bounded freshness. This ADR's persisted
+expiry/revocation, strict mutation and warehouse-update foundation remains.
+
 ## Context
 
 ADR 0017 moved human permissions and warehouse assignments out of deployment

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
@@ -199,36 +200,41 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
     </OperationsShell>
   );
 }
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const taskId = context.params?.taskId;
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    `/operations/tasks/${
-      typeof taskId === "string" ? encodeURIComponent(taskId) : ""
-    }`,
-  );
-  if (!access.allowed)
-    return { redirect: { destination: access.destination, permanent: false } };
-  if (typeof taskId !== "string") return { notFound: true };
-  let detail: TaskDetail | null = null;
-  try {
-    detail = await fetchTaskDetail(access.access, taskId);
-  } catch (error) {
-    if (
-      error instanceof WcsProjectionError &&
-      [400, 404].includes(error.status)
-    )
-      return { notFound: true };
-  }
-  return {
-    props: {
+export const getServerSideProps: GetServerSideProps<Props> =
+  withReadOnlyOperationalNavigation<Props>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const taskId = context.params?.taskId;
+    const access = operationalPageAccess(
       session,
-      detail,
-      canViewAudit: hasUserPermission(access.access, "audit.view"),
-    },
-  };
-};
+      "operations.view",
+      `/operations/tasks/${
+        typeof taskId === "string" ? encodeURIComponent(taskId) : ""
+      }`,
+    );
+    if (!access.allowed)
+      return {
+        redirect: { destination: access.destination, permanent: false },
+      };
+    if (typeof taskId !== "string") return { notFound: true };
+    let detail: TaskDetail | null = null;
+    try {
+      detail = await fetchTaskDetail(access.access, taskId);
+    } catch (error) {
+      if (
+        error instanceof WcsProjectionError &&
+        [400, 404].includes(error.status)
+      )
+        return { notFound: true };
+    }
+    return {
+      props: {
+        session,
+        detail,
+        canViewAudit: hasUserPermission(access.access, "audit.view"),
+      },
+    };
+  });

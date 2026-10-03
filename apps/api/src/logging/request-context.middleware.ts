@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Injectable, type NestMiddleware } from "@nestjs/common";
 import type { NextFunction, Request, Response } from "express";
 import { requestContext } from "./request-context";
+import { withRequestTiming } from "../../../../src/infrastructure/http/request-timing";
 
 const safeRequestId = /^[A-Za-z0-9._:-]{8,100}$/;
 
@@ -12,6 +13,6 @@ export class RequestContextMiddleware implements NestMiddleware {
     const requestId =
       supplied && safeRequestId.test(supplied) ? supplied : randomUUID();
     response.setHeader("X-Request-Id", requestId);
-    requestContext.run({ requestId }, next);
+    withRequestTiming(() => requestContext.run({ requestId }, next));
   }
 }

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { useState } from "react";
@@ -212,36 +213,41 @@ export default function LocationsPage(props: Props) {
     </OperationsShell>
   );
 }
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations/locations",
-  );
-  if (!access.allowed)
-    return { redirect: { destination: access.destination, permanent: false } };
-  if (
-    context.query.search !== undefined &&
-    (typeof context.query.search !== "string" ||
-      context.query.search.length > 100)
-  )
-    return { notFound: true };
-  const search = ((context.query.search ?? "") as string).trim();
-  let initialPage: LocationPage | null = null;
-  try {
-    initialPage = await fetchLocations(access.access, { search });
-  } catch {
-    initialPage = null;
-  }
-  return {
-    props: {
+export const getServerSideProps: GetServerSideProps<Props> =
+  withReadOnlyOperationalNavigation<Props>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
       session,
-      initialPage,
-      search,
-      warehouseId: access.access.currentWarehouseId,
-    },
-  };
-};
+      "operations.view",
+      "/operations/locations",
+    );
+    if (!access.allowed)
+      return {
+        redirect: { destination: access.destination, permanent: false },
+      };
+    if (
+      context.query.search !== undefined &&
+      (typeof context.query.search !== "string" ||
+        context.query.search.length > 100)
+    )
+      return { notFound: true };
+    const search = ((context.query.search ?? "") as string).trim();
+    let initialPage: LocationPage | null = null;
+    try {
+      initialPage = await fetchLocations(access.access, { search });
+    } catch {
+      initialPage = null;
+    }
+    return {
+      props: {
+        session,
+        initialPage,
+        search,
+        warehouseId: access.access.currentWarehouseId,
+      },
+    };
+  });

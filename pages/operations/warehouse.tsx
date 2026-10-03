@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
@@ -102,24 +103,29 @@ function LiveWorkspace({ view }: Props) {
     </OperationsShell>
   );
 }
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations/warehouse",
-  );
-  if (!access.allowed)
-    return { redirect: { destination: access.destination, permanent: false } };
-  let view: OperationsLiveView | null = null;
-  try {
-    view = await fetchOperationsLiveView(access.access);
-  } catch {
-    view = null;
-  }
-  return {
-    props: { session, view, warehouseId: access.access.currentWarehouseId },
-  };
-};
+export const getServerSideProps: GetServerSideProps<Props> =
+  withReadOnlyOperationalNavigation<Props>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
+      session,
+      "operations.view",
+      "/operations/warehouse",
+    );
+    if (!access.allowed)
+      return {
+        redirect: { destination: access.destination, permanent: false },
+      };
+    let view: OperationsLiveView | null = null;
+    try {
+      view = await fetchOperationsLiveView(access.access);
+    } catch {
+      view = null;
+    }
+    return {
+      props: { session, view, warehouseId: access.access.currentWarehouseId },
+    };
+  });

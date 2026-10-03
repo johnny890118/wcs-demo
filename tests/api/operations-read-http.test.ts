@@ -3,6 +3,7 @@ import { Test } from "@nestjs/testing";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ServiceTokenGuard } from "../../apps/api/src/auth/service-token.guard";
+import { withHumanReadPolicy } from "../../src/infrastructure/auth/human-read-freshness";
 import { OperationsController } from "../../apps/api/src/operations/operations.controller";
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
@@ -103,13 +104,20 @@ describe("warehouse-scoped operations read HTTP contract", () => {
     )) {
       permissionRequest = permissionRequest.set(name, value);
     }
-    const forbidden = await permissionRequest;
+    const forbidden = await withHumanReadPolicy(
+      "GET",
+      async () => await permissionRequest,
+    );
     expect(forbidden.status).toBe(403);
     expect(forbidden.body.code).toBe("USER_PERMISSION_FORBIDDEN");
 
-    const outside = await authorized("/api/v1/operations/summary").set(
-      "X-SWP-Warehouse",
-      "20000000-0000-4000-8000-000000000001",
+    const outside = await withHumanReadPolicy(
+      "GET",
+      async () =>
+        await authorized("/api/v1/operations/summary").set(
+          "X-SWP-Warehouse",
+          "20000000-0000-4000-8000-000000000001",
+        ),
     );
     expect(outside.status).toBe(403);
     expect(outside.body.code).toBe("WAREHOUSE_SCOPE_FORBIDDEN");

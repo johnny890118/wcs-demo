@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { withReadOnlyOperationalBff } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import type { OperationsLiveView } from "../../../src/application/operations/operations-live-view";
 import { authorizeOperationalSession } from "../../../src/infrastructure/auth/operational-session";
 import { fetchOperationsLiveView } from "../../../src/infrastructure/http/wcs-api-client";
 import { authOptions } from "../auth/[...nextauth]";
 
-export default async function handler(
+async function handler(
   request: NextApiRequest,
   response: NextApiResponse<OperationsLiveView | { code: string }>,
 ): Promise<void> {
@@ -34,3 +35,4 @@ export default async function handler(
     response.status(503).json({ code: "OPERATIONS_LIVE_VIEW_UNAVAILABLE" });
   }
 }
+export default withReadOnlyOperationalBff(handler);

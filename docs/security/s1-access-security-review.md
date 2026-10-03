@@ -5,6 +5,12 @@ Review date: 2026-10-03
 Status: Complete for the accountable-access foundation. This review does not
 authorize production identity or physical commissioning.
 
+Historical S1 evidence below predates ADR 0022. Current approved read-only
+freshness deliberately delays read revocation/outage detection up to the earlier
+of the configured window and expiry; strict mutations/updates remain immediate.
+See the S2 freshness plan and current security baseline, not an unchanged
+per-restore guarantee, for the current disposition.
+
 ## Scope and threat boundaries
 
 The review re-read the product and S1 decisions, then traced the supported path

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { useState } from "react";
@@ -156,31 +157,36 @@ export default function TaskQueuePageView(props: Props) {
     </OperationsShell>
   );
 }
-export const getServerSideProps: GetServerSideProps<Props> = async (
-  context,
-) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-  const access = operationalPageAccess(
-    session,
-    "operations.view",
-    "/operations/tasks",
-  );
-  if (!access.allowed)
-    return { redirect: { destination: access.destination, permanent: false } };
-  const view = context.query.view ?? "active";
-  if (view !== "active" && view !== "all") return { notFound: true };
-  let initialPage: TaskQueuePage | null = null;
-  try {
-    initialPage = await fetchTaskQueue(access.access, { view });
-  } catch {
-    initialPage = null;
-  }
-  return {
-    props: {
+export const getServerSideProps: GetServerSideProps<Props> =
+  withReadOnlyOperationalNavigation<Props>(async (context) => {
+    const session = await getServerSession(
+      context.req,
+      context.res,
+      authOptions,
+    );
+    const access = operationalPageAccess(
       session,
-      initialPage,
-      view,
-      warehouseId: access.access.currentWarehouseId,
-    },
-  };
-};
+      "operations.view",
+      "/operations/tasks",
+    );
+    if (!access.allowed)
+      return {
+        redirect: { destination: access.destination, permanent: false },
+      };
+    const view = context.query.view ?? "active";
+    if (view !== "active" && view !== "all") return { notFound: true };
+    let initialPage: TaskQueuePage | null = null;
+    try {
+      initialPage = await fetchTaskQueue(access.access, { view });
+    } catch {
+      initialPage = null;
+    }
+    return {
+      props: {
+        session,
+        initialPage,
+        view,
+        warehouseId: access.access.currentWarehouseId,
+      },
+    };
+  });
