@@ -78,6 +78,12 @@ export function InboundWorkflowPanel({
 
   const [state, setState] = useState<RequestState>("idle");
   const [created, setCreated] = useState<InboundReceiptCreated | null>(null);
+  const [requestContext, setRequestContext] = useState<{
+    reference: string;
+    sku: string;
+    quantity: number;
+    loadReference: string;
+  } | null>(null);
   const [completed, setCompleted] = useState<InboundExecutionCompleted | null>(
     null,
   );
@@ -128,6 +134,12 @@ export function InboundWorkflowPanel({
         throw new Error(t("invalidServerResponse"));
       }
       setCreated(payload);
+      setRequestContext({
+        reference: String(form.get("externalReference") ?? ""),
+        sku: String(form.get("sku") ?? ""),
+        quantity: Number(form.get("quantity")),
+        loadReference: String(form.get("externalId") ?? ""),
+      });
       setState("ready");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t("requestFailed"));
@@ -336,9 +348,19 @@ export function InboundWorkflowPanel({
           <div className="mt-5 space-y-5">
             <dl className="space-y-3 rounded-lg bg-[var(--surface-muted)] p-4 text-sm">
               <div>
-                <dt className="text-[var(--text-muted)]">{t("taskId")}</dt>
-                <dd className="mt-1 break-all font-mono font-semibold">
-                  {created.transportTaskId}
+                <dt className="text-[var(--text-muted)]">
+                  {t("submittedRequest")}
+                </dt>
+                <dd className="mt-1 break-words font-semibold">
+                  {requestContext?.reference}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">
+                  {t("requestedItemQuantity")}
+                </dt>
+                <dd className="mt-1 break-words font-semibold">
+                  {requestContext?.sku} · {requestContext?.quantity}
                 </dd>
               </div>
               <div>
@@ -348,6 +370,43 @@ export function InboundWorkflowPanel({
                 </dd>
               </div>
             </dl>
+            <p className="text-sm leading-6 text-[var(--text-muted)]">
+              {t("requestContextNotice")}
+            </p>
+            <Link
+              href={`/operations/tasks/${encodeURIComponent(
+                created.transportTaskId,
+              )}`}
+              target={state === "complete" ? undefined : "_blank"}
+              rel={state === "complete" ? undefined : "noopener noreferrer"}
+              className="ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold text-[var(--accent-strong)]"
+            >
+              {t("inspectCreatedTask")}
+              {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
+            </Link>
+            <details className="border-t border-[var(--border)] pt-2">
+              <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
+                {t("workflowReferences")}
+              </summary>
+              <dl className="space-y-2 break-all text-xs text-[var(--text-muted)]">
+                <div>
+                  <dt>{t("taskId")}</dt>
+                  <dd>{created.transportTaskId}</dd>
+                </div>
+                <div>
+                  <dt>{t("inventoryOrigin")}</dt>
+                  <dd>{created.receiptId}</dd>
+                </div>
+                <div>
+                  <dt>{t("workflowLoadReference")}</dt>
+                  <dd>{created.loadId}</dd>
+                </div>
+                <div>
+                  <dt>{t("externalLoadId")}</dt>
+                  <dd>{requestContext?.loadReference}</dd>
+                </div>
+              </dl>
+            </details>
             {state === "complete" && completed ? (
               <div
                 role="status"
@@ -369,7 +428,7 @@ export function InboundWorkflowPanel({
                   href="/operations/warehouse"
                   className="mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
                 >
-                  {t("viewWarehouseMap")}
+                  {t("liveView")}
                 </Link>
                 {canViewAudit ? (
                   <>

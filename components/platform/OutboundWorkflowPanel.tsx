@@ -38,17 +38,15 @@ export function OutboundWorkflowPanel({
 }: Props) {
   const { t } = useLocale();
   const inventory = useMemo(() => {
-    const quantities = new Map<string, number>();
-    for (const item of details.inventory) {
-      if (item.status === "available") {
-        quantities.set(
-          item.sku,
-          (quantities.get(item.sku) ?? 0) + item.quantity,
-        );
-      }
-    }
-    return [...quantities.entries()]
-      .map(([sku, quantity]) => ({ sku, quantity }))
+    // Bounded recorded SKU hints, never reservation-adjusted available balances.
+    return [
+      ...new Set(
+        details.inventory
+          .filter((item) => item.status === "available")
+          .map((item) => item.sku),
+      ),
+    ]
+      .map((sku) => ({ sku }))
       .sort((left, right) => left.sku.localeCompare(right.sku));
   }, [details.inventory]);
   const destinations = useMemo(
@@ -80,6 +78,11 @@ export function OutboundWorkflowPanel({
 
   const [state, setState] = useState<RequestState>("idle");
   const [created, setCreated] = useState<OutboundOrderAllocated | null>(null);
+  const [requestContext, setRequestContext] = useState<{
+    reference: string;
+    sku: string;
+    quantity: number;
+  } | null>(null);
   const [sku, setSku] = useState(inventory[0]?.sku ?? "");
   const [destinationId, setDestinationId] = useState(
     destinations[0]?.locationId ?? "",
@@ -122,6 +125,11 @@ export function OutboundWorkflowPanel({
         throw new Error(t("invalidServerResponse"));
       }
       setCreated(payload);
+      setRequestContext({
+        reference: String(form.get("externalReference") ?? ""),
+        sku,
+        quantity: Number(form.get("quantity")),
+      });
       setSelectedTaskId(payload.transportTaskIds[0] ?? "");
       setState("ready");
     } catch (cause) {
@@ -231,7 +239,7 @@ export function OutboundWorkflowPanel({
               >
                 {inventory.map((item) => (
                   <option key={item.sku} value={item.sku}>
-                    {item.sku} · {item.quantity}
+                    {item.sku}
                   </option>
                 ))}
               </select>
@@ -243,7 +251,6 @@ export function OutboundWorkflowPanel({
                 type="number"
                 required
                 min="1"
-                max={inventory.find((item) => item.sku === sku)?.quantity}
                 step="1"
                 disabled={!canCreate || state !== "idle"}
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
@@ -266,6 +273,19 @@ export function OutboundWorkflowPanel({
               </select>
             </label>
           </div>
+          <p className="text-sm leading-6 text-[var(--text-muted)]">
+            {t("outboundStockHintNotice")}
+          </p>
+          <Link
+            href={`/operations/inventory?${new URLSearchParams({
+              search: sku,
+            })}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+          >
+            {t("inspectRecordedStock")} · {t("opensNewTab")}
+          </Link>
           <button
             type="submit"
             disabled={!canCreate || !configurationReady || state !== "idle"}
@@ -294,10 +314,28 @@ export function OutboundWorkflowPanel({
             <dl className="space-y-3 rounded-lg bg-[var(--surface-muted)] p-4 text-sm">
               <div>
                 <dt className="text-[var(--text-muted)]">
-                  {t("outboundOrder")}
+                  {t("submittedRequest")}
                 </dt>
-                <dd className="mt-1 break-all font-mono font-semibold">
-                  {created.outboundOrderId}
+                <dd className="mt-1 break-words font-semibold">
+                  {requestContext?.reference}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">
+                  {t("requestedItemQuantity")}
+                </dt>
+                <dd className="mt-1 break-words font-semibold">
+                  {requestContext?.sku} · {requestContext?.quantity}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">
+                  {t("destinationLocation")}
+                </dt>
+                <dd className="mt-1 break-words font-semibold">
+                  {destinations.find(
+                    (item) => item.locationId === destinationId,
+                  )?.code ?? "—"}
                 </dd>
               </div>
               <div>
@@ -317,6 +355,43 @@ export function OutboundWorkflowPanel({
                 </dd>
               </div>
             </dl>
+            <p className="text-sm leading-6 text-[var(--text-muted)]">
+              {t("requestContextNotice")}
+            </p>
+            <ul className="space-y-2">
+              {created.transportTaskIds.map((taskId, index) => (
+                <li key={taskId}>
+                  <Link
+                    href={`/operations/tasks/${encodeURIComponent(taskId)}`}
+                    target={state === "complete" ? undefined : "_blank"}
+                    rel={
+                      state === "complete" ? undefined : "noopener noreferrer"
+                    }
+                    className="ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold text-[var(--accent-strong)]"
+                  >
+                    {t("inspectCreatedTask")} {index + 1}
+                    {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <details className="border-t border-[var(--border)] pt-2">
+              <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
+                {t("workflowReferences")}
+              </summary>
+              <dl className="space-y-2 break-all text-xs text-[var(--text-muted)]">
+                <div>
+                  <dt>{t("outboundOrder")}</dt>
+                  <dd>{created.outboundOrderId}</dd>
+                </div>
+                {created.transportTaskIds.map((taskId) => (
+                  <div key={taskId}>
+                    <dt>{t("taskId")}</dt>
+                    <dd>{taskId}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
             {state === "complete" ? (
               <div
                 role="status"
@@ -373,7 +448,8 @@ export function OutboundWorkflowPanel({
                       .filter((taskId) => !completedTaskIds.includes(taskId))
                       .map((taskId) => (
                         <option key={taskId} value={taskId}>
-                          {taskId}
+                          {t("allocatedTaskChoice")}{" "}
+                          {created.transportTaskIds.indexOf(taskId) + 1}
                         </option>
                       ))}
                   </select>

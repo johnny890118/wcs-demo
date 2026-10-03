@@ -1,5 +1,13 @@
 # Verification Strategy
 
+Latest S2 workflow-context checkpoint: complete verification passes 418 fast
+tests, 19 ephemeral PostgreSQL integration tests and 32 production-build Chromium
+tests; separate API build passes. Browser checks review created inbound/outbound
+context in both locales/themes at 390 px, native keyboard task investigation,
+confirmation/execution and audit links with zero axe findings. A focused regression
+asserts bounded recorded SKU hints do not publish raw quantities or impose a false
+availability ceiling. Backend allocation/authorization remains authoritative.
+
 ## Main entry point
 
 Latest S2 manual PDF checkpoint: full verification passes 417 fast tests,

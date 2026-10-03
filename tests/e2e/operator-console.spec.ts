@@ -13,6 +13,42 @@ async function signIn(page: Page, destination: string) {
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+async function reviewCreatedWorkflow(page: Page, name: string) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const locale of ["zh-TW", "en"] as const) {
+    await page
+      .getByRole("button", {
+        name: locale === "en" ? "EN" : "繁中",
+        exact: true,
+      })
+      .click();
+    for (const mode of ["light", "dark"] as const) {
+      const theme =
+        locale === "en"
+          ? mode === "light"
+            ? "Light"
+            : "Dark"
+          : mode === "light"
+            ? "淺色"
+            : "深色";
+      await page.getByRole("button", { name: theme, exact: true }).click();
+      await expect(page.locator("html")).toHaveClass(new RegExp(mode));
+      const dimensions = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client);
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await page.screenshot({
+        path: test.info().outputPath(`${name}-${locale}-${mode}.png`),
+        fullPage: true,
+      });
+    }
+  }
+  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await page.setViewportSize({ width: 1280, height: 900 });
+}
+
 test("active surfaces share SWP identity and owned browser icons", async ({
   page,
 }) => {
@@ -1032,6 +1068,27 @@ test("operator creates, confirms, and executes an inbound workflow", async ({
   await page.getByLabel("數量").fill("6");
   await page.getByRole("button", { name: "建立入庫單" }).click();
 
+  await expect(page.getByText("ASN-UI-E2E-01", { exact: true })).toBeVisible();
+  await expect(page.getByText("SKU-UI-E2E · 6", { exact: true })).toBeVisible();
+  await reviewCreatedWorkflow(page, "inbound-review");
+  const inboundTask = page.getByRole("link", {
+    name: "追查相關任務 · 開啟新分頁",
+    exact: true,
+  });
+  const inboundPopup = page.waitForEvent("popup");
+  await inboundTask.focus();
+  await page.keyboard.press("Enter");
+  const taskPage = await inboundPopup;
+  await expect(taskPage).toHaveURL(
+    "/operations/tasks/50000000-0000-4000-8000-000000000099",
+  );
+  await expect(taskPage.locator("main h1")).toBeVisible();
+  await taskPage.close();
+  await page
+    .locator("summary")
+    .getByText("技術追蹤識別碼", { exact: true })
+    .click();
+
   await expect(
     page.getByText("50000000-0000-4000-8000-000000000099"),
   ).toBeVisible();
@@ -1042,6 +1099,15 @@ test("operator creates, confirms, and executes an inbound workflow", async ({
   await page.getByRole("button", { name: "確認並執行入庫任務" }).click();
 
   await expect(page.getByText("入庫執行完成")).toBeVisible();
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "入庫執行完成" })
+      .getByRole("link", { name: "倉庫即時觀測", exact: true }),
+  ).toHaveAttribute("href", "/operations/warehouse");
+  await expect(
+    page.getByRole("link", { name: "追查相關任務", exact: true }),
+  ).not.toHaveAttribute("target", "_blank");
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
 
@@ -1076,6 +1142,25 @@ test("operator allocates, confirms, and executes an outbound workflow", async ({
   await page.getByLabel("外部參考編號").fill("SO-UI-E2E-01");
   await page.getByLabel("數量").fill("2");
   await page.getByRole("button", { name: "建立並配貨出庫單" }).click();
+
+  await expect(page.getByText("SO-UI-E2E-01", { exact: true })).toBeVisible();
+  await reviewCreatedWorkflow(page, "outbound-review");
+  const outboundTask = page.getByRole("link", {
+    name: "追查相關任務 1 · 開啟新分頁",
+    exact: true,
+  });
+  await expect(outboundTask).toHaveAttribute(
+    "href",
+    "/operations/tasks/c0000000-0000-4000-8000-000000000099",
+  );
+  await expect(outboundTask).toHaveAttribute("target", "_blank");
+  await expect(
+    page.getByRole("combobox", { name: "任務", exact: true }),
+  ).toHaveText("已配置任務 1");
+  await page
+    .locator("summary")
+    .getByText("技術追蹤識別碼", { exact: true })
+    .click();
 
   await expect(
     page.getByText("a0000000-0000-4000-8000-000000000099"),

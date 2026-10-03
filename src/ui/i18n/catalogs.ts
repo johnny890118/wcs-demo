@@ -1,6 +1,18 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
   helpTitle: "Operation manual",
+  submittedRequest: "Submitted request",
+  workflowLoadReference: "Persisted load reference",
+  requestedItemQuantity: "Requested item and quantity",
+  requestContextNotice:
+    "This is submitted request context, not physical completion evidence. Inspect the persisted task and outcome before concluding movement is complete.",
+  inspectCreatedTask: "Inspect related task",
+  opensNewTab: "opens a new tab",
+  workflowReferences: "Technical tracking references",
+  outboundStockHintNotice:
+    "SKU choices come from bounded recorded stock, not reservation-adjusted availability. The backend checks current stock and reservations during allocation; inspect Inventory for qualified balances.",
+  inspectRecordedStock: "Inspect related stock search",
+  allocatedTaskChoice: "Allocated task",
   helpDownloadPdf: "Download versioned PDF manual",
   helpDescription:
     "Guidance for shipped workflows in this deployment. Your current warehouse permissions determine available actions; this manual does not authorize equipment control.",
@@ -309,7 +321,7 @@ export const en = {
   outboundRequest: "Step 1 · Allocate",
   outboundRequestTitle: "Create outbound order",
   outboundRequestDescription:
-    "Available inventory and shipping destinations come from persisted warehouse projections and active configuration.",
+    "Recorded SKU hints and shipping destinations come from persisted warehouse projections and active configuration.",
   outboundConfigurationUnavailable:
     "No available inventory, shipping destination, or current idle equipment is eligible. Check inventory, topology bindings, and telemetry.",
   createOutbound: "Allocate outbound order",
@@ -543,6 +555,18 @@ export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
   helpTitle: "操作手冊",
+  submittedRequest: "已送出的作業請求",
+  workflowLoadReference: "已記錄載具識別碼",
+  requestedItemQuantity: "請求的品項與數量",
+  requestContextNotice:
+    "此處是已送出請求的作業資訊，不是實體完成證據。請追查已持久化任務與結果，再判斷移動是否完成。",
+  inspectCreatedTask: "追查相關任務",
+  opensNewTab: "開啟新分頁",
+  workflowReferences: "技術追蹤識別碼",
+  outboundStockHintNotice:
+    "品項選項來自有限的已記錄庫存，不是扣除保留量後的可用餘額。後端配置時會檢查目前存量與保留量；請到庫存工作區查看合格餘額。",
+  inspectRecordedStock: "追查相關庫存搜尋",
+  allocatedTaskChoice: "已配置任務",
   helpDownloadPdf: "下載版本化 PDF 手冊",
   helpDescription:
     "本部署已交付流程的操作指引。可用操作取決於目前倉庫的有效權限；手冊不授予設備控制權。",
@@ -825,7 +849,7 @@ export const zhTW: Catalog = {
   outboundRequest: "步驟 1 · 配貨",
   outboundRequestTitle: "建立出庫單",
   outboundRequestDescription:
-    "可用庫存與出貨終點來自已持久化倉庫投影及啟用中的設定。",
+    "已記錄品項與出貨終點來自已持久化倉庫投影及啟用中的設定。",
   outboundConfigurationUnavailable:
     "目前沒有合格的可用庫存、出貨終點或即時閒置設備；請檢查庫存、拓撲綁定與遙測。",
   createOutbound: "建立並配貨出庫單",

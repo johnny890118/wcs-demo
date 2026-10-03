@@ -319,7 +319,45 @@ separate mandatory repository/CI gate, never replaced by the lightweight guard.
 | Font availability varies across machines             | Pinned source and embedded bilingual font subsets            | Avoid Chinese missing glyphs without production network dependence |
 | Section content spills into another page/footer area | Keep complete topics together with footer clearance          | Preserve readable context and page boundaries                      |
 
+## Inbound/outbound workflow context acceptance
+
+Next medium-risk UI slice after the clean manual PDF checkpoint. Keep mutation,
+permission, idempotency, confirmation and execution contracts unchanged. Lead
+with submitted reference/SKU/quantity and readable location context, not UUIDs;
+label that summary as request context, not physical completion evidence. Expose
+receipt/order/task identifiers in native diagnostics and scoped task links.
+Pending-work links explicitly open a new tab to preserve the local confirmation
+form; post-completion navigation can leave the workflow normally. Ordinal task
+labels do not invent source locations or physical progress. Remove the outbound
+SKU selector's raw stock total, which is not reservation-adjusted availability;
+point to the qualified Inventory workspace and keep backend allocation
+authoritative. Stock choices remain bounded read hints, never an allocation
+guarantee. Verify submit/review/execute outcomes, no numeric stock guarantee,
+request-versus-completion meaning, task links, native disclosure, permissions,
+both locales/themes/mobile, full gate, push/CI and deployed auth boundary.
+
+| Before                                               | After                                                              | Why                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| Receipt/order review starts with UUID                | Submitted reference/item/quantity followed by technical disclosure | Operators need business context before machine identity        |
+| Outbound SKU options show unqualified stock quantity | SKU choices with bounded-evidence caveat and qualified stock link  | Recorded quantity is not available balance after reservations  |
+| Workflow has no obvious task investigation link      | Explicit scoped task detail link preserving pending form           | Read evidence without accidentally losing confirmation context |
+
 ## Outcome
+
+Workflow-context self-review retained backend authorization, allocation,
+idempotency and explicit confirmation unchanged. Removed the unqualified raw
+stock quantity/HTML ceiling and corrected the request-description wording.
+Request summaries are explicitly local submitted context, not completion evidence;
+only accepted server task identifiers form investigation destinations. Pending
+investigation opens a labelled new tab, preserving confirmation state; completed
+work uses ordinary navigation. No location or source is fabricated for
+multi-source outbound allocation. Native disclosures retain diagnostic references.
+Production-build browser review covers both created workflows at 390 px in both
+locales and light/dark themes, zero axe findings, keyboard task investigation,
+confirmation/execution and audit links. Full verification passes 418 fast tests,
+19 real PostgreSQL tests and 32 browser tests; separate API build passes. The
+existing 15 legacy-only lint warnings remain. Authenticated deployed performance
+is not measured by the isolated browser fixture.
 
 Turn the authenticated operations surface into a task-centered work center that
 explains current work, exceptions, inventory, and trustworthy equipment state in
