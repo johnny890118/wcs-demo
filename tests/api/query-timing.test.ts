@@ -51,10 +51,11 @@ describe("PostgreSQL client timing", () => {
       dispatchHeader = () => snapshot(requestTimingHeader);
     });
     withRequestTiming(() => {
-      complete!(null, { rows: [] });
+      Reflect.apply(complete!, client, [null, { rows: [] }]);
       expect(requestTimingHeader()).toBe("");
     });
     expect(callback).toHaveBeenCalledWith(null, { rows: [] });
+    expect(callback.mock.contexts[0]).toBe(client);
     expect(dispatchHeader!()).toMatch(/^database_query;dur=\d+\.\d{2}$/);
   });
 });

@@ -16,9 +16,9 @@ export function instrumentQueryTiming(client: PoolClient): void {
     };
     const callback = args[args.length - 1];
     if (typeof callback === "function") {
-      args[args.length - 1] = function (...result: unknown[]) {
+      args[args.length - 1] = function (this: unknown, ...result: unknown[]) {
         record();
-        return callback(...result);
+        return Reflect.apply(callback, this, result);
       };
     }
     try {

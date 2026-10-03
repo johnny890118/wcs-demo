@@ -103,6 +103,11 @@ method, with no guard disabled. Subsequent full gate passes. Runtime rerun confi
 15 legacy lint warnings remain tracked; production dependency audit reports zero
 vulnerabilities. Timing-only benchmark output is ignored, not staged.
 
+Post-checkpoint compatibility review of installed pg `query.js` confirms callbacks
+are invoked with a receiver. The timing wrapper now preserves that receiver via
+`Reflect.apply`; regression coverage checks arguments, receiver and original
+dispatch attribution. This follow-up changes no authorization or timing vocabulary.
+
 Operations records bounded browser-local `swp.navigation_total` and
 `swp.navigation_interrupted` Performance entries without route/query identity,
 credentials or remote telemetry. Server-Timing separates session/projection/
