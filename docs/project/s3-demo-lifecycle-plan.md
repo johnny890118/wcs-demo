@@ -1,6 +1,6 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — first admission/expiry control-ledger slice.
+Status: Active — isolated reference-workspace snapshot slice.
 
 ## Entry evidence and workflow
 
@@ -15,6 +15,11 @@ Persistent plan and ADR 0023 are required; independent security review follows
 implementation. No new marketing work or physical equipment integration.
 
 ## First coherent slice
+
+Admission/expiry checkpoint `be721e6` plus CI correction `6b06868` are pushed.
+Verify `37139224445` has both jobs successful; exact Vercel/Render deployment,
+managed runtime and clean-tree evidence are confirmed. Historical first-slice
+scope below is complete, not an instruction to redo it.
 
 - Persist a bounded, idempotent anonymous demo admission reservation and expiry
   control evidence, separately from resettable operational audit/scenario rows.
@@ -74,3 +79,36 @@ The correction compares exact applied migration names with the repository for
 both fresh and restored databases, rejecting missing, wrong or duplicate names;
 four regression checks cover the manifest verifier. No check is disabled and
 no managed database reset is performed. Delivery remains pending corrected CI.
+
+Correction delivery is now confirmed by the entry evidence above.
+
+## Current coherent slice — isolated reference snapshot
+
+High-risk resource/warehouse isolation foundation; retain this plan and ADR 0024,
+use independent review and real PostgreSQL proof. Create one atomic/idempotent
+reference workspace for an unexpired provisioning reservation. Read one consistent
+versioned template snapshot, validate topology/equipment/bindings and bounded
+configuration size, then generate owned warehouse/topology/location/equipment
+identities. Preserve explicit mapping and copied semantic graph references.
+Equipment stays inactive; copy no operational rows or observations. Do not grant
+access or claim runtime isolation before adapter ownership/access/cleanup gates.
+Full verification, API build, security review, checkpoint/push, exact-commit
+CI/deployment/runtime and clean tree precede the next slice.
+
+Snapshot verification: 8 focused preparation regressions cover disjoint identity,
+explicit non-matching-label bindings, deep-copy isolation, invalid scope/contracts,
+bounded size, generated-ID collisions and prototype-like equipment map keys.
+Nine real PostgreSQL regressions prove inactive scoped reference rows, no
+operational/history/observation copy or human grant, concurrent idempotency,
+expired/missing denial, missing binding/unknown adapter rejection, event failure
+and mid-copy expiry rollback, actual reset-list survival and composite FK/RLS.
+An initial test assumed a nonexistent direct task warehouse column; corrected to
+the real location relation, without schema changes or relaxed assertions.
+Independent security review found no blockers; recommended deadline/reset proof
+was added. Full gate passes 483 fast, 47 real PostgreSQL (29 + 9 + 9), 34 browser
+tests plus production-build public-boundary harness; API build passes.
+
+Opaque reference constraints/attributes and semantic resource IDs are not proof
+of runtime resource isolation. Activation must review their safe interpretation
+and public projection exposure, authoritative adapter ownership, persisted
+request authorization, cleanup and quotas before any public carrier is enabled.

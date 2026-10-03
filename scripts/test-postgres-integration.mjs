@@ -38,6 +38,14 @@ try {
       RUN_POSTGRES_INTEGRATION: "1",
     },
   );
+  run(
+    "npx",
+    ["vitest", "run", "tests/integration/postgres-demo-workspace.test.ts"],
+    {
+      DATABASE_URL: databaseUrl,
+      RUN_POSTGRES_INTEGRATION: "1",
+    },
+  );
   run("npm", ["run", "db:reset:demo"], {
     DATABASE_URL: databaseUrl,
     ALLOW_DEMO_RESET: "true",

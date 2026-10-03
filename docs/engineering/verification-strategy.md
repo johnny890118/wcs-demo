@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Latest S3 inactive reference-workspace snapshot: 483 fast, 47 real PostgreSQL
+(29 operational + 9 admission + 9 workspace), 34 production-build browser tests,
+public-profile denial harness and separate API build pass. Independent security
+review found no blockers. Scoped identity/bindings, inactive equipment/no grants,
+absence of copied operational rows/observations, concurrent replay, invalid
+references/adapters, atomic event failure, mid-copy deadline rollback, actual
+reset-list survival and database ownership/RLS are covered. Opaque configuration
+and copied semantic graph resources do not establish simulator runtime isolation;
+activation/public access/cleanup remain gated by ADR 0024.
+
 Latest S3 admission/expiry foundation: 475 fast tests, 38 real PostgreSQL tests
 (29 operational + 9 ledger), 34 production-build browser tests and separate API
 build pass. Independent security review has no blockers. An actual local

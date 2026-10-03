@@ -208,6 +208,12 @@ admission/expiry control ledger; provisioning reservations do not authorize
 operations. Public issuance and old browser carriers remain unavailable until
 isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
 
+- Admission/expiry control ledger checkpoint `6b06868` is CI/deployment/runtime
+  stable, with capacity retained until verified cleanup.
+- Inactive reference-workspace snapshots establish distinct persisted identities
+  and versioned bindings (ADR 0024), not completed virtual equipment provisioning
+  or public access. Do not mark the aggregate S3 requirements below complete.
+
 - [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
 - [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
 - [ ] Authenticated private-demo scenario, replay, fault, diagnostics, and advanced simulator controls

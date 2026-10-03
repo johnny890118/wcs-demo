@@ -38,12 +38,7 @@ export function requireDemoAdmissionPolicy(
   runtime: OperationalRuntime,
   policy: DemoAdmissionPolicy,
 ): void {
-  if (
-    runtime.deploymentProfile !== "public_demo" ||
-    runtime.equipmentSource !== "simulation"
-  ) {
-    throw new DemoAdmissionError("UNAVAILABLE");
-  }
+  requireAnonymousDemoRuntime(runtime);
   if (
     !Number.isSafeInteger(policy.ttlSeconds) ||
     policy.ttlSeconds < 300 ||
@@ -53,6 +48,15 @@ export function requireDemoAdmissionPolicy(
     policy.maximumReservations > 1_000
   ) {
     throw new DemoAdmissionError("INVALID");
+  }
+}
+
+export function requireAnonymousDemoRuntime(runtime: OperationalRuntime): void {
+  if (
+    runtime.deploymentProfile !== "public_demo" ||
+    runtime.equipmentSource !== "simulation"
+  ) {
+    throw new DemoAdmissionError("UNAVAILABLE");
   }
 }
 
