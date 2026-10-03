@@ -18,6 +18,7 @@
     "test": "vitest run",
     "test:e2e": "npm run build && playwright test",
     "test:managed-demo": "node scripts/check-managed-demo.mjs",
+    "test:demo-boundary": "node scripts/check-demo-admission-boundary.mjs",
     "test:postgres": "node scripts/test-postgres-integration.mjs",
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check \"apps/**/*.ts\" \"components/**/*.{ts,tsx}\" \"docs/**/*.md\" \"src/**/*.{ts,tsx}\" \"tests/**/*.{js,ts,tsx,mjs}\" \"pages/**/*.{ts,tsx}\" \"pages/api/**/*.js\" \"scripts/*.{mjs,ts}\" \"*.config.{mjs,ts}\" AGENTS.md README.md package.json tsconfig.json",
@@ -27,7 +28,7 @@
     "icons:check": "node scripts/generate-product-icons.mjs --check",
     "manual:check": "tsx scripts/check-manual-pdfs.ts",
     "manual:integrity": "tsx scripts/check-manual-pdfs.ts --integrity-only",
-    "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run manual:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e"
+    "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run manual:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e && npm run test:demo-boundary"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

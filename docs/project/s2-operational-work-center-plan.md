@@ -1,18 +1,15 @@
 # S2 Operational Work Center Plan
 
-Status: Engineering complete for approved S2 foundation; checkpoint delivery gates pending.
+Status: Complete for approved S2 foundation — checkpoint `842503d`, Verify `37137046354`, exact-commit Vercel/Render, managed runtime and clean tree confirmed.
 
 ## Current handoff-free continuation order
 
-Freshness checkpoint `9b24d83` now has exact remote SHA, successful Verify and
-deployment-smoke run `37135511926`, Vercel/Render exact-commit success, managed
-runtime pass and a clean working tree. The current independent slice is S2
-acceptance closure: trace each remaining checklist item to shipped code/tests,
-extend missing negative persisted-binding coverage, and publish an honest
-acceptance/remaining-limitations matrix. Medium-risk read-boundary verification;
-reuse this plan and existing product/architecture decisions, no new ADR or
-production configuration mutation. Do not rebuild shipped UI or start S3 before
-this slice's own full verification/checkpoint/deployment gates succeed.
+Freshness checkpoint `9b24d83` and S2 acceptance checkpoint `842503d` both have
+successful Verify/deployment-smoke, Vercel/Render exact-commit success, managed
+runtime passes and clean-tree evidence. Remaining checklist items are traced to
+shipped code/tests in `s2-acceptance-evidence.md`, including persisted negative
+binding regressions. Continue independently under `s3-demo-lifecycle-plan.md`;
+do not rebuild shipped UI or treat completed historical notes below as tasks.
 
 ## Historical slice evidence (not active instructions)
 

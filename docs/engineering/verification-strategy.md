@@ -1,5 +1,18 @@
 # Verification Strategy
 
+Latest S3 admission/expiry foundation: 471 fast tests, 38 real PostgreSQL tests
+(29 operational + 9 ledger), 34 production-build browser tests and separate API
+build pass. Independent security review has no blockers. An actual local
+production-build public-profile HTTP harness checks issuance503/no-cookie,
+valid old-carrier read/mutation401, SSR login redirect and zero upstream calls;
+`test:demo-boundary` is part of the full gate. PostgreSQL covers concurrent
+admission/retries, non-sliding database TTL, retained expired capacity, atomic
+reserve/expiry evidence rollback, actual reset-list survival and non-owner RLS.
+Explicit READ COMMITTED admission remains capacity-safe even when connections
+default to REPEATABLE READ.
+No active isolated public session, verified resource cleanup or hardware safety
+is inferred; see ADR 0023 and the active S3 plan.
+
 Latest S2 acceptance closure: full gate passes 452 fast, 29 real PostgreSQL
 and 34 production-build browser tests; separate API build passes. Four added
 persisted regressions reject foreign warehouse/node bindings and prove unbound

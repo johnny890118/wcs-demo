@@ -2,6 +2,10 @@
 
 Status: Accepted
 
+S3 supersession: ADR 0023 pauses browser issuance and authorization of existing
+carriers until isolated persisted provisioning/access exist. Carrier cryptography
+remains a characterized primitive, not an active public-demo authorization path.
+
 ## Context
 
 S1 established effective permissions and warehouse scopes, but the access

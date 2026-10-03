@@ -64,6 +64,13 @@ Public Demo additionally requires `DEMO_WAREHOUSE_ID`,
 `PUBLIC_DEMO_USER_PERMISSIONS`, and the anonymous-demo carrier settings. These
 configure the separate anonymous adapter and never grant human access.
 
+These settings do not enable a finished Public Demo. S3/ADR 0023 pauses browser
+issuance (503 in a valid public-demo profile) and denies existing signed carriers
+until isolated persisted provisioning/access/cleanup exist. The additive control
+ledger migration grants no warehouse authorization. Keep managed hosting on its
+existing private-demo profile; do not enable public demo merely because runtime
+profile validation accepts simulation.
+
 Render prompts for `DATABASE_URL` and `API_SERVICE_TOKEN` because the Blueprint marks them `sync: false`. Existing Blueprint services do not automatically receive newly added `sync: false` variables; add them manually when updating an existing service. Keep the API permission list least-privileged for the deployed web capabilities.
 
 Before configuring either provider, validate an equivalent local environment without printing values:

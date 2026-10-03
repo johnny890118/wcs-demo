@@ -169,7 +169,7 @@ Status: Complete — verified 2026-10-03
 
 ## S2 — Operational Work Center, Inventory Visibility and Spatial Read Foundation
 
-Status: Complete for approved S2 foundation; acceptance checkpoint delivery gates pending.
+Status: Complete for approved S2 foundation — checkpoint `842503d`, CI/deployments/runtime verified.
 
 Evidence: [S2 acceptance matrix](s2-acceptance-evidence.md) and
 [S2 work center plan](s2-operational-work-center-plan.md). Advanced controls,
@@ -201,7 +201,12 @@ physical authoring and commercial readiness remain separate milestones.
 
 ## S3 — Public and Private Demo Product
 
-Status: Planned (supersedes M8B)
+Status: In progress (supersedes M8B)
+
+Active plan: [S3 demo lifecycle](s3-demo-lifecycle-plan.md). First slice is the
+admission/expiry control ledger; provisioning reservations do not authorize
+operations. Public issuance and old browser carriers remain unavailable until
+isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
 
 - [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
 - [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
@@ -247,10 +252,10 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-After the S2 acceptance checkpoint passes exact-commit CI/deployment/runtime and
-clean-tree gates, begin S3 with the smallest persisted isolated demo-session
-lifecycle contract. Characterize current issuance/reset boundaries first; do not
-enable public entry or implement an unscoped reset/replay UI prematurely. Preserve
+S2 delivery gates are complete. Finish the independent S3 admission/expiry
+control-ledger checkpoint and its exact-commit delivery gates, then establish
+isolated workspace provisioning and every-request persisted access before any
+public entry. Do not implement an unscoped reset/replay UI prematurely. Preserve
 audit evidence outside resettable scenario state, production hard-deny and bounded
 resource ownership. Follow the existing approved S3–S8 sequence, not a new roadmap.
 Authenticated production latency remains unmeasured; PDFs are searchable but not

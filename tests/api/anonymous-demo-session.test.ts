@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import handler from "../../pages/api/demo/session";
-import { anonymousDemoCookieName } from "../../src/infrastructure/auth/anonymous-demo-carrier";
 
 function response() {
   const result = {
@@ -44,7 +43,7 @@ describe("anonymous demo session endpoint", () => {
     for (const name of runtimeVariables) delete process.env[name];
   });
 
-  it("issues an HttpOnly secure carrier only to the configured origin", () => {
+  it("does not issue a carrier before persisted isolated provisioning exists", () => {
     const result = response();
     handler(
       {
@@ -53,16 +52,11 @@ describe("anonymous demo session endpoint", () => {
       } as never,
       result as never,
     );
-    expect(result.statusCode).toBe(201);
+    expect(result.statusCode).toBe(503);
     expect(result.body).toMatchObject({
-      sessionId: expect.any(String),
-      expiresAt: expect.any(String),
+      code: "PUBLIC_DEMO_LIFECYCLE_UNAVAILABLE",
     });
-    expect(result.headers["Set-Cookie"]).toContain(
-      `${anonymousDemoCookieName}=`,
-    );
-    expect(result.headers["Set-Cookie"]).toContain("HttpOnly");
-    expect(result.headers["Set-Cookie"]).toContain("Secure");
+    expect(result.headers["Set-Cookie"]).toBeUndefined();
     expect(result.headers["Cache-Control"]).toBe("no-store");
   });
 

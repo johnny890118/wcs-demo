@@ -244,7 +244,10 @@ export function authorizeAnonymousDemoCarrier(input: {
   if (!hasUserPermission(access, input.permission)) {
     return { allowed: false, reason: "forbidden" };
   }
-  return { allowed: true, access };
+  // Compatibility verification/denial remains, but an old signed carrier is
+  // not proof of persisted isolation. No operational access until S3 wires
+  // isolated provisioning and authoritative persisted lookup on every request.
+  return { allowed: false, reason: "unavailable" };
 }
 
 export function anonymousDemoCookie(

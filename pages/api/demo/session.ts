@@ -1,8 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  anonymousDemoCookie,
-  issueAnonymousDemoCarrier,
-} from "../../../src/infrastructure/auth/anonymous-demo-carrier";
 import { loadOperationalRuntime } from "../../../src/infrastructure/runtime/operational-runtime";
 
 type SessionResponse = Readonly<{ sessionId: string; expiresAt: string }>;
@@ -42,10 +38,10 @@ export default function handler(
     });
     return;
   }
-  const carrier = issueAnonymousDemoCarrier();
-  response.setHeader(
-    "Set-Cookie",
-    anonymousDemoCookie(carrier, runtime.environment === "production"),
-  );
-  response.status(201).json(carrier.scope);
+  // A signed carrier alone cannot isolate warehouse or simulator state.
+  // Do not enable issuance until persisted provisioning/access/cleanup exist.
+  response.status(503).json({
+    code: "PUBLIC_DEMO_LIFECYCLE_UNAVAILABLE",
+    message: "Isolated public demo sessions are not available yet.",
+  });
 }

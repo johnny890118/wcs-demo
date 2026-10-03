@@ -6,6 +6,13 @@ The supported product entry and authenticated, simulator-backed operations conso
 
 ## Runtime boundary
 
+- S3 anonymous admission reserves capacity in a separate PostgreSQL control
+  ledger; provisioning/expired rows never grant access and expiry never releases
+  capacity. Issuance and old-carrier browser authorization remain unavailable
+  until isolated provisioning, persisted authorization and cleanup are complete.
+  Trusted service-only anonymous forwarded context is compatibility, not a
+  finished public isolation contract (ADR 0023). No public-demo enablement here.
+
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.
 - `API_TRUST_PROXY_HOPS` is an exact trusted-hop count, not a blanket proxy trust switch. Keep it at `0` for direct/Compose access and set it only to the verified provider hop count (Render currently uses `1`). Incorrect proxy trust can allow client-IP spoofing and defeat per-client limits.

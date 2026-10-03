@@ -75,7 +75,7 @@ describe("anonymous demo access carrier", () => {
     expect(() => issueAnonymousDemoCarrier({ now })).toThrow(/32 bytes/);
   });
 
-  it("authorizes only public simulation permissions carried by a valid cookie", () => {
+  it("denies even old valid carriers until persisted isolated access exists", () => {
     const carrier = issueAnonymousDemoCarrier({
       now,
       createId: () => sessionId,
@@ -88,7 +88,7 @@ describe("anonymous demo access carrier", () => {
         runtime,
         now,
       }),
-    ).toMatchObject({ allowed: true });
+    ).toEqual({ allowed: false, reason: "unavailable" });
     expect(
       authorizeAnonymousDemoCarrier({
         cookieHeader,
