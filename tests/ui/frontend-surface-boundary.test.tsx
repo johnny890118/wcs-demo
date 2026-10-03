@@ -42,6 +42,7 @@ import { getServerSideProps as getTaskDetailProps } from "../../pages/operations
 import { getServerSideProps as getOutboundProps } from "../../pages/operations/outbound";
 import { getServerSideProps as getProjectionProps } from "../../pages/operations/projections";
 import { getServerSideProps as getWarehouseProps } from "../../pages/operations/warehouse";
+import { getServerSideProps as getTopologyProps } from "../../pages/operations/warehouse/topology";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
 import {
   classifyFrontendSurface,
@@ -88,6 +89,7 @@ describe("frontend surface boundary", () => {
     ["/operations/loads", getLoadProps],
     ["/operations/locations", getLocationProps],
     ["/operations/warehouse", getWarehouseProps],
+    ["/operations/warehouse/topology", getTopologyProps],
     ["/operations/projections", getProjectionProps],
     ["/operations/inbound", getInboundProps],
     ["/operations/outbound", getOutboundProps],

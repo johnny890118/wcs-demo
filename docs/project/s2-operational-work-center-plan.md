@@ -206,7 +206,44 @@ fixture was corrected after S1 correctly rejected it; auth validation was not
 weakened. Self-review fixed binding revision races and rejects fabricated
 current/foreign-link payloads. UI implementation follows the clean checkpoint.
 
+## Live View operator workspace acceptance
+
+Medium-risk read-only UI slice after the verified API foundation. Existing
+approved IA supports `/operations/warehouse` as daily Live View and
+`/operations/warehouse/topology` as engineering inspection; no new ADR or
+authority model. Keep the old inspector behavior/tests on its explicit route.
+Primary view explains qualified position, operational status, observed versus
+assigned work, affected alarms, evidence timestamps and scoped deep links.
+Native selection/disclosure must work with keyboard/touch; no decorative motion,
+commands, fake physical floorplan, fabricated labels or route progress.
+
+Use a shared server freshness policy and a serialized current-position deadline.
+Client expiry only downgrades evidence; it never establishes authority or marks
+anything current. A failed/expired projection becomes last-known or unavailable,
+and context changes abort/remount state. One nonoverlapping refresh per screen;
+manual refresh uses the same path. Verify populated, empty, unknown, stale,
+unavailable and foreign-context denial, bilingual light/dark/mobile axe/reflow,
+keyboard selection/deep links, full gate/API build and deployed boundaries.
+
+| Before                                                   | After                                                                 | Why                                                                      |
+| -------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Warehouse main route is a technical graph inspector      | Daily observation/work context with separate engineering route        | Distinct daily and diagnostic responsibilities                           |
+| A frozen successful refresh can continue to look current | Server deadline and client downgrade-only expiry                      | Current labels must not outlive qualified evidence                       |
+| Raw node/device enums dominate investigation             | Readable state/position/reason, work context and technical disclosure | Operators can understand risk and next investigation without source code |
+
 ## Outcome
+
+Live View UI self-review preserves the inspector on its explicit route and moves
+raw observation diagnostics behind native disclosure. The shared 30-second
+received-evidence window is serialized and validated exactly; local time only
+downgrades, never upgrades, position. This is not a command lease or equipment
+health guarantee. Production-build browser review covers keyboard task links,
+technical disclosure, failed refresh retaining expired evidence, both mobile
+themes, English/Chinese, axe/reflow and warehouse switching. Desktop/mobile
+screenshots were reviewed. No physical geometry or calibrated map is claimed.
+Automated unknown-equipment selection and unresolved-context tests prevent
+fabricated positions/foreign work links. API compilation and the complete gate
+are required; authenticated deployed browser latency remains unmeasured.
 
 Turn the authenticated operations surface into a task-centered work center that
 explains current work, exceptions, inventory, and trustworthy equipment state in

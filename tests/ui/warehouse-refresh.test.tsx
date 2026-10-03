@@ -27,7 +27,7 @@ vi.mock("../../components/platform/WarehouseTopologyMap", () => ({
 vi.mock("../../src/ui/i18n/locale-provider", () => ({
   useLocale: () => ({ t: (key: string) => key }),
 }));
-import WarehousePage from "../../pages/operations/warehouse";
+import WarehousePage from "../../pages/operations/warehouse/topology";
 
 const details: OperationsDetails = {
   generatedAt: "2026-10-03T00:00:00Z",

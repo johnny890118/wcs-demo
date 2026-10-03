@@ -536,6 +536,7 @@ const server = createServer(async (request, response) => {
       request.url?.startsWith("/api/v1/operations/locations") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/overview" ||
+      request.url === "/api/v1/operations/live-view" ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
     !requireOperationalContext(
@@ -769,6 +770,88 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  // Deliberately bounded browser fixture; real qualification is tested against
+  // projectOperationsLiveView and PostgreSQL, not inferred from this mock.
+  if (request.url === "/api/v1/operations/live-view") {
+    const scoped = request.headers["x-swp-warehouse"] !== secondWarehouseId;
+    const work = scoped
+      ? details.tasks
+          .filter((task) =>
+            [
+              "queued",
+              "assigned",
+              "in_progress",
+              "blocked",
+              "unknown",
+            ].includes(task.status),
+          )
+          .map((task) => ({ ...task, taskId: fixtureTaskId(task) }))
+      : [];
+    const equipment = scoped
+      ? details.equipment.map((item) => {
+          const telemetry = item.telemetry;
+          const current =
+            telemetry &&
+            telemetry.topologyId === details.topology?.topologyId &&
+            telemetry.topologyRevision === details.topology?.revision &&
+            telemetry.nodeId;
+          const receivedAt = telemetry?.receivedAt;
+          return {
+            equipmentId: item.equipmentId,
+            active: item.active,
+            capabilities: item.capabilities,
+            status: telemetry?.status ?? null,
+            observation: telemetry
+              ? {
+                  connectionStatus: telemetry.connectionStatus,
+                  quality: telemetry.quality,
+                  freshness: telemetry.freshness,
+                  ageMs: telemetry.ageMs,
+                  observedAt: telemetry.observedAt,
+                  receivedAt,
+                }
+              : null,
+            position: {
+              state: current ? "current" : "unknown",
+              reason: current ? "observed" : "missing_telemetry",
+              nodeId: current ? telemetry.nodeId : null,
+              locations: current
+                ? details.locations
+                    .filter(
+                      (location) => location.activeNodeId === telemetry.nodeId,
+                    )
+                    .map((location) => location.code)
+                : [],
+              validUntil: current
+                ? new Date(Date.parse(receivedAt) + 30_000).toISOString()
+                : null,
+            },
+            observedTaskId: null,
+            observedTaskContext: telemetry?.taskId ? "unresolved" : "none",
+            assignedTaskIds: work
+              .filter((task) => task.equipmentId === item.equipmentId)
+              .map((task) => task.taskId),
+          };
+        })
+      : [];
+    response.end(
+      JSON.stringify({
+        equipment,
+        work,
+        alarms: [],
+        locations: scoped ? details.locations : [],
+        topology: scoped ? details.topology : null,
+        generatedAt,
+        coverage: {
+          workMayBeLimited: false,
+          equipmentMayBeLimited: false,
+          locationsMayBeLimited: false,
+          alarmsMayBeLimited: false,
+        },
+      }),
+    );
+    return;
+  }
   if (
     request.url === "/api/v1/operations/home" ||
     request.url === "/api/v1/operations/overview"

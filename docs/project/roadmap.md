@@ -186,7 +186,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
-- [ ] Operations Live View foundation distinct from readable engineering topology inspection
+- [x] Operations Live View foundation distinct from readable engineering topology inspection
 - [ ] Preserve and extend explicit Location-to-Topology-Node binding correctness
 - [ ] Built-in operation manual, contextual help, searchable navigation, and single-source bilingual PDF foundation
 
@@ -238,7 +238,7 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S2 with Operations Live View/readable topology after Home, task
-queue/detail and Inventory/Loads/Locations workspaces. Reuse qualified
-observations and explicit versioned bindings; keep unknown outcomes explicit.
-Manual/contextual help follows the active plan; Public Demo lifecycle remains S3.
+Continue S2 with the built-in bilingual manual and contextual help foundation,
+after the qualified Live View and separate topology inspector checkpoint. Reuse
+shipped workflows and effective permissions; do not document unshipped controls
+as available. Public Demo lifecycle remains S3; calibrated physical layout S6.

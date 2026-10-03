@@ -2,6 +2,19 @@
 
 ## Main entry point
 
+Latest S2 Live View UI checkpoint: complete verification passes 401 fast tests,
+19 ephemeral PostgreSQL integration tests and 30 production-build Chromium
+checks. API compilation passes separately. Browser runtime covers scoped work
+deep links, native keyboard disclosure, observation expiry, failed-refresh
+retention, warehouse context clearing, bilingual mobile light/dark axe and reflow;
+desktop/mobile screenshots were reviewed. Pure/guard tests enforce the exact
+shared observation deadline; UI tests cover unknown/unresolved equipment and
+noncurrent empty evidence. The topology inspector remains independently guarded
+at `/operations/warehouse/topology`. This is a qualified read view, not a
+calibrated physical layout, atomic snapshot, command authorization or hardware
+commissioning evidence. Deployed checks remain nonmutating/unauthenticated;
+authenticated production performance remains unmeasured.
+
 `npm run verify` is the required repository-level gate. During M0 it covers the checks the legacy repository can support; each milestone extends it without replacing prior protection.
 
 ## Target layers

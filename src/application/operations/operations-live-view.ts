@@ -1,4 +1,5 @@
 import { equipmentStatuses } from "../../domain/equipment/equipment-state-machine";
+import { equipmentObservationFreshAfterMs } from "../equipment/observation-freshness";
 import {
   isOperationsDetails,
   type OperationsDetails,
@@ -35,6 +36,7 @@ export type LiveEquipment = Readonly<{
     reason: (typeof positionReasons)[number];
     nodeId: string | null;
     locations: readonly string[];
+    validUntil: string | null;
   }>;
   observedTaskId: string | null;
   observedTaskContext: "none" | "resolved" | "unresolved";
@@ -106,7 +108,10 @@ export function projectOperationsLiveView(
             ? "inactive_equipment"
             : telemetry.connectionStatus !== "connected"
               ? "disconnected"
-              : telemetry.freshness !== "current"
+              : telemetry.freshness !== "current" ||
+                  Date.parse(telemetry.receivedAt) +
+                    equipmentObservationFreshAfterMs <=
+                    Date.parse(details.generatedAt)
                 ? "stale"
                 : telemetry.quality !== "good"
                   ? "uncertain"
@@ -137,6 +142,13 @@ export function projectOperationsLiveView(
             ? ("current" as const)
             : ("last_known" as const),
         reason,
+        validUntil:
+          reason === "observed"
+            ? new Date(
+                Date.parse(telemetry!.receivedAt) +
+                  equipmentObservationFreshAfterMs,
+              ).toISOString()
+            : null,
         nodeId: usableNode ? telemetry!.nodeId : null,
         locations: usableNode
           ? details.locations
@@ -263,6 +275,8 @@ export function isOperationsLiveView(
         ) &&
         (item.position.nodeId === null ||
           typeof item.position.nodeId === "string") &&
+        (item.position.validUntil === null ||
+          timestamp(item.position.validUntil)) &&
         ["none", "resolved", "unresolved"].includes(
           item.observedTaskContext as string,
         ) &&
@@ -329,7 +343,8 @@ export function isOperationsLiveView(
         return (
           position.nodeId === null &&
           position.locations.length === 0 &&
-          position.reason !== "observed"
+          position.reason !== "observed" &&
+          position.validUntil === null
         );
       if (
         !item.observation ||
@@ -350,9 +365,14 @@ export function isOperationsLiveView(
           item.active &&
           item.observation.connectionStatus === "connected" &&
           item.observation.freshness === "current" &&
-          item.observation.quality === "good"
+          item.observation.quality === "good" &&
+          timestamp(position.validUntil) &&
+          Date.parse(position.validUntil!) ===
+            Date.parse(item.observation.receivedAt) +
+              equipmentObservationFreshAfterMs &&
+          Date.parse(position.validUntil!) > Date.parse(view.generatedAt)
         );
-      return position.reason !== "observed";
+      return position.reason !== "observed" && position.validUntil === null;
     }) &&
     view.alarms.every(
       (alarm) =>

@@ -1,5 +1,68 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  warehouseWorkspace: "Warehouse workspace",
+  liveView: "Live View",
+  liveRefresh: "Refresh observations",
+  liveRefreshing: "Refreshing…",
+  liveScopeNotice:
+    "Qualified backend observations and recorded work. Assignment is not physical position; this view is not a calibrated floorplan, route guarantee or permission to command equipment.",
+  liveCoverageNotice:
+    "Evidence is bounded or some alarm contexts could not be resolved. Absence here does not prove the warehouse is clear; use Tasks and Alarms for deeper investigation.",
+  liveEquipmentContext: "Equipment context",
+  liveNoBoundLocation: "No readable bound station is available",
+  liveInactive: "Not active in configuration",
+  liveRecordedState: "Last recorded equipment state",
+  livePosition_current: "Qualified current observation",
+  livePosition_last_known: "Last-known observation only",
+  livePosition_unknown: "Position unknown",
+  liveReason_observed:
+    "Position comes from connected, good, current telemetry matching the active topology. Position quality does not imply healthy or safe-to-command equipment.",
+  liveReason_missing_telemetry:
+    "No equipment observation was reported. Assignment cannot fill in a missing position.",
+  liveReason_topology_mismatch:
+    "The observation does not match the active topology version. Its position is not shown.",
+  liveReason_node_unknown:
+    "The observed station is missing from the active topology. Position needs investigation.",
+  liveReason_inactive_equipment:
+    "The equipment is not active in configuration. Any usable position is last-known evidence only.",
+  liveReason_disconnected:
+    "The equipment is disconnected. Any usable position is last-known, not current movement.",
+  liveReason_stale:
+    "The observation has expired. Refresh or investigate connectivity before relying on current movement.",
+  liveReason_uncertain:
+    "Observation quality is uncertain or unusable. Do not infer a physical position or successful movement.",
+  liveReason_expired:
+    "Current evidence expired or refresh failed. The displayed location is now last-known only.",
+  liveObservedWork: "Work reported by equipment",
+  liveObservedUnresolved:
+    "Reported work could not be resolved in this scoped projection. This does not prove the equipment is idle.",
+  liveObservedNone:
+    "No task reference was reported in this observation. Assigned work remains separate.",
+  liveAssignedWork: "Assigned work",
+  liveAssignmentNotice:
+    "Recorded assignment is not evidence that the equipment reached a station or executed a command.",
+  liveNoAssignedWork: "No assigned work in this bounded projection.",
+  liveAffectedAlarms: "Related unresolved alarms",
+  liveNoAlarms: "No related alarm in this bounded projection.",
+  liveOpenAlarms: "Open alarm workspace",
+  liveDiagnostics: "Technical observation detail",
+  liveNode: "Observed topology node",
+  liveConnection: "Reported connection",
+  liveSelectEquipment:
+    "Select equipment to inspect its observation and work context.",
+  liveWorkUnavailable:
+    "Current work could not be confirmed. Empty last-known evidence is not proof of no work.",
+  liveNoEquipment: "No equipment in this scoped projection.",
+  liveState_unobserved: "Observation unavailable",
+  liveState_offline: "Offline",
+  liveState_idle: "Reported idle",
+  liveState_assigned: "Assigned, awaiting movement",
+  liveState_moving_to_pickup: "Moving toward pickup",
+  liveState_loading: "Loading",
+  liveState_moving_to_destination: "Moving toward destination",
+  liveState_unloading: "Unloading",
+  liveState_faulted: "Fault reported; review exceptions",
+  liveState_unknown: "Outcome unknown; investigate",
   operationsMetaDescription:
     "Authenticated warehouse operations, work and accountable operational evidence.",
   navigationPending: "Opening workspace…",
@@ -469,6 +532,60 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  warehouseWorkspace: "倉庫工作區",
+  liveView: "倉庫即時觀測",
+  liveRefresh: "重新整理觀測",
+  liveRefreshing: "更新中…",
+  liveScopeNotice:
+    "呈現後端合格觀測與已記錄工作；指派不是實體位置。此畫面不是已校準平面圖、路徑保證或設備控制授權。",
+  liveCoverageNotice:
+    "證據範圍有限，或部分警報 context 無法解析；此處未顯示不代表倉庫沒有問題，請到任務與警報工作區繼續追查。",
+  liveEquipmentContext: "設備作業 context",
+  liveNoBoundLocation: "無可用的綁定庫位資訊",
+  liveInactive: "設定中未啟用",
+  liveRecordedState: "最後記錄的設備狀態",
+  livePosition_current: "合格的目前觀測",
+  livePosition_last_known: "僅最後已知觀測",
+  livePosition_unknown: "位置未知",
+  liveReason_observed:
+    "位置來自 connected、good、current 且符合啟用拓撲的遙測；位置可信不代表設備健康或可安全下令。",
+  liveReason_missing_telemetry: "沒有設備觀測回報；不可用任務指派補出位置。",
+  liveReason_topology_mismatch: "觀測不符合啟用中的拓撲版本，因此不呈現位置。",
+  liveReason_node_unknown: "觀測站點不在啟用拓撲中；需要追查位置證據。",
+  liveReason_inactive_equipment:
+    "設備在設定中未啟用；可用位置僅為最後已知證據。",
+  liveReason_disconnected:
+    "設備已斷線；可用位置僅為最後已知位置，不是目前移動。",
+  liveReason_stale: "觀測已過期；請重新整理或追查連線後，再判讀目前移動。",
+  liveReason_uncertain: "觀測品質不確定或不可用；不要推測實體位置或移動成功。",
+  liveReason_expired:
+    "目前證據已過期或更新失敗；畫面上的位置現在僅為最後已知。",
+  liveObservedWork: "設備回報的工作",
+  liveObservedUnresolved:
+    "回報的工作無法在目前 scope 投影中解析；這不代表設備閒置。",
+  liveObservedNone: "本次觀測沒有回報任務 reference；系統指派的工作另列。",
+  liveAssignedWork: "系統指派的工作",
+  liveAssignmentNotice: "已記錄指派不代表設備已到達站點或完成指令。",
+  liveNoAssignedWork: "有限投影中沒有已指派工作。",
+  liveAffectedAlarms: "相關未解決警報",
+  liveNoAlarms: "有限投影中沒有相關警報。",
+  liveOpenAlarms: "開啟警報工作區",
+  liveDiagnostics: "觀測技術細節",
+  liveNode: "觀測拓撲節點",
+  liveConnection: "回報的連線狀態",
+  liveSelectEquipment: "選擇設備以查看觀測與工作 context。",
+  liveWorkUnavailable: "無法確認目前工作；最後已知證據為空不代表沒有工作。",
+  liveNoEquipment: "目前 scope 投影中沒有設備。",
+  liveState_unobserved: "無法取得觀測",
+  liveState_offline: "離線",
+  liveState_idle: "回報閒置",
+  liveState_assigned: "已指派，等待移動",
+  liveState_moving_to_pickup: "前往取貨",
+  liveState_loading: "取貨中",
+  liveState_moving_to_destination: "前往目的地",
+  liveState_unloading: "卸貨中",
+  liveState_faulted: "回報故障；請追查例外",
+  liveState_unknown: "結果未知；需要追查",
   operationsMetaDescription: "需登入的倉庫營運、工作與可追溯營運證據。",
   navigationPending: "正在開啟工作區…",
   locations: "位置",

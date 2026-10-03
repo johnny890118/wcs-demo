@@ -75,6 +75,35 @@ const details: OperationsDetails = {
 };
 
 describe("qualified operational Live View", () => {
+  it("bounds current position by the shared observation deadline, not client polling", () => {
+    const view = projectOperationsLiveView(details);
+    expect(view.equipment[0].position.validUntil).toBe(
+      "2026-10-03T00:00:30.000Z",
+    );
+    const fabricated = {
+      ...view,
+      equipment: [
+        {
+          ...view.equipment[0],
+          position: {
+            ...view.equipment[0].position,
+            validUntil: "2026-10-03T00:01:00.000Z",
+          },
+        },
+      ],
+    };
+    expect(isOperationsLiveView(fabricated)).toBe(false);
+    const expired = projectOperationsLiveView({
+      ...details,
+      generatedAt: "2026-10-03T00:00:30.000Z",
+    });
+    expect(expired.equipment[0].position).toMatchObject({
+      state: "last_known",
+      reason: "stale",
+      validUntil: null,
+    });
+    expect(isOperationsLiveView(expired)).toBe(true);
+  });
   it("uses active version bindings without treating assignment or matching labels as observations", () => {
     const view = projectOperationsLiveView(details);
     expect(view.equipment[0]).toMatchObject({

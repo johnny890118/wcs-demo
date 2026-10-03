@@ -12,7 +12,9 @@ import OperationsProjectionsPage from "../../pages/operations/projections";
 import InboundOperationsPage from "../../pages/operations/inbound";
 import AlarmOperationsPage from "../../pages/operations/alarms";
 import OutboundOperationsPage from "../../pages/operations/outbound";
-import WarehouseOperationsPage from "../../pages/operations/warehouse";
+import WarehouseOperationsPage from "../../pages/operations/warehouse/topology";
+import LiveWarehousePage from "../../pages/operations/warehouse";
+import { projectOperationsLiveView } from "../../src/application/operations/operations-live-view";
 import AuditHistoryPage from "../../pages/operations/audit";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
@@ -231,6 +233,17 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <WarehouseOperationsPage details={details} />
+      </LocaleProvider>,
+    );
+    await expectNoAutomatedViolations(container);
+  });
+  it("finds no detectable violations on the daily Live View", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <LiveWarehousePage
+          warehouseId="warehouse"
+          view={projectOperationsLiveView(details)}
+        />
       </LocaleProvider>,
     );
     await expectNoAutomatedViolations(container);

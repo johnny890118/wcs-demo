@@ -86,7 +86,7 @@ export function OperationsShell({
         overview: "operationsHome",
         tasks: "taskQueueTitle",
         inventory: "inventory",
-        warehouse: "warehouseMap",
+        warehouse: "liveView",
         inbound: "inbound",
         outbound: "outbound",
         alarms: "alarmWorkflowTitle",
@@ -173,7 +173,7 @@ export function OperationsShell({
               }`}
             >
               <MapIcon className="h-5 w-5" aria-hidden="true" />
-              {t("warehouseMap")}
+              {t("liveView")}
             </Link>
             <Link
               href="/operations/inbound"
@@ -350,7 +350,7 @@ export function OperationsShell({
                     : "text-[var(--text-muted)]"
                 }`}
               >
-                {t("warehouseMap")}
+                {t("liveView")}
               </Link>
               <Link
                 href="/operations/inbound"

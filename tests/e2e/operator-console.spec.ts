@@ -51,6 +51,7 @@ test("active surfaces share SWP identity and owned browser icons", async ({
     "/operations/loads",
     "/operations/locations",
     "/operations/warehouse",
+    "/operations/warehouse/topology",
     "/operations/inbound",
     "/operations/outbound",
     "/operations/alarms",
@@ -79,6 +80,92 @@ test("active surfaces share SWP identity and owned browser icons", async ({
     path: test.info().outputPath("swp-identity-operations-dark.png"),
     fullPage: true,
   });
+});
+
+test("Live View separates observations from assignments and expires retained position", async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date("2026-09-18T08:00:00.000Z") });
+  await signIn(page, "/operations/warehouse");
+  await expect(
+    page.getByRole("heading", { name: "倉庫即時觀測", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("本次觀測沒有回報任務 reference；系統指派的工作另列。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  const payload = await (
+    await page.request.get("/api/operations/live-view")
+  ).json();
+  const taskLink = page
+    .locator(`a[href="/operations/tasks/${payload.work[0].taskId}"]`)
+    .first();
+  await expect(taskLink).toBeVisible();
+  await taskLink.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(`/operations/tasks/${payload.work[0].taskId}`);
+  await page.goto("/operations/warehouse");
+  const disclosure = page.locator("summary").last();
+  await disclosure.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByText(payload.equipment[0].position.nodeId, { exact: true }),
+  ).toBeVisible();
+  await page.route("**/api/operations/live-view", (route) =>
+    route.fulfill({ status: 503, json: { code: "LIVE_VIEW_UNAVAILABLE" } }),
+  );
+  await page.clock.fastForward(31_000);
+  await expect(
+    page.getByText("目前證據已過期或更新失敗；畫面上的位置現在僅為最後已知。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("合格的目前觀測", { exact: true })).toHaveCount(
+    0,
+  );
+  await expect(
+    page
+      .locator(`a[href="/operations/tasks/${payload.work[0].taskId}"]`)
+      .first(),
+  ).toBeVisible();
+  await page.screenshot({
+    path: test.info().outputPath("live-view-desktop-last-known.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  for (const theme of ["Dark", "Light"]) {
+    await page.getByRole("button", { name: theme, exact: true }).click();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: test
+        .info()
+        .outputPath(`live-view-mobile-${theme.toLowerCase()}.png`),
+      fullPage: true,
+    });
+  }
+  await page.unroute("**/api/operations/live-view");
+  await page
+    .getByLabel("Current warehouse")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(
+    page.getByText("No equipment in this scoped projection.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: new RegExp(payload.equipment[0].equipmentId),
+    }),
+  ).toHaveCount(0);
 });
 
 test("navigation signals SSR waiting and Home refresh uses one bounded read", async ({
@@ -521,6 +608,7 @@ test("login and every operations route enforce the private surface boundary", as
     "/operations/locations",
     "/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/operations/warehouse",
+    "/operations/warehouse/topology",
     "/operations/projections",
     "/operations/inbound",
     "/operations/outbound",
@@ -760,7 +848,7 @@ test("warehouse map renders timestamped equipment observation without using assi
   page,
 }) => {
   await page.clock.install();
-  await signIn(page, "/operations/warehouse");
+  await signIn(page, "/operations/warehouse/topology");
 
   await expect(
     page.getByRole("heading", { level: 1, name: "拓撲檢視" }),
@@ -806,7 +894,7 @@ test("warehouse map reflows without horizontal page overflow on mobile", async (
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await signIn(page, "/operations/warehouse");
+  await signIn(page, "/operations/warehouse/topology");
 
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,

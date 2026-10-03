@@ -13,6 +13,7 @@ import {
 } from "../../../../src/application/operations/operations-home";
 import type { TopologyNode } from "../../../../src/domain/topology/warehouse-topology";
 import { DATABASE_POOL } from "../database/database.module";
+import { equipmentObservationFreshAfterMs } from "../../../../src/application/equipment/observation-freshness";
 
 type CountRow = {
   active_tasks: number;
@@ -109,7 +110,7 @@ type EdgeRow = {
   resource_ids: string[];
 };
 
-export const equipmentTelemetryFreshAfterMs = 30_000;
+export const equipmentTelemetryFreshAfterMs = equipmentObservationFreshAfterMs;
 
 @Injectable()
 export class OperationsSummaryService {
