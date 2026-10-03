@@ -2,7 +2,16 @@
 
 ## Main entry point
 
-Latest S2 Live View UI checkpoint: complete verification passes 401 fast tests,
+Latest S2 manual web checkpoint: complete verification passes 406 fast tests,
+19 ephemeral PostgreSQL tests and 31 production-build Chromium checks; API build
+also passes. Guard/query contracts, localized literal-search/version/link-source
+checks, unauthorized audit-link omission, contextual keyboard navigation and
+mobile bilingual light/dark axe/reflow pass. Desktop/mobile screenshots were
+reviewed. Static manual content reads no warehouse data and grants no authority;
+SSR still revalidates session/scope and destination routes independently guard
+operations. Versioned PDF export/drift verification remains a subsequent slice.
+
+S2 Live View UI checkpoint: complete verification passes 401 fast tests,
 19 ephemeral PostgreSQL integration tests and 30 production-build Chromium
 checks. API compilation passes separately. Browser runtime covers scoped work
 deep links, native keyboard disclosure, observation expiry, failed-refresh

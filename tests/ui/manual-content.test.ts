@@ -1,0 +1,52 @@
+import { describe, expect, it } from "vitest";
+import { userPermissions } from "../../src/application/access/operational-access";
+import {
+  manualArticles,
+  manualTopic,
+  manualVersion,
+  normalizeManualSearch,
+  searchManual,
+} from "../../src/ui/manual/manual-content";
+describe("single-source operational manual", () => {
+  it("has stable unique topics and complete localized content with only internal operational links", () => {
+    expect(manualVersion).toMatch(/^\d{4}-\d{2}-\d{2}\.\d+$/);
+    expect(new Set(manualArticles.map((a) => a.id)).size).toBe(
+      manualArticles.length,
+    );
+    for (const article of manualArticles) {
+      expect(article.id).toMatch(/^[a-z-]+$/);
+      for (const locale of ["en", "zh-TW"] as const) {
+        expect(article.title[locale].length).toBeGreaterThan(0);
+        expect(article.paragraphs.every((p) => p[locale].length > 0)).toBe(
+          true,
+        );
+        expect(article.links.every((l) => l.label[locale].length > 0)).toBe(
+          true,
+        );
+      }
+      for (const link of article.links) {
+        expect(link.href).toMatch(/^\/operations(?:\/|$)/);
+        expect(link.href).not.toMatch(/legacy|https:|github/);
+        expect(userPermissions).toContain(link.permission);
+      }
+    }
+    expect(
+      manualArticles.find((a) => a.id === "audit")?.links[0].permission,
+    ).toBe("audit.view");
+  });
+  it("searches bounded literal localized content without interpreting patterns", () => {
+    expect(searchManual("LAST-KNOWN", "en").map((a) => a.id)).toContain(
+      "live-view",
+    );
+    expect(searchManual("未知", "zh-TW").map((a) => a.id)).toContain(
+      "exceptions",
+    );
+    expect(searchManual(".*", "en")).toEqual([]);
+    expect(searchManual(["audit"], "en")).toEqual(manualArticles);
+    expect(normalizeManualSearch(" x ")).toBe("x");
+    expect(normalizeManualSearch("x".repeat(500))).toHaveLength(120);
+    expect(manualTopic("live-view")).toBe("live-view");
+    expect(manualTopic("//external.invalid")).toBeNull();
+    expect(manualTopic(["audit"])).toBeNull();
+  });
+});

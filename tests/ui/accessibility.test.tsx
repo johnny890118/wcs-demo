@@ -14,6 +14,7 @@ import AlarmOperationsPage from "../../pages/operations/alarms";
 import OutboundOperationsPage from "../../pages/operations/outbound";
 import WarehouseOperationsPage from "../../pages/operations/warehouse/topology";
 import LiveWarehousePage from "../../pages/operations/warehouse";
+import HelpPage from "../../pages/operations/help";
 import { projectOperationsLiveView } from "../../src/application/operations/operations-live-view";
 import AuditHistoryPage from "../../pages/operations/audit";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
@@ -361,6 +362,21 @@ describe("automated accessibility baseline", () => {
         <OperationsProjectionsPage details={null} />
       </LocaleProvider>,
     );
+    await expectNoAutomatedViolations(container);
+  });
+  it("renders accessible manual guidance without unauthorized audit links", async () => {
+    const { container } = render(
+      <LocaleProvider>
+        <HelpPage
+          permissions={["operations.view"]}
+          warehouseId="test"
+          query=""
+          topic="live-view"
+        />
+      </LocaleProvider>,
+    );
+    expect(screen.queryByRole("link", { name: "開啟稽核歷史" })).toBeNull();
+    expect(screen.getByRole("link", { name: "開啟即時觀測" })).toBeTruthy();
     await expectNoAutomatedViolations(container);
   });
 });

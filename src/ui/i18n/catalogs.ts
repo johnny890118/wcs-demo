@@ -1,5 +1,14 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  helpTitle: "Operation manual",
+  helpDescription:
+    "Guidance for shipped workflows in this deployment. Your current warehouse permissions determine available actions; this manual does not authorize equipment control.",
+  helpVersion: "Manual version",
+  helpSearch: "Search the operation manual",
+  helpResults: "Matching topics",
+  helpNoResults: "No matching topics. Try a workflow or state name.",
+  helpContents: "Manual contents",
+  helpContextual: "Help for this workspace",
   warehouseWorkspace: "Warehouse workspace",
   liveView: "Live View",
   liveRefresh: "Refresh observations",
@@ -532,6 +541,15 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  helpTitle: "操作手冊",
+  helpDescription:
+    "本部署已交付流程的操作指引。可用操作取決於目前倉庫的有效權限；手冊不授予設備控制權。",
+  helpVersion: "手冊版本",
+  helpSearch: "搜尋操作手冊",
+  helpResults: "符合的主題",
+  helpNoResults: "沒有符合的主題，請改用流程或狀態名稱搜尋。",
+  helpContents: "手冊目錄",
+  helpContextual: "此工作區的操作說明",
   warehouseWorkspace: "倉庫工作區",
   liveView: "倉庫即時觀測",
   liveRefresh: "重新整理觀測",

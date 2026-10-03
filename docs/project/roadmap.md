@@ -183,6 +183,7 @@ Active plan: [S2 work center plan](s2-operational-work-center-plan.md).
 - [x] Navigation/identity quality checkpoints: reduced overview reads, pending navigation feedback and owned SWP icons/metadata; authenticated production p95 remains unmeasured
 - [x] Topology inspection evidence correction: explicit bindings, bounded stock row counts and obsolete/stale projection handling
 - [x] Live View read foundation: server-qualified current/last-known/unknown equipment position, scoped observed-versus-assigned work and conservative coverage
+- [x] Authenticated bilingual searchable manual web foundation and shipped-workflow contextual help; effective-permission links, versioned single content source
 
 - [ ] Actionable Operations Home, task queue/detail, inbound/outbound context, inventory/load/location visibility, and contextual history
 - [ ] Human-readable states, blocking reasons, impacts, permitted next actions, and operational deep links
@@ -238,7 +239,8 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Continue S2 with the built-in bilingual manual and contextual help foundation,
-after the qualified Live View and separate topology inspector checkpoint. Reuse
-shipped workflows and effective permissions; do not document unshipped controls
-as available. Public Demo lifecycle remains S3; calibrated physical layout S6.
+Continue S2 with versioned bilingual PDF export and content drift verification
+from the shipped manual source. The authenticated searchable web manual and
+contextual links are complete; full single-source PDF acceptance is not yet
+complete. Reuse shipped workflows and effective permissions. Public Demo
+lifecycle remains S3; calibrated physical layout S6.

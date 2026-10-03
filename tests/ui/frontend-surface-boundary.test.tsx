@@ -43,6 +43,7 @@ import { getServerSideProps as getOutboundProps } from "../../pages/operations/o
 import { getServerSideProps as getProjectionProps } from "../../pages/operations/projections";
 import { getServerSideProps as getWarehouseProps } from "../../pages/operations/warehouse";
 import { getServerSideProps as getTopologyProps } from "../../pages/operations/warehouse/topology";
+import { getServerSideProps as getHelpProps } from "../../pages/operations/help";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
 import {
   classifyFrontendSurface,
@@ -90,6 +91,7 @@ describe("frontend surface boundary", () => {
     ["/operations/locations", getLocationProps],
     ["/operations/warehouse", getWarehouseProps],
     ["/operations/warehouse/topology", getTopologyProps],
+    ["/operations/help", getHelpProps],
     ["/operations/projections", getProjectionProps],
     ["/operations/inbound", getInboundProps],
     ["/operations/outbound", getOutboundProps],
@@ -141,6 +143,21 @@ describe("frontend surface boundary", () => {
       redirect: {
         destination: "/operations/warehouse?focus=task-1",
         permanent: false,
+      },
+    });
+  });
+  it("derives help links from validated effective access and bounds untrusted query values", async () => {
+    vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+    const result = await getHelpProps({
+      ...context,
+      query: { q: ["bad"], topic: "//evil.example" },
+    } as never);
+    expect(result).toMatchObject({
+      props: {
+        warehouseId: testOperationalSession.access.currentWarehouseId,
+        query: "",
+        topic: null,
+        permissions: testOperationalSession.access.principal.permissions,
       },
     });
   });

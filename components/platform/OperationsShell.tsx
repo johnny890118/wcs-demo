@@ -42,6 +42,7 @@ export function OperationsShell({
     | "outbound"
     | "alarms"
     | "audit"
+    | "help"
     | "projections";
 }) {
   const { t } = useLocale();
@@ -91,6 +92,7 @@ export function OperationsShell({
         outbound: "outbound",
         alarms: "alarmWorkflowTitle",
         audit: "auditHistory",
+        help: "helpTitle",
         projections: "projectionsTitle",
       }[current] as MessageKey),
   )} | ${t("brand")}`;
@@ -242,6 +244,13 @@ export function OperationsShell({
             ) : null}
           </nav>
           <div className="mt-auto border-t border-[var(--border)] pt-4">
+            <Link
+              href="/operations/help"
+              aria-current={current === "help" ? "page" : undefined}
+              className="ui-pressable flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+            >
+              {t("helpTitle")}
+            </Link>
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/" })}
@@ -308,6 +317,13 @@ export function OperationsShell({
               aria-label={t("mobileNavigation")}
               className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
             >
+              <Link
+                href="/operations/help"
+                aria-current={current === "help" ? "page" : undefined}
+                className="ui-pressable inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold text-[var(--accent-strong)]"
+              >
+                {t("helpTitle")}
+              </Link>
               <Link
                 href="/operations"
                 aria-current={current === "overview" ? "page" : undefined}
@@ -412,6 +428,26 @@ export function OperationsShell({
             </nav>
           </header>
           <main id="main-content" className="px-4 py-8 sm:px-6 lg:px-8">
+            {current !== "help" && (
+              <Link
+                href={`/operations/help?topic=${
+                  {
+                    overview: "daily-work",
+                    tasks: "daily-work",
+                    inventory: "inventory",
+                    warehouse: "live-view",
+                    inbound: "inbound-outbound",
+                    outbound: "inbound-outbound",
+                    alarms: "exceptions",
+                    audit: "audit",
+                    projections: "troubleshooting",
+                  }[current]
+                }`}
+                className="ui-pressable mb-4 inline-flex min-h-11 items-center rounded-lg text-sm font-semibold text-[var(--accent-strong)]"
+              >
+                {t("helpContextual")}
+              </Link>
+            )}
             {children}
           </main>
         </div>

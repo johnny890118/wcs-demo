@@ -52,6 +52,7 @@ test("active surfaces share SWP identity and owned browser icons", async ({
     "/operations/locations",
     "/operations/warehouse",
     "/operations/warehouse/topology",
+    "/operations/help",
     "/operations/inbound",
     "/operations/outbound",
     "/operations/alarms",
@@ -166,6 +167,79 @@ test("Live View separates observations from assignments and expires retained pos
       name: new RegExp(payload.equipment[0].equipmentId),
     }),
   ).toHaveCount(0);
+});
+
+test("contextual manual supports bilingual literal search, keyboard links and accessible mobile themes", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/warehouse");
+  await page
+    .getByRole("link", { name: "此工作區的操作說明", exact: true })
+    .click();
+  await expect(page).toHaveURL("/operations/help?topic=live-view");
+  await expect(page.locator("main section").first()).toHaveAttribute(
+    "id",
+    "live-view",
+  );
+  await page.getByLabel("搜尋操作手冊").fill("未知");
+  await expect(
+    page.getByRole("heading", { name: "警報與未知結果", exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("搜尋操作手冊").fill(".*");
+  await expect(
+    page.getByText("沒有符合的主題，請改用流程或狀態名稱搜尋。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.getByLabel("搜尋操作手冊").fill("");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByLabel("Search the operation manual").fill("last-known");
+  await expect(
+    page.getByRole("heading", {
+      name: "Live View and trustworthy observations",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Search the operation manual")
+    .fill("no matching phrase");
+  await expect(
+    page.getByText("No matching topics. Try a workflow or state name.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.getByLabel("Search the operation manual").fill("");
+  await page.screenshot({
+    path: test.info().outputPath("manual-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const theme of ["Dark", "Light"]) {
+    await page.getByRole("button", { name: theme, exact: true }).click();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: test.info().outputPath(`manual-mobile-${theme.toLowerCase()}.png`),
+      fullPage: true,
+    });
+  }
+  const sectionLink = page
+    .getByRole("navigation", { name: "Manual contents" })
+    .getByRole("link", { name: "Accountable history", exact: true });
+  await sectionLink.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#audit$/);
+  await page
+    .getByRole("link", { name: "Open audit history", exact: true })
+    .focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/operations/audit");
 });
 
 test("navigation signals SSR waiting and Home refresh uses one bounded read", async ({
@@ -607,6 +681,7 @@ test("login and every operations route enforce the private surface boundary", as
     "/operations/loads",
     "/operations/locations",
     "/operations/tasks/50000000-0000-4000-8000-000000000001",
+    "/operations/help",
     "/operations/warehouse",
     "/operations/warehouse/topology",
     "/operations/projections",

@@ -231,7 +231,48 @@ keyboard selection/deep links, full gate/API build and deployed boundaries.
 | A frozen successful refresh can continue to look current | Server deadline and client downgrade-only expiry                      | Current labels must not outlive qualified evidence                       |
 | Raw node/device enums dominate investigation             | Readable state/position/reason, work context and technical disclosure | Operators can understand risk and next investigation without source code |
 
-## Outcome
+## Manual web foundation acceptance
+
+Next coherent slice after the clean Live View checkpoint: a versioned structured
+bilingual manual source, authenticated searchable `/operations/help`, and
+contextual links from shipped workflows. Medium-risk UI/read boundary; reuse
+`operations.view`, per-request persisted session validation and warehouse scope.
+No new ADR or authorization contract. Guidance and role-oriented paths describe
+effective permissions, never grant access or infer permission from role names.
+Links to restricted workflows depend on effective warehouse-local permissions;
+all destinations independently authorize. Static guidance contains no customer
+data, credential, public marketing, or fabricated controls. Search is literal and
+bounded; unknown topics fall back safely. Cover session/scope, daily work,
+inbound/outbound, stock/load/location semantics, Live View qualification,
+alarm/unknown outcomes, accountable audit, and troubleshooting/terminology.
+Administration/reset/replay/hardware commissioning remain explicitly unshipped.
+Versioned PDF generation and drift verification follow separately; this web
+checkpoint alone does not claim the full single-source PDF acceptance complete.
+Verify guard/permission links, query handling, bilingual search, no results,
+keyboard/contextual links, mobile themes/axe/reflow, full gate and deployed CI.
+
+| Before                                        | After                                                         | Why                                                                   |
+| --------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Guidance requires repository/source knowledge | Searchable bilingual shipped-workflow manual                  | Daily operators need explanations inside the system                   |
+| Workflow and help are disconnected            | Workspace-specific contextual links                           | Start with the relevant topic without losing the operational boundary |
+| Role names can imply authority                | Effective-permission links and independent destination guards | Guidance does not grant access                                        |
+
+## Manual web implementation evidence
+
+Manual implementation uses eight versioned bilingual topics shared by the web
+manual and future PDF export. SSR validates `operations.view` and warehouse
+context, bounds scalar query values and projects effective permission links; no
+additional operational API reads or authority cache. Contextual help selects the
+relevant topic first. Search, no-results, invalid topic, native anchors, internal
+workflow links and warehouse/query remounts are explicit. Self-review caught
+trimming on each input change (which would prevent multiword queries);
+normalization now happens only at the search boundary. Full verification passes
+406 fast, 19 PostgreSQL and 31 production-build browser checks plus API build.
+Browser review covers bilingual literal search, unknown/no-results, keyboard
+contextual/audit links, mobile themes, axe/reflow and screenshots. PDF export is
+not yet claimed.
+
+## Live View UI review evidence
 
 Live View UI self-review preserves the inspector on its explicit route and moves
 raw observation diagnostics behind native disclosure. The shared 30-second
@@ -244,6 +285,8 @@ screenshots were reviewed. No physical geometry or calibrated map is claimed.
 Automated unknown-equipment selection and unresolved-context tests prevent
 fabricated positions/foreign work links. API compilation and the complete gate
 are required; authenticated deployed browser latency remains unmeasured.
+
+## Outcome
 
 Turn the authenticated operations surface into a task-centered work center that
 explains current work, exceptions, inventory, and trustworthy equipment state in
