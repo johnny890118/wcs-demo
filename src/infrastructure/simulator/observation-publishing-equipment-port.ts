@@ -60,7 +60,13 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
   ): Promise<EquipmentCommandResult> {
     const result = await this.inner.dispatch(envelope);
     if (result.transition.accepted) {
-      await this.publish(result.transition.state);
+      // An idempotent result describes the original command, not necessarily
+      // the current state. Never timestamp cached historical state as telemetry.
+      const state = result.duplicate
+        ? await this.inner.getState(envelope.equipmentId)
+        : result.transition.state;
+      if (!state) throw new Error("Current equipment state is unavailable.");
+      await this.publish(state);
     }
     return result;
   }

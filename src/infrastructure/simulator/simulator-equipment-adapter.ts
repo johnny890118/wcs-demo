@@ -34,6 +34,22 @@ export class SimulatorEquipmentAdapter implements EquipmentPort {
   readonly #equipment = new Map<string, EquipmentState>();
   readonly #descriptors = new Map<string, EquipmentDescriptor>();
   readonly #processedCommands = new Map<string, ProcessedCommand>();
+  private readonly maximumProcessedCommands: number | null;
+
+  constructor(options: Readonly<{ maximumProcessedCommands?: number }> = {}) {
+    const maximum = options.maximumProcessedCommands;
+    if (
+      maximum !== undefined &&
+      (!Number.isSafeInteger(maximum) || maximum < 1 || maximum > 100_000)
+    ) {
+      throw new Error(
+        "maximumProcessedCommands must be an integer from 1 to 100000.",
+      );
+    }
+    // Existing private/legacy behavior stays characterized. Owned demo bundles
+    // explicitly select a bound; do not evict replay evidence to admit new work.
+    this.maximumProcessedCommands = maximum ?? null;
+  }
 
   register(
     descriptor: EquipmentDescriptor,
@@ -106,6 +122,12 @@ export class SimulatorEquipmentAdapter implements EquipmentPort {
       );
     }
 
+    if (
+      this.maximumProcessedCommands !== null &&
+      this.#processedCommands.size >= this.maximumProcessedCommands
+    ) {
+      throw new Error("Simulator command budget exhausted.");
+    }
     const transition = transitionEquipment(state, envelope.command);
     if (transition.accepted) {
       this.#equipment.set(envelope.equipmentId, transition.state);

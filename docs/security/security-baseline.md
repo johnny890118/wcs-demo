@@ -20,6 +20,12 @@ The supported product entry and authenticated, simulator-backed operations conso
   fixed-window budget. Capacity release does not reset it, failures roll it back
   and replay consumes no new credit. Fixed-window boundary bursts, HTTP attempts,
   per-client fairness and scenario/storage quotas remain separate activation gates.
+  ADR 0027's fresh simulator factory isolates local virtual state/time/cache and
+  owned observations with defensive copies/bounded work; it is not authority.
+  It remains unwired until durable worker ownership/fencing, persisted request
+  authorization and active-runtime cleanup exist. Local stop is not task
+  completion or deletion authorization. Duplicate command observations now read
+  current state instead of retimestamping historical cached transitions.
 
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.

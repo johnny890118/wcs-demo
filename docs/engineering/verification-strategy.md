@@ -1,5 +1,16 @@
 # Verification Strategy
 
+Latest S3 isolated simulator bundle: full gate passes 501 fast, 68 real
+PostgreSQL, 34 production-build browser checks and closed-public-boundary HTTP
+harness; API build passes. Fresh independent review found queued caller mutation;
+ingress clone/validation and a gated regression resolve it, with final no-blocker
+review. Thirteen local bundle regressions cover isolated virtual state/time/
+dedup/observations, owned references, defensive copies, command/schedule/pending
+bounds, serialization, stop and failed disconnect. A shared publisher regression
+prevents duplicate historical transition state receiving fresh telemetry time.
+Factory is unwired; no persisted worker lease/restart or deployed public-session
+activation is inferred. See ADR 0027.
+
 Latest S3 persisted creation budget: full gate passes 487 fast, 68 real
 PostgreSQL (59 prior + 9 budget), 34 production-build browser checks and
 closed-public-boundary HTTP harness; API build passes. Independent review has no

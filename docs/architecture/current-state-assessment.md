@@ -28,6 +28,11 @@ Assessment date: 2026-10-04. Baseline: verified M8A, system-first frontend bound
   for newly committed reservations, independently of capacity/cleanup. Retries
   do not slide it; active-window policy disagreement fails closed (ADR 0026).
   This is not edge/per-client abuse control or scenario/storage quota coverage.
+  A fresh local simulator-bundle factory now isolates virtual state, command
+  replay, advancing time and observation sequencing behind the existing ports
+  (ADR 0027). Owned equipment/node guards, defensive copies and bounded queues
+  are verified; it is not wired to HTTP/NestJS or managed observations. Durable
+  runtime ownership/fencing, restart and active cleanup are still prerequisites.
 
 - Inbound/outbound reviews now lead with submitted reference, item/quantity and readable route context, with persisted task investigation and diagnostic disclosure. Recorded outbound SKU hints do not assert reservation-adjusted availability. Alarm/recovery views qualify bounded context and unknown outcomes; unknown recovery results are not reported as resumed/completed. Summary/alarm task endpoints and stock receipt/load-location lineage enforce warehouse isolation consistently. Independent review found no introduced read-scope blockers; production-scale query plans remain unmeasured.
 

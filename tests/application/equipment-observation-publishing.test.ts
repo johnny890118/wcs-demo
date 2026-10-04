@@ -79,6 +79,30 @@ function runtime(sink: MemoryObservationSink) {
 }
 
 describe("simulator equipment observation publication", () => {
+  it("publishes current state rather than cached historical state on command replay", async () => {
+    const sink = new MemoryObservationSink();
+    const { observed } = runtime(sink);
+    const assign = {
+      commandId: "ASSIGN",
+      equipmentId: "AMR-01",
+      command: { type: "assign_task", taskId: "TASK-01" },
+    } as const;
+    await observed.dispatch(assign);
+    await observed.dispatch({
+      commandId: "START",
+      equipmentId: "AMR-01",
+      command: { type: "start_pickup" },
+    });
+    expect(await observed.dispatch(assign)).toMatchObject({
+      duplicate: true,
+      transition: { state: { status: "assigned" } },
+    });
+    expect(sink.observations.at(-1)).toMatchObject({
+      status: "moving_to_pickup",
+      taskId: "TASK-01",
+      sequence: 3,
+    });
+  });
   it("publishes monotonic transition and heartbeat observations at observed nodes", async () => {
     const sink = new MemoryObservationSink();
     const { observed, initial } = runtime(sink);

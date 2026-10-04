@@ -1,6 +1,6 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — persisted global creation-budget slice.
+Status: Active — isolated simulator-bundle slice.
 
 ## Entry evidence and workflow
 
@@ -170,3 +170,36 @@ API build passes; secrets/dependency gates pass with zero vulnerabilities and
 only the existing 15 legacy lint warnings. Existing-counter rollback leaves
 both count and original window unchanged. UI/locale/theme/mobile/keyboard and
 manual/PDF drift gates remain green without introducing or regenerating UI/PDF.
+
+## Current coherent slice — isolated simulator bundle
+
+Creation-budget checkpoint `0b721f0673460ef3ad5ead2fec43a34f6c913442` is pushed;
+Verify `37143208241` has both jobs successful; exact Vercel/Render deployment,
+managed runtime and clean tree are confirmed. Next high-risk runtime-isolation
+foundation uses ADR 0027. Create independent owned virtual state/time/dedup and
+qualified observation publication with bounded command memory and fail-closed
+stop semantics. No HTTP/NestJS/public activation, warehouse grant or managed
+simulator registration. Durable ownership/fencing remains a subsequent gate.
+Required evidence: cross-session state/clock/command/observation isolation,
+scope/config rejection, defensive copies, command-budget replay, stop/drain and
+failure regressions; full verification, API build, independent security review,
+checkpoint/push, exact CI/deployment/runtime and clean tree.
+
+Simulator review found and fixed delayed envelope cloning: capture/validate
+command and dedup identity before enqueue, never retain a caller-mutable pending
+request. A gated-publication mutation regression proves the original intent.
+The shared observation publisher now re-reads current state on duplicate rather
+than timestamping cached historical state; replay after later transitions is
+covered. Local operations serialize state capture/publication with a bounded
+pending queue; cancelled schedules also count toward their lifetime bound.
+
+Final independent review confirms the queue-input issue is fixed with no
+remaining blockers. Full gate and API build pass: 501 fast, 68 real PostgreSQL,
+34 production-build browser checks plus closed-public-boundary HTTP harness.
+Thirteen factory regressions exercise independent state/clock/cache/observations,
+foreign references, defensive copies, dedup limits, cancelled schedule budgets,
+stop/disconnect failure, in-flight publication, serialized bounded work,
+caller-mutated queued intent and runtime/config/command rejection. One shared
+publisher regression verifies current-state publication on duplicate. These are
+local in-process bundle tests, not persisted worker ownership or deployed public
+session evidence. Existing human UI/UX gates pass without UI/PDF changes.
