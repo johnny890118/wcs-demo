@@ -1,6 +1,6 @@
 # Operator Experience A–D convergence
 
-Status: Active — A delivered; B exact-context handoff evidence/design in progress.
+Status: Active — A delivered; B locally verified, exact delivery gates pending.
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -53,3 +53,17 @@ not a production latency benchmark or complete B–D operator journey.
 Each slice repeats the same engineering/delivery gates. Tests alone do not prove
 operator understanding. Report missing handoffs as next-slice gaps, not success.
 External WMS manual fallback remains an Owner decision when S7 has a real target.
+
+## B execution
+
+Risk: security-sensitive qualified read relationships and multi-page continuity.
+ADR 0031 records the load-bearing distinction between exact identity, readable
+labels and current observations. Existing commands and IA are not redesigned.
+
+- [x] Review current Task/entity/Live/Exception/History evidence and A roots.
+- [x] Implement qualified exact selection and fixed owned contextual returns.
+- [x] Focused contracts, authorization and PostgreSQL adversarial relationships.
+- [x] Full verification and independent security review; repair findings.
+- [x] Operator/Emil review and direct/reload end-to-end viewport journeys.
+- [ ] Durable evidence, checkpoint, push, exact CI, both deployments, authenticated
+      runtime and clean working tree; then start C without waiting for Owner.

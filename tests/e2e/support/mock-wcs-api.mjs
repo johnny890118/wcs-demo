@@ -534,12 +534,13 @@ const server = createServer(async (request, response) => {
     (request.url === "/api/v1/operations/summary" ||
       request.url?.startsWith("/api/v1/operations/tasks") ||
       request.url?.startsWith("/api/v1/operations/work/") ||
+      request.url?.startsWith("/api/v1/operations/context/") ||
       request.url?.startsWith("/api/v1/operations/inventory") ||
       request.url?.startsWith("/api/v1/operations/loads") ||
       request.url?.startsWith("/api/v1/operations/locations") ||
       request.url === "/api/v1/operations/home" ||
       request.url === "/api/v1/operations/overview" ||
-      request.url === "/api/v1/operations/live-view" ||
+      request.url?.startsWith("/api/v1/operations/live-view") ||
       request.url === "/api/v1/operations/details" ||
       request.url?.startsWith("/api/v1/audit-events")) &&
     !requireOperationalContext(
@@ -575,6 +576,119 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/summary") {
     response.end(JSON.stringify(summary));
+    return;
+  }
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/context/")
+  ) {
+    const url = new URL(request.url, "http://fixture");
+    const taskId = url.pathname.split("/")[5];
+    const surface = url.pathname.split("/")[6];
+    const task = fixtureQueue().find((item) => item.taskId === taskId);
+    const alarm = details.alarms.find((item) => item.taskId === taskId) ?? null;
+    const requestedAlarm = url.searchParams.get("alarmId");
+    if (
+      !task ||
+      request.headers["x-swp-warehouse"] === secondWarehouseId ||
+      ![
+        "load",
+        "inventory",
+        "source",
+        "destination",
+        "live",
+        "exception",
+        "history",
+      ].includes(surface) ||
+      (requestedAlarm !== null && requestedAlarm !== alarm?.alarmId)
+    ) {
+      response.statusCode = 404;
+      response.end(JSON.stringify({ code: "CONTEXT_NOT_FOUND" }));
+      return;
+    }
+    const location = (id, code) => ({
+      locationId: id,
+      code,
+      kind: code.includes("RECEIVING") ? "receiving" : "storage",
+      status: "available",
+      capabilities: [],
+      recordedLoads: 1,
+      stockRecords: 1,
+      binding: null,
+    });
+    const exactLive =
+      surface === "live"
+        ? await fetch(`http://127.0.0.1:${port}/api/v1/operations/live-view`, {
+            headers: request.headers,
+          }).then((result) => result.json())
+        : null;
+    response.end(
+      JSON.stringify({
+        detail: {
+          task,
+          originResource: {
+            type: "InboundReceipt",
+            id: "30000000-0000-4000-8000-000000000001",
+          },
+          load: {
+            externalId: "PALLET-E2E-001",
+            status: "stored",
+            location: "STORAGE-01",
+          },
+          route: null,
+          alarm:
+            alarm && alarm.status !== "cleared"
+              ? {
+                  alarmId: alarm.alarmId,
+                  code: alarm.code,
+                  message: alarm.message,
+                  status: alarm.status,
+                  severity: alarm.severity,
+                }
+              : null,
+          generatedAt,
+        },
+        load: {
+          loadId: "40000000-0000-4000-8000-000000000001",
+          externalId: "PALLET-E2E-001",
+          sku: "SKU-E2E",
+          receivedQuantity: 12,
+          status: "stored",
+          location: "STORAGE-01",
+          receiptId: "30000000-0000-4000-8000-000000000001",
+          receiptReference: "ASN-E2E-001",
+          inventory: {
+            quantity: 12,
+            status: "available",
+            location: "STORAGE-01",
+          },
+          updatedAt: generatedAt,
+        },
+        inventory: {
+          inventoryUnitId: "81000000-0000-4000-8000-000000000001",
+          sku: "SKU-E2E",
+          quantity: 12,
+          reservedQuantity: 0,
+          unreservedQuantity: 12,
+          status: "available",
+          location: "STORAGE-01",
+          locationStatus: "available",
+          loadExternalId: "PALLET-E2E-001",
+          loadLocation: "STORAGE-01",
+          receiptId: "30000000-0000-4000-8000-000000000001",
+          receiptReference: "ASN-E2E-001",
+          updatedAt: generatedAt,
+        },
+        source: location("20000000-0000-4000-8000-000000000001", task.source),
+        destination: location(
+          "20000000-0000-4000-8000-000000000002",
+          task.destination,
+        ),
+        alarm,
+        live: exactLive,
+        generatedAt,
+      }),
+    );
     return;
   }
   if (
@@ -679,7 +793,7 @@ const server = createServer(async (request, response) => {
           },
           alarm: alarm
             ? {
-                alarmId: "70000000-0000-4000-8000-000000000001",
+                alarmId: alarm.alarmId,
                 code: alarm.code,
                 message: alarm.message,
                 status: alarm.status,
@@ -740,11 +854,23 @@ const server = createServer(async (request, response) => {
     const items =
       request.headers["x-swp-warehouse"] === secondWarehouseId
         ? []
-        : [item, shippedItem].filter((row) =>
-            [row.sku, row.location, row.loadExternalId].some((value) =>
-              value.toLowerCase().includes(search),
-            ),
-          );
+        : [item, shippedItem]
+            .filter(
+              (row) =>
+                (!query.get("locationId") ||
+                  query.get("locationId") ===
+                    "20000000-0000-4000-8000-000000000001") &&
+                (!query.get("loadId") ||
+                  query.get("loadId") ===
+                    (row === shippedItem
+                      ? "41000000-0000-4000-8000-000000000002"
+                      : "41000000-0000-4000-8000-000000000003")),
+            )
+            .filter((row) =>
+              [row.sku, row.location, row.loadExternalId].some((value) =>
+                value.toLowerCase().includes(search),
+              ),
+            );
     response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
     return;
   }
@@ -753,9 +879,8 @@ const server = createServer(async (request, response) => {
     request.method === "GET" &&
     request.url?.startsWith("/api/v1/operations/loads")
   ) {
-    const search = (
-      new URL(request.url, "http://fixture").searchParams.get("search") ?? ""
-    ).toLowerCase();
+    const query = new URL(request.url, "http://fixture").searchParams;
+    const search = (query.get("search") ?? "").toLowerCase();
     const load = {
       loadId: "41000000-0000-4000-8000-000000000001",
       externalId: "PALLET-RECEIVED-001",
@@ -779,11 +904,21 @@ const server = createServer(async (request, response) => {
     const items =
       request.headers["x-swp-warehouse"] === secondWarehouseId
         ? []
-        : [load, history].filter((item) =>
-            [item.externalId, item.sku, item.location].some((value) =>
-              value.toLowerCase().includes(search),
-            ),
-          );
+        : [load, history]
+            .filter(
+              (item) =>
+                (!query.get("id") || query.get("id") === item.loadId) &&
+                (!query.get("locationId") ||
+                  query.get("locationId") ===
+                    (item === history
+                      ? "20000000-0000-4000-8000-000000000001"
+                      : "20000000-0000-4000-8000-000000000003")),
+            )
+            .filter((item) =>
+              [item.externalId, item.sku, item.location].some((value) =>
+                value.toLowerCase().includes(search),
+              ),
+            );
     response.end(JSON.stringify({ items, nextCursor: null, generatedAt }));
     return;
   }
@@ -820,11 +955,15 @@ const server = createServer(async (request, response) => {
     const items =
       request.headers["x-swp-warehouse"] === secondWarehouseId
         ? []
-        : [location, unbound].filter((item) =>
-            [item.code, item.kind].some((value) =>
-              value.toLowerCase().includes(search),
-            ),
-          );
+        : [location, unbound]
+            .filter(
+              (item) => !query.get("id") || query.get("id") === item.locationId,
+            )
+            .filter((item) =>
+              [item.code, item.kind].some((value) =>
+                value.toLowerCase().includes(search),
+              ),
+            );
     const nextCursor =
       !search && items.length > 0 && !query.has("cursor")
         ? "location-next"
@@ -835,7 +974,7 @@ const server = createServer(async (request, response) => {
 
   // Deliberately bounded browser fixture; real qualification is tested against
   // projectOperationsLiveView and PostgreSQL, not inferred from this mock.
-  if (request.url === "/api/v1/operations/live-view") {
+  if (request.url?.startsWith("/api/v1/operations/live-view")) {
     const scoped = request.headers["x-swp-warehouse"] !== secondWarehouseId;
     const work = scoped
       ? details.tasks

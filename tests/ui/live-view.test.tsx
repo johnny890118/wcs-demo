@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { WarehouseLiveView } from "../../components/platform/WarehouseLiveView";
 import type { OperationsLiveView } from "../../src/application/operations/operations-live-view";
@@ -46,14 +46,17 @@ it("selects unknown equipment without inventing position, idle state or foreign 
       view={view}
       projectionCurrent
       now={Date.parse(view.generatedAt)}
+      exactEquipmentId="two"
     />,
   );
-  const second = screen.getByRole("button", { name: /two/ });
-  fireEvent.click(second);
-  expect(second.getAttribute("aria-pressed")).toBe("true");
+  const second = screen.getByRole("link", { name: /two/ });
+  expect(second.getAttribute("href")).toBe(
+    "/operations/warehouse?equipmentId=two",
+  );
+  expect(second.getAttribute("aria-current")).toBe("true");
   expect(
-    screen.getByRole("button", { name: /one/ }).getAttribute("aria-pressed"),
-  ).toBe("false");
+    screen.getByRole("link", { name: /one/ }).getAttribute("aria-current"),
+  ).toBeNull();
   expect(screen.getByText("liveObservedUnresolved")).toBeTruthy();
   expect(screen.getByText("liveReason_missing_telemetry")).toBeTruthy();
   expect(document.querySelector('a[href^="/operations/tasks/"]')).toBeNull();
@@ -68,4 +71,16 @@ it("does not assert absence of work when the retained empty projection is noncur
   );
   expect(screen.getByText("liveWorkUnavailable")).toBeTruthy();
   expect(screen.queryByText("noCurrentWork")).toBeNull();
+});
+it("does not substitute first equipment when the exact selection disappears", () => {
+  render(
+    <WarehouseLiveView
+      view={view}
+      projectionCurrent
+      now={Date.parse(view.generatedAt)}
+      exactEquipmentId="missing"
+    />,
+  );
+  expect(screen.getByRole("status").textContent).toBe("exactContextUnresolved");
+  expect(screen.queryByText("liveReason_missing_telemetry")).toBeNull();
 });

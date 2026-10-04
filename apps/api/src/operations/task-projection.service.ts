@@ -30,6 +30,10 @@ export type TaskReadRow = {
   external_load_id: string;
   load_status: string;
   load_location: string;
+  load_id: string;
+  inventory_id: string | null;
+  source_id: string;
+  destination_id: string;
 };
 export const taskReadSelect = `SELECT task.id, task.status, source.code AS source, destination.code AS destination,
   descriptor.equipment_id, CASE WHEN task.receipt_id IS NOT NULL THEN 'inbound' ELSE 'outbound' END AS flow,
@@ -37,7 +41,8 @@ export const taskReadSelect = `SELECT task.id, task.status, source.code AS sourc
   COALESCE(orders.sku, load.sku) AS sku, COALESCE(allocation.quantity, load.quantity) AS quantity,
   to_char(task.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS created_at,
   task.updated_at, COALESCE(task.receipt_id, task.outbound_order_id) AS origin_id,
-  load.external_id AS external_load_id, load.status AS load_status, load_location.code AS load_location
+  load.external_id AS external_load_id, load.status AS load_status, load_location.code AS load_location,
+  load.id AS load_id, inventory.id AS inventory_id, source.id AS source_id, destination.id AS destination_id
   FROM transport_tasks task
   JOIN locations source ON source.id = task.source_location_id AND source.warehouse_id = $1
   JOIN locations destination ON destination.id = task.destination_location_id AND destination.warehouse_id = $1
@@ -196,8 +201,8 @@ export class TaskProjectionService {
         status: "active" | "acknowledged";
         severity: "info" | "warning" | "critical";
       }>(
-        `SELECT id, code, message, status, severity FROM alarms WHERE transport_task_id = $1 AND status IN ('active','acknowledged') ORDER BY raised_at DESC, id DESC LIMIT 1`,
-        [taskId],
+        `SELECT alarm.id, alarm.code, alarm.message, alarm.status, alarm.severity FROM alarms alarm JOIN equipment_descriptors descriptor ON descriptor.equipment_id = alarm.equipment_id AND descriptor.warehouse_id = $2 WHERE alarm.transport_task_id = $1 AND alarm.status IN ('active','acknowledged') ORDER BY alarm.raised_at DESC, alarm.id DESC LIMIT 1`,
+        [taskId, warehouseId],
       ),
     ]);
     const route = routes.rows[0];

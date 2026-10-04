@@ -14,16 +14,22 @@ import { operationalPageAccess } from "../../src/ui/auth/operational-page-access
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
-type Props = { view: OperationsLiveView | null; warehouseId: string };
+type Props = {
+  view: OperationsLiveView | null;
+  warehouseId: string;
+  equipmentId?: string;
+};
 export default function WarehousePage(props: Props) {
   return (
     <LiveWorkspace
-      key={`${props.warehouseId}:${props.view?.generatedAt ?? "none"}`}
+      key={`${props.warehouseId}:${props.equipmentId ?? "all"}:${
+        props.view?.generatedAt ?? "none"
+      }`}
       {...props}
     />
   );
 }
-function LiveWorkspace({ view }: Props) {
+function LiveWorkspace({ view, equipmentId }: Props) {
   const { t } = useLocale();
   const [liveView, setLiveView] = useState(view);
   const [current, setCurrent] = useState(view !== null);
@@ -37,12 +43,17 @@ function LiveWorkspace({ view }: Props) {
     pending.current = true;
     setRefreshing(true);
     try {
-      const response = await fetch("/api/operations/live-view", {
-        signal: AbortSignal.any([
-          controller.current.signal,
-          AbortSignal.timeout(15_000),
-        ]),
-      });
+      const response = await fetch(
+        `/api/operations/live-view${
+          equipmentId ? `?${new URLSearchParams({ equipmentId })}` : ""
+        }`,
+        {
+          signal: AbortSignal.any([
+            controller.current.signal,
+            AbortSignal.timeout(15_000),
+          ]),
+        },
+      );
       const payload: unknown = await response.json();
       if (!response.ok || !isOperationsLiveView(payload)) throw new Error();
       if (active.current) {
@@ -56,7 +67,7 @@ function LiveWorkspace({ view }: Props) {
       pending.current = false;
       if (active.current) setRefreshing(false);
     }
-  }, []);
+  }, [equipmentId]);
   useEffect(() => {
     active.current = true;
     controller.current = new AbortController();
@@ -88,6 +99,7 @@ function LiveWorkspace({ view }: Props) {
           view={liveView}
           projectionCurrent={current}
           now={now}
+          exactEquipmentId={equipmentId}
         />
       ) : (
         <section
@@ -113,19 +125,32 @@ export const getServerSideProps: GetServerSideProps<Props> =
     const access = operationalPageAccess(
       session,
       "operations.view",
-      "/operations/warehouse",
+      context.resolvedUrl,
     );
     if (!access.allowed)
       return {
         redirect: { destination: access.destination, permanent: false },
       };
     let view: OperationsLiveView | null = null;
+    const equipmentId = context.query.equipmentId;
+    if (
+      equipmentId !== undefined &&
+      (typeof equipmentId !== "string" ||
+        !equipmentId.length ||
+        equipmentId.length > 200)
+    )
+      return { notFound: true };
     try {
-      view = await fetchOperationsLiveView(access.access);
+      view = await fetchOperationsLiveView(access.access, equipmentId);
     } catch {
       view = null;
     }
     return {
-      props: { session, view, warehouseId: access.access.currentWarehouseId },
+      props: {
+        session,
+        view,
+        warehouseId: access.access.currentWarehouseId,
+        ...(equipmentId ? { equipmentId } : {}),
+      },
     };
   });

@@ -18,6 +18,8 @@ import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.reposito
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
 import { WorkProjectionService } from "../../apps/api/src/operations/work-projection.service";
+import { ExactContextService } from "../../apps/api/src/operations/exact-context.service";
+import { isExactContext } from "../../src/application/operations/exact-context";
 import { isWorkDetail } from "../../src/application/operations/work-projection";
 import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
 import { LoadProjectionService } from "../../apps/api/src/operations/load-projection.service";
@@ -116,6 +118,221 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
 
   afterAll(async () => {
     await pool?.end();
+  });
+
+  it("resolves exact task handoffs from one scoped snapshot, without label search", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    const service = new ExactContextService(pool);
+    for (const surface of [
+      "load",
+      "inventory",
+      "source",
+      "destination",
+      "exception",
+      "live",
+      "history",
+    ]) {
+      const context = await service.resolve(
+        warehouseId,
+        identifiers.transportTaskId,
+        surface,
+      );
+      expect(isExactContext(context)).toBe(true);
+      expect(context.load.loadId).toBe(identifiers.loadId);
+      expect(context.source.locationId).toBe(command.sourceLocationId);
+      expect(context.destination.locationId).toBe(
+        command.destinationLocationId,
+      );
+      expect(context.detail.originResource.id).toBe(identifiers.receiptId);
+      expect(context.inventory).toBeNull();
+      expect(context.live).toBeNull(); // Unassigned is not the first equipment.
+    }
+    await expect(
+      service.resolve(
+        "10000000-0000-4000-8000-000000000099",
+        identifiers.transportTaskId,
+        "load",
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      service.resolve(
+        warehouseId,
+        identifiers.transportTaskId,
+        "exception",
+        "70000000-0000-4000-8000-000000000099",
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      service.resolve(
+        warehouseId,
+        identifiers.transportTaskId,
+        "load",
+        "70000000-0000-4000-8000-000000000099",
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+    // Foreign task identity and requested alarm never borrow another context.
+    await expect(
+      service.resolve(
+        warehouseId,
+        "50000000-0000-4000-8000-000000000099",
+        "load",
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("exact context survives list bounds and refuses foreign alarm equipment metadata", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id='AMR-01' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    await pool.query(
+      `INSERT INTO alarms (id,transport_task_id,equipment_id,source_id,code,severity,message,status,previous_task_status,raised_at,acknowledged_at,acknowledged_by,cleared_at,cleared_by,resolution) SELECT ('83000000-0000-4000-8000-'||lpad(sequence::text,12,'0'))::uuid,$1,'AMR-01','test','CLEARED','info','Historical evidence','cleared','assigned',now(),now(),'test',now(),'test','Resolved' FROM generate_series(1,101) AS sequence`,
+      [identifiers.transportTaskId],
+    );
+    const oldAlarmId = "83000000-0000-4000-8000-000000000101";
+    const service = new ExactContextService(pool);
+    const old = await service.resolve(
+      warehouseId,
+      identifiers.transportTaskId,
+      "exception",
+      oldAlarmId,
+    );
+    expect(old.alarm).toMatchObject({
+      alarmId: oldAlarmId,
+      status: "cleared",
+      resolution: "Resolved",
+    });
+    expect(isExactContext(old)).toBe(true);
+    const unrelatedTask = "50000000-0000-4000-8000-000000000088";
+    await pool.query(
+      "INSERT INTO transport_tasks (id,receipt_id,load_id,source_location_id,destination_location_id,status,equipment_id) SELECT $2,receipt_id,load_id,source_location_id,destination_location_id,status,equipment_id FROM transport_tasks WHERE id=$1",
+      [identifiers.transportTaskId, unrelatedTask],
+    );
+    await expect(
+      service.resolve(warehouseId, unrelatedTask, "exception", oldAlarmId),
+    ).rejects.toMatchObject({ status: 404 });
+    await pool.query(
+      "INSERT INTO equipment_descriptors (equipment_id,warehouse_id,adapter_key,capabilities,active) SELECT 'AAA-CONTEXT-'||lpad(sequence::text,3,'0'),$1,'deterministic-simulator',ARRAY['transport.move'],true FROM generate_series(1,101) AS sequence",
+      [warehouseId],
+    );
+    const exactEquipment = await new OperationsSummaryService(pool).getLiveView(
+      warehouseId,
+      "AMR-01",
+    );
+    expect(exactEquipment.equipment.map((item) => item.equipmentId)).toEqual([
+      "AMR-01",
+    ]);
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id='AAA-CONTEXT-001' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    const alarmLive = await service.resolve(
+      warehouseId,
+      identifiers.transportTaskId,
+      "live",
+      oldAlarmId,
+    );
+    expect(alarmLive.detail.task.equipmentId).toBe("AAA-CONTEXT-001");
+    expect(alarmLive.live?.equipment.map((item) => item.equipmentId)).toEqual([
+      "AMR-01",
+    ]);
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id='AMR-01' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    await pool.query(
+      "INSERT INTO warehouses (id,code,name) VALUES ($1,'FOREIGN-CONTEXT','Foreign') ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    await pool.query(
+      `INSERT INTO equipment_descriptors (equipment_id,warehouse_id,adapter_key,capabilities,active) VALUES ('FOREIGN-CONTEXT-AMR',$1,'deterministic-simulator',ARRAY['transport.move'],true) ON CONFLICT DO NOTHING`,
+      [otherWarehouseId],
+    );
+    await pool.query(
+      "UPDATE alarms SET equipment_id='FOREIGN-CONTEXT-AMR',status='active',code='PRIVATE-CODE',message='PRIVATE-MESSAGE',acknowledged_at=NULL,acknowledged_by=NULL,cleared_at=NULL,cleared_by=NULL,resolution=NULL WHERE id=$1",
+      [oldAlarmId],
+    );
+    await expect(
+      service.resolve(
+        warehouseId,
+        identifiers.transportTaskId,
+        "exception",
+        oldAlarmId,
+      ),
+    ).rejects.toMatchObject({ status: 404 });
+    const live = await service.resolve(
+      warehouseId,
+      identifiers.transportTaskId,
+      "live",
+    );
+    expect(live.alarm).toBeNull();
+    expect(
+      live.live?.alarms.some((alarm) => alarm.alarmId === oldAlarmId),
+    ).toBe(false);
+    expect(JSON.stringify(live)).not.toContain("PRIVATE-MESSAGE");
+    expect(JSON.stringify(live)).not.toContain("PRIVATE-CODE");
+    expect(
+      live.live?.equipment.map((equipment) => equipment.equipmentId),
+    ).toEqual(["AMR-01"]);
+    await pool.query(
+      "DELETE FROM equipment_descriptors WHERE warehouse_id=$1 AND equipment_id LIKE 'AAA-CONTEXT-%'",
+      [warehouseId],
+    );
+  });
+
+  it("resolves exact entity handoff from one snapshot while another connection moves the load", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    const realPool = pool;
+    await new PgInboundRepository(realPool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    let moved = false;
+    const snapshotPool = {
+      connect: async () => {
+        const client = await realPool.connect();
+        return {
+          release: () => client.release(),
+          query: async (sql: string, values?: unknown[]) => {
+            const result = await client.query(sql, values);
+            if (!moved && sql.includes("FROM transport_tasks task")) {
+              moved = true;
+              await realPool.query(
+                "UPDATE loads SET current_location_id=$2 WHERE id=$1",
+                [identifiers.loadId, command.destinationLocationId],
+              );
+            }
+            return result;
+          },
+        };
+      },
+    } as unknown as Pool;
+    const before = await new ExactContextService(snapshotPool).resolve(
+      warehouseId,
+      identifiers.transportTaskId,
+      "load",
+    );
+    expect(before.load.location).toBe("RECEIVING-01");
+    expect(before.detail.load.location).toBe(before.load.location);
+    const after = await new ExactContextService(realPool).resolve(
+      warehouseId,
+      identifiers.transportTaskId,
+      "load",
+    );
+    expect(after.load.location).toBe("STORAGE-A-01");
+    expect(after.detail.load.location).toBe(after.load.location);
   });
 
   it("reloads scoped inbound Work with all-task counts and root-bound microsecond pagination", async () => {

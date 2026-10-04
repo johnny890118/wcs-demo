@@ -28,9 +28,23 @@ async function handler(
     return;
   }
   try {
+    const equipmentId = request.query?.equipmentId;
+    if (
+      equipmentId !== undefined &&
+      (typeof equipmentId !== "string" ||
+        !equipmentId.length ||
+        equipmentId.length > 200)
+    ) {
+      response.status(400).json({ code: "INVALID_CONTEXT" });
+      return;
+    }
     response
       .status(200)
-      .json(await fetchOperationsLiveView(decision.session.access));
+      .json(
+        await (equipmentId === undefined
+          ? fetchOperationsLiveView(decision.session.access)
+          : fetchOperationsLiveView(decision.session.access, equipmentId)),
+      );
   } catch {
     response.status(503).json({ code: "OPERATIONS_LIVE_VIEW_UNAVAILABLE" });
   }

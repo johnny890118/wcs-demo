@@ -1,5 +1,27 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  exactContextNavigation: "Current work and task",
+  exactContextFiltered:
+    "Exact related records are selected. An empty result is not proof of physical absence; clear the filter to inspect the full warehouse list.",
+  exactContextReturnRecord: "Return to the selected record",
+  openExactException: "Open this exact exception",
+  exactContextClearedAlarm: "Recorded resolved alarm",
+  exactContextSurfaces: "Inspect this task's exact context",
+  exactContextUnresolved:
+    "No qualified evidence is available for this exact context. No other equipment or record has been selected.",
+  exactContextNoStock:
+    "No qualified stock record is available for this load. This does not establish zero stock or physical absence.",
+  exactContextLocationNotice:
+    "This is the task's recorded endpoint, not proof of the load's current physical position or permission to move it.",
+  exactContextHistoryNotice:
+    "History follows the selected task or alarm. Return to its Work to inspect separate business-work evidence.",
+  exactContextRefresh: "Reload this context",
+  source: "Recorded origin",
+  destination: "Recorded destination",
+  openTask: "Return to this task",
+  reservedQuantity: "Reserved for outbound",
+  unreservedQuantity: "Unreserved available-state stock",
+  loadOlderEvents: "Load older events",
   workCase: "Work",
   workRequestContents: "Recorded work contents",
   workContentsNotice:
@@ -164,8 +186,8 @@ export const en = {
   locationStockRecords: "Non-shipped stock records",
   locationBound: "Bound to active routing version",
   locationUnbound: "No binding to active routing version — review required",
-  locationSearchStock: "Search related inventory",
-  locationSearchLoads: "Search related loads",
+  locationSearchStock: "View stock recorded at this location",
+  locationSearchLoads: "View loads recorded at this location",
   locationsMore: "Load more locations",
   locationsRefresh: "Refresh locations",
   locationsNotice:
@@ -612,6 +634,28 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  exactContextNavigation: "目前工作與任務",
+  exactContextFiltered:
+    "目前限於精確關聯記錄；空白不證明實體不存在。清除條件可回到全倉清單。",
+  exactContextReturnRecord: "返回原選取記錄",
+  openExactException: "開啟這筆精確異常",
+  exactContextClearedAlarm: "已記錄解除的警報",
+  exactContextSurfaces: "檢視這筆任務的精確情境",
+  exactContextUnresolved:
+    "此精確情境沒有可用的已解析證據；未改選其他設備或資料。",
+  exactContextNoStock:
+    "此載貨沒有可用的已解析庫存記錄；不代表零庫存或實體不存在。",
+  exactContextLocationNotice:
+    "這是任務記錄的端點，不代表載貨目前實體位置或搬運許可。",
+  exactContextHistoryNotice:
+    "歷史限於所選任務或警報；返回工作可查看獨立的業務單據證據。",
+  exactContextRefresh: "重新載入此情境",
+  source: "記錄起點",
+  destination: "記錄終點",
+  openTask: "返回這筆任務",
+  reservedQuantity: "出庫保留量",
+  unreservedQuantity: "可用狀態未保留量",
+  loadOlderEvents: "載入更早事件",
   workCase: "工作案件",
   workRequestContents: "單據內容",
   workContentsNotice:
@@ -761,8 +805,8 @@ export const zhTW: Catalog = {
   locationStockRecords: "未出庫的庫存紀錄筆數",
   locationBound: "已綁定有效路由版本",
   locationUnbound: "未綁定有效路由版本 — 需要檢查",
-  locationSearchStock: "搜尋相關庫存",
-  locationSearchLoads: "搜尋相關載具",
+  locationSearchStock: "查看記錄於此位置的庫存",
+  locationSearchLoads: "查看記錄於此位置的載具",
   locationsMore: "載入更多位置",
   locationsRefresh: "重新整理位置",
   locationsNotice:

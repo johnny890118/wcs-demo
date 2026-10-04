@@ -20,8 +20,11 @@ export type InventoryPage = Readonly<{
 }>;
 export type InventoryQuery = Readonly<{
   search?: string;
+  id?: string;
   cursor?: string;
   limit?: number;
+  loadId?: string;
+  locationId?: string;
 }>;
 export function isInventoryPage(value: unknown): value is InventoryPage {
   if (!value || typeof value !== "object") return false;

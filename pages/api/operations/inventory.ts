@@ -23,7 +23,7 @@ async function handler(request: NextApiRequest, response: NextApiResponse) {
       .json({ code: "INVENTORY_ACCESS_DENIED" });
     return;
   }
-  const { search, cursor, limit: rawLimit } = request.query;
+  const { search, cursor, limit: rawLimit, loadId, locationId } = request.query;
   const limit =
     rawLimit === undefined
       ? undefined
@@ -31,6 +31,14 @@ async function handler(request: NextApiRequest, response: NextApiResponse) {
         ? Number(rawLimit)
         : NaN;
   if (
+    [loadId, locationId].some(
+      (value) =>
+        value !== undefined &&
+        (typeof value !== "string" ||
+          !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+            value,
+          )),
+    ) ||
     (search !== undefined &&
       (typeof search !== "string" || search.length > 100)) ||
     (cursor !== undefined &&
@@ -47,6 +55,8 @@ async function handler(request: NextApiRequest, response: NextApiResponse) {
         search: search as string | undefined,
         cursor: cursor as string | undefined,
         limit,
+        loadId: loadId as string | undefined,
+        locationId: locationId as string | undefined,
       }),
     );
   } catch (error) {

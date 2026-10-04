@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useState } from "react";
+import { contextPath } from "../../src/application/operations/exact-context";
 import type {
   LiveEquipment,
   OperationsLiveView,
@@ -14,16 +14,20 @@ export function WarehouseLiveView({
   view,
   projectionCurrent,
   now,
+  exactEquipmentId,
+  equipmentHref,
 }: {
   view: OperationsLiveView;
   projectionCurrent: boolean;
   now: number;
+  exactEquipmentId?: string;
+  equipmentHref?: string;
 }) {
   const { locale, t } = useLocale();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected =
-    view.equipment.find((item) => item.equipmentId === selectedId) ??
-    view.equipment[0];
+    exactEquipmentId !== undefined
+      ? view.equipment.find((item) => item.equipmentId === exactEquipmentId)
+      : view.equipment[0];
   const positionState = (item: LiveEquipment) =>
     item.position.state === "current" &&
     (!projectionCurrent || now >= Date.parse(item.position.validUntil!))
@@ -53,6 +57,9 @@ export function WarehouseLiveView({
     }).format(new Date(value));
   return (
     <div className="space-y-5">
+      {exactEquipmentId !== undefined && !selected ? (
+        <p role="status">{t("exactContextUnresolved")}</p>
+      ) : null}
       <p className="max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
         {t("liveScopeNotice")}
       </p>
@@ -90,10 +97,18 @@ export function WarehouseLiveView({
             <ul className="mt-4 space-y-2">
               {view.equipment.map((item) => (
                 <li key={item.equipmentId}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(item.equipmentId)}
-                    aria-pressed={item.equipmentId === selected?.equipmentId}
+                  <Link
+                    href={
+                      equipmentHref ??
+                      `/operations/warehouse?${new URLSearchParams({
+                        equipmentId: item.equipmentId,
+                      })}`
+                    }
+                    aria-current={
+                      item.equipmentId === selected?.equipmentId
+                        ? "true"
+                        : undefined
+                    }
                     className={`ui-pressable flex min-h-11 w-full flex-col gap-1 rounded-lg border p-3 text-left ${
                       item.equipmentId === selected?.equipmentId
                         ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
@@ -111,7 +126,7 @@ export function WarehouseLiveView({
                       {item.position.locations.join(" · ") ||
                         t("liveNoBoundLocation")}
                     </span>
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -216,9 +231,11 @@ export function WarehouseLiveView({
                     {affectedAlarms.map((alarm) => (
                       <li key={alarm.alarmId}>
                         <Link
-                          href={`/operations/tasks/${encodeURIComponent(
+                          href={contextPath(
                             alarm.taskId,
-                          )}`}
+                            "exception",
+                            alarm.alarmId,
+                          )}
                           className={contextLink}
                         >
                           {t(

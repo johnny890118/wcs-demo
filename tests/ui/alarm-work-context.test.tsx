@@ -116,3 +116,37 @@ it("does not misreport an unknown recovery result as resumed or completed", asyn
   ).toBe("/operations/tasks/task-one");
   expect(fetch).toHaveBeenCalledTimes(1);
 });
+it("exact exception handoff retains identity while session withdrawal fails the existing mutation path", async () => {
+  const fetch = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ message: "Session revalidation denied" }), {
+      status: 401,
+    }),
+  );
+  vi.stubGlobal("fetch", fetch);
+  show();
+  expect(
+    screen
+      .getByRole("link", { name: "openExactException" })
+      .getAttribute("href"),
+  ).toBe("/operations/context/task-one/exception?alarmId=alarm-one");
+  fireEvent.change(screen.getByLabelText("recoveryStrategy"), {
+    target: { value: "release" },
+  });
+  fireEvent.change(screen.getByLabelText("recoveryResolution"), {
+    target: { value: "Physical evidence reviewed" },
+  });
+  fireEvent.change(screen.getByLabelText("confirmationReason"), {
+    target: { value: "Verified evidence" },
+  });
+  fireEvent.click(screen.getByRole("checkbox"));
+  fireEvent.click(screen.getByRole("button", { name: "recoverAlarm" }));
+  expect(await screen.findByRole("alert")).toHaveProperty(
+    "textContent",
+    "Session revalidation denied",
+  );
+  expect(fetch).toHaveBeenCalledWith(
+    "/api/operations/alarms/alarm-one/recover",
+    expect.objectContaining({ method: "POST" }),
+  );
+  expect(screen.queryByText("taskReleased")).toBeNull();
+});

@@ -55,7 +55,7 @@ describe("overview read budget and partial evidence", () => {
       pool.query.mock.calls.find(([sql]) =>
         sql.includes("FROM transport_tasks t"),
       )?.[1],
-    ).toEqual([testWarehouseId, true]);
+    ).toEqual([testWarehouseId, true, null, null]);
     expect(
       pool.query.mock.calls.some(([sql]) =>
         sql.includes("FROM warehouse_topologies"),

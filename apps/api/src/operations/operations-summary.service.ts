@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import type { Pool } from "pg";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
 import type { OperationsDetails } from "../../../../src/application/operations/operations-details";
@@ -196,9 +201,23 @@ export class OperationsSummaryService {
     return projectOperationsHome(await this.getDetails(warehouseId, "home"));
   }
 
-  async getLiveView(warehouseId: string): Promise<OperationsLiveView> {
+  async getLiveView(
+    warehouseId: string,
+    equipmentId?: unknown,
+  ): Promise<OperationsLiveView> {
+    if (
+      equipmentId !== undefined &&
+      (typeof equipmentId !== "string" ||
+        !equipmentId.length ||
+        equipmentId.length > 200)
+    )
+      throw new BadRequestException("Invalid equipment context.");
     return projectOperationsLiveView(
-      await this.getDetails(warehouseId, "live-view"),
+      await this.getDetails(
+        warehouseId,
+        "live-view",
+        typeof equipmentId === "string" ? { equipmentId } : undefined,
+      ),
     );
   }
 
@@ -223,6 +242,7 @@ export class OperationsSummaryService {
   async getDetails(
     warehouseId: string,
     purpose: "inspection" | "home" | "live-view" = "inspection",
+    focus?: { taskId?: string; equipmentId: string | null },
   ): Promise<OperationsDetails> {
     const home = purpose === "home";
     const activeWorkOnly = purpose !== "inspection";
@@ -235,11 +255,18 @@ export class OperationsSummaryService {
          JOIN locations source ON source.id = t.source_location_id
          JOIN locations destination ON destination.id = t.destination_location_id
          WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
+           AND ($3::uuid IS NULL OR t.id = $3::uuid)
+           AND ($4::text IS NULL OR t.equipment_id = $4::text)
            AND (NOT $2::boolean OR t.status IN ('queued', 'assigned', 'in_progress', 'blocked', 'unknown'))
          ORDER BY CASE WHEN $2::boolean THEN CASE t.status WHEN 'unknown' THEN 0 WHEN 'blocked' THEN 1 ELSE 2 END ELSE 0 END,
            t.updated_at DESC, t.id
          LIMIT 100`,
-          [warehouseId, activeWorkOnly],
+          [
+            warehouseId,
+            activeWorkOnly,
+            focus?.taskId ?? null,
+            focus?.taskId ? null : focus?.equipmentId ?? null,
+          ],
         ),
         this.pool.query<EquipmentRow>(
           `SELECT descriptor.equipment_id, descriptor.adapter_key,
@@ -261,9 +288,10 @@ export class OperationsSummaryService {
          LEFT JOIN equipment_observations observation
            ON observation.equipment_id = descriptor.equipment_id
          WHERE descriptor.warehouse_id = $1
+           AND ($2::text IS NULL OR descriptor.equipment_id = $2::text)
          ORDER BY descriptor.equipment_id
          LIMIT 100`,
-          [warehouseId],
+          [warehouseId, focus?.equipmentId ?? null],
         ),
         purpose === "live-view"
           ? Promise.resolve({ rows: [] as InventoryRow[] })
@@ -287,15 +315,17 @@ export class OperationsSummaryService {
           alarm.raised_at, alarm.acknowledged_at, alarm.cleared_at,
           alarm.resolution
          FROM alarms alarm
+         JOIN equipment_descriptors alarm_equipment ON alarm_equipment.equipment_id = alarm.equipment_id AND alarm_equipment.warehouse_id = $1
          JOIN transport_tasks task ON task.id = alarm.transport_task_id
          JOIN locations source ON source.id = task.source_location_id
          JOIN locations destination ON destination.id = task.destination_location_id
          WHERE source.warehouse_id = $1 AND destination.warehouse_id = $1
+           AND ($3::uuid IS NULL OR task.id = $3::uuid)
            AND (NOT $2::boolean OR alarm.status IN ('active', 'acknowledged'))
          ORDER BY CASE WHEN alarm.status IN ('active', 'acknowledged') THEN 0 ELSE 1 END,
            alarm.raised_at DESC, alarm.id
          LIMIT 100`,
-          [warehouseId, activeWorkOnly],
+          [warehouseId, activeWorkOnly, focus?.taskId ?? null],
         ),
         home
           ? Promise.resolve({ rows: [] as LocationRow[] })

@@ -26,6 +26,13 @@ export class LocationProjectionService {
     )
       invalid();
     const search = ((query.search ?? "") as string).trim();
+    if (
+      query.id !== undefined &&
+      (typeof query.id !== "string" || !uuid.test(query.id))
+    )
+      invalid();
+    const exactId =
+      typeof query.id === "string" ? query.id.toLowerCase() : null;
     const limit =
       query.limit === undefined
         ? 50
@@ -55,6 +62,7 @@ export class LocationProjectionService {
           cursor.surface !== "locations" ||
           cursor.warehouseId !== warehouseId ||
           cursor.search !== search ||
+          (cursor.exactId ?? null) !== exactId ||
           typeof cursor.id !== "string" ||
           !uuid.test(cursor.id)
         )
@@ -79,8 +87,9 @@ export class LocationProjectionService {
       LEFT JOIN warehouse_topologies topology ON topology.warehouse_id = location.warehouse_id AND topology.status = 'active'
       LEFT JOIN location_topology_bindings binding ON binding.location_id = location.id AND binding.warehouse_id = $1 AND binding.topology_id = topology.id AND binding.topology_revision = topology.revision
       WHERE location.warehouse_id = $1 AND ($2::uuid IS NULL OR location.id > $2::uuid) AND ($3::text = '' OR strpos(lower(location.code),lower($3)) > 0 OR strpos(lower(location.kind),lower($3)) > 0)
+        AND ($5::uuid IS NULL OR location.id = $5::uuid)
       ORDER BY location.id LIMIT $4`,
-      [warehouseId, after, search, limit + 1],
+      [warehouseId, after, search, limit + 1, exactId],
     );
     const rows = result.rows.slice(0, limit);
     const last = rows.at(-1);
@@ -111,6 +120,7 @@ export class LocationProjectionService {
                 surface: "locations",
                 warehouseId,
                 search,
+                exactId,
                 id: last.locationId,
               }),
             ).toString("base64url")

@@ -2,6 +2,7 @@ import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
+import { workPath } from "../../src/application/operations/work-projection";
 import { useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { InventoryNavigation } from "../../components/platform/InventoryNavigation";
@@ -19,6 +20,7 @@ type Props = {
   search: string;
   warehouseId: string;
   canViewAudit: boolean;
+  exactFilters?: { id?: string; locationId?: string };
 };
 const control =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
@@ -26,6 +28,7 @@ function Loads({
   initialPage,
   search,
   canViewAudit,
+  exactFilters = {},
 }: Omit<Props, "warehouseId">) {
   const { t, locale } = useLocale();
   const [items, setItems] = useState(initialPage?.items ?? []);
@@ -38,7 +41,11 @@ function Loads({
     setFailed(false);
     try {
       const response = await fetch(
-        `/api/operations/loads?${new URLSearchParams({ search, cursor })}`,
+        `/api/operations/loads?${new URLSearchParams({
+          search,
+          cursor,
+          ...exactFilters,
+        })}`,
       );
       const payload: unknown = await response.json();
       if (!response.ok || !isLoadPage(payload)) throw new Error();
@@ -59,6 +66,23 @@ function Loads({
   return (
     <>
       <h1 className="text-3xl font-black">{t("loads")}</h1>
+      {Object.keys(exactFilters).length ? (
+        <div className="mt-3">
+          <p className="text-sm text-[var(--text-muted)]">
+            {t("exactContextFiltered")}
+          </p>
+          {exactFilters.locationId ? (
+            <Link
+              className={control}
+              href={`/operations/locations?${new URLSearchParams({
+                id: exactFilters.locationId,
+              })}`}
+            >
+              {t("exactContextReturnRecord")}
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
         {t("loadsDescription")}
       </p>
@@ -67,6 +91,9 @@ function Loads({
         method="get"
         className="mt-5 flex flex-wrap items-end gap-2"
       >
+        {Object.entries(exactFilters).map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} />
+        ))}
         <label className="flex min-w-0 flex-1 flex-col gap-2 text-sm font-semibold">
           {t("inventorySearch")}
           <input
@@ -156,10 +183,16 @@ function Loads({
             <Link
               className={`${control} mt-3`}
               href={`/operations/inventory?${new URLSearchParams({
-                search: item.externalId,
+                loadId: item.loadId,
               })}`}
             >
               {t("loadViewInventory")}
+            </Link>
+            <Link
+              className={`${control} mt-3`}
+              href={workPath("inbound", item.receiptId)}
+            >
+              {t("openWorkContext")} · {item.receiptReference}
             </Link>
             {canViewAudit ? (
               <Link
@@ -199,7 +232,10 @@ function Loads({
       </p>
       <Link
         className={control}
-        href={`/operations/loads?${new URLSearchParams({ search })}`}
+        href={`/operations/loads?${new URLSearchParams({
+          search,
+          ...exactFilters,
+        })}`}
       >
         {t("loadsRefresh")}
       </Link>
@@ -211,12 +247,13 @@ export default function LoadsPage(props: Props) {
     <OperationsShell current="inventory" titleKey="loads">
       <InventoryNavigation current="loads" />
       <Loads
-        key={`${props.warehouseId}:${props.search}:${
-          props.initialPage?.generatedAt ?? "none"
-        }`}
+        key={`${props.warehouseId}:${props.search}:${JSON.stringify(
+          props.exactFilters ?? {},
+        )}:${props.initialPage?.generatedAt ?? "none"}`}
         initialPage={props.initialPage}
         search={props.search}
         canViewAudit={props.canViewAudit}
+        exactFilters={props.exactFilters}
       />
     </OperationsShell>
   );
@@ -231,7 +268,7 @@ export const getServerSideProps: GetServerSideProps<Props> =
     const access = operationalPageAccess(
       session,
       "operations.view",
-      "/operations/loads",
+      context.resolvedUrl ?? "/operations/loads",
     );
     if (!access.allowed)
       return {
@@ -244,9 +281,25 @@ export const getServerSideProps: GetServerSideProps<Props> =
     )
       return { notFound: true };
     const search = ((context.query.search ?? "") as string).trim();
+    const exactFilters: { id?: string; locationId?: string } = {};
+    for (const key of ["id", "locationId"] as const) {
+      const value = context.query[key];
+      if (
+        value !== undefined &&
+        (typeof value !== "string" ||
+          !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+            value,
+          ))
+      )
+        return { notFound: true };
+      if (typeof value === "string") exactFilters[key] = value;
+    }
     let initialPage: LoadPage | null = null;
     try {
-      initialPage = await fetchLoads(access.access, { search });
+      initialPage = await fetchLoads(access.access, {
+        search,
+        ...exactFilters,
+      });
     } catch {
       initialPage = null;
     }
@@ -255,6 +308,7 @@ export const getServerSideProps: GetServerSideProps<Props> =
         session,
         initialPage,
         search,
+        exactFilters,
         warehouseId: access.access.currentWarehouseId,
         canViewAudit: hasUserPermission(access.access, "audit.view"),
       },

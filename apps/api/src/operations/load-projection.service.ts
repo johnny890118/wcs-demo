@@ -26,6 +26,22 @@ export class LoadProjectionService {
     )
       invalid();
     const search = ((query.search ?? "") as string).trim();
+    if (
+      query.id !== undefined &&
+      (typeof query.id !== "string" || !uuid.test(query.id))
+    )
+      invalid();
+    const exactId =
+      typeof query.id === "string" ? query.id.toLowerCase() : null;
+    if (
+      query.locationId !== undefined &&
+      (typeof query.locationId !== "string" || !uuid.test(query.locationId))
+    )
+      invalid();
+    const locationId =
+      typeof query.locationId === "string"
+        ? query.locationId.toLowerCase()
+        : null;
     const limit =
       query.limit === undefined
         ? 50
@@ -55,6 +71,8 @@ export class LoadProjectionService {
           cursor.surface !== "loads" ||
           cursor.warehouseId !== warehouseId ||
           cursor.search !== search ||
+          (cursor.exactId ?? null) !== exactId ||
+          (cursor.locationId ?? null) !== locationId ||
           typeof cursor.id !== "string" ||
           !uuid.test(cursor.id)
         )
@@ -83,10 +101,12 @@ export class LoadProjectionService {
       LEFT JOIN inventory_units inventory ON inventory.load_id = load.id
       LEFT JOIN locations inventory_location ON inventory_location.id = inventory.location_id AND inventory_location.warehouse_id = $1
       WHERE (inventory.id IS NULL OR inventory_location.id IS NOT NULL)
+        AND ($5::uuid IS NULL OR load.id = $5::uuid)
+        AND ($6::uuid IS NULL OR location.id = $6::uuid)
         AND ($2::uuid IS NULL OR load.id > $2::uuid)
         AND ($3::text = '' OR strpos(lower(load.sku),lower($3)) > 0 OR strpos(lower(load.external_id),lower($3)) > 0 OR strpos(lower(location.code),lower($3)) > 0)
       ORDER BY load.id LIMIT $4`,
-      [warehouseId, after, search, limit + 1],
+      [warehouseId, after, search, limit + 1, exactId, locationId],
     );
     const rows = result.rows.slice(0, limit);
     const last = rows.at(-1);
@@ -117,6 +137,8 @@ export class LoadProjectionService {
                 surface: "loads",
                 warehouseId,
                 search,
+                exactId,
+                locationId,
                 id: last.loadId,
               }),
             ).toString("base64url")

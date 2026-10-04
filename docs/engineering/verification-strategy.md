@@ -1,5 +1,18 @@
 # Verification Strategy
 
+Current B exact context handoffs: complete gate passes 558 fast, 86 real
+PostgreSQL and 38 production-build browser tests, public-demo denial harness and
+separate API build. Exact root/entity/alarm/equipment selection, snapshot reads,
+filter-bound cursors, history dual permissions, unknown/stale preservation and
+owned reloadable returns are covered. Independent review passes 7 files / 43
+focused tests with no open blocker. Bilingual/theme/viewport/keyboard/Axe and
+inbound/outbound/cleared-alarm history journeys pass. Manual 2026-10-04.2 and all
+nine PDF pages are synchronized and inspected. See exact-context-handoffs-review.md;
+exact CI/provider/runtime/clean delivery still gates C. Local full verification
+used VITEST_MAX_WORKERS=2 to avoid machine-load Axe timeouts, retaining all checks
+and original timeouts. Docker's transient 500 recovered without restart; the full
+PostgreSQL harness then passed. Existing 15 legacy lint warnings remain.
+
 Current A Work read spine: full gate passes 542 fast, 83 real PostgreSQL and 36
 production-build browser tests, public-demo denial harness and separate API build.
 Root/relationship warehouse isolation, cursor scope, partial outbound tasks,

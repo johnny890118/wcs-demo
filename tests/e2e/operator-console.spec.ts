@@ -86,6 +86,138 @@ test("neutral-first brand survives an operator read journey across themes, local
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("exact handoffs survive reload across operator surfaces without search or Browser Back", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signIn(page, "/operations/tasks");
+  await page
+    .getByRole("link", { name: /開啟任務/ })
+    .first()
+    .click();
+  await page.getByRole("link", { name: "載具", exact: true }).click();
+  await expect(page).toHaveURL(/\/context\/.*\/load/);
+  const taskContextRoot = page.url().replace(/\/load$/, "");
+  for (const surface of [
+    "load",
+    "inventory",
+    "source",
+    "destination",
+    "live",
+    "exception",
+    "history",
+  ]) {
+    await page.goto(`${taskContextRoot}/${surface}`);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByRole("link", { name: /開啟這筆工作/ }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "返回這筆任務", exact: true }),
+    ).toBeVisible();
+    expect(
+      (await page.request.get(`${taskContextRoot}/${surface}`)).headers()[
+        "cache-control"
+      ],
+    ).toContain("no-store");
+  }
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const locale of ["zh-TW", "en"] as const) {
+      await page
+        .getByRole("button", {
+          name: locale === "en" ? "EN" : "繁中",
+          exact: true,
+        })
+        .click();
+      for (const theme of ["light", "dark"] as const) {
+        await page
+          .getByRole("button", {
+            name:
+              locale === "en"
+                ? theme === "light"
+                  ? "Light"
+                  : "Dark"
+                : theme === "light"
+                  ? "淺色"
+                  : "深色",
+            exact: true,
+          })
+          .click();
+        for (const surface of ["inventory", "live", "exception"]) {
+          await page.goto(`${taskContextRoot}/${surface}`);
+          await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth >
+                document.documentElement.clientWidth,
+            ),
+          ).toBe(false);
+          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+            [],
+          );
+        }
+      }
+    }
+  }
+  await page.screenshot({
+    path: test.info().outputPath("exact-context-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page
+    .getByRole("link", { name: "Return to this task", exact: true })
+    .focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/operations\/tasks\//);
+  await page.getByRole("link", { name: "Open this work", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "ASN-E2E-001",
+  );
+  expect(
+    (
+      await page.request.get(
+        `${taskContextRoot}/exception?alarmId=70000000-0000-4000-8000-000000000099`,
+      )
+    ).status(),
+  ).toBe(404);
+  expect(
+    (
+      await page.request.get(`${taskContextRoot}/inventory?alarmId=a&alarmId=b`)
+    ).status(),
+  ).toBe(404);
+});
+
+test("an exact exception retains alarm identity through inventory, history and reload", async ({
+  page,
+}) => {
+  await loadScenario(page, "faulted");
+  try {
+    const root = "/operations/context/50000000-0000-4000-8000-000000000098";
+    const alarm = "80000000-0000-4000-8000-000000000098";
+    await signIn(page, `${root}/exception?alarmId=${alarm}`);
+    await expect(
+      page.getByText("Travel path is blocked.", { exact: true }).first(),
+    ).toBeVisible();
+    await page.locator(`a[href="${root}/inventory?alarmId=${alarm}"]`).click();
+    await expect(page).toHaveURL(`${root}/inventory?alarmId=${alarm}`);
+    await page.reload();
+    await page.locator(`a[href="${root}/history?alarmId=${alarm}"]`).click();
+    await expect(page).toHaveURL(`${root}/history?alarmId=${alarm}`);
+    await page.reload();
+    await expect(
+      page.getByRole("link", { name: "返回這筆任務", exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: test.info().outputPath("exact-exception-history.png"),
+      fullPage: true,
+    });
+  } finally {
+    await loadScenario(page, "baseline");
+  }
+});
+
 test("Task to durable Work reload and return needs no remembered ID or browser Back", async ({
   page,
 }) => {
@@ -655,19 +787,29 @@ test("locations explain configured states and record counts without occupancy cl
   await page.getByRole("button", { name: "Light", exact: true }).click();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
-    .getByRole("link", { name: "Search related loads", exact: true })
+    .getByRole("link", {
+      name: "View loads recorded at this location",
+      exact: true,
+    })
     .first()
     .click();
-  await expect(page).toHaveURL(/\/operations\/loads\?search=STORAGE-01/);
+  await expect(page).toHaveURL(
+    "/operations/loads?locationId=20000000-0000-4000-8000-000000000001",
+  );
   await page
     .getByRole("navigation", { name: "Inventory workspace" })
     .getByRole("link", { name: "Locations", exact: true })
     .click();
   await page
-    .getByRole("link", { name: "Search related inventory", exact: true })
+    .getByRole("link", {
+      name: "View stock recorded at this location",
+      exact: true,
+    })
     .first()
     .click();
-  await expect(page).toHaveURL(/\/operations\/inventory\?search=STORAGE-01/);
+  await expect(page).toHaveURL(
+    "/operations/inventory?locationId=20000000-0000-4000-8000-000000000001",
+  );
   await page
     .getByRole("navigation", { name: "Inventory workspace" })
     .getByRole("link", { name: "Locations", exact: true })
@@ -720,8 +862,30 @@ test("loads preserve unknown inventory and zero shipped stock across readable bi
     .first()
     .click();
   await expect(page).toHaveURL(
-    /\/operations\/inventory\?search=PALLET-RECEIVED-001/,
+    "/operations/inventory?loadId=41000000-0000-4000-8000-000000000001",
   );
+  await expect(
+    page.getByRole("heading", {
+      name: "SKU-STOCK-001 · STORAGE-01",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("link", { name: "Return to the selected record", exact: true })
+    .click();
+  await expect(page).toHaveURL(
+    "/operations/loads?id=41000000-0000-4000-8000-000000000001",
+  );
+  await expect(
+    page.getByRole("heading", { name: "PALLET-RECEIVED-001", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "PALLET-SHIPPED-001", exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: "Clear", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "PALLET-SHIPPED-001", exact: true }),
+  ).toBeVisible();
   await page
     .getByRole("navigation", { name: "Inventory workspace" })
     .getByRole("link", { name: "Loads", exact: true })
@@ -797,7 +961,10 @@ test("task queue and detail expose contextual evidence across accessible warehou
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "查看任務稽核證據" }),
-  ).toHaveAttribute("href", /resourceType=TransportTask&resourceId=50000000/);
+  ).toHaveAttribute(
+    "href",
+    "/operations/context/50000000-0000-4000-8000-000000000001/history",
+  );
   await page.screenshot({
     path: test.info().outputPath("task-detail-desktop.png"),
     fullPage: true,

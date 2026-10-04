@@ -6,6 +6,7 @@ import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { hasUserPermission } from "../../../src/application/access/operational-access";
 import type { TaskDetail } from "../../../src/application/operations/task-projection";
 import { workPath } from "../../../src/application/operations/work-projection";
+import { contextPath } from "../../../src/application/operations/exact-context";
 import {
   fetchTaskDetail,
   WcsProjectionError,
@@ -98,6 +99,29 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
         <p className="mt-4 text-xs leading-5 text-[var(--text-muted)]">
           {t("taskAssignmentNotice")}
         </p>
+        <nav
+          aria-label={t("exactContextSurfaces")}
+          className="mt-3 flex flex-wrap gap-2"
+        >
+          <Link className={linkClass} href={contextPath(task.taskId, "load")}>
+            {t("loads")}
+          </Link>
+          <Link
+            className={linkClass}
+            href={contextPath(task.taskId, "inventory")}
+          >
+            {t("inventory")}
+          </Link>
+          <Link className={linkClass} href={contextPath(task.taskId, "source")}>
+            {t("source")}
+          </Link>
+          <Link
+            className={linkClass}
+            href={contextPath(task.taskId, "destination")}
+          >
+            {t("destination")}
+          </Link>
+        </nav>
       </section>
       <section className={panel} aria-labelledby="task-exception">
         <h2 id="task-exception" className="text-xl font-bold">
@@ -113,7 +137,10 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
                   : "homeReason_acknowledged_alarm",
               )}
             </p>
-            <Link className={linkClass} href="/operations/alarms">
+            <Link
+              className={linkClass}
+              href={contextPath(task.taskId, "exception", detail.alarm.alarmId)}
+            >
               {t("alarmOperations")}
             </Link>
           </>
@@ -134,7 +161,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
         <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
           {detail.route ? t("taskRecordedRouteNotice") : t("taskRoutePending")}
         </p>
-        <Link className={linkClass} href="/operations/warehouse">
+        <Link className={linkClass} href={contextPath(task.taskId, "live")}>
           {t("warehouseMap")}
         </Link>
         {detail.route ? (
@@ -164,7 +191,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
               className={linkClass}
-              href={auditUrl("TransportTask", task.taskId)}
+              href={contextPath(task.taskId, "history")}
             >
               {t("viewTaskAuditEvidence")}
             </Link>

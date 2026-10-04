@@ -12,9 +12,12 @@ import { LocationProjectionController } from "./location-projection.controller";
 import { LocationProjectionService } from "./location-projection.service";
 import { WorkProjectionController } from "./work-projection.controller";
 import { WorkProjectionService } from "./work-projection.service";
+import { ExactContextController } from "./exact-context.controller";
+import { ExactContextService } from "./exact-context.service";
 
 @Module({
   controllers: [
+    ExactContextController,
     OperationsController,
     WorkProjectionController,
     TaskProjectionController,
@@ -23,6 +26,7 @@ import { WorkProjectionService } from "./work-projection.service";
     LocationProjectionController,
   ],
   providers: [
+    ExactContextService,
     OperationsSummaryService,
     WorkProjectionService,
     TaskProjectionService,

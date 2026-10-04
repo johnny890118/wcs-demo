@@ -26,6 +26,25 @@ export class InventoryProjectionService {
     )
       invalid();
     const search = ((query.search ?? "") as string).trim();
+    if (
+      query.id !== undefined &&
+      (typeof query.id !== "string" || !uuid.test(query.id))
+    )
+      invalid();
+    const exactId =
+      typeof query.id === "string" ? query.id.toLowerCase() : null;
+    for (const key of ["loadId", "locationId"])
+      if (
+        query[key] !== undefined &&
+        (typeof query[key] !== "string" || !uuid.test(query[key] as string))
+      )
+        invalid();
+    const loadId =
+      typeof query.loadId === "string" ? query.loadId.toLowerCase() : null;
+    const locationId =
+      typeof query.locationId === "string"
+        ? query.locationId.toLowerCase()
+        : null;
     const limit =
       query.limit === undefined
         ? 50
@@ -54,6 +73,9 @@ export class InventoryProjectionService {
         if (
           cursor.warehouseId !== warehouseId ||
           cursor.search !== search ||
+          (cursor.exactId ?? null) !== exactId ||
+          (cursor.loadId ?? null) !== loadId ||
+          (cursor.locationId ?? null) !== locationId ||
           typeof cursor.id !== "string" ||
           !uuid.test(cursor.id)
         )
@@ -81,9 +103,12 @@ export class InventoryProjectionService {
       JOIN inbound_receipts receipt ON receipt.id = load.receipt_id AND receipt.warehouse_id = $1
       LEFT JOIN LATERAL (SELECT sum(allocation.quantity) AS quantity FROM inventory_allocations allocation WHERE allocation.inventory_unit_id = inventory.id AND allocation.status = 'reserved') reservation ON true
       WHERE ($2::uuid IS NULL OR inventory.id > $2::uuid)
+        AND ($5::uuid IS NULL OR inventory.id = $5::uuid)
+        AND ($6::uuid IS NULL OR load.id = $6::uuid)
+        AND ($7::uuid IS NULL OR location.id = $7::uuid)
         AND ($3::text = '' OR strpos(lower(inventory.sku), lower($3)) > 0 OR strpos(lower(load.external_id), lower($3)) > 0 OR strpos(lower(location.code), lower($3)) > 0)
       ORDER BY inventory.id LIMIT $4`,
-      [warehouseId, after, search, limit + 1],
+      [warehouseId, after, search, limit + 1, exactId, loadId, locationId],
     );
     const rows = result.rows.slice(0, limit);
     const last = rows.at(-1);
@@ -95,7 +120,14 @@ export class InventoryProjectionService {
       nextCursor:
         result.rows.length > limit && last
           ? Buffer.from(
-              JSON.stringify({ warehouseId, search, id: last.inventoryUnitId }),
+              JSON.stringify({
+                warehouseId,
+                search,
+                exactId,
+                loadId,
+                locationId,
+                id: last.inventoryUnitId,
+              }),
             ).toString("base64url")
           : null,
       generatedAt: new Date().toISOString(),

@@ -92,9 +92,12 @@ const defaultTimeoutMs = 55_000;
 
 export async function fetchOperationsLiveView(
   access: OperationalAccess,
+  equipmentId?: string,
 ): Promise<OperationsLiveView> {
   const payload = await fetchWcsProjection(
-    "/api/v1/operations/live-view",
+    `/api/v1/operations/live-view${
+      equipmentId ? `?${new URLSearchParams({ equipmentId })}` : ""
+    }`,
     access,
   );
   if (!isOperationsLiveView(payload))
@@ -136,6 +139,30 @@ async function fetchWcsProjection(
   });
 }
 
+export async function fetchExactContext(
+  access: OperationalAccess,
+  taskId: string,
+  surface: import("../../application/operations/exact-context").ContextSurface,
+  alarmId?: string,
+) {
+  const { isExactContext } = await import(
+    "../../application/operations/exact-context"
+  );
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/context/${encodeURIComponent(taskId)}/${surface}${
+      alarmId ? `?${new URLSearchParams({ alarmId })}` : ""
+    }`,
+    access,
+  );
+  if (
+    !isExactContext(result) ||
+    result.detail.task.taskId !== taskId.toLowerCase() ||
+    (alarmId && result.alarm?.alarmId !== alarmId.toLowerCase())
+  )
+    throw new Error("Invalid exact context.");
+  return result;
+}
+
 export class WcsProjectionError extends Error {
   constructor(readonly status: number) {
     super(`WCS API returned HTTP ${status}.`);
@@ -148,6 +175,8 @@ export async function fetchInventory(
   query: InventoryQuery = {},
 ): Promise<InventoryPage> {
   const search = new URLSearchParams();
+  if (query.loadId) search.set("loadId", query.loadId);
+  if (query.locationId) search.set("locationId", query.locationId);
   if (query.search) search.set("search", query.search);
   if (query.cursor) search.set("cursor", query.cursor);
   if (query.limit !== undefined) search.set("limit", String(query.limit));
@@ -165,6 +194,8 @@ export async function fetchLoads(
   query: InventoryQuery = {},
 ): Promise<LoadPage> {
   const search = new URLSearchParams();
+  if (query.id) search.set("id", query.id);
+  if (query.locationId) search.set("locationId", query.locationId);
   if (query.search) search.set("search", query.search);
   if (query.cursor) search.set("cursor", query.cursor);
   if (query.limit !== undefined) search.set("limit", String(query.limit));
@@ -181,6 +212,7 @@ export async function fetchLocations(
   query: InventoryQuery = {},
 ): Promise<LocationPage> {
   const search = new URLSearchParams();
+  if (query.id) search.set("id", query.id);
   if (query.search) search.set("search", query.search);
   if (query.cursor) search.set("cursor", query.cursor);
   if (query.limit !== undefined) search.set("limit", String(query.limit));

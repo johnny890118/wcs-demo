@@ -17,10 +17,15 @@ type Props = {
   initialPage: LocationPage | null;
   search: string;
   warehouseId: string;
+  exactId?: string;
 };
 const control =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
-function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
+function Locations({
+  initialPage,
+  search,
+  exactId,
+}: Omit<Props, "warehouseId">) {
   const { t, locale } = useLocale();
   const [items, setItems] = useState(initialPage?.items ?? []);
   const [cursor, setCursor] = useState(initialPage?.nextCursor ?? null);
@@ -32,7 +37,11 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
     setFailed(false);
     try {
       const response = await fetch(
-        `/api/operations/locations?${new URLSearchParams({ search, cursor })}`,
+        `/api/operations/locations?${new URLSearchParams({
+          search,
+          cursor,
+          ...(exactId ? { id: exactId } : {}),
+        })}`,
       );
       const payload: unknown = await response.json();
       if (!response.ok || !isLocationPage(payload)) throw new Error();
@@ -61,6 +70,7 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
         method="get"
         className="mt-5 flex flex-wrap items-end gap-2"
       >
+        {exactId ? <input type="hidden" name="id" value={exactId} /> : null}
         <label className="flex min-w-0 flex-1 flex-col gap-2 text-sm font-semibold">
           {t("locationSearch")}
           <input
@@ -143,7 +153,7 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
             <Link
               className={`${control} mt-3`}
               href={`/operations/inventory?${new URLSearchParams({
-                search: item.code,
+                locationId: item.locationId,
               })}`}
             >
               {t("locationSearchStock")}
@@ -151,7 +161,7 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
             <Link
               className={`${control} mt-3`}
               href={`/operations/loads?${new URLSearchParams({
-                search: item.code,
+                locationId: item.locationId,
               })}`}
             >
               {t("locationSearchLoads")}
@@ -192,7 +202,10 @@ function Locations({ initialPage, search }: Omit<Props, "warehouseId">) {
       </p>
       <Link
         className={control}
-        href={`/operations/locations?${new URLSearchParams({ search })}`}
+        href={`/operations/locations?${new URLSearchParams({
+          search,
+          ...(exactId ? { id: exactId } : {}),
+        })}`}
       >
         {t("locationsRefresh")}
       </Link>
@@ -204,11 +217,12 @@ export default function LocationsPage(props: Props) {
     <OperationsShell current="inventory" titleKey="locations">
       <InventoryNavigation current="locations" />
       <Locations
-        key={`${props.warehouseId}:${props.search}:${
+        key={`${props.warehouseId}:${props.search}:${props.exactId ?? "all"}:${
           props.initialPage?.generatedAt ?? "none"
         }`}
         initialPage={props.initialPage}
         search={props.search}
+        exactId={props.exactId}
       />
     </OperationsShell>
   );
@@ -223,7 +237,7 @@ export const getServerSideProps: GetServerSideProps<Props> =
     const access = operationalPageAccess(
       session,
       "operations.view",
-      "/operations/locations",
+      context.resolvedUrl ?? "/operations/locations",
     );
     if (!access.allowed)
       return {
@@ -236,9 +250,21 @@ export const getServerSideProps: GetServerSideProps<Props> =
     )
       return { notFound: true };
     const search = ((context.query.search ?? "") as string).trim();
+    const exactId = context.query.id;
+    if (
+      exactId !== undefined &&
+      (typeof exactId !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          exactId,
+        ))
+    )
+      return { notFound: true };
     let initialPage: LocationPage | null = null;
     try {
-      initialPage = await fetchLocations(access.access, { search });
+      initialPage = await fetchLocations(access.access, {
+        search,
+        id: exactId,
+      });
     } catch {
       initialPage = null;
     }
@@ -247,6 +273,7 @@ export const getServerSideProps: GetServerSideProps<Props> =
         session,
         initialPage,
         search,
+        ...(exactId ? { exactId } : {}),
         warehouseId: access.access.currentWarehouseId,
       },
     };

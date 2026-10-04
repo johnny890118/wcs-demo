@@ -13,6 +13,8 @@ import { LocationProjectionController } from "../../apps/api/src/operations/loca
 import { LocationProjectionService } from "../../apps/api/src/operations/location-projection.service";
 import { WorkProjectionController } from "../../apps/api/src/operations/work-projection.controller";
 import { WorkProjectionService } from "../../apps/api/src/operations/work-projection.service";
+import { ExactContextController } from "../../apps/api/src/operations/exact-context.controller";
+import { ExactContextService } from "../../apps/api/src/operations/exact-context.service";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
 import {
   testOperationalAccess,
@@ -21,7 +23,12 @@ import {
 
 describe("task projection HTTP authorization", () => {
   let app: INestApplication;
-  const service = { getQueue: vi.fn(), getDetail: vi.fn(), list: vi.fn() };
+  const service = {
+    getQueue: vi.fn(),
+    getDetail: vi.fn(),
+    list: vi.fn(),
+    resolve: vi.fn(),
+  };
   beforeEach(async () => {
     process.env.API_SERVICE_TOKEN = "test-task-projection-service-token";
     process.env.API_SERVICE_ID = "test-bff";
@@ -29,6 +36,7 @@ describe("task projection HTTP authorization", () => {
     vi.clearAllMocks();
     const testingModule = await Test.createTestingModule({
       controllers: [
+        ExactContextController,
         TaskProjectionController,
         WorkProjectionController,
         InventoryProjectionController,
@@ -36,6 +44,7 @@ describe("task projection HTTP authorization", () => {
         LocationProjectionController,
       ],
       providers: [
+        { provide: ExactContextService, useValue: service },
         ServiceTokenGuard,
         { provide: TaskProjectionService, useValue: service },
         { provide: WorkProjectionService, useValue: service },
@@ -65,6 +74,7 @@ describe("task projection HTTP authorization", () => {
     return pending;
   }
   it.each([
+    "/api/v1/operations/context/50000000-0000-4000-8000-000000000001/load",
     "/api/v1/operations/inventory",
     "/api/v1/operations/loads",
     "/api/v1/operations/locations",

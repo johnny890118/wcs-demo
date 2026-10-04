@@ -4,6 +4,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { contextPath } from "../../src/application/operations/exact-context";
 import { useMemo, useState } from "react";
 import {
   isAlarmAcknowledged,
@@ -260,6 +261,12 @@ export function AlarmRecoveryPanel({
               {t("inspectCreatedTask")}
               {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
             </Link>
+            <Link
+              className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+              href={contextPath(selected.taskId, "exception", selected.alarmId)}
+            >
+              {t("openExactException")}
+            </Link>
             <details className="border-t border-[var(--border)] pt-2">
               <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
                 {t("workflowReferences")}
@@ -342,17 +349,17 @@ export function AlarmRecoveryPanel({
             {selected && canViewAudit ? (
               <>
                 <Link
-                  href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
-                    selected.taskId,
-                  )}`}
+                  href={contextPath(selected.taskId, "history")}
                   className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
                 >
                   {t("viewTaskAuditEvidence")}
                 </Link>
                 <Link
-                  href={`/operations/audit?resourceType=Alarm&resourceId=${encodeURIComponent(
+                  href={contextPath(
+                    selected.taskId,
+                    "history",
                     selected.alarmId,
-                  )}`}
+                  )}
                   className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
                 >
                   {t("viewAlarmAuditEvidence")}

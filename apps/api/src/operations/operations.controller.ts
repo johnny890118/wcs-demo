@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, UseGuards } from "@nestjs/common";
+import { Controller, Get, Headers, Query, UseGuards } from "@nestjs/common";
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import type { OperationsSummary } from "../../../../src/application/operations/operations-summary";
@@ -18,8 +18,11 @@ export class OperationsController {
   @Get("live-view")
   getLiveView(
     @Headers("x-swp-warehouse") warehouseId: string,
+    @Query("equipmentId") equipmentId?: unknown,
   ): Promise<OperationsLiveView> {
-    return this.summaries.getLiveView(warehouseId);
+    return equipmentId === undefined
+      ? this.summaries.getLiveView(warehouseId)
+      : this.summaries.getLiveView(warehouseId, equipmentId);
   }
 
   @Get("overview")

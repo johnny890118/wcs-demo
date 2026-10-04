@@ -2,7 +2,7 @@ import type { UserPermission } from "../../application/access/operational-access
 import type { Locale } from "../i18n/catalogs";
 import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-04.1";
+export const manualVersion = "2026-10-04.2";
 // Package release identity is distinct from the more granular manual revision.
 export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
@@ -59,8 +59,8 @@ export const manualArticles: readonly ManualArticle[] = [
         "任務指派記錄預定工作，不是實體移動。未知結果代表尚未解析，絕不是成功。目前清單有範圍上限；找不到紀錄時切換全部工作並使用載入更多。任務清單目前尚未提供文字搜尋。",
       ),
       text(
-        "From task detail, Open this work opens the persisted inbound receipt or outbound order. This link can be reopened or reloaded without remembering IDs. Review recorded contents, work state and all resolved task counts; a completed task is not completion of the entire work. Missing warehouse-qualified evidence remains unresolved. Audit links require separate permission. Exact Live/entity return paths are not yet provided.",
-        "從任務詳情選擇「開啟這筆工作」，查看已保存的入庫單或出庫單。連結可直接重新開啟或重載，不需記住 ID。請閱讀單據內容、工作狀態與所有已解析任務統計；單一任務完成不等於整筆工作完成。未能確認倉庫範圍的證據仍未解析；稽核連結需要獨立權限。即時現場與個別資料的精確返回路徑尚未提供。",
+        "From task detail, Open this work opens its persisted receipt or order. Context links resolve the same task's load, stock, recorded endpoints, Live evidence, exception and permitted history on the server. Reopen or reload these URLs and use the visible Work/Task return links without remembering IDs or Browser Back. Recorded work state and task counts are not physical completion. Missing qualified evidence remains unresolved; history requires separate permission.",
+        "從任務詳情選擇「開啟這筆工作」，查看對應的已保存單據。情境連結由伺服器解析同一任務的載貨、庫存、記錄端點、即時證據、異常與有權檢視的歷史。網址可直接開啟或重載，使用可見的工作／任務返回連結，不需記 ID 或瀏覽器返回。工作狀態與任務統計不等於實體完成；缺少合格證據仍未解析，歷史需要獨立權限。",
       ),
       text(
         "For shift operators, investigate work and freshness first; for exception responders, inspect alarms and affected tasks; for reviewers, follow permitted audit evidence. These are work paths, not hard-coded role grants.",
@@ -115,8 +115,8 @@ export const manualArticles: readonly ManualArticle[] = [
         "庫位狀態是設定，不保證實體占用或可安全下令。載具／庫存筆數是紀錄列數，不是跨品項數量或容量。可讀庫位代碼不是拓撲節點 ID，關聯需要有效版本的明確綁定。",
       ),
       text(
-        "Use literal search and load-more within the current warehouse. Related stock/load links are substring searches, not exact occupancy filters. Configuration editing and stock adjustments are not available in these read-only workspaces.",
-        "在目前倉庫使用文字搜尋與載入更多。相關庫存／載具連結是子字串搜尋，不是精確占用篩選。這些唯讀工作區不提供設定編輯或庫存調整。",
+        "Use literal search and load-more within the current warehouse. Related stock/load links use exact persisted load or location identity, not label search; the selected-record return link preserves that identity. Empty results do not prove physical absence. Clear the filter for the full warehouse list. These read-only workspaces do not provide configuration editing or stock adjustments.",
+        "在目前倉庫使用文字搜尋與載入更多。相關庫存／載貨連結使用已保存的精確載貨或庫位 identity，不以標籤搜尋代替；返回原選取記錄的連結保留此 identity。空白不證明實體不存在，清除條件可回到全倉清單。這些唯讀工作區不提供設定編輯或庫存調整。",
       ),
     ],
     links: [
