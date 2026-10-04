@@ -533,6 +533,7 @@ const server = createServer(async (request, response) => {
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
       request.url?.startsWith("/api/v1/operations/tasks") ||
+      request.url?.startsWith("/api/v1/operations/work/") ||
       request.url?.startsWith("/api/v1/operations/inventory") ||
       request.url?.startsWith("/api/v1/operations/loads") ||
       request.url?.startsWith("/api/v1/operations/locations") ||
@@ -574,6 +575,66 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/summary") {
     response.end(JSON.stringify(summary));
+    return;
+  }
+  if (
+    request.method === "GET" &&
+    request.url?.startsWith("/api/v1/operations/work/")
+  ) {
+    const url = new URL(request.url, "http://127.0.0.1");
+    const [, , , , , flow, workId] = url.pathname.split("/");
+    const tasks = fixtureQueue().filter((task) => task.flow === flow);
+    if (
+      request.headers["x-swp-warehouse"] === secondWarehouseId ||
+      workId !== "30000000-0000-4000-8000-000000000001" ||
+      !["inbound", "outbound"].includes(flow)
+    ) {
+      response.statusCode = 404;
+      response.end(JSON.stringify({ code: "WORK_NOT_FOUND" }));
+      return;
+    }
+    const counts = Object.fromEntries(
+      [
+        "queued",
+        "assigned",
+        "in_progress",
+        "blocked",
+        "unknown",
+        "completed",
+        "cancelled",
+      ].map((status) => [
+        status,
+        tasks.filter((task) => task.status === status).length,
+      ]),
+    );
+    const limit = Number(url.searchParams.get("limit") ?? 50);
+    const offset = Number(url.searchParams.get("cursor") ?? 0);
+    response.end(
+      JSON.stringify({
+        work: {
+          workId,
+          flow,
+          externalReference: "ASN-E2E-001",
+          status: flow === "inbound" ? "requested" : "allocated",
+          contents: [{ sku: "SKU-E2E", quantity: 12 }],
+          contentsMayBeLimited: false,
+          destination: flow === "outbound" ? "SHIPPING-01" : null,
+          createdAt: generatedAt,
+          updatedAt: generatedAt,
+        },
+        execution: {
+          referencedTaskCount: tasks.length,
+          qualifiedTaskCount: tasks.length,
+          counts,
+          page: {
+            tasks: tasks.slice(offset, offset + limit),
+            nextCursor:
+              tasks.length > offset + limit ? String(offset + limit) : null,
+            generatedAt,
+          },
+        },
+      }),
+    );
     return;
   }
   if (

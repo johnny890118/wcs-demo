@@ -5,17 +5,20 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
   ...(await original<object>()),
   fetchTaskQueue: vi.fn(),
   fetchTaskDetail: vi.fn(),
+  fetchWorkDetail: vi.fn(),
   fetchInventory: vi.fn(),
   fetchLoads: vi.fn(),
   fetchLocations: vi.fn(),
 }));
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/tasks/[[...segments]]";
+import workHandler from "../../pages/api/operations/work/[flow]/[workId]";
 import inventoryHandler from "../../pages/api/operations/inventory";
 import loadsHandler from "../../pages/api/operations/loads";
 import locationsHandler from "../../pages/api/operations/locations";
 import {
   fetchTaskDetail,
+  fetchWorkDetail,
   fetchTaskQueue,
   fetchInventory,
   fetchLoads,
@@ -46,6 +49,52 @@ describe("task read browser boundary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+  });
+  it("keeps Work read method/session/scalar boundaries and no-store", async () => {
+    const valid = {
+      flow: "inbound",
+      workId: "30000000-0000-4000-8000-000000000001",
+    };
+    for (const [method, query, status] of [
+      ["POST", valid, 405],
+      ["GET", { ...valid, flow: ["inbound"] }, 400],
+      ["GET", { ...valid, limit: "101" }, 400],
+    ] as const) {
+      const res = response();
+      await workHandler({ method, query } as never, res as never);
+      expect(res.statusCode).toBe(status);
+      expect(res.setHeader).toHaveBeenCalledWith(
+        "Cache-Control",
+        "private, no-store",
+      );
+    }
+    expect(fetchWorkDetail).not.toHaveBeenCalled();
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const denied = response();
+    await workHandler(
+      { method: "GET", query: valid } as never,
+      denied as never,
+    );
+    expect(denied.statusCode).toBe(401);
+  });
+  it("uses authorized scope for Work and sanitizes failures", async () => {
+    const query = {
+      flow: "inbound",
+      workId: "30000000-0000-4000-8000-000000000001",
+    };
+    vi.mocked(fetchWorkDetail).mockRejectedValue(
+      new Error("private upstream diagnostic"),
+    );
+    const res = response();
+    await workHandler({ method: "GET", query } as never, res as never);
+    expect(fetchWorkDetail).toHaveBeenCalledWith(
+      testOperationalAccess,
+      "inbound",
+      query.workId,
+      { cursor: undefined, limit: undefined },
+    );
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toEqual({ code: "WORK_UNAVAILABLE" });
   });
   it("requires a session before upstream reads", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null);

@@ -17,6 +17,8 @@ import { PgInboundRepository } from "../../apps/api/src/inbound/pg-inbound.repos
 import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.repository";
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
+import { WorkProjectionService } from "../../apps/api/src/operations/work-projection.service";
+import { isWorkDetail } from "../../src/application/operations/work-projection";
 import { InventoryProjectionService } from "../../apps/api/src/operations/inventory-projection.service";
 import { LoadProjectionService } from "../../apps/api/src/operations/load-projection.service";
 import { LocationProjectionService } from "../../apps/api/src/operations/location-projection.service";
@@ -114,6 +116,295 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
 
   afterAll(async () => {
     await pool?.end();
+  });
+
+  it("reloads scoped inbound Work with all-task counts and root-bound microsecond pagination", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      `INSERT INTO loads (id,external_id,receipt_id,sku,quantity,status,current_location_id) SELECT '41000000-0000-4000-8000-000000000002','WORK-SECOND-LOAD',receipt_id,sku,5,status,current_location_id FROM loads WHERE id=$1`,
+      [identifiers.loadId],
+    );
+    await pool.query(
+      `INSERT INTO transport_tasks (id,receipt_id,load_id,source_location_id,destination_location_id,status,created_at) SELECT '51000000-0000-4000-8000-000000000002',receipt_id,'41000000-0000-4000-8000-000000000002',source_location_id,destination_location_id,'unknown',created_at FROM transport_tasks WHERE id=$1`,
+      [identifiers.transportTaskId],
+    );
+    const service = new WorkProjectionService(pool);
+    const first = await service.getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+      { limit: 1 },
+    );
+    expect(isWorkDetail(first)).toBe(true);
+    expect(first.work).toMatchObject({
+      externalReference: command.externalReference,
+      status: "requested",
+    });
+    expect(first.execution).toMatchObject({
+      referencedTaskCount: 2,
+      qualifiedTaskCount: 2,
+      counts: { queued: 1, unknown: 1 },
+    });
+    expect(first.execution.page.tasks).toHaveLength(1);
+    expect(first.execution.page.nextCursor).toBeTruthy();
+    const second = await service.getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+      { limit: 1, cursor: first.execution.page.nextCursor },
+    );
+    expect(second.execution.page.tasks[0].taskId).not.toBe(
+      first.execution.page.tasks[0].taskId,
+    );
+    expect(second.execution.page.nextCursor).toBeNull();
+    await expect(
+      service.getDetail(otherWarehouseId, "inbound", identifiers.receiptId),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      service.getDetail(warehouseId, "outbound", identifiers.receiptId, {
+        cursor: first.execution.page.nextCursor,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      service.getDetail(warehouseId, "inbound", identifiers.loadId, {
+        cursor: first.execution.page.nextCursor,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      service.getDetail(otherWarehouseId, "inbound", identifiers.receiptId, {
+        cursor: first.execution.page.nextCursor,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    await pool.query("DELETE FROM transport_tasks WHERE id=$1", [
+      identifiers.transportTaskId,
+    ]);
+    expect(
+      (await service.getDetail(warehouseId, "inbound", identifiers.receiptId))
+        .execution.qualifiedTaskCount,
+    ).toBe(1);
+    await pool.query(
+      "UPDATE loads SET quantity=1500000000 WHERE receipt_id=$1",
+      [identifiers.receiptId],
+    );
+    const largeContents = await service.getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+    );
+    expect(largeContents.work.contents[0].quantity).toBe(3000000000);
+    expect(isWorkDetail(largeContents)).toBe(true);
+  });
+
+  it("keeps Work root, counts and page in one snapshot during concurrent changes", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    const realPool = pool;
+    let changed = false;
+    const snapshotPool = {
+      connect: async () => {
+        const client = await realPool.connect();
+        return {
+          release: () => client.release(),
+          query: async (sql: string, values?: unknown[]) => {
+            if (sql.startsWith("SELECT status, count") && !changed) {
+              changed = true;
+              await realPool.query(
+                "UPDATE transport_tasks SET status='completed' WHERE id=$1",
+                [identifiers.transportTaskId],
+              );
+            }
+            return client.query(sql, values);
+          },
+        };
+      },
+    } as unknown as Pool;
+    const first = await new WorkProjectionService(snapshotPool).getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+    );
+    expect(first.execution.counts.queued).toBe(1);
+    expect(first.execution.page.tasks[0].status).toBe("queued");
+    const refreshed = await new WorkProjectionService(realPool).getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+    );
+    expect(refreshed.execution.counts.completed).toBe(1);
+  });
+
+  it("keeps partial outbound Work separate from task completion and rejects broken warehouse lineage", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "UPDATE loads SET status='stored',current_location_id=$1 WHERE id=$2",
+      [command.destinationLocationId, identifiers.loadId],
+    );
+    await pool.query(
+      `INSERT INTO loads (id,external_id,receipt_id,sku,quantity,status,current_location_id) SELECT '41000000-0000-4000-8000-000000000002','WORK-SPLIT-LOAD',receipt_id,sku,12,status,current_location_id FROM loads WHERE id=$1`,
+      [identifiers.loadId],
+    );
+    await pool.query(
+      `INSERT INTO inventory_units (id,load_id,sku,quantity,location_id,status) SELECT '81000000-0000-4000-8000-000000000001',id,sku,12,current_location_id,'available' FROM loads WHERE id=$1`,
+      [identifiers.loadId],
+    );
+    await pool.query(
+      `INSERT INTO inventory_units (id,load_id,sku,quantity,location_id,status) SELECT '81000000-0000-4000-8000-000000000002',id,sku,12,current_location_id,'available' FROM loads WHERE id='41000000-0000-4000-8000-000000000002'`,
+    );
+    const outgoing = { ...outboundCommand, quantity: 20 };
+    const created = await new PgOutboundRepository(pool).create(
+      outgoing,
+      outboundIdentifiers,
+      requestHash(outgoing),
+    );
+    expect(created.transportTaskIds).toHaveLength(2);
+    const taskId = created.transportTaskIds[0];
+    await pool.query(
+      "UPDATE transport_tasks SET status='completed' WHERE id=$1",
+      [taskId],
+    );
+    // A completed allocation's historical source need not equal current location.
+    await pool.query(
+      `UPDATE inventory_units SET location_id=$1 WHERE id=(SELECT inventory_unit_id FROM inventory_allocations WHERE id=(SELECT inventory_allocation_id FROM transport_tasks WHERE id=$2))`,
+      [outboundCommand.destinationLocationId, taskId],
+    );
+    const service = new WorkProjectionService(pool);
+    const detail = await service.getDetail(
+      warehouseId,
+      "outbound",
+      created.outboundOrderId,
+      { limit: 1 },
+    );
+    expect(detail.work.status).toBe("allocated");
+    expect(detail.execution).toMatchObject({
+      qualifiedTaskCount: 2,
+      referencedTaskCount: 2,
+      counts: { completed: 1, queued: 1 },
+    });
+    expect(detail.execution.page.tasks).toHaveLength(1);
+    await pool.query(
+      `UPDATE inventory_allocations SET source_location_id=$1 WHERE id=(SELECT inventory_allocation_id FROM transport_tasks WHERE id=$2)`,
+      [command.sourceLocationId, taskId],
+    );
+    expect(
+      (
+        await service.getDetail(
+          warehouseId,
+          "outbound",
+          created.outboundOrderId,
+        )
+      ).execution,
+    ).toMatchObject({ qualifiedTaskCount: 1, referencedTaskCount: 2 });
+    await pool.query(
+      "INSERT INTO warehouses (id,code,name) VALUES ($1,'FOREIGN-WORK','Foreign') ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    await pool.query(
+      "UPDATE inbound_receipts SET warehouse_id=$1 WHERE id=$2",
+      [otherWarehouseId, identifiers.receiptId],
+    );
+    expect(
+      (
+        await service.getDetail(
+          warehouseId,
+          "outbound",
+          created.outboundOrderId,
+        )
+      ).execution.qualifiedTaskCount,
+    ).toBe(0);
+    expect(
+      (
+        await new TaskProjectionService(pool).getQueue(warehouseId, {
+          view: "all",
+        })
+      ).tasks,
+    ).toEqual([]);
+    await expect(
+      service.getDetail(warehouseId, "inbound", identifiers.receiptId),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("excludes foreign task locations, current load location and unresolved equipment without leaking their labels", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    await pool.query(
+      "INSERT INTO warehouses (id,code,name) VALUES ($1,'FOREIGN-WORK','Foreign') ON CONFLICT DO NOTHING",
+      [otherWarehouseId],
+    );
+    const foreign = "21000000-0000-4000-8000-000000000098";
+    await pool.query(
+      "INSERT INTO locations (id,warehouse_id,code,kind,capabilities) VALUES ($1,$2,'FOREIGN-PRIVATE-WORK','storage',ARRAY['inventory.store']) ON CONFLICT DO NOTHING",
+      [foreign, otherWarehouseId],
+    );
+    const service = new WorkProjectionService(pool);
+    for (const column of [
+      "source_location_id",
+      "destination_location_id",
+    ] as const) {
+      const original =
+        column === "source_location_id"
+          ? command.sourceLocationId
+          : command.destinationLocationId;
+      await pool.query(`UPDATE transport_tasks SET ${column}=$1 WHERE id=$2`, [
+        foreign,
+        identifiers.transportTaskId,
+      ]);
+      const result = await service.getDetail(
+        warehouseId,
+        "inbound",
+        identifiers.receiptId,
+      );
+      expect(result.execution).toMatchObject({
+        qualifiedTaskCount: 0,
+        referencedTaskCount: 1,
+      });
+      expect(JSON.stringify(result)).not.toContain("FOREIGN-PRIVATE-WORK");
+      await pool.query(`UPDATE transport_tasks SET ${column}=$1 WHERE id=$2`, [
+        original,
+        identifiers.transportTaskId,
+      ]);
+    }
+    await pool.query("UPDATE loads SET current_location_id=$1 WHERE id=$2", [
+      foreign,
+      identifiers.loadId,
+    ]);
+    const misplaced = await service.getDetail(
+      warehouseId,
+      "inbound",
+      identifiers.receiptId,
+    );
+    expect(misplaced.execution.qualifiedTaskCount).toBe(0);
+    expect(misplaced.work.contentsMayBeLimited).toBe(true);
+    expect(misplaced.work.contents).toEqual([]);
+    await pool.query("UPDATE loads SET current_location_id=$1 WHERE id=$2", [
+      command.sourceLocationId,
+      identifiers.loadId,
+    ]);
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id='FOREIGN-WORK-EQUIPMENT' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    expect(
+      (await service.getDetail(warehouseId, "inbound", identifiers.receiptId))
+        .execution.qualifiedTaskCount,
+    ).toBe(0);
   });
 
   it("denies direct platform table access to granted non-owner roles", async () => {

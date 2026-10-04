@@ -5,6 +5,7 @@ import Link from "next/link";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { hasUserPermission } from "../../../src/application/access/operational-access";
 import type { TaskDetail } from "../../../src/application/operations/task-projection";
+import { workPath } from "../../../src/application/operations/work-projection";
 import {
   fetchTaskDetail,
   WcsProjectionError,
@@ -54,6 +55,12 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
       <h1 className="mt-3 break-words text-3xl font-black">
         {task.source} → {task.destination}
       </h1>
+      <Link
+        className={linkClass}
+        href={workPath(task.flow, detail.originResource.id)}
+      >
+        {t("openWorkContext")}
+      </Link>
       <p className="mt-3 text-lg font-semibold">
         {t(`homeTask_${task.status}` as MessageKey)}
       </p>

@@ -100,6 +100,18 @@ human meaning -> operational context -> permitted action -> evidence/history
 
 ## Operational information architecture
 
+### Latest Owner-approved convergence (2026-10-04)
+
+Work is the top-level operator mental model; WCS Task remains execution.
+The target operator workspace is Home / Work / Live / Exceptions / Inventory /
+Help. Operator, Supervisor, Engineer and Admin are workspace templates, not
+backend authorization branches. Implement A reloadable Work read spine, then B
+exact context handoffs, C job continuity/human meaning and D IA consolidation;
+the older module navigation below is not an instruction to change sidebar first.
+Use existing domain evidence, never fabricated stages or progress. External WMS
+manual fallback remains undecided until S7 has a real integration requirement.
+See `docs/project/operator-experience-convergence-plan.md` for delivery gates.
+
 - **Home**: actionable current state, attention required, waiting work, and next
   permitted actions. KPI/analytics are subordinate to daily operations.
 - **Work**: tasks, inbound, and outbound.

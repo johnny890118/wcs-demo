@@ -86,6 +86,113 @@ test("neutral-first brand survives an operator read journey across themes, local
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("Task to durable Work reload and return needs no remembered ID or browser Back", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/tasks");
+  await page
+    .getByRole("link", { name: /開啟任務/ })
+    .first()
+    .click();
+  await page.getByRole("link", { name: "開啟這筆工作" }).click();
+  await expect(page).toHaveURL(/\/operations\/work\/inbound\//);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "ASN-E2E-001",
+  );
+  const workUrl = page.url();
+  const direct = await page.context().newPage();
+  await direct.goto(workUrl);
+  await expect(direct.getByRole("heading", { level: 1 })).toHaveText(
+    "ASN-E2E-001",
+  );
+  await direct.close();
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "相關執行任務" }),
+  ).toBeVisible();
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const locale of ["zh-TW", "en"] as const) {
+      await page
+        .getByRole("button", {
+          name: locale === "en" ? "EN" : "繁中",
+          exact: true,
+        })
+        .click();
+      for (const mode of ["light", "dark"] as const) {
+        await page
+          .getByRole("button", {
+            name:
+              locale === "en"
+                ? mode === "light"
+                  ? "Light"
+                  : "Dark"
+                : mode === "light"
+                  ? "淺色"
+                  : "深色",
+            exact: true,
+          })
+          .click();
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+        expect(
+          await page.evaluate(
+            () =>
+              document.documentElement.scrollWidth <=
+              document.documentElement.clientWidth,
+          ),
+        ).toBe(true);
+      }
+    }
+  }
+  await page.screenshot({
+    path: test.info().outputPath("work-mobile-dark.png"),
+    fullPage: true,
+  });
+  const taskLink = page
+    .getByRole("link", { name: "Open task", exact: true })
+    .first();
+  await taskLink.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/operations\/tasks\//);
+  await page.getByRole("link", { name: "Open this work", exact: true }).click();
+  await expect(page).toHaveURL(workUrl);
+  const projection = await page.request.get(
+    "/api/operations/work/inbound/30000000-0000-4000-8000-000000000001?limit=1",
+  );
+  expect(projection.status()).toBe(200);
+  expect(projection.headers()["cache-control"]).toContain("no-store");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex, nofollow",
+  );
+  expect(
+    (await page.request.get("/operations/work/inbound/not-a-work-id")).status(),
+  ).toBe(404);
+  await page.goto(
+    "/operations/work/outbound/30000000-0000-4000-8000-000000000001",
+  );
+  await expect(
+    page.getByText("Recorded work state: Stock allocated"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "No resolved tasks are available on this page. This does not establish successful completion.",
+    ),
+  ).toBeVisible();
+  await page
+    .getByRole("combobox")
+    .selectOption("20000000-0000-4000-8000-000000000010");
+  await expect(page.getByRole("heading", { name: /404/ })).toBeVisible();
+  const denied = await page.request.get(
+    "/api/operations/work/inbound/30000000-0000-4000-8000-000000000001",
+  );
+  expect(denied.status()).toBe(404);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: /404/ })).toBeVisible();
+});
+
 async function reviewCreatedWorkflow(page: Page, name: string) {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const locale of ["zh-TW", "en"] as const) {

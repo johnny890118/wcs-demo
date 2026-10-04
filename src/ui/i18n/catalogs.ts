@@ -1,5 +1,31 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  workCase: "Work",
+  workRequestContents: "Recorded work contents",
+  workContentsNotice:
+    "Inbound quantities are recorded receipt load contents; outbound quantities are the order request. These are not current stock balances or evidence of physical movement.",
+  workContentsLimited:
+    "Some content cannot be shown in this bounded warehouse read. Inspect related evidence rather than assuming a complete request picture.",
+  openWorkContext: "Open this work",
+  workUnavailable: "Work evidence is temporarily unavailable",
+  workRecordedStatus: "Recorded work state",
+  workStatus_requested: "Request recorded",
+  workStatus_allocated: "Stock allocated",
+  workStatus_in_progress: "Execution in progress",
+  workStatus_completed: "Completion recorded",
+  workStatus_cancelled: "Cancellation recorded",
+  workStatusNotice:
+    "This is the persisted business-work state. It is not physical clearance or permission to command equipment; review related execution and outcome evidence.",
+  workExecution: "Related execution",
+  workTaskCounts: "Tasks available to inspect / linked tasks",
+  workCountsNotice:
+    "Counts cover all resolved tasks for this work, not only this page. Individual task completion is not whole-work completion. Data may change between pages; refresh to start again.",
+  workIncompleteEvidence:
+    "Some referenced tasks cannot be safely resolved. Do not infer a complete execution picture from this view.",
+  workNoTasks:
+    "No resolved tasks are available on this page. This does not establish successful completion.",
+  workNextTasks: "More related tasks",
+  workRefresh: "Refresh this work",
   helpTitle: "Operation manual",
   spatialPositionBasis:
     "Position evidence identifies a node in a specific topology version; it is not a measured XY position or a floor assignment.",
@@ -586,6 +612,31 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  workCase: "工作案件",
+  workRequestContents: "單據內容",
+  workContentsNotice:
+    "入庫數量來自單據已記錄的載貨內容，出庫數量是訂單請求；不是目前庫存餘額，也不是實體搬運完成的證據。",
+  workContentsLimited:
+    "此倉庫的有限讀取無法呈現完整內容；請調查相關證據，不要推定單據全貌完整。",
+  openWorkContext: "開啟這筆工作",
+  workUnavailable: "暫時無法取得工作證據",
+  workRecordedStatus: "已記錄工作狀態",
+  workStatus_requested: "已記錄請求",
+  workStatus_allocated: "已配貨保留",
+  workStatus_in_progress: "執行中",
+  workStatus_completed: "已記錄完成",
+  workStatus_cancelled: "已記錄取消",
+  workStatusNotice:
+    "這是已保存的業務工作狀態，不代表現場已安全清空或可下令設備；請查看相關執行與結果證據。",
+  workExecution: "相關執行任務",
+  workTaskCounts: "可檢視任務／關聯任務",
+  workCountsNotice:
+    "統計涵蓋這筆工作所有已解析任務，不只是目前頁面。單一任務完成不等於整筆工作完成；翻頁期間資料可能變動，請重新整理以重新開始。",
+  workIncompleteEvidence:
+    "部分關聯任務無法安全解析，不能據此推定執行全貌完整。",
+  workNoTasks: "此頁沒有可解析的任務，不代表工作已成功完成。",
+  workNextTasks: "更多相關任務",
+  workRefresh: "重新整理這筆工作",
   helpTitle: "操作手冊",
   spatialPositionBasis:
     "位置證據識別特定拓撲版本中的節點，不是量測的 XY 位置，也不是樓層指派。",

@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Current A Work read spine: full gate passes 542 fast, 83 real PostgreSQL and 36
+production-build browser tests, public-demo denial harness and separate API build.
+Root/relationship warehouse isolation, cursor scope, partial outbound tasks,
+omitted lineage, large content aggregates and concurrent-write snapshot are
+covered. Independent security review has no blockers; UI permission/empty states,
+direct/new-tab/reload/keyboard/mobile/locales/themes/Axe and qualified switch 404
+pass. Manual `2026-10-04.1` and both rendered PDFs are synchronized. See
+work-read-spine-review.md; exact checkpoint delivery still gates B.
+
 Current independent human-read foundation: focused security/cache/wrapper suite
 passes 20 tests; complete gate passes 522 fast, 79 disposable PostgreSQL and 34
 production-build browser tests, plus public-demo denial harness and API build.
@@ -18,7 +27,8 @@ Validation spans remain 0/60 inside the configured window. This is not deployed
 production p50/p95. Four withdrawal scenarios preserve explicitly delayed reads
 and deny six strict mutation routes each (24 denials). Freshness defaults to 900,
 0 stays strict and expiry is independent. Exact CI/provider/runtime gates remain
-required before Operator Experience A begins (ADR 0029).
+completed at `2e90c6e` before A began (ADR 0029). Independent brand/journey
+requirement `d95609b` is also exact-CI/deployed/runtime verified.
 
 Private rolling-startup followup: real Nest provider factory regression creates
 a sequence race then reloads changed moving-task evidence, preserving unknown

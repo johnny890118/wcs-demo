@@ -10,10 +10,13 @@ import { LoadProjectionController } from "./load-projection.controller";
 import { LoadProjectionService } from "./load-projection.service";
 import { LocationProjectionController } from "./location-projection.controller";
 import { LocationProjectionService } from "./location-projection.service";
+import { WorkProjectionController } from "./work-projection.controller";
+import { WorkProjectionService } from "./work-projection.service";
 
 @Module({
   controllers: [
     OperationsController,
+    WorkProjectionController,
     TaskProjectionController,
     InventoryProjectionController,
     LoadProjectionController,
@@ -21,6 +24,7 @@ import { LocationProjectionService } from "./location-projection.service";
   ],
   providers: [
     OperationsSummaryService,
+    WorkProjectionService,
     TaskProjectionService,
     InventoryProjectionService,
     LoadProjectionService,

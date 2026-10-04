@@ -14,7 +14,7 @@ import { DATABASE_POOL } from "../database/database.module";
 
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-type Row = {
+export type TaskReadRow = {
   id: string;
   status: TaskQueueItem["status"];
   source: string;
@@ -31,7 +31,7 @@ type Row = {
   load_status: string;
   load_location: string;
 };
-const select = `SELECT task.id, task.status, source.code AS source, destination.code AS destination,
+export const taskReadSelect = `SELECT task.id, task.status, source.code AS source, destination.code AS destination,
   descriptor.equipment_id, CASE WHEN task.receipt_id IS NOT NULL THEN 'inbound' ELSE 'outbound' END AS flow,
   COALESCE(receipt.external_reference, orders.external_reference) AS external_reference,
   COALESCE(orders.sku, load.sku) AS sku, COALESCE(allocation.quantity, load.quantity) AS quantity,
@@ -50,9 +50,11 @@ const select = `SELECT task.id, task.status, source.code AS source, destination.
   JOIN loads load ON load.id = COALESCE(task.load_id, inventory.load_id)
   JOIN locations load_location ON load_location.id = load.current_location_id AND load_location.warehouse_id = $1
   WHERE (task.equipment_id IS NULL OR descriptor.equipment_id IS NOT NULL)
-    AND ((receipt.id IS NOT NULL AND load.receipt_id = receipt.id) OR (task.receipt_id IS NULL AND orders.id IS NOT NULL AND inventory_location.id IS NOT NULL AND allocation.outbound_order_id = orders.id))`;
+    AND ((receipt.id IS NOT NULL AND receipt.warehouse_id = $1 AND load.receipt_id = receipt.id)
+      OR (task.receipt_id IS NULL AND orders.id IS NOT NULL AND orders.warehouse_id = $1 AND inventory_location.id IS NOT NULL AND allocation.outbound_order_id = orders.id AND allocation.source_location_id = task.source_location_id))
+    AND EXISTS (SELECT 1 FROM inbound_receipts load_receipt WHERE load_receipt.id = load.receipt_id AND load_receipt.warehouse_id = $1)`;
 
-function item(row: Row): TaskQueueItem {
+export function taskReadItem(row: TaskReadRow): TaskQueueItem {
   return {
     taskId: row.id,
     status: row.status,
@@ -67,6 +69,9 @@ function item(row: Row): TaskQueueItem {
     updatedAt: row.updated_at.toISOString(),
   };
 }
+const select = taskReadSelect;
+const item = taskReadItem;
+type Row = TaskReadRow;
 function invalid(): never {
   throw new BadRequestException({
     code: "INVALID_TASK_QUERY",

@@ -2,7 +2,7 @@ import type { UserPermission } from "../../application/access/operational-access
 import type { Locale } from "../i18n/catalogs";
 import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-03.3";
+export const manualVersion = "2026-10-04.1";
 // Package release identity is distinct from the more granular manual revision.
 export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
@@ -57,6 +57,10 @@ export const manualArticles: readonly ManualArticle[] = [
       text(
         "Task assignment records intended work, not physical movement. Unknown outcomes are unresolved, never success. The current queue is bounded; switch to All work and use Load more when a record is not visible. Text search is not provided in the task queue yet.",
         "任務指派記錄預定工作，不是實體移動。未知結果代表尚未解析，絕不是成功。目前清單有範圍上限；找不到紀錄時切換全部工作並使用載入更多。任務清單目前尚未提供文字搜尋。",
+      ),
+      text(
+        "From task detail, Open this work opens the persisted inbound receipt or outbound order. This link can be reopened or reloaded without remembering IDs. Review recorded contents, work state and all resolved task counts; a completed task is not completion of the entire work. Missing warehouse-qualified evidence remains unresolved. Audit links require separate permission. Exact Live/entity return paths are not yet provided.",
+        "從任務詳情選擇「開啟這筆工作」，查看已保存的入庫單或出庫單。連結可直接重新開啟或重載，不需記住 ID。請閱讀單據內容、工作狀態與所有已解析任務統計；單一任務完成不等於整筆工作完成。未能確認倉庫範圍的證據仍未解析；稽核連結需要獨立權限。即時現場與個別資料的精確返回路徑尚未提供。",
       ),
       text(
         "For shift operators, investigate work and freshness first; for exception responders, inspect alarms and affected tasks; for reviewers, follow permitted audit evidence. These are work paths, not hard-coded role grants.",

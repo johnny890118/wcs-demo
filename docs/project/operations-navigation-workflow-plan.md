@@ -1,6 +1,9 @@
 # Operations navigation and operator workflow slice
 
-Status: Active — independent freshness/read-foundation checkpoint verification
+Status: Complete — independent freshness/read-foundation checkpoint `2e90c6e`.
+Exact CI, Vercel/Render SHA and managed/authenticated runtime verified before A.
+Earlier unchecked activation items below are historical proposals, not outstanding
+work in this checkpoint; the cache remains deliberately unwired.
 
 ## Owner-approved scope correction (2026-10-04)
 

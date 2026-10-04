@@ -1,5 +1,11 @@
 import { measureRequestTiming, recordUpstreamTiming } from "./request-timing";
 import {
+  isWorkDetail,
+  type WorkDetail,
+  type WorkFlow,
+  type WorkQuery,
+} from "../../application/operations/work-projection";
+import {
   isOperationsSummary,
   type OperationsSummary,
 } from "../../application/operations/operations-summary";
@@ -186,6 +192,29 @@ export async function fetchLocations(
   return result;
 }
 
+export async function fetchWorkDetail(
+  access: OperationalAccess,
+  flow: WorkFlow,
+  workId: string,
+  query: WorkQuery = {},
+): Promise<WorkDetail> {
+  const search = new URLSearchParams();
+  if (query.cursor) search.set("cursor", query.cursor);
+  if (query.limit !== undefined) search.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/work/${flow}/${encodeURIComponent(workId)}${
+      search.size ? `?${search}` : ""
+    }`,
+    access,
+  );
+  if (
+    !isWorkDetail(result) ||
+    result.work.flow !== flow ||
+    result.work.workId !== workId.toLowerCase()
+  )
+    throw new Error("Invalid work projection.");
+  return result;
+}
 export async function fetchTaskQueue(
   access: OperationalAccess,
   query: TaskQueueQuery = {},

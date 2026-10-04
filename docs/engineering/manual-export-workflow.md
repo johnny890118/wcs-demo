@@ -5,7 +5,9 @@ The authenticated web manual and both downloadable PDFs share
 together, then regenerate and verify artifacts. This is system guidance, not
 marketing or equipment authority. PDFs contain no warehouse/customer data.
 
-Manual revision `2026-10-03.3` synchronizes contextual Home investigation,
+Manual revision `2026-10-04.1` adds reloadable Task → Work investigation,
+recorded business contents versus stock/physical evidence and qualified whole-
+work task counts without claiming exact Live/entity handoffs. It retains Home investigation,
 actual All work/load-more queue traversal, task-investigation tabs, bounded stock
 hints, unknown recovery outcomes and spatial read qualifications. Software package
 release comes from `package.json` (currently development version `0.1.0`), separately
