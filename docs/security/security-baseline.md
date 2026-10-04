@@ -26,6 +26,15 @@ The supported product entry and authenticated, simulator-backed operations conso
   authorization and active-runtime cleanup exist. Local stop is not task
   completion or deletion authorization. Duplicate command observations now read
   current state instead of retimestamping historical cached transitions.
+  ADR 0028 adds unwired persisted exclusive simulator ownership: DB-time leases
+  capped by reservation expiry, token-fenced scoped/fresh observations and unknown
+  takeover that cannot pretend to restore idle. Initialization/activation require
+  non-future observations within the shared evidence window. Task/load receipt
+  ownership is checked even if a foreign record points at local locations.
+  Private singleton registration excludes all owned workspaces; inactive cleanup
+  refuses any preserved ownership generation. Publication fencing is not command
+  authorization, drained active cleanup or restart restoration; public access
+  remains closed.
 
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.

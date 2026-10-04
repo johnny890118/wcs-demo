@@ -13,8 +13,17 @@ export class PgEquipmentObservationSink implements EquipmentObservationSink {
   async publish(
     observation: EquipmentObservationWrite,
   ): Promise<"applied" | "ignored"> {
-    const result = await this.pool.query(
-      `INSERT INTO equipment_observations
+    return persistEquipmentObservation(this.pool, observation);
+  }
+}
+
+/** Reusable on a leased owner's transaction connection; preserves sequence semantics. */
+export async function persistEquipmentObservation(
+  database: Pick<Pool, "query">,
+  observation: EquipmentObservationWrite,
+): Promise<"applied" | "ignored"> {
+  const result = await database.query(
+    `INSERT INTO equipment_observations
         (equipment_id, topology_id, topology_revision, node_id, status,
          task_id, load_id, fault_code, connection_status, quality, sequence,
          observed_at, received_at, source)
@@ -35,22 +44,21 @@ export class PgEquipmentObservationSink implements EquipmentObservationSink {
          source = EXCLUDED.source
        WHERE equipment_observations.sequence < EXCLUDED.sequence
        RETURNING equipment_id`,
-      [
-        observation.equipmentId,
-        observation.topologyId,
-        observation.topologyRevision,
-        observation.nodeId,
-        observation.status,
-        observation.taskId,
-        observation.loadId,
-        observation.faultCode,
-        observation.connectionStatus,
-        observation.quality,
-        observation.sequence,
-        observation.observedAt,
-        observation.source,
-      ],
-    );
-    return result.rowCount === 1 ? "applied" : "ignored";
-  }
+    [
+      observation.equipmentId,
+      observation.topologyId,
+      observation.topologyRevision,
+      observation.nodeId,
+      observation.status,
+      observation.taskId,
+      observation.loadId,
+      observation.faultCode,
+      observation.connectionStatus,
+      observation.quality,
+      observation.sequence,
+      observation.observedAt,
+      observation.source,
+    ],
+  );
+  return result.rowCount === 1 ? "applied" : "ignored";
 }

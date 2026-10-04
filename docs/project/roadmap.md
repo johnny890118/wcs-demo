@@ -223,6 +223,11 @@ isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
   virtual time with owned observation guards and resource bounds (ADR 0027).
   They are not activated or authorized public runtimes; persisted leases/fencing,
   restart and active cleanup must precede service registration.
+- Durable simulator ownership has trusted DB-time claim/renew/activation,
+  unknown takeover and scoped/fresh token-fenced observation persistence (ADR
+  0028), with isolated inbound/outbound PostgreSQL execution proof. It remains
+  unwired; restart restoration, persisted browser authority and active cleanup
+  are not complete.
 
 - [ ] Isolated public-demo session persistence with TTL, restart-resumable cleanup, quotas, global capacity guards, and bounded creation/scenario rates
 - [ ] Guided public scenarios and safe sandbox through the real WMS Lite/WCS/simulator/observation path
@@ -268,10 +273,14 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-S2 and S3 admission/reference-snapshot/inactive-cleanup/creation-budget delivery gates are complete. Finish
-the independent isolated-simulator checkpoint and its exact-commit
-delivery gates, then establish isolated virtual runtime ownership and
-every-request persisted access before any public entry. Do not implement an
+S2 and S3 admission/reference-snapshot/inactive-cleanup/creation-budget/local-bundle
+delivery gates are complete. Finish durable ownership's exact delivery gates,
+then take the Owner-directed independent freshness/navigation/operator-workflow
+slice recorded in the active S3 plan. Default read freshness becomes configurable
+900 seconds only in that slice; timing and operator workflow outcomes must be
+separately demonstrated, not inferred from auth speed. Resume S3 restart,
+every-request persisted access and active cleanup before any public entry.
+Do not implement an
 unscoped reset/replay UI prematurely. Preserve
 audit evidence outside resettable scenario state, production hard-deny and bounded
 resource ownership. Follow the existing approved S3–S8 sequence, not a new roadmap.

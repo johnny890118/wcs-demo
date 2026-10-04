@@ -1,5 +1,14 @@
 # Gap Analysis
 
+S3 ownership update: trusted DB-time simulator claim/renew/activation and fenced
+fresh observation persistence now have disposable PostgreSQL execution evidence.
+Owned descriptors cannot enter the private singleton; any ownership generation
+blocks inactive cleanup. This does not close restart restoration, persisted
+browser authority, active drain/cleanup, HTTP/scenario/storage limits or scoped
+reset/replay gaps. Public issuance remains closed. The next Owner-directed slice
+addresses 900-second read freshness, measured navigation/data loading and operator
+workflow UX separately; production authenticated timing is still unmeasured.
+
 | Area                 | Current                            | Target                                                      | Priority |
 | -------------------- | ---------------------------------- | ----------------------------------------------------------- | -------- |
 | Domain               | React state and numeric codes      | Typed aggregates, explicit lifecycle/invariants             | P0       |

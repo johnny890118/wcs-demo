@@ -73,7 +73,7 @@ suite("PostgreSQL fenced inactive reference cleanup", () => {
       )
     ).rows.map((row) => row.workspace_warehouse_id);
     await pool!.query(
-      "TRUNCATE demo_creation_budget,demo_reference_cleanup_jobs,demo_reference_cleanup_archives,demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
+      "TRUNCATE demo_simulator_runtime_owners,demo_simulator_owner_generations,demo_creation_budget,demo_reference_cleanup_jobs,demo_reference_cleanup_archives,demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
     );
     if (ids.length) {
       // Only this disposable suite's explicit owned namespaces, including rejection fixtures.

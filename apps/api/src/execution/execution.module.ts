@@ -124,6 +124,8 @@ function simulatorHeartbeatIntervalMs(): number {
              ON observation.equipment_id = descriptor.equipment_id
            WHERE descriptor.active = true
              AND descriptor.adapter_key = 'simulator.mobile-transport'
+             AND NOT EXISTS (SELECT 1 FROM demo_reference_workspaces owned
+               WHERE owned.workspace_warehouse_id=descriptor.warehouse_id)
            ORDER BY descriptor.equipment_id`,
         );
         for (const row of result.rows) {

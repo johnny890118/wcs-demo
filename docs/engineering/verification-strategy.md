@@ -1,5 +1,21 @@
 # Verification Strategy
 
+Current S3 durable simulator ownership: focused policy/type/API build and real
+PostgreSQL ownership regressions exercise concurrent exclusive claims, independent
+reservation/lease expiry, capped renewal, unknown takeover/stale-token denial,
+atomic activation/publication rollback, cross-warehouse equipment/topology/task/
+load receipt lineage, initialization and activation DB-time freshness, reset/RLS
+history survival and owned inbound/outbound execution isolated from a second
+workspace. Independent review required freshness and receipt/outbound inventory
+lineage hardening; adversarial cases now test these, including the inherited
+outbound inventory-unit carrier. Final independent review has no blockers; full
+verification passes 504 fast, 79 real PostgreSQL (68 prior + 11 ownership), 34
+production-build browser checks and closed-public-boundary HTTP harness; API
+build passes. Secrets, dependency and manual/PDF drift checks pass; zero dependency
+vulnerabilities and the existing 15 legacy lint warnings remain. No UI or PDF was
+changed; existing bilingual/mobile/theme/keyboard/axe walkthroughs remain green.
+No managed/public runtime enablement is inferred (ADR 0028).
+
 Latest S3 isolated simulator bundle: full gate passes 501 fast, 68 real
 PostgreSQL, 34 production-build browser checks and closed-public-boundary HTTP
 harness; API build passes. Fresh independent review found queued caller mutation;

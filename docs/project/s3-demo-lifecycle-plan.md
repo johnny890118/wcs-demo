@@ -1,6 +1,6 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — isolated simulator-bundle slice.
+Status: Active — durable simulator-ownership slice.
 
 ## Entry evidence and workflow
 
@@ -203,3 +203,45 @@ caller-mutated queued intent and runtime/config/command rejection. One shared
 publisher regression verifies current-state publication on duplicate. These are
 local in-process bundle tests, not persisted worker ownership or deployed public
 session evidence. Existing human UI/UX gates pass without UI/PDF changes.
+
+## Current coherent slice — durable runtime ownership
+
+Simulator checkpoint `5faffdadb41ab8f8bd183d39e507fdad9ec59d79` is pushed;
+Verify `37180869615` has both jobs successful; exact Vercel/Render deployment,
+post-deployment managed runtime and clean tree are confirmed. Next high-risk
+ownership/observation foundation follows ADR 0028. Persist claim/renewal/activation
+and unknown takeover; fence every observation by owner token/session expiry and
+record scope. Keep the private singleton out of owned workspaces and refuse
+inactive cleanup once any owner exists. No public route/worker enablement.
+Required gates: focused policy, real PostgreSQL concurrent claims/renewal/deadline/
+takeover/scope/activation/event rollback/reset/RLS and normalized execution proof,
+full verification/API build, independent review, checkpoint/push, exact delivery
+and clean tree before following work.
+
+Final ownership verification passes 504 fast, 79 real PostgreSQL, 34 browser
+checks, the closed-public-boundary HTTP harness and API build. Independent review
+found freshness and receipt/outbound inventory lineage gaps; DB-time evidence
+checks and explicit disjoint flow predicates resolve them with real adversarial
+regressions. Final read-only review has no blockers. Owned inbound and outbound
+execute through existing WMS Lite/WCS ports without changing the second workspace.
+No managed simulator worker, anonymous authority, active cleanup or restart
+restoration is enabled. Existing human UX/a11y gates pass with no UI/PDF changes.
+
+## Owner-directed next independent slice
+
+After durable ownership reaches verified checkpoint, push, exact CI/deployment,
+managed runtime and a clean tree, interrupt neither that delivery nor its WIP.
+The next independent slice combines three separately evidenced concerns:
+configurable human read freshness defaults to 900 seconds (0 stays strict),
+actual Operations navigation/data-loading critical-path improvement, and
+operator-readable/actionable workflow UX. Obtain a same-workload before baseline
+before changing navigation; distinguish local production build, production-like
+and deployed production measurements. Preserve strict mutation/warehouse-switch
+validation, expiry, permission/scope checks, command truth and audit. Cached reads
+are not command truth and must be scoped, bounded, invalidated and visibly stale
+on refresh failure. Prefer a minimal Pages Router solution, not a framework or
+state-library migration without evidence. Review real operator scenarios,
+screenshots, bilingual/responsive/keyboard behavior and workflow navigation count
+alongside total and stage timing. See Owner instructions of 2026-10-04; this
+supersedes the earlier 3600-second default intent, not the delivered checkpoint.
+After its own full gates and clean deployment checkpoint, resume S3 automatically.

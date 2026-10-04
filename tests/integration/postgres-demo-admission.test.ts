@@ -27,7 +27,7 @@ function repository(maximumReservations = 2, ttlSeconds = 300) {
 describeIntegration("PostgreSQL demo admission control ledger", () => {
   beforeEach(async () => {
     await pool?.query(
-      "TRUNCATE demo_creation_budget,demo_reference_cleanup_jobs,demo_reference_cleanup_archives,demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
+      "TRUNCATE demo_simulator_runtime_owners,demo_simulator_owner_generations,demo_creation_budget,demo_reference_cleanup_jobs,demo_reference_cleanup_archives,demo_reference_workspaces,demo_session_control_events,demo_session_reservations",
     );
   });
   afterAll(async () => {

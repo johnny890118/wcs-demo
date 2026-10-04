@@ -136,6 +136,11 @@ export class PgDemoReferenceCleanupRepository
         [sessionId],
       );
       if (!expired.rowCount) throw new DemoCleanupError("UNAVAILABLE");
+      const runtime = await client.query(
+        "SELECT session_id FROM demo_simulator_owner_generations WHERE session_id=$1",
+        [sessionId],
+      );
+      if (runtime.rowCount) throw new DemoCleanupError("BUSY");
       const metadata = await client.query<Workspace>(
         "SELECT * FROM demo_reference_workspaces WHERE session_id=$1 FOR UPDATE",
         [sessionId],
