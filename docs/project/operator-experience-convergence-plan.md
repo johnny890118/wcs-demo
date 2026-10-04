@@ -1,6 +1,6 @@
 # Operator Experience A–D convergence
 
-Status: Active — A locally verified; checkpoint/CI/deployment gates in progress.
+Status: Active — A delivered; B exact-context handoff evidence/design in progress.
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -41,8 +41,14 @@ records the load-bearing read boundary. No schema/domain lifecycle changes.
 - [x] Full `verify`, API build, independent security, operator/Emil review.
 - [x] End-to-end journey desktop/tablet/mobile widths, themes/locales/keyboard/
       Axe; record actual evidence versus hardware or future-capability limits.
-- [ ] Durable knowledge/evidence, staged/secret review, independent checkpoint/
+- [x] Durable knowledge/evidence, staged/secret review, independent checkpoint/
       push/exact CI/both deployment SHAs/runtime/clean; automatically continue B.
+
+A checkpoint `d8605d4c26b35e12fbae52f507ab81d43a18f342` is pushed. Exact-HEAD
+CI run `37203351423` passed both verification and deployment-smoke jobs. Vercel
+Ready and Render Live resolve that full SHA; managed checks and authenticated
+production Task → Work → reload → Task pass. This is read-only runtime evidence,
+not a production latency benchmark or complete B–D operator journey.
 
 Each slice repeats the same engineering/delivery gates. Tests alone do not prove
 operator understanding. Report missing handoffs as next-slice gaps, not success.

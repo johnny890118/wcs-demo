@@ -1,7 +1,8 @@
 # ADR 0030 — Reloadable Work read spine
 
-Status: Accepted and locally verified, 2026-10-04; exact checkpoint delivery gates
-follow push. See `docs/engineering/work-read-spine-review.md`.
+Status: Accepted and delivered, 2026-10-04; checkpoint `d8605d4`, exact-HEAD CI,
+both managed deployments and authenticated read runtime verified.
+See `docs/engineering/work-read-spine-review.md`.
 
 ## Intent and evidence
 

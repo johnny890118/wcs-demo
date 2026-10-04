@@ -45,5 +45,13 @@ regression resolve it without expanding supported command quantities.
 
 Remaining UX: exact Live/entity/exception selections and owned returns (B),
 created-job continuation/action/outcome meaning (C), consolidated operator IA and
-five complete jobs (D). Read evidence never authorizes commands. Deployment,
-exact-HEAD CI, authenticated runtime and clean state are post-push delivery gates.
+five complete jobs (D). Read evidence never authorizes commands.
+
+Delivery: checkpoint `d8605d4c26b35e12fbae52f507ab81d43a18f342` pushed to main;
+exact-HEAD CI `37203351423` verification and deployment-smoke jobs succeeded.
+Vercel Ready and Render Live were checked against the full SHA. Managed demo
+checks passed for both services. Existing authenticated production session opened
+the active inbound Task, followed its owned Work link, reloaded that Work and
+returned to the same Task without sidebar/search/ID entry/Browser Back. Recorded
+request, root state and task counts were visible. No production mutation or
+performance benchmark was performed. Working tree was clean after push.
