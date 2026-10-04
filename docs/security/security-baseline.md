@@ -35,6 +35,12 @@ The supported product entry and authenticated, simulator-backed operations conso
   refuses any preserved ownership generation. Publication fencing is not command
   authorization, drained active cleanup or restart restoration; public access
   remains closed.
+  Private-demo rolling initialization retries at most three times only when an
+  initial observation loses a monotonic-sequence race; each attempt reloads
+  persisted state into a new adapter. Uncertain moving/task evidence remains
+  unknown. There is no arbitrary sequence bump, command retry, public-owner retry
+  or ignored publication error. Sustained conflict still fails startup. This
+  narrow deployment repair is not cross-process private worker fencing.
 
 - The API applies no-store, deny-framing, no-sniff, no-referrer, and restrictive content-security response headers. The web shell applies browser security headers globally and sends `noindex, nofollow` for operations and API routes.
 - A bounded fixed-window limiter provides per-client, in-process defense in depth. Its client map is capped at 10,000 entries and stale entries are pruned. Multi-instance deployments must additionally enforce a shared or edge rate limit because local counters do not coordinate across replicas.

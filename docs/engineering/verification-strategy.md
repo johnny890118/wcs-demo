@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Private rolling-startup followup: real Nest provider factory regression creates
+a sequence race then reloads changed moving-task evidence, preserving unknown
+status/task rather than publishing stale idle state. Separate tests bound conflict
+retry to three, retain failure and reject retries for unrelated DB/validation
+errors. No command retries or owned-public runtime retries are introduced.
+Independent review has no blockers. Full verification passes 508 fast, 79 real
+PostgreSQL, 34 production-build browser tests, closed-public-boundary HTTP harness
+and API build. Exact followup CI/deployment/runtime still gate delivery.
+
 Current S3 durable simulator ownership: focused policy/type/API build and real
 PostgreSQL ownership regressions exercise concurrent exclusive claims, independent
 reservation/lease expiry, capped renewal, unknown takeover/stale-token denial,

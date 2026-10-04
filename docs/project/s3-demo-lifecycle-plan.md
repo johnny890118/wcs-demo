@@ -229,6 +229,21 @@ restoration is enabled. Existing human UX/a11y gates pass with no UI/PDF changes
 
 ## Owner-directed next independent slice
 
+Ownership checkpoint `3288ffc6e9435cdccef63067b41df40196ea659c` is pushed;
+Vercel succeeds and OCI deployment-smoke passes. Render applied migration 0020
+but private-demo rolling startup failed when the old instance heartbeat advanced
+the persisted observation sequence after the new instance read it. Delivery is
+not complete. A narrow followup retries a fresh entire private initialization at
+most three times, and only for a typed sequence conflict. Each attempt re-reads
+persisted state and constructs a new adapter, preserving uncertain in-flight
+tasks as unknown; it never bumps a stale runtime sequence or retries commands.
+Repeated conflict and unrelated failures still fail closed. This is not durable
+multi-replica private simulator ownership or S3 restart restoration. Exact
+followup CI/deployment/runtime gates must pass before the next slice begins.
+Followup full verification passes 508 fast, 79 real PostgreSQL, 34 browser checks,
+closed-public-boundary HTTP harness and API build; independent review has no
+blockers. Ownership checkpoint CI `37182241902` has both jobs successful.
+
 After durable ownership reaches verified checkpoint, push, exact CI/deployment,
 managed runtime and a clean tree, interrupt neither that delivery nor its WIP.
 The next independent slice combines three separately evidenced concerns:

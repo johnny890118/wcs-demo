@@ -9,6 +9,7 @@ import { ManualClock } from "../../../../src/infrastructure/simulator/manual-clo
 import { SimulatorEquipmentAdapter } from "../../../../src/infrastructure/simulator/simulator-equipment-adapter";
 import { ObservationPublishingEquipmentPort } from "../../../../src/infrastructure/simulator/observation-publishing-equipment-port";
 import { restoreSimulatorRegistration } from "../../../../src/infrastructure/simulator/simulator-restoration";
+import { initializePrivateSimulatorWithRetry } from "../../../../src/infrastructure/simulator/private-simulator-initialization";
 import type {
   EquipmentCommandType,
   EquipmentDescriptor,
@@ -95,15 +96,16 @@ function simulatorHeartbeatIntervalMs(): number {
         pool: Pool,
         observationSink: PgEquipmentObservationSink,
       ): Promise<EquipmentPort> => {
-        const adapter = new SimulatorEquipmentAdapter();
-        const observed = new ObservationPublishingEquipmentPort(
-          adapter,
-          observationSink,
-          undefined,
-          { disconnectOnDestroy: false },
-        );
-        const result = await pool.query<SimulatorEquipmentRow>(
-          `SELECT descriptor.equipment_id, descriptor.adapter_key,
+        return initializePrivateSimulatorWithRetry(async () => {
+          const adapter = new SimulatorEquipmentAdapter();
+          const observed = new ObservationPublishingEquipmentPort(
+            adapter,
+            observationSink,
+            undefined,
+            { disconnectOnDestroy: false },
+          );
+          const result = await pool.query<SimulatorEquipmentRow>(
+            `SELECT descriptor.equipment_id, descriptor.adapter_key,
              descriptor.capabilities, descriptor.supported_commands,
              descriptor.constraints, topology.id AS topology_id,
              topology.revision AS topology_revision,
@@ -127,53 +129,54 @@ function simulatorHeartbeatIntervalMs(): number {
              AND NOT EXISTS (SELECT 1 FROM demo_reference_workspaces owned
                WHERE owned.workspace_warehouse_id=descriptor.warehouse_id)
            ORDER BY descriptor.equipment_id`,
-        );
-        for (const row of result.rows) {
-          const descriptor: EquipmentDescriptor = {
-            equipmentId: row.equipment_id,
-            adapterKey: row.adapter_key,
-            capabilities: row.capabilities,
-            supportedCommands: row.supported_commands,
-            constraints: row.constraints,
-          };
-          const state = adapter.register(
-            descriptor,
-            restoreSimulatorRegistration(
-              {
-                status: row.observation_status,
-                taskId: row.observation_task_id,
-                loadId: row.observation_load_id,
-                topologyId: row.observation_topology_id,
-                topologyRevision: row.observation_topology_revision,
-                nodeId: row.observation_node_id,
-                connectionStatus: row.observation_connection_status,
-                quality: row.observation_quality,
-              },
-              row.topology_id !== null && row.topology_revision !== null
-                ? { id: row.topology_id, revision: row.topology_revision }
-                : null,
-            ),
           );
-          const lastSequence =
-            row.observation_sequence === null
-              ? -1
-              : Number(row.observation_sequence);
-          observed.track(row.equipment_id, lastSequence, {
-            topologyId: row.topology_id,
-            topologyRevision: row.topology_revision,
-            source: "deterministic-simulator",
+          for (const row of result.rows) {
+            const descriptor: EquipmentDescriptor = {
+              equipmentId: row.equipment_id,
+              adapterKey: row.adapter_key,
+              capabilities: row.capabilities,
+              supportedCommands: row.supported_commands,
+              constraints: row.constraints,
+            };
+            const state = adapter.register(
+              descriptor,
+              restoreSimulatorRegistration(
+                {
+                  status: row.observation_status,
+                  taskId: row.observation_task_id,
+                  loadId: row.observation_load_id,
+                  topologyId: row.observation_topology_id,
+                  topologyRevision: row.observation_topology_revision,
+                  nodeId: row.observation_node_id,
+                  connectionStatus: row.observation_connection_status,
+                  quality: row.observation_quality,
+                },
+                row.topology_id !== null && row.topology_revision !== null
+                  ? { id: row.topology_id, revision: row.topology_revision }
+                  : null,
+              ),
+            );
+            const lastSequence =
+              row.observation_sequence === null
+                ? -1
+                : Number(row.observation_sequence);
+            observed.track(row.equipment_id, lastSequence, {
+              topologyId: row.topology_id,
+              topologyRevision: row.topology_revision,
+              source: "deterministic-simulator",
+            });
+            await observed.publish(state);
+          }
+          const logger = new Logger("SimulatorObservationHeartbeat");
+          observed.startHeartbeat(simulatorHeartbeatIntervalMs(), (error) => {
+            logger.error(
+              error instanceof Error
+                ? error.message
+                : "Simulator heartbeat failed.",
+            );
           });
-          await observed.publish(state);
-        }
-        const logger = new Logger("SimulatorObservationHeartbeat");
-        observed.startHeartbeat(simulatorHeartbeatIntervalMs(), (error) => {
-          logger.error(
-            error instanceof Error
-              ? error.message
-              : "Simulator heartbeat failed.",
-          );
+          return observed;
         });
-        return observed;
       },
       inject: [DATABASE_POOL, PgEquipmentObservationSink],
     },

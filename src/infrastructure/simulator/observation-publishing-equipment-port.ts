@@ -11,6 +11,15 @@ import {
 import type { EquipmentDescriptor } from "../../domain/equipment/equipment-descriptor";
 import type { EquipmentState } from "../../domain/equipment/equipment-state-machine";
 
+export class ObservationSequenceConflict extends Error {
+  constructor(equipmentId: string, sequence: number) {
+    super(
+      `Observation sequence ${sequence} for ${equipmentId} was rejected as out of order.`,
+    );
+    this.name = "ObservationSequenceConflict";
+  }
+}
+
 export class ObservationPublishingEquipmentPort implements EquipmentPort {
   readonly #sequences = new Map<string, number>();
   readonly #equipmentIds = new Set<string>();
@@ -179,9 +188,7 @@ export class ObservationPublishingEquipmentPort implements EquipmentPort {
       ),
     );
     if (result === "ignored") {
-      throw new Error(
-        `Observation sequence ${sequence} for ${state.equipmentId} was rejected as out of order.`,
-      );
+      throw new ObservationSequenceConflict(state.equipmentId, sequence);
     }
     this.#sequences.set(state.equipmentId, sequence);
   }
