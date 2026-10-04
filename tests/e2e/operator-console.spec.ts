@@ -15,6 +15,75 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+test("neutral-first brand survives an operator read journey across themes, locales and device widths", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signIn(page, "/operations");
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const locale of ["zh-TW", "en"] as const) {
+      await page
+        .getByRole("button", {
+          name: locale === "en" ? "EN" : "繁中",
+          exact: true,
+        })
+        .click();
+      for (const theme of ["light", "dark"] as const) {
+        await page
+          .getByRole("button", {
+            name:
+              locale === "en"
+                ? theme === "light"
+                  ? "Light"
+                  : "Dark"
+                : theme === "light"
+                  ? "淺色"
+                  : "深色",
+            exact: true,
+          })
+          .click();
+        await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+        for (const route of [
+          "/operations",
+          "/operations/tasks",
+          "/operations/inventory",
+          "/operations/warehouse",
+        ]) {
+          await page.locator(`a[href="${route}"]:visible`).first().click();
+          await expect(page).toHaveURL(route);
+          await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              accent: styles.getPropertyValue("--accent").trim(),
+              success: styles.getPropertyValue("--success").trim(),
+              overflow:
+                document.documentElement.scrollWidth >
+                document.documentElement.clientWidth,
+            };
+          });
+          expect(palette.accent.toLowerCase()).toBe("#e6f000");
+          expect(palette.success).not.toBe(palette.accent);
+          expect(palette.overflow).toBe(false);
+          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+            [],
+          );
+        }
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+        await page.screenshot({
+          path: test
+            .info()
+            .outputPath(`brand-live-${width}-${locale}-${theme}.png`),
+          fullPage: true,
+        });
+      }
+    }
+  }
+});
+
 const scenarioApi = "http://127.0.0.1:3101";
 
 async function reviewCreatedWorkflow(page: Page, name: string) {

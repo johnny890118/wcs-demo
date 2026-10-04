@@ -34,7 +34,7 @@ export default function PlatformPage({
         className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl place-items-center px-4 py-16 sm:px-6 lg:px-8"
       >
         <section className="w-full max-w-2xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
             {t("operations")}
           </p>
           <h1 className="mt-5 text-4xl font-black leading-tight tracking-[-0.04em] sm:text-6xl">

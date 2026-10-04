@@ -185,7 +185,7 @@ export function AlarmRecoveryPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(280px,0.7fr)_minmax(0,1.3fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           {t("actionableAlarms")}
         </p>
         <label className="mt-5 block text-sm font-semibold">
@@ -289,7 +289,7 @@ export function AlarmRecoveryPanel({
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
         aria-labelledby="alarm-action-title"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           {t("confirmation")}
         </p>
         <h2 id="alarm-action-title" className="mt-2 text-xl font-black">

@@ -106,7 +106,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
     <OperationsShell>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
             {t("overview")}
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
@@ -292,7 +292,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                   {label}
                 </p>
                 <Icon
-                  className="h-5 w-5 text-[var(--accent)]"
+                  className="h-5 w-5 text-[var(--accent-strong)]"
                   aria-hidden="true"
                 />
               </div>

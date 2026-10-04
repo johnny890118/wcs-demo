@@ -27,7 +27,7 @@ export default function AlarmOperationsPage({
   return (
     <OperationsShell current="alarms">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           {t("alarmOperations")}
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">

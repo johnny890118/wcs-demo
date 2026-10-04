@@ -45,7 +45,7 @@ export default function AboutPage({ siteOrigin }: PublicPageProps) {
         id="main-content"
         className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
           {t("aboutEyebrow")}
         </p>
         <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-[-0.035em] sm:text-6xl">
@@ -68,7 +68,7 @@ export default function AboutPage({ siteOrigin }: PublicPageProps) {
                 className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-panel)]"
               >
                 <Icon
-                  className="h-6 w-6 text-[var(--accent)]"
+                  className="h-6 w-6 text-[var(--accent-strong)]"
                   aria-hidden="true"
                 />
                 <h3 className="mt-8 text-base font-bold">{title}</h3>

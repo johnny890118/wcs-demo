@@ -190,7 +190,7 @@ export function InboundWorkflowPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           {t("inboundRequest")}
         </p>
         <h2 className="mt-2 text-xl font-black">{t("inboundRequestTitle")}</h2>
@@ -338,7 +338,7 @@ export function InboundWorkflowPanel({
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
         aria-labelledby="inbound-confirmation-title"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           {t("confirmation")}
         </p>
         <h2 id="inbound-confirmation-title" className="mt-2 text-xl font-black">
