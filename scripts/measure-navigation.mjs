@@ -6,6 +6,7 @@ import { Pool } from "pg";
 
 // Disposable, loopback-only production-like stack. Never reads production credentials.
 const label = process.argv[2];
+const workflow = process.argv[3] === "workflow";
 if (!/^(before|after)$/.test(label ?? "")) {
   throw new Error("Provide measurement label: before or after.");
 }
@@ -30,7 +31,13 @@ const environment = {
   API_SERVICE_PERMISSIONS:
     "access.resolve,audit.view,operations.view,inbound.create,outbound.create,transport.execute,alarm.inject,alarm.acknowledge,alarm.recover",
   API_RATE_LIMIT_MAX: "10000",
-  HUMAN_SESSION_READ_FRESHNESS_SECONDS: label === "before" ? "0" : "3600",
+  HUMAN_SESSION_READ_FRESHNESS_SECONDS: workflow
+    ? label === "before"
+      ? "3600"
+      : "900"
+    : label === "before"
+      ? "0"
+      : "3600",
   SWP_LIFECYCLE_ENVIRONMENT: "test",
   SWP_DEPLOYMENT_PROFILE: "private_demo",
   SWP_EQUIPMENT_SOURCE: "simulation",
@@ -125,6 +132,20 @@ try {
   const page = await browser.newPage({
     viewport: { width: 1440, height: 900 },
   });
+  if (workflow)
+    await page.addInitScript(() => {
+      document.addEventListener(
+        "click",
+        (event) => {
+          if (
+            event.target instanceof Element &&
+            event.target.closest('a[href^="/operations"]')
+          )
+            performance.mark("swp.benchmark_click");
+        },
+        true,
+      );
+    });
   await page.goto(`${baseURL}/login`);
   await page.locator("#username").fill(environment.DEMO_ADMIN_USERNAME);
   await page.locator("#password").fill(environment.DEMO_ADMIN_PASSWORD);
@@ -132,26 +153,59 @@ try {
   await page.waitForURL(`${baseURL}/operations`);
   await page.locator("h1").waitFor();
   const samples = [];
-  const routes = [
-    "/operations/tasks",
-    "/operations/inventory",
-    "/operations/warehouse",
-  ];
+  const routes = workflow
+    ? [
+        "/operations/tasks",
+        "/operations/inventory",
+        "/operations/loads",
+        "/operations/locations",
+        "/operations/warehouse",
+        "/operations/alarms",
+        "/operations",
+      ]
+    : ["/operations/tasks", "/operations/inventory", "/operations/warehouse"];
   for (let index = 0; index < 63; index++) {
     const route = routes[index % routes.length];
-    const responsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes("/_next/data/") &&
-        response.url().split("?")[0].endsWith(`${route}.json`),
-    );
+    const responsePromise = workflow
+      ? null
+      : page.waitForResponse(
+          (response) =>
+            response.url().includes("/_next/data/") &&
+            response.url().split("?")[0].endsWith(`${route}.json`),
+        );
+    const responseStages = [];
+    const captureResponse = (response) => {
+      if (
+        response.url().includes("/_next/data/") ||
+        response.url().includes("/api/operations/")
+      )
+        responseStages.push(response.headers()["server-timing"] ?? "");
+    };
+    if (workflow) page.on("response", captureResponse);
     const started = performance.now();
     await page.locator(`a[href="${route}"]:visible`).first().click();
-    const response = await responsePromise;
+    const response = responsePromise ? await responsePromise : null;
     await page.waitForURL(`${baseURL}${route}`);
     await page.locator("h1").waitFor();
-    if (response.status() !== 200)
+    if (response && response.status() !== 200)
       throw new Error("Authenticated navigation failed.");
-    const timing = response.headers()["server-timing"] ?? "";
+    let eventToUsable = null;
+    if (workflow) {
+      await page.waitForFunction(
+        () => !document.querySelector('[data-projection-state="loading"]'),
+      );
+      eventToUsable = await page.evaluate(async () => {
+        await new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        );
+        const mark = performance.getEntriesByName("swp.benchmark_click").at(-1);
+        return mark ? performance.now() - mark.startTime : null;
+      });
+      page.off("response", captureResponse);
+    }
+    const timing = workflow
+      ? responseStages.join(",")
+      : response.headers()["server-timing"] ?? "";
     const stages = {};
     for (const match of timing.matchAll(/([a-z_]+);dur=(\d+(?:\.\d+)?)/g))
       stages[match[1]] = Number(match[2]);
@@ -159,12 +213,14 @@ try {
       samples.push({
         route,
         navigation_total: performance.now() - started,
+        ...(workflow ? { event_to_usable: eventToUsable } : {}),
         ...stages,
       });
   }
   const metrics = {};
   for (const stage of [
     "navigation_total",
+    ...(workflow ? ["event_to_usable"] : []),
     "navigation_server",
     "session_validation",
     "projection_api",
@@ -295,11 +351,15 @@ try {
     metrics,
     securityRuntime,
     browserNavigationEntries,
+    workflow,
+    readFreshnessSeconds: Number(
+      environment.HUMAN_SESSION_READ_FRESHNESS_SECONDS,
+    ),
     measurements: samples,
   };
   mkdirSync("tmp/navigation", { recursive: true });
   writeFileSync(
-    `tmp/navigation/${label}.json`,
+    `tmp/navigation/${workflow ? "workflow-" : ""}${label}.json`,
     JSON.stringify(evidence, null, 2),
   );
   console.log(

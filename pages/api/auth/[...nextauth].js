@@ -1,5 +1,8 @@
 import NextAuth from "next-auth";
-import { mayReuseHumanReadClaims } from "../../../src/infrastructure/auth/human-read-freshness";
+import {
+  mayReuseHumanReadClaims,
+  recordHumanReadAuthority,
+} from "../../../src/infrastructure/auth/human-read-freshness";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { loadOperationalRuntime } from "../../../src/infrastructure/auth/demo-identity";
 import {
@@ -145,6 +148,11 @@ export const authOptions = {
           token.humanValidatedAt = Date.now();
         }
       }
+      recordHumanReadAuthority(
+        token.access,
+        token.humanSession,
+        token.humanValidatedAt,
+      );
       return token;
     },
     session({ session, token }) {

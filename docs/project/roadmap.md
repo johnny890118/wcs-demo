@@ -273,6 +273,21 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
+Owner update (2026-10-04): repair checkpoint d945795 is CI/deployment/runtime
+stable. Finish the existing independent freshness/navigation/cache WIP delivery
+first. Its cache is a tested inactive primitive, not a runtime optimization.
+After a clean exact-HEAD CI/Vercel/Render/runtime checkpoint, implement approved
+Operator Experience A → B → C → D: reloadable server-resolved Work read spine,
+exact context handoffs, job continuity/human meaning, then Operator IA convergence.
+Work is the top-level user model; Task remains WCS execution. Templates are UX
+defaults/permission bundles, not role-name backend branches. Do not invent
+business stages, progress or unshipped S4–S7 capabilities. External WMS manual
+fallback remains undecided until S7. Return to S3 after A–D, keeping marketing
+deferred. See operations-navigation-workflow-plan.md for this checkpoint's scope.
+
+The following records the superseded immediate-next-task state before this Owner
+approval; ownership/rolling-startup delivery must not be reimplemented.
+
 S2 and S3 admission/reference-snapshot/inactive-cleanup/creation-budget/local-bundle
 delivery gates are complete. Finish durable ownership's exact delivery gates,
 then take the Owner-directed independent freshness/navigation/operator-workflow

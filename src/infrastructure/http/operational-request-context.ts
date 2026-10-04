@@ -1,5 +1,8 @@
 import type { GetServerSideProps, NextApiHandler } from "next";
-import { withHumanReadPolicy } from "../auth/human-read-freshness";
+import {
+  withHumanReadPolicy,
+  humanReadAuthority,
+} from "../auth/human-read-freshness";
 import { requestTimingHeader, withRequestTiming } from "./request-timing";
 
 /** Explicit read-only Operations request policy; non-GET remains strict. */
@@ -10,8 +13,18 @@ export function withReadOnlyOperationalNavigation<
     withHumanReadPolicy(context.req.method, () =>
       withRequestTiming(async () => {
         const started = performance.now();
+        context.res.setHeader("Cache-Control", "private, no-store");
         try {
-          return await handler(context);
+          const result = await handler(context);
+          if ("props" in result)
+            return {
+              ...result,
+              props: {
+                ...(await result.props),
+                operationalReadContext: humanReadAuthority(),
+              },
+            };
+          return result;
         } finally {
           if (!context.res.headersSent) {
             const stages = requestTimingHeader();
@@ -40,9 +53,18 @@ export function withReadOnlyOperationalBff(
     withHumanReadPolicy(request.method, () =>
       withRequestTiming(async () => {
         const started = performance.now();
+        response.setHeader("Cache-Control", "private, no-store");
         const originalJson = response.json;
         response.json = function (body) {
           if (!response.headersSent) {
+            const authority = humanReadAuthority();
+            if (authority && response.statusCode === 200) {
+              response.setHeader("X-SWP-Read-Scope", authority.scopeKey);
+              response.setHeader(
+                "X-SWP-Read-Until",
+                String(authority.validUntil),
+              );
+            }
             response.setHeader(
               "Server-Timing",
               [

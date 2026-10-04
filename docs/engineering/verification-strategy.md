@@ -1,5 +1,25 @@
 # Verification Strategy
 
+Current independent human-read foundation: focused security/cache/wrapper suite
+passes 20 tests; complete gate passes 522 fast, 79 disposable PostgreSQL and 34
+production-build browser tests, plus public-demo denial harness and API build.
+Dependency audit reports zero vulnerabilities. Independent review required and
+verified pending cache completion deadline/null-authority rejection and explicit
+private/no-store SSR/BFF responses. Cache remains unwired; no UI/performance
+benefit is claimed. Existing bilingual/theme/mobile/keyboard/axe journeys pass.
+Poppler was selected using PDFTOTEXT_BIN, without weakening the manual gate.
+
+Same-workload local production-stack measurement (60 navigations): before/after
+event-to-two-frame-usable p50/p95 47.40/49.10 → 47.70/49.30 ms; automation-inclusive
+83.20/84.67 → 83.29/90.20 ms. No meaningful improvement is established. After SSR
+6.55/11.88, projection HTTP 5.83/11.02, API handler 4.48/9.14 and accumulated
+query 7.36/28.28 ms; parallel query duration is not additive wall-clock latency.
+Validation spans remain 0/60 inside the configured window. This is not deployed
+production p50/p95. Four withdrawal scenarios preserve explicitly delayed reads
+and deny six strict mutation routes each (24 denials). Freshness defaults to 900,
+0 stays strict and expiry is independent. Exact CI/provider/runtime gates remain
+required before Operator Experience A begins (ADR 0029).
+
 Private rolling-startup followup: real Nest provider factory regression creates
 a sequence race then reloads changed moving-task evidence, preserving unknown
 status/task rather than publishing stale idle state. Separate tests bound conflict

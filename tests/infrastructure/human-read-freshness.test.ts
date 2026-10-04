@@ -15,8 +15,8 @@ afterEach(() => {
 });
 
 describe("bounded human read authority", () => {
-  it("defaults to 3600 seconds, supports strict zero and rejects invalid settings", () => {
-    expect(loadHumanReadFreshnessSeconds()).toBe(3600);
+  it("defaults to 900 seconds, supports strict zero and rejects invalid settings", () => {
+    expect(loadHumanReadFreshnessSeconds()).toBe(900);
     process.env.HUMAN_SESSION_READ_FRESHNESS_SECONDS = "0";
     expect(
       withHumanReadPolicy("GET", () =>
@@ -51,10 +51,10 @@ describe("bounded human read authority", () => {
   it("uses a non-sliding exact freshness boundary and independently checks expiry", () => {
     withHumanReadPolicy("GET", () => {
       expect(
-        mayReuseHumanReadClaims(session, now, undefined, now + 3599999),
+        mayReuseHumanReadClaims(session, now, undefined, now + 899999),
       ).toBe(true);
       expect(
-        mayReuseHumanReadClaims(session, now, undefined, now + 3600000),
+        mayReuseHumanReadClaims(session, now, undefined, now + 900000),
       ).toBe(false);
       expect(
         mayReuseHumanReadClaims(
