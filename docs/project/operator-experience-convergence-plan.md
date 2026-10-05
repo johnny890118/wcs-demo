@@ -1,6 +1,6 @@
 # Operator Experience A–D convergence
 
-Status: Active — A delivered; B locally verified, exact delivery gates pending.
+Status: Active — A and B delivered; C locally verified, delivery gates pending.
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -65,5 +65,35 @@ labels and current observations. Existing commands and IA are not redesigned.
 - [x] Focused contracts, authorization and PostgreSQL adversarial relationships.
 - [x] Full verification and independent security review; repair findings.
 - [x] Operator/Emil review and direct/reload end-to-end viewport journeys.
-- [ ] Durable evidence, checkpoint, push, exact CI, both deployments, authenticated
+- [x] Durable evidence, checkpoint, push, exact CI, both deployments, authenticated
       runtime and clean working tree; then start C without waiting for Owner.
+
+B checkpoint `7d0e93dd925de04cd9dac4287e77c570299292ac` is pushed. Exact-HEAD
+CI run `37208994692` passed verify and deployment-smoke. Vercel Ready and Render
+Live identify that full SHA. Managed deployment checks passed. On 2026-10-05,
+authenticated production Task → load → inventory → source → destination → Live
+→ exception → history → reload → same Task → same Work passed without sidebar,
+search, ID entry or Browser Back. The inspected task was unassigned with no open
+alarm: Live correctly reports unavailable qualified evidence, inventory does not
+claim zero stock, and history retains the selected Task. Active/historical alarm
+and assigned equipment cases are covered by deterministic browser and real SQL
+tests, not claimed as production cases. Working tree was clean before C.
+
+## C execution
+
+Persona: operator continuing a newly created or partially executed job after
+reload. Evidence: creation panels retain created IDs and completion bookkeeping
+only in React state, while A's owned Work root can reconstruct persisted status
+and qualified execution counts. B supplies exact investigation and history.
+
+Risk: high, because resume UX reaches existing command boundaries. Keep commands,
+strict session validation, confirmation, permission and warehouse checks intact.
+Resume must resolve persisted Work/Task relationships on the server; query input
+is selection, never command authority. Do not infer full job completion from a
+paged task list or replace unknown outcomes with retry/success.
+
+- [x] Record evidence-backed resume/meaning contract and acceptance cases.
+- [x] Implement durable create-to-Work continuation and qualified resume UI.
+- [x] Verify split-job, incomplete, unknown, permission and scope cases.
+- [x] Full verification, independent security and operator/Emil journey review.
+- [ ] Durable evidence, checkpoint/push/exact CI/deployments/runtime/clean.

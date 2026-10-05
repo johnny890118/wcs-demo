@@ -67,3 +67,46 @@ it("gates contextual audit separately and retains a visible root refresh link", 
     screen.getByRole("link", { name: en.workRefresh }).getAttribute("href"),
   ).toBe("/operations/work/outbound/30000000-0000-4000-8000-000000000001");
 });
+it("split outbound stays allocated with one completed task and offers only its queued sibling", () => {
+  const completedId = "50000000-0000-4000-8000-000000000001";
+  const queuedId = "50000000-0000-4000-8000-000000000002";
+  const task = {
+    source: "Storage",
+    destination: "Shipping",
+    equipmentId: null,
+    flow: "outbound" as const,
+    externalReference: "ORDER-READABLE",
+    sku: "SKU-REQUEST",
+    quantity: 10,
+    createdAt: detail.work.createdAt,
+    updatedAt: detail.work.updatedAt,
+  };
+  render(
+    <WorkPage
+      canViewAudit={false}
+      canExecute
+      detail={{
+        ...detail,
+        execution: {
+          referencedTaskCount: 2,
+          qualifiedTaskCount: 2,
+          counts: { ...detail.execution.counts, completed: 1, queued: 1 },
+          page: {
+            ...detail.execution.page,
+            tasks: [
+              { ...task, taskId: completedId, status: "completed" },
+              { ...task, taskId: queuedId, status: "queued" },
+            ],
+          },
+        },
+      }}
+    />,
+  );
+  expect(screen.getByText(en.workAttention_waiting)).toBeTruthy();
+  expect(screen.getByText(/Stock allocated/)).toBeTruthy();
+  expect(screen.queryByText(en.workStatus_completed)).toBeNull();
+  expect(screen.getAllByRole("link", { name: en.workResume })).toHaveLength(1);
+  expect(
+    screen.getByRole("link", { name: en.workResume }).getAttribute("href"),
+  ).toContain(`/resume/${queuedId}`);
+});

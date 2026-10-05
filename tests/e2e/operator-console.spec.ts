@@ -15,6 +15,111 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+test("created Work survives same-tab handoff, reload, exact continuation and persisted outcome", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/inbound");
+  await page.getByLabel("外部參考編號").fill("ASN-C-CONTINUITY");
+  await page.getByLabel("外部載具編號").fill("PALLET-C-CONTINUITY");
+  await page.getByLabel("品項").fill("SKU-C");
+  await page.getByLabel("數量").fill("6");
+  await page.getByRole("button", { name: "建立入庫單" }).click();
+  await page.getByRole("link", { name: "開啟這筆工作", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "ASN-C-CONTINUITY",
+  );
+  await page.reload();
+  await page.getByRole("link", { name: "檢查並繼續此任務" }).click();
+  await expect(page).toHaveURL(/\/resume\//);
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const english of [false, true]) {
+      await page
+        .getByRole("button", { name: english ? "EN" : "繁中", exact: true })
+        .click();
+      for (const dark of [false, true]) {
+        await page
+          .getByRole("button", {
+            name: english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
+            exact: true,
+          })
+          .click();
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+        expect(
+          await page.evaluate(
+            () =>
+              document.documentElement.scrollWidth >
+              document.documentElement.clientWidth,
+          ),
+        ).toBe(false);
+      }
+    }
+  }
+  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await page.screenshot({
+    path: test.info().outputPath("work-resume-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByLabel("確認理由").fill("已檢查此筆工作及設備搬運安全。");
+  await page.getByRole("checkbox").check();
+  await page.reload();
+  await expect(page.getByRole("checkbox")).not.toBeChecked();
+  await expect(page.getByLabel("確認理由")).toHaveValue("");
+  await page
+    .getByRole("combobox", { name: "設備", exact: true })
+    .selectOption("agv-e2e-01");
+  await page.getByLabel("確認理由").fill("已重新檢查此筆工作及設備搬運安全。");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "確認並執行入庫任務" }).click();
+  await expect(page.getByRole("status")).toContainText("此任務已記錄完成");
+  await page
+    .getByRole("navigation", { name: "繼續同一筆工作" })
+    .getByRole("link", { name: "開啟這筆工作", exact: true })
+    .click();
+  await expect(
+    page.getByText("已記錄工作狀態: 已記錄完成", { exact: true }),
+  ).toContainText("已記錄完成");
+  await expect(
+    page.getByRole("link", { name: "檢查並繼續此任務" }),
+  ).toHaveCount(0);
+});
+
+test("outbound continuation returns to its persisted order without creating another job", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/outbound");
+  await page.getByLabel("外部參考編號").fill("ORDER-C-CONTINUITY");
+  await page.getByLabel("品項").selectOption("SKU-E2E");
+  await page.getByLabel("數量").fill("2");
+  await page.getByRole("button", { name: "建立並配貨出庫單" }).click();
+  await page.getByRole("link", { name: "開啟這筆工作", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "ORDER-C-CONTINUITY",
+  );
+  await page.reload();
+  await page.getByRole("link", { name: "檢查並繼續此任務" }).click();
+  await page
+    .getByRole("combobox", { name: "設備", exact: true })
+    .selectOption("agv-e2e-01");
+  await page.getByLabel("確認理由").fill("已確認出庫訂單、設備與搬運風險。");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "確認並執行出庫任務" }).click();
+  await expect(page.getByRole("status")).toContainText("此任務已記錄完成");
+  await page
+    .getByRole("navigation", { name: "繼續同一筆工作" })
+    .getByRole("link", { name: "開啟這筆工作", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "ORDER-C-CONTINUITY",
+  );
+  await expect(
+    page.getByRole("link", { name: "檢查並繼續此任務" }),
+  ).toHaveCount(0);
+});
+
 test("neutral-first brand survives an operator read journey across themes, locales and device widths", async ({
   page,
 }) => {

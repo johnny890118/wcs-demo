@@ -5,7 +5,9 @@ The authenticated web manual and both downloadable PDFs share
 together, then regenerate and verify artifacts. This is system guidance, not
 marketing or equipment authority. PDFs contain no warehouse/customer data.
 
-Manual revision `2026-10-04.2` adds exact server-resolved Task/context handoffs,
+Manual revision `2026-10-05.1` adds durable creation-to-Work continuation,
+queued-only execution review, reload-cleared confirmation and outcome investigation
+without blind resend. It retains exact server-resolved Task/context handoffs,
 owned Work/Task returns and exact stock/load/location filters without claiming
 physical occupancy or future controls. It retains reloadable Work investigation,
 recorded contents versus physical evidence, qualified task counts, Home investigation,

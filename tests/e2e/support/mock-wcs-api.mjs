@@ -314,10 +314,11 @@ function fixtureQueue() {
     source: task.source,
     destination: task.destination,
     equipmentId: task.equipmentId,
-    flow: task.taskId.includes("outbound") ? "outbound" : "inbound",
-    externalReference: "ASN-E2E-001",
-    sku: "SKU-E2E",
-    quantity: 12,
+    flow:
+      task.flow ?? (task.taskId.includes("outbound") ? "outbound" : "inbound"),
+    externalReference: task.externalReference ?? "ASN-E2E-001",
+    sku: task.sku ?? "SKU-E2E",
+    quantity: task.quantity ?? 12,
     createdAt: generatedAt,
     updatedAt: task.updatedAt,
   }));
@@ -697,10 +698,21 @@ const server = createServer(async (request, response) => {
   ) {
     const url = new URL(request.url, "http://127.0.0.1");
     const [, , , , , flow, workId] = url.pathname.split("/");
-    const tasks = fixtureQueue().filter((task) => task.flow === flow);
+    const createdRoot =
+      (flow === "inbound" &&
+        workId === "30000000-0000-4000-8000-000000000099") ||
+      (flow === "outbound" &&
+        workId === "a0000000-0000-4000-8000-000000000099");
+    const tasks = fixtureQueue().filter(
+      (task) =>
+        task.flow === flow &&
+        (createdRoot
+          ? task.taskId.endsWith("000000000099")
+          : !task.taskId.endsWith("000000000099")),
+    );
     if (
       request.headers["x-swp-warehouse"] === secondWarehouseId ||
-      workId !== "30000000-0000-4000-8000-000000000001" ||
+      (!createdRoot && workId !== "30000000-0000-4000-8000-000000000001") ||
       !["inbound", "outbound"].includes(flow)
     ) {
       response.statusCode = 404;
@@ -728,9 +740,21 @@ const server = createServer(async (request, response) => {
         work: {
           workId,
           flow,
-          externalReference: "ASN-E2E-001",
-          status: flow === "inbound" ? "requested" : "allocated",
-          contents: [{ sku: "SKU-E2E", quantity: 12 }],
+          externalReference: tasks[0]?.externalReference ?? "ASN-E2E-001",
+          status:
+            createdRoot &&
+            tasks.length &&
+            tasks.every((task) => task.status === "completed")
+              ? "completed"
+              : flow === "inbound"
+                ? "requested"
+                : "allocated",
+          contents: [
+            {
+              sku: tasks[0]?.sku ?? "SKU-E2E",
+              quantity: tasks[0]?.quantity ?? 12,
+            },
+          ],
           contentsMayBeLimited: false,
           destination: flow === "outbound" ? "SHIPPING-01" : null,
           createdAt: generatedAt,
@@ -779,7 +803,12 @@ const server = createServer(async (request, response) => {
           task,
           originResource: {
             type: task.flow === "inbound" ? "InboundReceipt" : "OutboundOrder",
-            id: "30000000-0000-4000-8000-000000000001",
+            id:
+              taskId === "50000000-0000-4000-8000-000000000099"
+                ? "30000000-0000-4000-8000-000000000099"
+                : taskId === "c0000000-0000-4000-8000-000000000099"
+                  ? "a0000000-0000-4000-8000-000000000099"
+                  : "30000000-0000-4000-8000-000000000001",
           },
           load: {
             externalId: "PALLET-E2E-001",
@@ -1156,7 +1185,15 @@ const server = createServer(async (request, response) => {
     return;
   }
   if (request.url === "/api/v1/operations/details") {
-    response.end(JSON.stringify(details));
+    const snapshot = structuredClone(details);
+    snapshot.generatedAt = new Date().toISOString();
+    for (const item of snapshot.equipment)
+      if (item.telemetry?.freshness === "current") {
+        item.telemetry.receivedAt = snapshot.generatedAt;
+        item.telemetry.observedAt = snapshot.generatedAt;
+        item.telemetry.ageMs = 0;
+      }
+    response.end(JSON.stringify(snapshot));
     return;
   }
   if (
@@ -1180,6 +1217,9 @@ const server = createServer(async (request, response) => {
     details.tasks = [
       {
         taskId: "50000000-0000-4000-8000-000000000099",
+        externalReference: body.externalReference,
+        sku: body.load?.sku,
+        quantity: body.load?.quantity,
         status: "queued",
         source: "RECEIVING-01",
         destination: "STORAGE-01",
@@ -1256,6 +1296,10 @@ const server = createServer(async (request, response) => {
     details.tasks = [
       {
         taskId: "c0000000-0000-4000-8000-000000000099",
+        flow: "outbound",
+        externalReference: body.externalReference,
+        sku: body.sku,
+        quantity: body.quantity,
         status: "queued",
         source: "STORAGE-01",
         destination: "SHIPPING-01",

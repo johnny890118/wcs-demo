@@ -1,7 +1,14 @@
 # B — Exact context handoffs review
 
 2026-10-04. Operator/Emil and independent security review of ADR 0031.
-Delivery gates remain pending until exact CI and deployed runtime are recorded.
+Delivered checkpoint `7d0e93dd925de04cd9dac4287e77c570299292ac`; exact-HEAD CI
+`37208994692` passed verify/deployment-smoke. Vercel Ready and Render Live point
+to the same full SHA. Managed smoke passed. Authenticated production read-only
+seven-surface journey, history reload and owned Task/Work returns passed on
+2026-10-05. The available production task was unassigned/no open alarm; assigned
+equipment and historical alarm coverage is automated, not production evidence.
+Working tree was clean before starting C. No production mutation or latency
+benchmark was performed.
 
 ## Decision and review
 

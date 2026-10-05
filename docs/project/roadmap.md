@@ -277,8 +277,9 @@ Owner update (2026-10-04): freshness foundation `2e90c6e` and independent brand/
 journey update `d95609b` are pushed with successful exact CI, both exact provider
 SHAs and managed/authenticated runtime checks; tree was clean before A.
 The cache is a tested inactive primitive, not a runtime optimization.
-Work spine A is delivered at `d8605d4`; B exact context handoffs are locally
-verified and await exact CI/deployment/runtime delivery. Continue the approved
+Work spine A is delivered at `d8605d4`; B exact context handoffs are delivered at
+`7d0e93d`, with exact CI, both deployment SHAs and authenticated runtime verified.
+C job continuity/human meaning is active. Continue the approved
 Operator Experience A → B → C → D: reloadable server-resolved Work read spine,
 exact context handoffs, job continuity/human meaning, then Operator IA convergence.
 Work is the top-level user model; Task remains WCS execution. Templates are UX

@@ -1,5 +1,36 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  workExecutionPending:
+    "Waiting for the server execution outcome. Do not resend the command.",
+  workResumeSafetyNotice:
+    "This is a recorded task, not command authorization. Execution rechecks your session, warehouse, permission and equipment safety. Reload clears confirmation.",
+  workExecutionRecorded:
+    "This task's completion was recorded. Open the Work to verify the remaining tasks and business outcome.",
+  workAttemptNeedsEvidence:
+    "The response does not establish the outcome. Read this Work and task again before deciding the next action; do not blindly resend.",
+  workSelectEquipment: "Select qualified equipment",
+  workNoQualifiedEquipment:
+    "No qualified available equipment is present in this observation. Reload current evidence; do not substitute another device.",
+  workConfirmExactExecution:
+    "I have reviewed this task, selected equipment and the movement risk, and confirm execution.",
+  workInspectBeforeAction:
+    "Inspect the task's current evidence. Normal execution is offered only for a queued task with execute permission.",
+  workContinuationLinks: "Continue the same work",
+  workResume: "Review and continue this task",
+  workAttention_incomplete:
+    "Some related execution evidence is unavailable. Do not assume a complete outcome.",
+  workAttention_unknown:
+    "A task outcome is unknown. Investigate evidence before any further movement.",
+  workAttention_blocked:
+    "A task is blocked. Open its exception evidence and permitted recovery.",
+  workAttention_waiting:
+    "Work is waiting for assignment. Review a queued task to continue permitted execution.",
+  workAttention_running:
+    "Execution is assigned or in progress. Inspect the selected task and qualified Live evidence.",
+  workAttention_finished:
+    "All qualified tasks are terminal. Inspect the recorded Work state and outcome evidence; this alone is not proof of physical clearance.",
+  workAttention_empty:
+    "No qualified execution is recorded. This does not establish completion.",
   exactContextNavigation: "Current work and task",
   exactContextFiltered:
     "Exact related records are selected. An empty result is not proof of physical absence; clear the filter to inspect the full warehouse list.",
@@ -634,6 +665,30 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  workExecutionPending: "正在等候伺服器執行結果，請勿重送命令。",
+  workResumeSafetyNotice:
+    "這是已記錄的任務，不是命令授權。執行時會重新檢查登入、倉庫、權限與設備安全；重新載入會清除確認。",
+  workExecutionRecorded:
+    "此任務已記錄完成。請開啟工作，確認其他任務及業務結果。",
+  workAttemptNeedsEvidence:
+    "此回應不能確定結果。請重新讀取這筆工作與任務，再決定下一步；不要盲目重送。",
+  workSelectEquipment: "選擇合格設備",
+  workNoQualifiedEquipment:
+    "此次觀測沒有合格可用設備。請重新載入目前證據，不要改選無關設備。",
+  workConfirmExactExecution: "我已檢查此任務、選定設備與搬運風險，確認執行。",
+  workInspectBeforeAction:
+    "請查看任務目前證據。只有具執行權限的等待指派任務提供一般執行。",
+  workContinuationLinks: "繼續同一筆工作",
+  workResume: "檢查並繼續此任務",
+  workAttention_incomplete: "部分關聯執行證據無法取得，不可假設結果完整。",
+  workAttention_unknown: "有任務結果未知。繼續搬運前請先調查證據。",
+  workAttention_blocked: "有任務受阻。請開啟異常證據與允許的復原操作。",
+  workAttention_waiting:
+    "工作正在等待指派。請檢查等待中的任務，繼續允許的執行。",
+  workAttention_running: "已有任務指派或執行中。請查看所選任務與合格即時觀測。",
+  workAttention_finished:
+    "所有已解析任務已結束。請確認已記錄工作狀態與結果證據；這本身不代表現場安全清空。",
+  workAttention_empty: "尚無可解析的執行記錄，不代表工作完成。",
   exactContextNavigation: "目前工作與任務",
   exactContextFiltered:
     "目前限於精確關聯記錄；空白不證明實體不存在。清除條件可回到全倉清單。",

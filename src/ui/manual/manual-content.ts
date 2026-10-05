@@ -2,7 +2,7 @@ import type { UserPermission } from "../../application/access/operational-access
 import type { Locale } from "../i18n/catalogs";
 import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-04.2";
+export const manualVersion = "2026-10-05.1";
 // Package release identity is distinct from the more granular manual revision.
 export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
@@ -93,8 +93,8 @@ export const manualArticles: readonly ManualArticle[] = [
         "庫存變更依據已接受的執行結果。逾時、設備斷線或瀏覽器動畫都不是完成證據。結果不清楚時追查任務詳情與有權限的稽核歷史。",
       ),
       text(
-        "Before confirmation, task investigation opens a new tab to preserve the pending form. Review the submitted reference, item, quantity and configured locations. Outbound SKU suggestions are bounded recorded hints, not reservation-adjusted available quantities; the backend decides allocation. Related inventory search is a substring search, not an exact stock guarantee.",
-        "確認前的任務追查會開啟新分頁，保留待確認表單。檢查已送出參考、品項、數量與設定庫位。出庫 SKU 建議只是有範圍上限的記錄提示，不是扣除保留量後的可用數量；配置由後端判定。相關庫存搜尋是子字串搜尋，不保證精確存量。",
+        "After creation, Open this work preserves the recorded job across navigation and reload. From Work, review a queued task to continue execution with a fresh confirmation and selected qualified equipment. Other task states require investigation, not blind resend. After any attempted execution, reopen Work to verify persisted outcome and remaining tasks. One completed task is not the whole job. Outbound SKU hints are bounded records, not reservation-adjusted availability; the backend decides allocation.",
+        "建立後選擇「開啟這筆工作」，跨頁與重載仍保留已記錄案件。從工作檢查等待指派的任務，重新確認並選擇合格設備後續作。其他狀態須先調查，不可盲目重送。每次嘗試執行後，重新開啟工作確認持久化結果及剩餘任務；單一任務完成不等於整筆案件完成。出庫 SKU 提示是有上限的記錄，不是扣除保留後的可用量；配置由後端判定。",
       ),
     ],
     links: [

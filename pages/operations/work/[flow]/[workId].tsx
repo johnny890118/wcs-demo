@@ -17,12 +17,25 @@ import { withReadOnlyOperationalNavigation } from "../../../../src/infrastructur
 import { operationalPageAccess } from "../../../../src/ui/auth/operational-page-access";
 import { useLocale } from "../../../../src/ui/i18n/locale-provider";
 import type { MessageKey } from "../../../../src/ui/i18n/catalogs";
+import {
+  canOfferWorkExecution,
+  workAttention,
+  workResumePath,
+} from "../../../../src/application/operations/work-continuation";
 import { authOptions } from "../../../api/auth/[...nextauth]";
 
-type Props = { detail: WorkDetail | null; canViewAudit: boolean };
+type Props = {
+  detail: WorkDetail | null;
+  canViewAudit: boolean;
+  canExecute?: boolean;
+};
 const linkClass =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
-export default function WorkPage({ detail, canViewAudit }: Props) {
+export default function WorkPage({
+  detail,
+  canViewAudit,
+  canExecute = false,
+}: Props) {
   const { t, locale } = useLocale();
   if (!detail)
     return (
@@ -46,6 +59,9 @@ export default function WorkPage({ detail, canViewAudit }: Props) {
       <h1 className="mt-2 break-words text-3xl font-black">
         {work.externalReference}
       </h1>
+      <p className="mt-4 max-w-3xl font-semibold">
+        {t(`workAttention_${workAttention(detail)}` as MessageKey)}
+      </p>
       <p className="mt-4 text-lg font-semibold">
         {t("workRecordedStatus")}:{" "}
         {t(`workStatus_${work.status}` as MessageKey)}
@@ -145,6 +161,14 @@ export default function WorkPage({ detail, canViewAudit }: Props) {
               >
                 {t("openTaskDetail")}
               </Link>
+              {canExecute && canOfferWorkExecution(task) ? (
+                <Link
+                  className={linkClass}
+                  href={workResumePath(work.flow, work.workId, task.taskId)}
+                >
+                  {t("workResume")}
+                </Link>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -233,6 +257,7 @@ export const getServerSideProps: GetServerSideProps<Props> =
       props: {
         session,
         detail,
+        canExecute: hasUserPermission(access.access, "transport.execute"),
         canViewAudit: hasUserPermission(access.access, "audit.view"),
       },
     };

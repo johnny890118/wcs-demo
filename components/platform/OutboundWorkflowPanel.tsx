@@ -3,6 +3,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { workPath } from "../../src/application/operations/work-projection";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import {
   isOutboundExecutionCompleted,
@@ -311,6 +312,12 @@ export function OutboundWorkflowPanel({
         </h2>
         {created ? (
           <div className="mt-5 space-y-5">
+            <Link
+              href={workPath("outbound", created.outboundOrderId)}
+              className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold text-[var(--accent-strong)]"
+            >
+              {t("openWorkContext")}
+            </Link>
             <dl className="space-y-3 rounded-lg bg-[var(--surface-muted)] p-4 text-sm">
               <div>
                 <dt className="text-[var(--text-muted)]">
