@@ -18,6 +18,8 @@ import { PgOutboxRepository } from "../../apps/api/src/outbox/pg-outbox.reposito
 import { OperationsSummaryService } from "../../apps/api/src/operations/operations-summary.service";
 import { TaskProjectionService } from "../../apps/api/src/operations/task-projection.service";
 import { WorkProjectionService } from "../../apps/api/src/operations/work-projection.service";
+import { WorkQueueService } from "../../apps/api/src/operations/work-queue.service";
+import { isWorkQueuePage } from "../../src/application/operations/work-queue";
 import { ExactContextService } from "../../apps/api/src/operations/exact-context.service";
 import { isExactContext } from "../../src/application/operations/exact-context";
 import { isWorkDetail } from "../../src/application/operations/work-projection";
@@ -118,6 +120,90 @@ describeIntegration("PostgreSQL inbound vertical slice", () => {
 
   afterAll(async () => {
     await pool?.end();
+  });
+  it("Work queue keeps empty open jobs, closed jobs with active/unqualified evidence and warehouse isolation", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    const service = new WorkQueueService(pool);
+    const first = await service.getQueue(warehouseId);
+    expect(isWorkQueuePage(first)).toBe(true);
+    expect(first.works).toHaveLength(1);
+    expect(first.works[0]?.execution.counts.queued).toBe(1);
+    expect((await service.getQueue(otherWarehouseId)).works).toEqual([]);
+    await pool.query(
+      "UPDATE inbound_receipts SET status='completed' WHERE id=$1",
+      [identifiers.receiptId],
+    );
+    expect((await service.getQueue(warehouseId)).works).toHaveLength(1); // still queued
+    await pool.query(
+      "UPDATE transport_tasks SET equipment_id='UNQUALIFIED-DEVICE' WHERE id=$1",
+      [identifiers.transportTaskId],
+    );
+    const incomplete = (await service.getQueue(warehouseId)).works[0]!;
+    expect(incomplete.execution).toMatchObject({
+      referencedTaskCount: 1,
+      qualifiedTaskCount: 0,
+    });
+    expect(JSON.stringify(incomplete)).not.toContain("UNQUALIFIED-DEVICE");
+    await pool.query("DELETE FROM transport_tasks WHERE id=$1", [
+      identifiers.transportTaskId,
+    ]);
+    await pool.query(
+      "UPDATE inbound_receipts SET status='requested' WHERE id=$1",
+      [identifiers.receiptId],
+    );
+    const empty = (await service.getQueue(warehouseId)).works[0]!;
+    expect(empty.execution.qualifiedTaskCount).toBe(0);
+    expect(empty.status).toBe("requested");
+    await pool.query(
+      "UPDATE inbound_receipts SET status='completed' WHERE id=$1",
+      [identifiers.receiptId],
+    );
+    expect((await service.getQueue(warehouseId)).works).toEqual([]);
+    expect(
+      (await service.getQueue(warehouseId, { view: "all" })).works,
+    ).toHaveLength(1);
+  });
+  it("Work queue keysets same timestamp/UUID roots in both flows exactly once and binds view/scope", async () => {
+    if (!pool) throw new Error("Integration pool was not configured.");
+    await new PgInboundRepository(pool).create(
+      command,
+      identifiers,
+      requestHash(command),
+    );
+    // Root tables have independent UUID namespaces; external labels are not identity.
+    await pool.query(
+      `INSERT INTO outbound_orders (id,warehouse_id,external_reference,idempotency_key,request_hash,sku,quantity,destination_location_id,status,created_at,updated_at)
+      SELECT id,warehouse_id,external_reference,'queue-test-key','queue-test-hash','QUEUE-SKU',1,$2,'requested',created_at,updated_at FROM inbound_receipts WHERE id=$1`,
+      [identifiers.receiptId, outboundCommand.destinationLocationId],
+    );
+    const service = new WorkQueueService(pool);
+    const first = await service.getQueue(warehouseId, {
+      view: "all",
+      limit: 1,
+    });
+    expect(first.works[0]?.flow).toBe("outbound");
+    const second = await service.getQueue(warehouseId, {
+      view: "all",
+      limit: 1,
+      cursor: first.nextCursor!,
+    });
+    expect(second.works[0]?.flow).toBe("inbound");
+    expect(second.nextCursor).toBeNull();
+    expect(first.works[0]?.externalReference).toBe(
+      second.works[0]?.externalReference,
+    );
+    for (const [scope, view] of [
+      [otherWarehouseId, "all"],
+      [warehouseId, "active"],
+    ] as const)
+      await expect(
+        service.getQueue(scope, { view, cursor: first.nextCursor! }),
+      ).rejects.toMatchObject({ status: 400 });
   });
 
   it("resolves exact task handoffs from one scoped snapshot, without label search", async () => {

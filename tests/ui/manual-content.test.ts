@@ -18,12 +18,12 @@ describe("single-source operational manual", () => {
     const chinese = daily.paragraphs
       .map((paragraph) => paragraph["zh-TW"])
       .join(" ");
-    expect(english).toContain("All work and use Load more");
-    expect(english).toContain(
-      "Text search is not provided in the task queue yet",
-    );
-    expect(chinese).toContain("切換全部工作並使用載入更多");
-    expect(chinese).toContain("目前尚未提供文字搜尋");
+    expect(english).toContain("All recorded jobs and Next page");
+    expect(english).toContain("All work / Load more");
+    expect(english).toContain("neither provides text search yet");
+    expect(chinese).toContain("全部已記錄工作與下一頁");
+    expect(chinese).toContain("全部工作／載入更多");
+    expect(chinese).toContain("目前都尚無文字搜尋");
     expect(english).not.toContain("use task search");
   });
   it("has stable unique topics and complete localized content with only internal operational links", () => {

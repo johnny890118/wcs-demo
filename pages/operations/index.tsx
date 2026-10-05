@@ -266,7 +266,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
         className="mt-6 flex flex-wrap gap-3"
       >
         {[
-          ["/operations/tasks", "taskQueueTitle"],
+          ["/operations/work", "operatorWork"],
           ["/operations/inbound", "inbound"],
           ["/operations/outbound", "outbound"],
           ["/operations/inventory", "inventory"],

@@ -1,6 +1,6 @@
 # C — Job continuity and human meaning review
 
-2026-10-05. Local full gate passed; exact CI/deployment/runtime delivery pending.
+2026-10-05. Delivered at `178ff9e6ea0f377f6e214f36c9c9fa0ee1941268`.
 
 ## Design and security review
 
@@ -38,8 +38,13 @@ Manual revision 2026-10-05.1 regenerates the existing bilingual PDFs. All five
 English/four Chinese rendered pages inspected without clipping or glyph defects.
 Accessible web manual remains primary; PDFs do not claim PDF/UA conformance.
 
-Full verification, final self-review, commit/push, exact CI and deployed runtime
-must be recorded before declaring C delivered or entering D.
+Exact-HEAD CI `37323480352` passed verify and deployment-smoke; Vercel Ready
+and Render Live identify the full checkpoint SHA. Managed smoke passed after
+deployment. Authenticated production Task → Work → queued resume → reload →
+owned Work return passed, with cleared reason/confirmation and no device
+preselection. No production command was sent. One pre-existing Chrome Tasks 504
+recovered after reload; its cause and authenticated p50/p95 remain unproven.
+Working tree was clean before D.
 
 Complete final gate passed 585 fast tests, 86 real PostgreSQL tests, 40 production-build
 browser tests and production public-demo denial harness; separate API build

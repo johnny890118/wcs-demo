@@ -279,7 +279,9 @@ SHAs and managed/authenticated runtime checks; tree was clean before A.
 The cache is a tested inactive primitive, not a runtime optimization.
 Work spine A is delivered at `d8605d4`; B exact context handoffs are delivered at
 `7d0e93d`, with exact CI, both deployment SHAs and authenticated runtime verified.
-C job continuity/human meaning is active. Continue the approved
+C job continuity/human meaning is delivered at `178ff9e`, with exact-HEAD CI,
+both provider SHAs, managed smoke and authenticated read-only resume/reload
+verified. D operator IA/end-to-end convergence is active. Continue the approved
 Operator Experience A → B → C → D: reloadable server-resolved Work read spine,
 exact context handoffs, job continuity/human meaning, then Operator IA convergence.
 Work is the top-level user model; Task remains WCS execution. Templates are UX

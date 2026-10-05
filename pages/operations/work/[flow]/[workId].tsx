@@ -39,19 +39,19 @@ export default function WorkPage({
   const { t, locale } = useLocale();
   if (!detail)
     return (
-      <OperationsShell current="tasks">
+      <OperationsShell current="work">
         <h1 className="text-2xl font-bold">{t("workUnavailable")}</h1>
-        <Link className={linkClass} href="/operations/tasks">
-          {t("returnToTaskQueue")}
+        <Link className={linkClass} href="/operations/work">
+          {t("returnToWorkQueue")}
         </Link>
       </OperationsShell>
     );
   const { work, execution } = detail;
   const path = workPath(work.flow, work.workId);
   return (
-    <OperationsShell current="tasks" titleKey="workCase">
-      <Link className={linkClass} href="/operations/tasks">
-        {t("returnToTaskQueue")}
+    <OperationsShell current="work" titleKey="workCase">
+      <Link className={linkClass} href="/operations/work">
+        {t("returnToWorkQueue")}
       </Link>
       <p className="mt-4 font-semibold text-[var(--accent-strong)]">
         {t("workCase")} · {t(work.flow)}

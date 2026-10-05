@@ -2,7 +2,7 @@ import type { UserPermission } from "../../application/access/operational-access
 import type { Locale } from "../i18n/catalogs";
 import { version as softwareVersion } from "../../../package.json";
 
-export const manualVersion = "2026-10-05.1";
+export const manualVersion = "2026-10-05.2";
 // Package release identity is distinct from the more granular manual revision.
 export const manualSoftwareVersion = softwareVersion;
 type Localized = Readonly<Record<Locale, string>>;
@@ -51,12 +51,12 @@ export const manualArticles: readonly ManualArticle[] = [
     title: text("Daily work and task investigation", "日常工作與任務追查"),
     paragraphs: [
       text(
-        "Start with attention items on Operations Home, then inspect the task queue and task detail. Read source/destination, recorded state, blocking reason and related alarms before technical identifiers.",
-        "先查看營運首頁的待處理事項，再進入任務清單與詳情。優先閱讀來源／目的地、記錄狀態、阻擋原因及相關警報，再看技術識別碼。",
+        "Use Home / Work / Live / Exceptions / Inventory / Help as the daily workspace. Start with Home attention, or open a persisted inbound/outbound job from Work. Creation and WCS execution tasks are Work subcontexts; stock, loads and locations share Inventory. History and technical tools are secondary and independently authorized. Read movement, recorded state, blocking reason and related evidence before technical identifiers.",
+        "日常工作區為首頁／工作／即時現場／異常／庫存／說明。從首頁待處理事項開始，或從工作清單開啟已保存的入庫／出庫案件。建立單據與 WCS 執行任務是工作子情境；庫存、載具與儲位共用庫存情境。歷程與技術工具是次要且獨立授權的入口。先閱讀搬運、記錄狀態、阻擋原因與相關證據，再看技術識別碼。",
       ),
       text(
-        "Task assignment records intended work, not physical movement. Unknown outcomes are unresolved, never success. The current queue is bounded; switch to All work and use Load more when a record is not visible. Text search is not provided in the task queue yet.",
-        "任務指派記錄預定工作，不是實體移動。未知結果代表尚未解析，絕不是成功。目前清單有範圍上限；找不到紀錄時切換全部工作並使用載入更多。任務清單目前尚未提供文字搜尋。",
+        "Work lists persisted jobs, including empty open jobs and incomplete execution evidence. Use All recorded jobs and Next page, then refresh from the newest jobs for changes. WCS Execution tasks retains its separate All work / Load more traversal. Assignment records intended work, not physical movement; unknown is unresolved, never success. Neither list is a live scheduling decision or a physical-completion claim, and neither provides text search yet.",
+        "工作清單列出已保存案件，包括尚無任務的開放案件及不完整執行證據。使用全部已記錄工作與下一頁，再從最新工作重新整理取得變更。WCS 執行任務仍保留獨立的全部工作／載入更多檢視。指派記錄預定工作，不是實體移動；未知代表未解析，絕不是成功。兩種清單都不是即時排程或實體完成的證明，目前都尚無文字搜尋。",
       ),
       text(
         "From task detail, Open this work opens its persisted receipt or order. Context links resolve the same task's load, stock, recorded endpoints, Live evidence, exception and permitted history on the server. Reopen or reload these URLs and use the visible Work/Task return links without remembering IDs or Browser Back. Recorded work state and task counts are not physical completion. Missing qualified evidence remains unresolved; history requires separate permission.",
@@ -72,7 +72,8 @@ export const manualArticles: readonly ManualArticle[] = [
       ),
     ],
     links: [
-      link("/operations/tasks", "Open task queue", "開啟任務清單"),
+      link("/operations/work", "Open Work", "開啟工作清單"),
+      link("/operations/tasks", "Open execution tasks", "開啟執行任務"),
       link("/operations/alarms", "Open alarms", "開啟警報"),
     ],
   },

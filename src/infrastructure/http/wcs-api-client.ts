@@ -1,5 +1,10 @@
 import { measureRequestTiming, recordUpstreamTiming } from "./request-timing";
 import {
+  isWorkQueuePage,
+  type WorkQueuePage,
+  type WorkQueueQuery,
+} from "../../application/operations/work-queue";
+import {
   isWorkDetail,
   type WorkDetail,
   type WorkFlow,
@@ -89,6 +94,22 @@ import {
 } from "../../application/operations/operations-live-view";
 
 const defaultTimeoutMs = 55_000;
+
+export async function fetchWorkQueue(
+  access: OperationalAccess,
+  query: WorkQueueQuery = {},
+): Promise<WorkQueuePage> {
+  const params = new URLSearchParams();
+  if (query.view) params.set("view", query.view);
+  if (query.cursor) params.set("cursor", query.cursor);
+  if (query.limit) params.set("limit", String(query.limit));
+  const result = await fetchWcsProjection(
+    `/api/v1/operations/work?${params}`,
+    access,
+  );
+  if (!isWorkQueuePage(result)) throw new WcsProjectionError(503);
+  return result;
+}
 
 export async function fetchOperationsLiveView(
   access: OperationalAccess,

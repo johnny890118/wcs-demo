@@ -13,6 +13,7 @@ import { LocationProjectionController } from "../../apps/api/src/operations/loca
 import { LocationProjectionService } from "../../apps/api/src/operations/location-projection.service";
 import { WorkProjectionController } from "../../apps/api/src/operations/work-projection.controller";
 import { WorkProjectionService } from "../../apps/api/src/operations/work-projection.service";
+import { WorkQueueService } from "../../apps/api/src/operations/work-queue.service";
 import { ExactContextController } from "../../apps/api/src/operations/exact-context.controller";
 import { ExactContextService } from "../../apps/api/src/operations/exact-context.service";
 import { operationalAccessHeaders } from "../../src/infrastructure/http/operational-access-headers";
@@ -48,6 +49,7 @@ describe("task projection HTTP authorization", () => {
         ServiceTokenGuard,
         { provide: TaskProjectionService, useValue: service },
         { provide: WorkProjectionService, useValue: service },
+        { provide: WorkQueueService, useValue: service },
         { provide: InventoryProjectionService, useValue: service },
         { provide: LoadProjectionService, useValue: service },
         { provide: LocationProjectionService, useValue: service },
@@ -79,6 +81,7 @@ describe("task projection HTTP authorization", () => {
     "/api/v1/operations/loads",
     "/api/v1/operations/locations",
     "/api/v1/operations/tasks",
+    "/api/v1/operations/work",
     "/api/v1/operations/tasks/50000000-0000-4000-8000-000000000001",
     "/api/v1/operations/work/inbound/30000000-0000-4000-8000-000000000001",
     "/api/v1/operations/work/outbound/a0000000-0000-4000-8000-000000000001",
@@ -131,6 +134,13 @@ describe("task projection HTTP authorization", () => {
     );
   });
   it("passes only current warehouse and scalar Work route to the read service", async () => {
+    expect(
+      (await authorized("/api/v1/operations/work?view=all&limit=2")).status,
+    ).toBe(200);
+    expect(service.getQueue).toHaveBeenCalledWith(testWarehouseId, {
+      view: "all",
+      limit: "2",
+    });
     expect(
       (
         await authorized(

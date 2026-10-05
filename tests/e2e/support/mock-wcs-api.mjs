@@ -534,7 +534,7 @@ const server = createServer(async (request, response) => {
     request.method === "GET" &&
     (request.url === "/api/v1/operations/summary" ||
       request.url?.startsWith("/api/v1/operations/tasks") ||
-      request.url?.startsWith("/api/v1/operations/work/") ||
+      request.url?.startsWith("/api/v1/operations/work") ||
       request.url?.startsWith("/api/v1/operations/context/") ||
       request.url?.startsWith("/api/v1/operations/inventory") ||
       request.url?.startsWith("/api/v1/operations/loads") ||
@@ -687,6 +687,73 @@ const server = createServer(async (request, response) => {
         ),
         alarm,
         live: exactLive,
+        generatedAt,
+      }),
+    );
+    return;
+  }
+  if (
+    request.method === "GET" &&
+    new URL(request.url, "http://127.0.0.1").pathname ===
+      "/api/v1/operations/work"
+  ) {
+    const url = new URL(request.url, "http://127.0.0.1");
+    const works = [];
+    if (request.headers["x-swp-warehouse"] !== secondWarehouseId) {
+      for (const [flow, workId, created] of [
+        ["inbound", "30000000-0000-4000-8000-000000000001", false],
+        ["inbound", "30000000-0000-4000-8000-000000000099", true],
+        ["outbound", "a0000000-0000-4000-8000-000000000099", true],
+      ]) {
+        const tasks = fixtureQueue().filter(
+          (t) =>
+            t.flow === flow &&
+            (created
+              ? t.taskId.endsWith("000000000099")
+              : !t.taskId.endsWith("000000000099")),
+        );
+        if (created && !tasks.length) continue;
+        const counts = Object.fromEntries(
+          [
+            "queued",
+            "assigned",
+            "in_progress",
+            "blocked",
+            "unknown",
+            "completed",
+            "cancelled",
+          ].map((s) => [s, tasks.filter((t) => t.status === s).length]),
+        );
+        const status =
+          created && tasks.every((t) => t.status === "completed")
+            ? "completed"
+            : flow === "inbound"
+              ? "requested"
+              : "allocated";
+        if (url.searchParams.get("view") !== "all" && status === "completed")
+          continue;
+        works.push({
+          workId,
+          flow,
+          externalReference: tasks[0]?.externalReference ?? "ASN-E2E-001",
+          status,
+          createdAt: generatedAt,
+          updatedAt: generatedAt,
+          execution: {
+            referencedTaskCount: tasks.length,
+            qualifiedTaskCount: tasks.length,
+            counts,
+          },
+        });
+      }
+    }
+    const limit = Number(url.searchParams.get("limit") ?? 50);
+    const offset = Number(url.searchParams.get("cursor") ?? 0);
+    response.end(
+      JSON.stringify({
+        works: works.slice(offset, offset + limit),
+        nextCursor:
+          works.length > offset + limit ? String(offset + limit) : null,
         generatedAt,
       }),
     );

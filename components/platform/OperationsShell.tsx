@@ -1,13 +1,11 @@
 import {
-  ArrowLeftIcon,
   ArrowRightStartOnRectangleIcon,
   MapIcon,
-  InboxArrowDownIcon,
-  TruckIcon,
   BellAlertIcon,
   QueueListIcon,
   ClipboardDocumentListIcon,
   Squares2X2Icon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/24/outline";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -25,25 +23,92 @@ import { ThemeControl } from "./ThemeControl";
 import { WarehouseContextControl } from "./WarehouseContextControl";
 import { NavigationProgress } from "./NavigationProgress";
 import { ProductMark } from "./ProductMark";
-
+import { WorkNavigation } from "./WorkNavigation";
+type Surface =
+  | "overview"
+  | "work"
+  | "tasks"
+  | "inventory"
+  | "warehouse"
+  | "inbound"
+  | "outbound"
+  | "alarms"
+  | "audit"
+  | "help"
+  | "projections";
+const workSurfaces = ["work", "tasks", "inbound", "outbound"];
+const primary = [
+  {
+    key: "overview",
+    href: "/operations",
+    label: "operatorHome",
+    Icon: Squares2X2Icon,
+  },
+  {
+    key: "work",
+    href: "/operations/work",
+    label: "operatorWork",
+    Icon: QueueListIcon,
+  },
+  {
+    key: "warehouse",
+    href: "/operations/warehouse",
+    label: "operatorLive",
+    Icon: MapIcon,
+  },
+  {
+    key: "alarms",
+    href: "/operations/alarms",
+    label: "operatorExceptions",
+    Icon: BellAlertIcon,
+  },
+  {
+    key: "inventory",
+    href: "/operations/inventory",
+    label: "inventory",
+    Icon: ClipboardDocumentListIcon,
+  },
+  {
+    key: "help",
+    href: "/operations/help",
+    label: "operatorHelp",
+    Icon: QuestionMarkCircleIcon,
+  },
+] as const;
+const titleKeys: Record<Surface, MessageKey> = {
+  overview: "operationsHome",
+  work: "operatorWork",
+  tasks: "taskQueueTitle",
+  inventory: "inventory",
+  warehouse: "liveView",
+  inbound: "inbound",
+  outbound: "outbound",
+  alarms: "operatorExceptions",
+  audit: "auditHistory",
+  help: "helpTitle",
+  projections: "projectionsTitle",
+};
+const helpTopics: Record<Surface, string> = {
+  overview: "daily-work",
+  work: "daily-work",
+  tasks: "daily-work",
+  inventory: "inventory",
+  warehouse: "live-view",
+  inbound: "inbound-outbound",
+  outbound: "inbound-outbound",
+  alarms: "exceptions",
+  audit: "audit",
+  help: "getting-started",
+  projections: "troubleshooting",
+};
 export function OperationsShell({
   children,
   current = "overview",
   titleKey,
 }: {
   children: ReactNode;
+  current?: Surface;
   titleKey?: MessageKey;
-  current?:
-    | "overview"
-    | "tasks"
-    | "inventory"
-    | "warehouse"
-    | "inbound"
-    | "outbound"
-    | "alarms"
-    | "audit"
-    | "help"
-    | "projections";
 }) {
   const { t } = useLocale();
   const { data: session } = useSession();
@@ -52,51 +117,63 @@ export function OperationsShell({
     ? session.runtime
     : null;
   const canViewAudit = access ? hasUserPermission(access, "audit.view") : false;
+  const title = t(titleKey ?? titleKeys[current]) + " | " + t("brand");
+  const group = workSurfaces.includes(current) ? "work" : current;
   const environmentLabel = runtime
     ? t(
-        {
-          development: "environmentDevelopment",
-          test: "environmentTest",
-          staging: "environmentStaging",
-          production: "environmentProduction",
-        }[runtime.environment] as Parameters<typeof t>[0],
+        (
+          {
+            development: "environmentDevelopment",
+            test: "environmentTest",
+            staging: "environmentStaging",
+            production: "environmentProduction",
+          } as const
+        )[runtime.environment],
       )
     : null;
-  const deploymentProfileLabel = runtime
+  const profileLabel = runtime
     ? t(
-        {
-          public_demo: "deploymentProfilePublicDemo",
-          private_demo: "deploymentProfilePrivateDemo",
-          pilot: "deploymentProfilePilot",
-          production: "deploymentProfileProduction",
-        }[runtime.deploymentProfile] as Parameters<typeof t>[0],
+        (
+          {
+            public_demo: "deploymentProfilePublicDemo",
+            private_demo: "deploymentProfilePrivateDemo",
+            pilot: "deploymentProfilePilot",
+            production: "deploymentProfileProduction",
+          } as const
+        )[runtime.deploymentProfile],
       )
     : null;
-  const equipmentSourceLabel = runtime
+  const sourceLabel = runtime
     ? t(
-        {
-          simulation: "equipmentSourceSimulation",
-          hardware: "equipmentSourceHardware",
-          hybrid: "equipmentSourceHybrid",
-        }[runtime.equipmentSource] as Parameters<typeof t>[0],
+        (
+          {
+            simulation: "equipmentSourceSimulation",
+            hardware: "equipmentSourceHardware",
+            hybrid: "equipmentSourceHybrid",
+          } as const
+        )[runtime.equipmentSource],
       )
     : null;
-  const title = `${t(
-    titleKey ??
-      ({
-        overview: "operationsHome",
-        tasks: "taskQueueTitle",
-        inventory: "inventory",
-        warehouse: "liveView",
-        inbound: "inbound",
-        outbound: "outbound",
-        alarms: "alarmWorkflowTitle",
-        audit: "auditHistory",
-        help: "helpTitle",
-        projections: "projectionsTitle",
-      }[current] as MessageKey),
-  )} | ${t("brand")}`;
-
+  const navLinks = (mobile: boolean) =>
+    primary.map(({ key, href, label, Icon }) => (
+      <Link
+        key={key}
+        href={href}
+        aria-current={group === key ? "page" : undefined}
+        className={
+          "ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold " +
+          (mobile ? "shrink-0 whitespace-nowrap " : "") +
+          (group === key
+            ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+            : "text-[var(--text-muted)]")
+        }
+      >
+        {!mobile ? (
+          <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+        ) : null}
+        {t(label)}
+      </Link>
+    ));
   return (
     <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
       <Head>
@@ -119,142 +196,20 @@ export function OperationsShell({
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
           <Link
-            href="/"
+            href="/operations"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
             <ProductMark />
             <span className="font-bold tracking-tight">{t("brand")}</span>
           </Link>
           <nav aria-label={t("desktopNavigation")} className="space-y-1">
-            <Link
-              href="/operations"
-              aria-current={current === "overview" ? "page" : undefined}
-              className={`ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "overview"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-              {t("overview")}
-            </Link>
-            <Link
-              href="/operations/tasks"
-              aria-current={current === "tasks" ? "page" : undefined}
-              className={`ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "tasks"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <QueueListIcon className="h-5 w-5" aria-hidden="true" />
-              {t("taskQueueTitle")}
-            </Link>
-            <Link
-              href="/operations/inventory"
-              aria-current={current === "inventory" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "inventory"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <ClipboardDocumentListIcon
-                className="h-5 w-5"
-                aria-hidden="true"
-              />
-              {t("inventory")}
-            </Link>
-            <Link
-              href="/operations/warehouse"
-              aria-current={current === "warehouse" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "warehouse"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <MapIcon className="h-5 w-5" aria-hidden="true" />
-              {t("liveView")}
-            </Link>
-            <Link
-              href="/operations/inbound"
-              aria-current={current === "inbound" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "inbound"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <InboxArrowDownIcon className="h-5 w-5" aria-hidden="true" />
-              {t("inbound")}
-            </Link>
-            <Link
-              href="/operations/outbound"
-              aria-current={current === "outbound" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "outbound"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <TruckIcon className="h-5 w-5" aria-hidden="true" />
-              {t("outbound")}
-            </Link>
-            <Link
-              href="/operations/alarms"
-              aria-current={current === "alarms" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "alarms"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <BellAlertIcon className="h-5 w-5" aria-hidden="true" />
-              {t("alarmOperations")}
-            </Link>
-            <Link
-              href="/operations/projections"
-              aria-current={current === "projections" ? "page" : undefined}
-              className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                current === "projections"
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                  : "text-[var(--text-muted)]"
-              }`}
-            >
-              <QueueListIcon className="h-5 w-5" aria-hidden="true" />
-              {t("projections")}
-            </Link>
-            {canViewAudit ? (
-              <Link
-                href="/operations/audit"
-                aria-current={current === "audit" ? "page" : undefined}
-                className={`ui-pressable flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                  current === "audit"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                <ClipboardDocumentListIcon
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                />
-                {t("auditHistory")}
-              </Link>
-            ) : null}
+            {navLinks(false)}
           </nav>
           <div className="mt-auto border-t border-[var(--border)] pt-4">
-            <Link
-              href="/operations/help"
-              aria-current={current === "help" ? "page" : undefined}
-              className="ui-pressable flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
-            >
-              {t("helpTitle")}
-            </Link>
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/" })}
-              className="ui-pressable flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
+              className="ui-pressable flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
             >
               <ArrowRightStartOnRectangleIcon
                 className="h-5 w-5"
@@ -264,23 +219,19 @@ export function OperationsShell({
             </button>
           </div>
         </aside>
-
         <div className="min-w-0 flex-1">
           <header className="border-b border-[var(--border)] bg-[var(--surface)]">
             <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center gap-3 md:hidden">
-                <Link
-                  href="/"
-                  aria-label={t("platform")}
-                  className="ui-pressable rounded-lg p-2 text-[var(--text-muted)]"
-                >
-                  <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
-                </Link>
-                <span className="text-sm font-bold">{t("operations")}</span>
-              </div>
+              <Link
+                href="/operations"
+                className="ui-pressable flex min-h-11 items-center gap-2 md:hidden"
+              >
+                <ProductMark />
+                <span className="text-sm font-bold">SWP</span>
+              </Link>
               <div
                 aria-label={t("operationalContext")}
-                className="order-3 flex w-full min-w-0 items-center gap-2 pb-3 text-xs md:order-none md:w-auto md:pb-0"
+                className="order-3 flex w-full min-w-0 flex-wrap items-center gap-2 pb-3 text-xs md:order-none md:w-auto md:pb-0"
               >
                 {access ? (
                   <WarehouseContextControl access={access} />
@@ -288,18 +239,18 @@ export function OperationsShell({
                   <span>{t("warehouseContextUnavailable")}</span>
                 )}
                 {environmentLabel ? (
-                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
                     {environmentLabel}
                   </span>
                 ) : null}
-                {deploymentProfileLabel ? (
-                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
-                    {deploymentProfileLabel}
+                {profileLabel ? (
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                    {profileLabel}
                   </span>
                 ) : null}
-                {equipmentSourceLabel ? (
-                  <span className="hidden rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)] lg:inline">
-                    {equipmentSourceLabel}
+                {sourceLabel ? (
+                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
+                    {sourceLabel}
                   </span>
                 ) : null}
               </div>
@@ -317,138 +268,63 @@ export function OperationsShell({
               aria-label={t("mobileNavigation")}
               className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
             >
-              <Link
-                href="/operations/help"
-                aria-current={current === "help" ? "page" : undefined}
-                className="ui-pressable inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold text-[var(--accent-strong)]"
-              >
-                {t("helpTitle")}
-              </Link>
-              <Link
-                href="/operations"
-                aria-current={current === "overview" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "overview"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("overview")}
-              </Link>
-              <Link
-                href="/operations/tasks"
-                aria-current={current === "tasks" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "tasks"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("taskQueueTitle")}
-              </Link>
-              <Link
-                href="/operations/inventory"
-                aria-current={current === "inventory" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "inventory"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("inventory")}
-              </Link>
-              <Link
-                href="/operations/warehouse"
-                aria-current={current === "warehouse" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "warehouse"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("liveView")}
-              </Link>
-              <Link
-                href="/operations/inbound"
-                aria-current={current === "inbound" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "inbound"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("inbound")}
-              </Link>
-              <Link
-                href="/operations/outbound"
-                aria-current={current === "outbound" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "outbound"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("outbound")}
-              </Link>
-              <Link
-                href="/operations/alarms"
-                aria-current={current === "alarms" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "alarms"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("alarmOperations")}
-              </Link>
-              <Link
-                href="/operations/projections"
-                aria-current={current === "projections" ? "page" : undefined}
-                className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                  current === "projections"
-                    ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {t("projections")}
-              </Link>
-              {canViewAudit ? (
-                <Link
-                  href="/operations/audit"
-                  aria-current={current === "audit" ? "page" : undefined}
-                  className={`ui-pressable shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-xs font-semibold ${
-                    current === "audit"
-                      ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-                      : "text-[var(--text-muted)]"
-                  }`}
-                >
-                  {t("auditHistory")}
-                </Link>
-              ) : null}
+              {navLinks(true)}
             </nav>
           </header>
           <main id="main-content" className="px-4 py-8 sm:px-6 lg:px-8">
-            {current !== "help" && (
-              <Link
-                href={`/operations/help?topic=${
-                  {
-                    overview: "daily-work",
-                    tasks: "daily-work",
-                    inventory: "inventory",
-                    warehouse: "live-view",
-                    inbound: "inbound-outbound",
-                    outbound: "inbound-outbound",
-                    alarms: "exceptions",
-                    audit: "audit",
-                    projections: "troubleshooting",
-                  }[current]
-                }`}
-                className="ui-pressable mb-4 inline-flex min-h-11 items-center rounded-lg text-sm font-semibold text-[var(--accent-strong)]"
-              >
-                {t("helpContextual")}
-              </Link>
-            )}
+            {workSurfaces.includes(current) ? (
+              <WorkNavigation
+                current={current as "work" | "tasks" | "inbound" | "outbound"}
+              />
+            ) : null}
             {children}
+            <div className="mt-8 border-t border-[var(--border)] pt-4">
+              {current !== "help" ? (
+                <Link
+                  href={"/operations/help?topic=" + helpTopics[current]}
+                  className="ui-pressable mb-3 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--accent-strong)]"
+                >
+                  {t("helpContextual")}
+                </Link>
+              ) : null}
+              <details
+                open={current === "projections" || current === "audit"}
+                className="text-sm text-[var(--text-muted)]"
+              >
+                <summary className="min-h-11 cursor-pointer py-3 font-semibold">
+                  {t("secondaryTools")}
+                </summary>
+                <nav
+                  aria-label={t("secondaryTools")}
+                  className="flex flex-wrap gap-2"
+                >
+                  <Link
+                    href="/operations/projections"
+                    aria-current={
+                      current === "projections" ? "page" : undefined
+                    }
+                    className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2"
+                  >
+                    {t("projections")}
+                  </Link>
+                  <Link
+                    href="/operations/warehouse/topology"
+                    className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2"
+                  >
+                    {t("warehouseMapTitle")}
+                  </Link>
+                  {canViewAudit ? (
+                    <Link
+                      href="/operations/audit"
+                      aria-current={current === "audit" ? "page" : undefined}
+                      className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2"
+                    >
+                      {t("auditHistory")}
+                    </Link>
+                  ) : null}
+                </nav>
+              </details>
+            </div>
           </main>
         </div>
       </div>

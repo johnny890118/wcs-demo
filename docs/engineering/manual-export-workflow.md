@@ -5,7 +5,8 @@ The authenticated web manual and both downloadable PDFs share
 together, then regenerate and verify artifacts. This is system guidance, not
 marketing or equipment authority. PDFs contain no warehouse/customer data.
 
-Manual revision `2026-10-05.1` adds durable creation-to-Work continuation,
+Manual revision `2026-10-05.2` adds the persisted Work queue, root versus WCS-task
+paging distinction and operator primary/secondary navigation. It retains durable creation-to-Work continuation,
 queued-only execution review, reload-cleared confirmation and outcome investigation
 without blind resend. It retains exact server-resolved Task/context handoffs,
 owned Work/Task returns and exact stock/load/location filters without claiming

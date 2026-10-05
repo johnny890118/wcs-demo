@@ -35,7 +35,12 @@ export type WorkAttention =
   | "empty";
 
 /** Counts cover the qualified root, never just the current page. */
-export function workAttention(detail: WorkDetail): WorkAttention {
+export function workAttention(detail: {
+  execution: Pick<
+    WorkDetail["execution"],
+    "counts" | "qualifiedTaskCount" | "referencedTaskCount"
+  >;
+}): WorkAttention {
   const e = detail.execution;
   if (e.qualifiedTaskCount !== e.referencedTaskCount) return "incomplete";
   if (e.counts.unknown) return "unknown";

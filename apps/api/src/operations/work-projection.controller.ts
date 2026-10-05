@@ -9,13 +9,24 @@ import {
 import { ServiceTokenGuard } from "../auth/service-token.guard";
 import { RequirePermission, RequireUserPermission } from "../auth/permissions";
 import { WorkProjectionService } from "./work-projection.service";
+import { WorkQueueService } from "./work-queue.service";
 
 @Controller("v1/operations/work")
 @UseGuards(ServiceTokenGuard)
 @RequirePermission("operations.view")
 @RequireUserPermission("operations.view")
 export class WorkProjectionController {
-  constructor(private readonly work: WorkProjectionService) {}
+  constructor(
+    private readonly work: WorkProjectionService,
+    private readonly queue: WorkQueueService,
+  ) {}
+  @Get()
+  getQueue(
+    @Headers("x-swp-warehouse") warehouseId: string,
+    @Query() query: Record<string, unknown>,
+  ) {
+    return this.queue.getQueue(warehouseId, query);
+  }
   @Get(":flow/:workId")
   getDetail(
     @Headers("x-swp-warehouse") warehouseId: string,

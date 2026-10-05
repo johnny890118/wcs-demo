@@ -37,7 +37,7 @@ export default function ResumeWorkPage({
 }: Props) {
   const { t } = useLocale();
   return (
-    <OperationsShell current="tasks" titleKey="workCase">
+    <OperationsShell current="work" titleKey="workCase">
       <h1 className="text-3xl font-black">
         {detail?.task.externalReference ?? t("workUnavailable")}
       </h1>

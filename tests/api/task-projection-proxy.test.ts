@@ -6,6 +6,7 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
   fetchTaskQueue: vi.fn(),
   fetchTaskDetail: vi.fn(),
   fetchWorkDetail: vi.fn(),
+  fetchWorkQueue: vi.fn(),
   fetchInventory: vi.fn(),
   fetchLoads: vi.fn(),
   fetchLocations: vi.fn(),
@@ -13,12 +14,14 @@ vi.mock("../../src/infrastructure/http/wcs-api-client", async (original) => ({
 import { getServerSession } from "next-auth/next";
 import handler from "../../pages/api/operations/tasks/[[...segments]]";
 import workHandler from "../../pages/api/operations/work/[flow]/[workId]";
+import queueHandler from "../../pages/api/operations/work";
 import inventoryHandler from "../../pages/api/operations/inventory";
 import loadsHandler from "../../pages/api/operations/loads";
 import locationsHandler from "../../pages/api/operations/locations";
 import {
   fetchTaskDetail,
   fetchWorkDetail,
+  fetchWorkQueue,
   fetchTaskQueue,
   fetchInventory,
   fetchLoads,
@@ -49,6 +52,61 @@ describe("task read browser boundary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getServerSession).mockResolvedValue(testOperationalSession);
+  });
+  it("Work queue BFF rejects method, unknown scope, arrays, denied session and permission", async () => {
+    for (const [method, query, status] of [
+      ["POST", {}, 405],
+      ["GET", { warehouseId: "foreign" }, 400],
+      ["GET", { view: ["all"] }, 400],
+    ] as const) {
+      const res = response();
+      await queueHandler({ method, query } as never, res as never);
+      expect(res.statusCode).toBe(status);
+      expect(res.setHeader).toHaveBeenCalledWith(
+        "Cache-Control",
+        "private, no-store",
+      );
+    }
+    vi.mocked(getServerSession).mockResolvedValue(null);
+    const denied = response();
+    await queueHandler({ method: "GET", query: {} } as never, denied as never);
+    expect(denied.statusCode).toBe(401);
+    vi.mocked(getServerSession).mockResolvedValue({
+      ...testOperationalSession,
+      access: {
+        ...testOperationalAccess,
+        principal: {
+          ...testOperationalAccess.principal,
+          permissions: ["audit.view"],
+          warehouseScopes: testOperationalAccess.principal.warehouseScopes.map(
+            (s) => ({ ...s, permissions: ["audit.view"] }),
+          ),
+        },
+      },
+    });
+    const forbidden = response();
+    await queueHandler(
+      { method: "GET", query: {} } as never,
+      forbidden as never,
+    );
+    expect(forbidden.statusCode).toBe(403);
+    expect(fetchWorkQueue).not.toHaveBeenCalled();
+  });
+  it("Work queue uses signed scope and sanitizes upstream failure", async () => {
+    vi.mocked(fetchWorkQueue).mockRejectedValue(
+      new Error("private database message"),
+    );
+    const res = response();
+    await queueHandler(
+      { method: "GET", query: { view: "all", limit: "2" } } as never,
+      res as never,
+    );
+    expect(fetchWorkQueue).toHaveBeenCalledWith(testOperationalAccess, {
+      view: "all",
+      limit: 2,
+    });
+    expect(res.body).toEqual({ code: "WORK_QUEUE_UNAVAILABLE" });
+    expect(res.statusCode).toBe(503);
   });
   it("keeps Work read method/session/scalar boundaries and no-store", async () => {
     const valid = {

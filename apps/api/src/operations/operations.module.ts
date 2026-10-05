@@ -12,6 +12,7 @@ import { LocationProjectionController } from "./location-projection.controller";
 import { LocationProjectionService } from "./location-projection.service";
 import { WorkProjectionController } from "./work-projection.controller";
 import { WorkProjectionService } from "./work-projection.service";
+import { WorkQueueService } from "./work-queue.service";
 import { ExactContextController } from "./exact-context.controller";
 import { ExactContextService } from "./exact-context.service";
 
@@ -29,6 +30,7 @@ import { ExactContextService } from "./exact-context.service";
     ExactContextService,
     OperationsSummaryService,
     WorkProjectionService,
+    WorkQueueService,
     TaskProjectionService,
     InventoryProjectionService,
     LoadProjectionService,

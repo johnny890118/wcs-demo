@@ -15,6 +15,90 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+test("operator Work entry preserves end-to-end investigation and six primary contexts", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signIn(page, "/operations/work");
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const english of [false, true]) {
+      await page
+        .getByRole("button", { name: english ? "EN" : "繁中", exact: true })
+        .click();
+      for (const dark of [false, true]) {
+        await page
+          .getByRole("button", {
+            name: english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
+            exact: true,
+          })
+          .click();
+        const nav = page.getByRole("navigation", {
+          name: english
+            ? width >= 768
+              ? "Operations desktop navigation"
+              : "Operations mobile navigation"
+            : width >= 768
+              ? "操作台桌面版導覽"
+              : "操作台行動版導覽",
+        });
+        await expect(nav.getByRole("link")).toHaveCount(6);
+        expect(
+          await nav
+            .getByRole("link")
+            .evaluateAll((links) => links.map((l) => l.getAttribute("href"))),
+        ).toEqual([
+          "/operations",
+          "/operations/work",
+          "/operations/warehouse",
+          "/operations/alarms",
+          "/operations/inventory",
+          "/operations/help",
+        ]);
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+        expect(
+          await page.evaluate(
+            () =>
+              document.documentElement.scrollWidth >
+              document.documentElement.clientWidth,
+          ),
+        ).toBe(false);
+      }
+    }
+  }
+  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await page.screenshot({
+    path: test.info().outputPath("operator-work-mobile-dark.png"),
+    fullPage: true,
+  });
+  await page.getByRole("link", { name: /開啟這筆工作.*ASN-E2E-001/ }).click();
+  await expect(page).toHaveURL(/\/operations\/work\/inbound\//);
+  const workURL = page.url();
+  await page.reload();
+  await page
+    .getByRole("link", { name: "開啟任務", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/operations\/tasks\//);
+  const taskURL = page.url();
+  await page.getByRole("link", { name: "倉庫地圖", exact: true }).click();
+  await expect(page).toHaveURL(/\/context\/.*\/live/);
+  await page.reload();
+  await page.getByRole("link", { name: "返回這筆任務", exact: true }).click();
+  await expect(page).toHaveURL(taskURL);
+  await page.getByRole("link", { name: "開啟這筆工作", exact: true }).click();
+  await expect(page).toHaveURL(workURL);
+  await page.getByRole("link", { name: "返回工作清單", exact: true }).click();
+  await expect(page).toHaveURL("/operations/work");
+  await page
+    .getByRole("navigation", { name: "工作情境導覽" })
+    .getByRole("link", { name: "執行任務", exact: true })
+    .click();
+  await expect(page).toHaveURL("/operations/tasks");
+});
+
 test("created Work survives same-tab handoff, reload, exact continuation and persisted outcome", async ({
   page,
 }) => {
@@ -151,7 +235,7 @@ test("neutral-first brand survives an operator read journey across themes, local
         await expect(page.locator("html")).toHaveClass(new RegExp(theme));
         for (const route of [
           "/operations",
-          "/operations/tasks",
+          "/operations/work",
           "/operations/inventory",
           "/operations/warehouse",
         ]) {
@@ -577,7 +661,9 @@ test("Live View separates observations from assignments and expires retained pos
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(`/operations/tasks/${payload.work[0].taskId}`);
   await page.goto("/operations/warehouse");
-  const disclosure = page.locator("summary").last();
+  const disclosure = page
+    .locator("summary")
+    .filter({ hasText: "觀測技術細節" });
   await disclosure.focus();
   await page.keyboard.press("Enter");
   await expect(
@@ -803,13 +889,13 @@ test("navigation signals SSR waiting and Home refresh uses one bounded read", as
   const ready = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route("**/_next/data/**/operations/tasks.json*", async (route) => {
+  await page.route("**/_next/data/**/operations/work.json*", async (route) => {
     await ready;
     await route.continue();
   });
   const navigation = page
     .getByRole("navigation", { name: "操作台桌面版導覽" })
-    .getByRole("link", { name: "任務", exact: true })
+    .getByRole("link", { name: "工作", exact: true })
     .click();
   await expect(
     page.getByRole("status").filter({ hasText: "正在開啟工作區" }),
@@ -820,7 +906,7 @@ test("navigation signals SSR waiting and Home refresh uses one bounded read", as
   });
   release();
   await navigation;
-  await expect(page).toHaveURL("/operations/tasks");
+  await expect(page).toHaveURL("/operations/work");
   await expect(
     page.getByRole("status").filter({ hasText: "正在開啟工作區" }),
   ).toHaveCount(0);
@@ -870,7 +956,12 @@ test("locations explain configured states and record counts without occupancy cl
     page.getByText("目前倉庫與搜尋條件沒有符合的位置。"),
   ).toBeVisible();
   await page.getByRole("link", { name: "清除", exact: true }).click();
-  const disclosure = page.locator("summary").first();
+  const disclosure = page
+    .locator("li")
+    .filter({
+      has: page.getByRole("heading", { name: "STORAGE-01", exact: true }),
+    })
+    .locator("summary");
   await disclosure.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByText(/routing-storage-node/)).toBeVisible();
@@ -1716,7 +1807,7 @@ test("operator acknowledges and releases a faulted task", async ({ page }) => {
   await signIn(page, "/operations/alarms");
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "確認警報並復原受阻作業" }),
+    page.getByRole("heading", { level: 1, name: "異常" }),
   ).toBeVisible();
   await expect(page.getByText("受影響作業", { exact: true })).toBeVisible();
   await reviewCreatedWorkflow(page, "alarm-review");
@@ -1773,7 +1864,7 @@ test("alarm workflow reflows without horizontal page overflow on mobile", async 
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
   await expect(
-    page.getByRole("heading", { level: 1, name: "確認警報並復原受阻作業" }),
+    page.getByRole("heading", { level: 1, name: "異常" }),
   ).toBeVisible();
   await expect(page.getByLabel("選擇警報")).toBeVisible();
 });

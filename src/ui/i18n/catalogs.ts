@@ -1,5 +1,29 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  operatorWork: "Work",
+  operatorHome: "Home",
+  returnToWorkQueue: "Return to Work",
+  workCoverage: "Qualified / referenced execution tasks",
+  operatorLive: "Live",
+  operatorExceptions: "Exceptions",
+  exceptionSnapshotNotice:
+    "Investigate recorded alarms, blocked or unknown work and equipment observations. This bounded read is not proof of a healthy warehouse or permission to issue a command; reload for changes.",
+  operatorHelp: "Help",
+  workNavigation: "Work context navigation",
+  workExecutionTasks: "Execution tasks",
+  secondaryTools: "History and technical tools",
+  workQueueDescription:
+    "Open the same inbound or outbound job, review its recorded execution and continue permitted work. Empty or incomplete jobs remain explicit.",
+  workQueueView: "Work list selection",
+  workQueueActive: "Needs work or investigation",
+  workQueueAll: "All recorded jobs",
+  workQueueUnavailable:
+    "Work records are unavailable. This does not mean there is no work; reload the current observation.",
+  workQueueEmpty: "No jobs match this selection in the current warehouse.",
+  workQueueNext: "Next page of jobs",
+  workQueueRefresh: "Refresh from the newest jobs",
+  workQueueCurrency:
+    "Newest-created jobs first. This is a paged observation, not a live scheduling or command decision. Refresh restarts the list; completing one task does not prove the whole job or physical operation is complete.",
   workExecutionPending:
     "Waiting for the server execution outcome. Do not resend the command.",
   workResumeSafetyNotice:
@@ -665,6 +689,30 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  operatorWork: "工作",
+  operatorHome: "首頁",
+  returnToWorkQueue: "返回工作清單",
+  workCoverage: "可檢視／關聯執行任務",
+  operatorLive: "即時現場",
+  operatorExceptions: "異常",
+  exceptionSnapshotNotice:
+    "檢視已記錄警報、受阻或未知作業及設備觀測。這是有限範圍的讀取，不代表倉庫正常或允許下達命令；請重新載入以取得變更。",
+  operatorHelp: "說明",
+  workNavigation: "工作情境導覽",
+  workExecutionTasks: "執行任務",
+  secondaryTools: "歷程與技術工具",
+  workQueueDescription:
+    "開啟同一筆入庫或出庫工作，檢視已記錄執行並繼續允許的作業。尚無任務或證據不完整的工作會明確顯示。",
+  workQueueView: "工作清單檢視",
+  workQueueActive: "需要作業或調查",
+  workQueueAll: "全部已記錄工作",
+  workQueueUnavailable:
+    "目前無法讀取工作記錄，不代表沒有工作；請重新載入目前觀測。",
+  workQueueEmpty: "目前倉庫沒有符合此檢視的工作。",
+  workQueueNext: "下一頁工作",
+  workQueueRefresh: "從最新工作重新整理",
+  workQueueCurrency:
+    "依建立時間由新到舊排列。此為分頁觀測，不是即時排程或命令條件；重新整理會重啟清單。單一任務完成不能證明整筆工作或現場作業已完成。",
   workExecutionPending: "正在等候伺服器執行結果，請勿重送命令。",
   workResumeSafetyNotice:
     "這是已記錄的任務，不是命令授權。執行時會重新檢查登入、倉庫、權限與設備安全；重新載入會清除確認。",

@@ -2,6 +2,7 @@ import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { AlarmRecoveryPanel } from "../../components/platform/AlarmRecoveryPanel";
+import { ExceptionAttention } from "../../components/platform/ExceptionAttention";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
@@ -31,12 +32,13 @@ export default function AlarmOperationsPage({
           {t("alarmOperations")}
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-          {t("alarmWorkflowTitle")}
+          {t("operatorExceptions")}
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
           {t("alarmWorkflowDescription")}
         </p>
       </header>
+      {details ? <ExceptionAttention details={details} /> : null}
       <div className="mt-8">
         {details ? (
           <AlarmRecoveryPanel

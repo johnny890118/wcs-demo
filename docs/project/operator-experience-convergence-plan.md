@@ -1,6 +1,6 @@
 # Operator Experience A–D convergence
 
-Status: Active — A and B delivered; C locally verified, delivery gates pending.
+Status: Active — A–C delivered; D verified locally, delivery gates pending.
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -96,4 +96,41 @@ paged task list or replace unknown outcomes with retry/success.
 - [x] Implement durable create-to-Work continuation and qualified resume UI.
 - [x] Verify split-job, incomplete, unknown, permission and scope cases.
 - [x] Full verification, independent security and operator/Emil journey review.
-- [ ] Durable evidence, checkpoint/push/exact CI/deployments/runtime/clean.
+- [x] Durable evidence, checkpoint/push/exact CI/deployments/runtime/clean.
+
+C checkpoint `178ff9e6ea0f377f6e214f36c9c9fa0ee1941268` is pushed. Exact-HEAD
+CI run `37323480352` passed verification and deployment-smoke. Vercel Ready and
+Render Live resolve that full SHA; managed checks pass after deployment. On
+2026-10-05 authenticated production Task → same Work → exact queued resume →
+reload → owned Work return passed. Reload clears reason/confirmation, equipment
+is not preselected and aged observations remove availability. No production
+command was submitted. An existing Chrome Tasks page displayed one 504; reload
+recovered and subsequent reads passed. This is not proof of its cause or a
+latency benchmark. Working tree was clean before D.
+
+## D execution
+
+Evidence: A–C restore exact individual Work contexts, but no server-owned Work
+queue exists. The primary shell still exposes Tasks, Inbound, Outbound,
+Projections and Audit as peer modules. Inventory already has a reusable shared
+navigation; B's contextual returns remain authoritative and must survive D.
+
+Risk: security-sensitive read aggregation and major operator journey change.
+First establish a bounded, warehouse-scoped persisted Work queue (including
+empty/split jobs), not client deduplication of one task page. Then consolidate
+Home / Work / Live / Exceptions / Inventory / Help around real capabilities.
+Technical/history surfaces stay independently authorized and secondary. Workspace
+presentation does not branch authorization by role name. No new recovery,
+administration, scheduling or external WMS controls.
+
+- [x] Record Work queue/IA contract and operator acceptance journeys.
+- [x] Implement server-resolved Work list and contextual navigation.
+- [x] Verify root pagination, scope/permission and truthful partial states.
+- [x] Complete independent security, operator/Emil and full journey review.
+- [ ] Full gates, durable knowledge, checkpoint/push/exact CI/deploy/runtime/clean.
+
+D local gate passes 608 fast, 88 real PostgreSQL and 41 production-build browser
+tests plus public-demo denial harness; separate API build passes. ADR 0033 and
+[operator consolidation review](../engineering/operator-consolidation-review.md)
+record exact root/attention semantics, review correction and evidence limits.
+Delivery must finish before resuming the existing S3 plan.
