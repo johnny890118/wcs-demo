@@ -72,7 +72,7 @@
     "postcss": "^8.5.28",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "supertest": "^7.1.4",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.20.6",
