@@ -6,11 +6,16 @@ import {
   ClipboardDocumentListIcon,
   Squares2X2Icon,
   QuestionMarkCircleIcon,
+  Bars3Icon,
+  XMarkIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
 } from "@heroicons/react/24/outline";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Head from "next/head";
-import type { ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import {
   hasUserPermission,
   isOperationalAccess,
@@ -37,6 +42,22 @@ type Surface =
   | "help"
   | "projections";
 const workSurfaces = ["work", "tasks", "inbound", "outbound"];
+const navigationPreferenceKey = "swp-navigation-collapsed";
+function subscribeNavigation(listener: () => void) {
+  window.addEventListener("storage", listener);
+  window.addEventListener("swp-navigation-preference", listener);
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener("swp-navigation-preference", listener);
+  };
+}
+function navigationSnapshot() {
+  try {
+    return localStorage.getItem(navigationPreferenceKey) === "true";
+  } catch {
+    return false;
+  }
+}
 const primary = [
   {
     key: "overview",
@@ -105,12 +126,32 @@ export function OperationsShell({
   children,
   current = "overview",
   titleKey,
+  workNavigationAfterHeader = false,
 }: {
   children: ReactNode;
   current?: Surface;
   titleKey?: MessageKey;
+  workNavigationAfterHeader?: boolean;
 }) {
   const { t } = useLocale();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [temporaryCollapsed, setTemporaryCollapsed] = useState<boolean | null>(
+    null,
+  );
+  const persistedCollapsed = useSyncExternalStore(
+    subscribeNavigation,
+    navigationSnapshot,
+    () => false,
+  );
+  const collapsed = temporaryCollapsed ?? persistedCollapsed;
+  function toggleNavigation() {
+    try {
+      localStorage.setItem(navigationPreferenceKey, String(!collapsed));
+      window.dispatchEvent(new Event("swp-navigation-preference"));
+    } catch {
+      setTemporaryCollapsed(!collapsed);
+    }
+  }
   const { data: session } = useSession();
   const access = isOperationalAccess(session?.access) ? session.access : null;
   const runtime = isOperationalRuntime(session?.runtime)
@@ -160,16 +201,18 @@ export function OperationsShell({
         key={key}
         href={href}
         aria-current={group === key ? "page" : undefined}
+        title={t(label)}
+        onClick={() => setMenuOpen(false)}
         className={
           "ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold " +
           (mobile ? "shrink-0 whitespace-nowrap " : "") +
           (group === key ? "ui-current-selection" : "text-[var(--text-muted)]")
         }
       >
-        {!mobile ? (
-          <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-        ) : null}
-        {t(label)}
+        <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+        <span className={mobile ? undefined : "operations-nav-label"}>
+          {t(label)}
+        </span>
       </Link>
     ));
   return (
@@ -191,15 +234,35 @@ export function OperationsShell({
       >
         {t("skipToContent")}
       </a>
-      <div className="mx-auto flex min-h-screen max-w-[1600px]">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-4 md:flex md:flex-col">
+      <div
+        className="operations-frame flex min-h-screen"
+        data-collapsed={collapsed}
+      >
+        <aside className="operations-sidebar sticky top-0 hidden h-dvh shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-3 md:flex md:flex-col">
           <Link
             href="/operations"
             className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
           >
             <ProductMark />
-            <span className="font-bold tracking-tight">{t("brand")}</span>
+            <span className="operations-nav-label text-sm font-semibold tracking-tight">
+              {t("brand")}
+            </span>
           </Link>
+          <button
+            type="button"
+            onClick={toggleNavigation}
+            aria-label={t(
+              collapsed ? "expandNavigation" : "collapseNavigation",
+            )}
+            aria-expanded={!collapsed}
+            className="ui-pressable order-last mt-3 hidden min-h-11 items-center justify-center rounded-lg border border-[var(--border-strong)] text-[var(--text-muted)] lg:flex"
+          >
+            {collapsed ? (
+              <ChevronDoubleRightIcon className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <ChevronDoubleLeftIcon className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
           <nav aria-label={t("desktopNavigation")} className="space-y-1">
             {navLinks(false)}
           </nav>
@@ -213,13 +276,13 @@ export function OperationsShell({
                 className="h-5 w-5"
                 aria-hidden="true"
               />
-              {t("signOut")}
+              <span className="operations-nav-label">{t("signOut")}</span>
             </button>
           </div>
         </aside>
         <div className="min-w-0 flex-1">
           <header className="border-b border-[var(--border)] bg-[var(--surface)]">
-            <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <div className="operations-topbar flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
               <Link
                 href="/operations"
                 className="ui-pressable flex min-h-11 items-center gap-2 md:hidden"
@@ -227,9 +290,21 @@ export function OperationsShell({
                 <ProductMark />
                 <span className="text-sm font-bold">SWP</span>
               </Link>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(true)}
+                aria-label={t("navigationMenu")}
+                aria-expanded={menuOpen}
+                className="ui-pressable order-2 ml-auto flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3"
+              >
+                <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+                <span className="hidden text-sm font-medium lg:inline">
+                  {t("navigationMenu")}
+                </span>
+              </button>
               <div
                 aria-label={t("operationalContext")}
-                className="order-3 flex w-full min-w-0 flex-wrap items-center gap-2 pb-3 text-xs md:order-none md:w-auto md:pb-0"
+                className="operations-runtime-context order-3 flex w-full min-w-0 flex-wrap items-center gap-2 pb-3 text-xs lg:order-none lg:w-auto lg:pb-0"
               >
                 {access ? (
                   <WarehouseContextControl access={access} />
@@ -252,25 +327,63 @@ export function OperationsShell({
                   </span>
                 ) : null}
               </div>
-              <div className="ml-auto flex items-center gap-2">
-                {access ? (
-                  <span className="hidden max-w-40 truncate text-xs font-medium text-[var(--text-muted)] xl:inline">
-                    {access.principal.displayName}
-                  </span>
-                ) : null}
-                <LocaleControl />
-                <ThemeControl />
-              </div>
             </div>
-            <nav
-              aria-label={t("mobileNavigation")}
-              className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-2 md:hidden"
-            >
-              {navLinks(true)}
-            </nav>
           </header>
-          <main id="main-content" className="px-4 py-8 sm:px-6 lg:px-8">
-            {workSurfaces.includes(current) ? (
+          <Dialog
+            open={menuOpen}
+            onClose={setMenuOpen}
+            className="fixed inset-0 z-50"
+          >
+            <div
+              className="fixed inset-0 bg-[var(--canvas)] opacity-90"
+              aria-hidden="true"
+            />
+            <div className="fixed inset-0 flex justify-end">
+              <DialogPanel className="w-full max-w-sm overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] p-5">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <DialogTitle className="font-semibold">
+                    {t("navigationMenu")}
+                  </DialogTitle>
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen(false)}
+                    aria-label={t("closeNavigation")}
+                    className="ui-pressable flex min-h-11 min-w-11 items-center justify-center rounded-lg"
+                  >
+                    <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                </div>
+                <nav aria-label={t("mobileNavigation")} className="space-y-1">
+                  {navLinks(true)}
+                </nav>
+                <div className="mt-6 space-y-4 border-t border-[var(--border)] pt-5">
+                  {access ? (
+                    <p className="break-words text-sm">
+                      {access.principal.displayName}
+                    </p>
+                  ) : null}
+                  <LocaleControl />
+                  <ThemeControl />
+                  <button
+                    type="button"
+                    onClick={() => void signOut({ callbackUrl: "/" })}
+                    className="ui-pressable flex min-h-11 items-center gap-3 text-sm"
+                  >
+                    <ArrowRightStartOnRectangleIcon
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    />
+                    {t("signOut")}
+                  </button>
+                </div>
+              </DialogPanel>
+            </div>
+          </Dialog>
+          <main
+            id="main-content"
+            className="operations-content px-4 py-6 sm:px-6 lg:px-10 lg:py-8"
+          >
+            {workSurfaces.includes(current) && !workNavigationAfterHeader ? (
               <WorkNavigation
                 current={current as "work" | "tasks" | "inbound" | "outbound"}
               />

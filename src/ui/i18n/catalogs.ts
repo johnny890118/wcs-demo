@@ -1,5 +1,12 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  navigationMenu: "Navigation and preferences",
+  goodsDetails: "Goods",
+  movementLocations: "Movement locations",
+  requestReferences: "Request references",
+  collapseNavigation: "Collapse navigation",
+  expandNavigation: "Expand navigation",
+  closeNavigation: "Close navigation",
   operatorWork: "Work",
   operatorHome: "Home",
   returnToWorkQueue: "Return to Work",
@@ -689,6 +696,13 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  navigationMenu: "導覽與偏好設定",
+  goodsDetails: "貨物",
+  movementLocations: "搬運位置",
+  requestReferences: "作業參考資料",
+  collapseNavigation: "收合導覽",
+  expandNavigation: "展開導覽",
+  closeNavigation: "關閉導覽",
   operatorWork: "工作",
   operatorHome: "首頁",
   returnToWorkQueue: "返回工作清單",
@@ -842,7 +856,7 @@ export const zhTW: Catalog = {
     "呈現後端合格觀測與已記錄工作；指派不是實體位置。此畫面不是已校準平面圖、路徑保證或設備控制授權。",
   liveCoverageNotice:
     "證據範圍有限，或部分警報 context 無法解析；此處未顯示不代表倉庫沒有問題，請到任務與警報工作區繼續追查。",
-  liveEquipmentContext: "設備作業 context",
+  liveEquipmentContext: "設備與工作",
   liveNoBoundLocation: "無可用的綁定庫位資訊",
   liveInactive: "設定中未啟用",
   liveRecordedState: "最後記錄的設備狀態",
@@ -850,7 +864,7 @@ export const zhTW: Catalog = {
   livePosition_last_known: "僅最後已知觀測",
   livePosition_unknown: "位置未知",
   liveReason_observed:
-    "位置來自 connected、good、current 且符合啟用拓撲的遙測；位置可信不代表設備健康或可安全下令。",
+    "位置來自已連線、品質良好且仍有效的設備觀測，並符合啟用中的位置設定；位置可信不代表設備健康或可安全下令。",
   liveReason_missing_telemetry: "沒有設備觀測回報；不可用任務指派補出位置。",
   liveReason_topology_mismatch: "觀測不符合啟用中的拓撲版本，因此不呈現位置。",
   liveReason_node_unknown: "觀測站點不在啟用拓撲中；需要追查位置證據。",
@@ -865,7 +879,7 @@ export const zhTW: Catalog = {
   liveObservedWork: "設備回報的工作",
   liveObservedUnresolved:
     "回報的工作無法在目前 scope 投影中解析；這不代表設備閒置。",
-  liveObservedNone: "本次觀測沒有回報任務 reference；系統指派的工作另列。",
+  liveObservedNone: "本次觀測沒有回報關聯任務；系統指派的工作另列。",
   liveAssignedWork: "系統指派的工作",
   liveAssignmentNotice: "已記錄指派不代表設備已到達站點或完成指令。",
   liveNoAssignedWork: "有限投影中沒有已指派工作。",

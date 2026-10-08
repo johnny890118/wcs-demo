@@ -2,6 +2,11 @@
 
 This is a living roadmap. Priority is risk reduction plus demonstrable vertical capability, not feature count.
 
+Current delivery priority (Owner-approved 2026-10-09): implement the final
+operator UI Proposal across the shared shell and seven main surfaces. S3 remains
+paused until UI delivery/acceptance; no product capability or milestone order
+change. See [approved UI implementation plan](approved-ui-implementation-plan.md).
+
 ## M0 — Discovery and engineering foundation
 
 Status: Complete

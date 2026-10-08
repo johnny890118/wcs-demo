@@ -189,15 +189,9 @@ export function InboundWorkflowPanel({
   ];
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-          {t("inboundRequest")}
-        </p>
-        <h2 className="mt-2 text-xl font-black">{t("inboundRequestTitle")}</h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-          {t("inboundRequestDescription")}
-        </p>
+    <div className="workflow-layout grid gap-8 xl:grid-cols-[minmax(0,680px)_minmax(220px,1fr)]">
+      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
+        <h2 className="text-base font-semibold">{t("goodsDetails")}</h2>
 
         {!configurationReady ? (
           <div
@@ -234,27 +228,8 @@ export function InboundWorkflowPanel({
           }}
           className="mt-6 space-y-5"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold">
-              {t("externalReference")}
-              <input
-                name="externalReference"
-                required
-                maxLength={200}
-                disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
-              />
-            </label>
-            <label className="text-sm font-semibold">
-              {t("externalLoadId")}
-              <input
-                name="externalId"
-                required
-                maxLength={200}
-                disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
-              />
-            </label>
+          <fieldset className="grid gap-4 sm:grid-cols-2">
+            <legend className="sr-only">{t("goodsDetails")}</legend>
             <label className="text-sm font-semibold">
               {t("sku")}
               <input
@@ -277,6 +252,11 @@ export function InboundWorkflowPanel({
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
               />
             </label>
+          </fieldset>
+          <fieldset className="grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
+            <legend className="pt-5 text-base font-semibold">
+              {t("movementLocations")}
+            </legend>
             <label className="text-sm font-semibold">
               {t("sourceLocation")}
               <select
@@ -324,7 +304,32 @@ export function InboundWorkflowPanel({
                   ))}
               </select>
             </label>
-          </div>
+          </fieldset>
+          <fieldset className="grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
+            <legend className="pt-5 text-base font-semibold">
+              {t("requestReferences")}
+            </legend>
+            <label className="text-sm font-medium">
+              {t("externalReference")}
+              <input
+                name="externalReference"
+                required
+                maxLength={200}
+                disabled={!canCreate || state !== "idle"}
+                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+              />
+            </label>
+            <label className="text-sm font-medium">
+              {t("externalLoadId")}
+              <input
+                name="externalId"
+                required
+                maxLength={200}
+                disabled={!canCreate || state !== "idle"}
+                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+              />
+            </label>
+          </fieldset>
           <button
             type="submit"
             disabled={!canCreate || !configurationReady || state !== "idle"}
@@ -336,7 +341,7 @@ export function InboundWorkflowPanel({
       </section>
 
       <aside
-        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
+        className="self-start py-2 xl:pl-2"
         aria-labelledby="inbound-confirmation-title"
       >
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
@@ -345,6 +350,12 @@ export function InboundWorkflowPanel({
         <h2 id="inbound-confirmation-title" className="mt-2 text-xl font-black">
           {t("reviewAndExecute")}
         </h2>
+        <details className="mt-4 text-sm leading-6 text-[var(--text-muted)]">
+          <summary className="min-h-11 cursor-pointer py-2">
+            {t("inboundRequestTitle")}
+          </summary>
+          <p>{t("inboundRequestDescription")}</p>
+        </details>
         {created ? (
           <div className="mt-5 space-y-5">
             <Link

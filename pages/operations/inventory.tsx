@@ -134,9 +134,7 @@ function Inventory({
             key={item.inventoryUnitId}
             className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
           >
-            <h2 className="break-words text-xl font-bold">
-              {item.sku} · {item.location}
-            </h2>
+            <h2 className="break-words text-xl font-semibold">{item.sku}</h2>
             <p className="mt-2 text-sm font-semibold">
               {t(
                 item.status === "available"
@@ -148,20 +146,46 @@ function Inventory({
                       : "inventoryStateQuarantined",
               )}
             </p>
-            <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+            <dl className="inventory-quantities mt-5 grid grid-cols-3 gap-3 border-b border-[var(--border)] pb-5">
               {(
                 [
                   ["inventoryBalance", item.quantity],
                   ["inventoryReserved", item.reservedQuantity],
                   ["inventoryUnreserved", item.unreservedQuantity],
+                ] as const
+              ).map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-[13px] leading-5 text-[var(--text-muted)]">
+                    {t(key)}
+                  </dt>
+                  <dd
+                    className={
+                      "mt-2 break-words tabular-nums " +
+                      (key === "inventoryBalance"
+                        ? "text-4xl font-medium"
+                        : "text-2xl font-medium")
+                    }
+                  >
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <dl className="mt-5 space-y-3 text-sm">
+              {(
+                [
+                  ["location", item.location],
                   ["externalLoadId", item.loadExternalId],
                   ["taskLoadLocation", item.loadLocation],
                   ["inventoryOrigin", item.receiptReference],
                 ] as const
               ).map(([key, value]) => (
-                <div key={key}>
-                  <dt className="text-sm text-[var(--text-muted)]">{t(key)}</dt>
-                  <dd className="mt-1 break-words font-semibold">{value}</dd>
+                <div
+                  key={key}
+                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4"
+                >
+                  <dt className="text-[var(--text-muted)]">{t(key)}</dt>
+                  <dd className="break-words font-medium">{value}</dd>
                 </div>
               ))}
             </dl>

@@ -2,6 +2,7 @@ import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import { OperationsShell } from "../../components/platform/OperationsShell";
+import { WorkNavigation } from "../../components/platform/WorkNavigation";
 import { OutboundWorkflowPanel } from "../../components/platform/OutboundWorkflowPanel";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
@@ -25,7 +26,7 @@ export default function OutboundOperationsPage({
 }: PageProps) {
   const { t } = useLocale();
   return (
-    <OperationsShell current="outbound">
+    <OperationsShell current="outbound" workNavigationAfterHeader>
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("outbound")}
@@ -37,6 +38,9 @@ export default function OutboundOperationsPage({
           {t("outboundWorkflowDescription")}
         </p>
       </header>
+      <div className="mt-6">
+        <WorkNavigation current="outbound" />
+      </div>
       <div className="mt-8">
         {details ? (
           <OutboundWorkflowPanel

@@ -81,7 +81,8 @@ describe("neutral-first SWP theme contract", () => {
       expect(
         contrast(palette["selection-text"], palette["selection-background"]),
       ).toBeGreaterThanOrEqual(4.5);
-      expect(palette["selection-background"]).toBe(palette.accent);
+      expect(palette["selection-background"]).toBe(palette["surface-muted"]);
+      expect(palette["selection-background"]).not.toBe(palette.accent);
       expect(palette.warning).not.toBe(palette.accent);
       expect(
         contrast(palette["selection-edge"], palette["selection-background"]),

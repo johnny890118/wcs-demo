@@ -63,7 +63,7 @@ export function WarehouseContextControl({
           value={access.currentWarehouseId}
           disabled={pending}
           onChange={(event) => void changeWarehouse(event.target.value)}
-          className="min-w-0 max-w-64 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 text-xs font-bold text-[var(--text)] disabled:cursor-wait disabled:opacity-60"
+          className="min-h-11 min-w-0 max-w-64 rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1.5 text-sm font-medium text-[var(--text)] disabled:cursor-wait disabled:opacity-60"
         >
           {access.principal.warehouseScopes.map((scope) => (
             <option key={scope.warehouseId} value={scope.warehouseId}>

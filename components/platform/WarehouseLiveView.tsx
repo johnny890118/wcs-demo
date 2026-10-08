@@ -60,10 +60,6 @@ export function WarehouseLiveView({
       {exactEquipmentId !== undefined && !selected ? (
         <p role="status">{t("exactContextUnresolved")}</p>
       ) : null}
-      <p className="max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("liveScopeNotice")}
-      </p>
-      <SpatialReadNotice context={view.spatialContext} />
       <p className="text-xs text-[var(--text-muted)]">
         {t("refreshedAt")}:{" "}
         <time dateTime={view.generatedAt}>{time(view.generatedAt)} UTC</time>
@@ -81,11 +77,8 @@ export function WarehouseLiveView({
           {t("liveCoverageNotice")}
         </p>
       )}
-      <div className="grid gap-5 xl:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]">
-        <section
-          aria-labelledby="live-equipment-heading"
-          className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-        >
+      <div className="space-y-5">
+        <section aria-labelledby="live-equipment-heading" className="min-w-0">
           <h2 id="live-equipment-heading" className="text-lg font-bold">
             {t("equipmentLabel")}
           </h2>
@@ -94,9 +87,9 @@ export function WarehouseLiveView({
               {t("liveNoEquipment")}
             </p>
           ) : (
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-3 flex flex-wrap gap-2">
               {view.equipment.map((item) => (
-                <li key={item.equipmentId}>
+                <li key={item.equipmentId} className="min-w-0 flex-1 basis-64">
                   <Link
                     href={
                       equipmentHref ??
@@ -109,20 +102,20 @@ export function WarehouseLiveView({
                         ? "true"
                         : undefined
                     }
-                    className={`ui-pressable flex min-h-11 w-full flex-col gap-1 rounded-lg border p-3 text-left ${
+                    className={`ui-pressable flex min-h-11 w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border p-3 text-left ${
                       item.equipmentId === selected?.equipmentId
                         ? "ui-current-selection"
                         : "border-[var(--border)]"
                     }`}
                   >
-                    <span className="break-all text-sm font-bold">
+                    <span className="break-words text-sm font-semibold">
                       {item.equipmentId}
                     </span>
-                    <span className="text-xs">
+                    <span className="text-sm">
                       {!item.active ? t("liveInactive") : stateText(item)} ·{" "}
                       {t(`livePosition_${positionState(item)}` as MessageKey)}
                     </span>
-                    <span className="break-words text-xs">
+                    <span className="break-words text-sm text-[var(--text-muted)]">
                       {item.position.locations.join(" · ") ||
                         t("liveNoBoundLocation")}
                     </span>
@@ -136,18 +129,20 @@ export function WarehouseLiveView({
           aria-labelledby="live-context-heading"
           className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
         >
-          <h2 id="live-context-heading" className="text-lg font-bold">
-            {t("liveEquipmentContext")}
+          <h2
+            id="live-context-heading"
+            className="break-words text-2xl font-semibold"
+          >
+            {selected?.equipmentId ?? t("liveEquipmentContext")}
           </h2>
           {selected ? (
             <div className="mt-4 space-y-5">
-              <p className="break-all font-bold">{selected.equipmentId}</p>
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <dt className="text-xs text-[var(--text-muted)]">
                     {t("liveRecordedState")}
                   </dt>
-                  <dd className="mt-1 text-sm font-semibold">
+                  <dd className="mt-1 text-lg font-medium">
                     {!selected.active ? t("liveInactive") : stateText(selected)}
                   </dd>
                 </div>
@@ -155,7 +150,7 @@ export function WarehouseLiveView({
                   <dt className="text-xs text-[var(--text-muted)]">
                     {t("currentPosition")}
                   </dt>
-                  <dd className="mt-1 text-sm font-semibold">
+                  <dd className="mt-1 text-lg font-medium">
                     {t(`livePosition_${positionState(selected)}` as MessageKey)}{" "}
                     ·{" "}
                     {selected.position.locations.join(" · ") ||
@@ -177,84 +172,94 @@ export function WarehouseLiveView({
                   </time>
                 </p>
               )}
-              <div>
-                <h3 className="text-sm font-bold">{t("liveObservedWork")}</h3>
-                {observedWork ? (
-                  <Link
-                    href={`/operations/tasks/${encodeURIComponent(
-                      observedWork.taskId,
-                    )}`}
-                    className={contextLink}
-                  >
-                    {observedWork.source} → {observedWork.destination} ·{" "}
-                    {t(`homeTask_${observedWork.status}` as MessageKey)}
+              <div className="grid gap-5 border-t border-[var(--border)] pt-4 sm:grid-cols-2">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-bold">
+                      {t("liveObservedWork")}
+                    </h3>
+                    {observedWork ? (
+                      <Link
+                        href={`/operations/tasks/${encodeURIComponent(
+                          observedWork.taskId,
+                        )}`}
+                        className={contextLink}
+                      >
+                        {observedWork.source} → {observedWork.destination} ·{" "}
+                        {t(`homeTask_${observedWork.status}` as MessageKey)}
+                      </Link>
+                    ) : (
+                      <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+                        {selected.observedTaskContext === "unresolved"
+                          ? t("liveObservedUnresolved")
+                          : t("liveObservedNone")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="border-t border-[var(--border)] pt-4">
+                    <h3 className="text-sm font-bold">
+                      {t("liveAssignedWork")}
+                    </h3>
+                    <p className="mt-1 text-xs leading-6 text-[var(--text-muted)]">
+                      {t("liveAssignmentNotice")}
+                    </p>
+                    {assignedWork.length ? (
+                      <ul className="mt-2 space-y-2">
+                        {assignedWork.map((task) => (
+                          <li key={task.taskId}>
+                            <Link
+                              href={`/operations/tasks/${encodeURIComponent(
+                                task.taskId,
+                              )}`}
+                              className={contextLink}
+                            >
+                              {task.source} → {task.destination} ·{" "}
+                              {t(`homeTask_${task.status}` as MessageKey)}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-sm text-[var(--text-muted)]">
+                        {t("liveNoAssignedWork")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold">
+                    {t("liveAffectedAlarms")}
+                  </h3>
+                  {affectedAlarms.length ? (
+                    <ul className="mt-2 space-y-2">
+                      {affectedAlarms.map((alarm) => (
+                        <li key={alarm.alarmId}>
+                          <Link
+                            href={contextPath(
+                              alarm.taskId,
+                              "exception",
+                              alarm.alarmId,
+                            )}
+                            className={contextLink}
+                          >
+                            {t(
+                              alarm.status === "active"
+                                ? "homeReason_active_alarm"
+                                : "homeReason_acknowledged_alarm",
+                            )}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-sm text-[var(--text-muted)]">
+                      {t("liveNoAlarms")}
+                    </p>
+                  )}
+                  <Link href="/operations/alarms" className={contextLink}>
+                    {t("liveOpenAlarms")}
                   </Link>
-                ) : (
-                  <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                    {selected.observedTaskContext === "unresolved"
-                      ? t("liveObservedUnresolved")
-                      : t("liveObservedNone")}
-                  </p>
-                )}
-              </div>
-              <div>
-                <h3 className="text-sm font-bold">{t("liveAssignedWork")}</h3>
-                <p className="mt-1 text-xs leading-6 text-[var(--text-muted)]">
-                  {t("liveAssignmentNotice")}
-                </p>
-                {assignedWork.length ? (
-                  <ul className="mt-2 space-y-2">
-                    {assignedWork.map((task) => (
-                      <li key={task.taskId}>
-                        <Link
-                          href={`/operations/tasks/${encodeURIComponent(
-                            task.taskId,
-                          )}`}
-                          className={contextLink}
-                        >
-                          {task.source} → {task.destination} ·{" "}
-                          {t(`homeTask_${task.status}` as MessageKey)}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm text-[var(--text-muted)]">
-                    {t("liveNoAssignedWork")}
-                  </p>
-                )}
-              </div>
-              <div>
-                <h3 className="text-sm font-bold">{t("liveAffectedAlarms")}</h3>
-                {affectedAlarms.length ? (
-                  <ul className="mt-2 space-y-2">
-                    {affectedAlarms.map((alarm) => (
-                      <li key={alarm.alarmId}>
-                        <Link
-                          href={contextPath(
-                            alarm.taskId,
-                            "exception",
-                            alarm.alarmId,
-                          )}
-                          className={contextLink}
-                        >
-                          {t(
-                            alarm.status === "active"
-                              ? "homeReason_active_alarm"
-                              : "homeReason_acknowledged_alarm",
-                          )}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm text-[var(--text-muted)]">
-                    {t("liveNoAlarms")}
-                  </p>
-                )}
-                <Link href="/operations/alarms" className={contextLink}>
-                  {t("liveOpenAlarms")}
-                </Link>
+                </div>
               </div>
               <details className="border-t border-[var(--border)] pt-4">
                 <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
@@ -286,6 +291,12 @@ export function WarehouseLiveView({
             </p>
           )}
         </section>
+      </div>
+      <div className="border-t border-[var(--border)] pt-4">
+        <p className="mb-3 max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
+          {t("liveScopeNotice")}
+        </p>
+        <SpatialReadNotice context={view.spatialContext} />
       </div>
       <section
         aria-labelledby="live-work-heading"

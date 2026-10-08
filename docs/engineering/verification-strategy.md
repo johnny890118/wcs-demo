@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Current Owner-approved UI implementation: complete gate passes 616 fast, 88 real
+PostgreSQL and 44 production-build browser tests, public-demo denial harness and
+separate API build. Seven surfaces × three widths × two locales × two themes
+cover Axe, rendered text contrast and overflow. Adaptive shell additionally tests
+375 px/landscape, persisted collapse, keyboard Escape/focus restoration and
+visible warehouse/source context. Existing workflow/permission/expiry/warehouse/
+unknown/exact-context tests remain intact. Six native screenshots and skill-based
+security/Operator/Emil review are recorded in approved-ui-implementation-review.md;
+exact delivery gates are pending. No physical-device certification is claimed.
+
 Current C durable Work continuation: complete gate passes 585 fast, 86 real
 PostgreSQL and 40 production-build browser tests, public-demo denial harness and
 separate API build. Creation-to-Work/reload/exact resume/outcome journeys cover

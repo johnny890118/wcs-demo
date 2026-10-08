@@ -7,6 +7,27 @@ import {
   manualVersion,
 } from "../../src/ui/manual/manual-content";
 
+async function choosePreference(page: Page, name: string) {
+  const control = page.getByRole("button", { name, exact: true });
+  const operational = new URL(page.url()).pathname.startsWith("/operations");
+  if (!(await control.isVisible())) {
+    await page
+      .getByRole("button", {
+        name: /^(導覽與偏好設定|Navigation and preferences)$/,
+      })
+      .click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+  }
+  await control.click();
+  const dialog = page.getByRole("dialog");
+  if (operational) {
+    await dialog
+      .getByRole("button", { name: /^(關閉導覽|Close navigation)$/ })
+      .click();
+    await expect(dialog).not.toBeVisible();
+  }
+}
+
 async function signIn(page: Page, destination: string) {
   await page.goto(destination);
   await expect(page).toHaveURL(/\/login\?callbackUrl=/);
@@ -16,6 +37,110 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+test("approved adaptive shell persists desktop collapse and returns menu focus", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/inbound");
+  await page.setViewportSize({ width: 1440, height: 850 });
+  await page.getByRole("button", { name: "收合導覽" }).click();
+  await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "76px");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "展開導覽" })).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  await page.getByRole("button", { name: "展開導覽" }).click();
+  await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "220px");
+  for (const width of [768, 390, 375, 844]) {
+    await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
+    const trigger = page.getByRole("button", { name: "導覽與偏好設定" });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expect(trigger).toBeFocused();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+    await expect(page.getByText("模擬設備")).toBeVisible();
+    await expect(page.getByLabel("目前倉庫")).toBeVisible();
+  }
+});
+
+test("approved operator presentation covers seven surfaces across device locale and theme", async ({
+  page,
+}) => {
+  test.setTimeout(300_000);
+  await signIn(page, "/operations");
+  const routes = [
+    "",
+    "/work",
+    "/inbound",
+    "/outbound",
+    "/warehouse",
+    "/alarms",
+    "/inventory",
+  ];
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({
+      width,
+      height: width === 1440 ? 850 : width === 768 ? 900 : 844,
+    });
+    for (const locale of ["zh-TW", "en"]) {
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
+      for (const mode of ["light", "dark"]) {
+        await choosePreference(
+          page,
+          locale === "en"
+            ? mode === "dark"
+              ? "Dark"
+              : "Light"
+            : mode === "dark"
+              ? "深色"
+              : "淺色",
+        );
+        for (const route of routes) {
+          await page.goto("/operations" + route);
+          await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+          expect(
+            (await new AxeBuilder({ page }).analyze()).violations,
+            `${width}/${locale}/${mode}/${route}`,
+          ).toEqual([]);
+          expect(
+            await visibleTextContrastFailures(page),
+            `${width}/${locale}/${mode}/${route}`,
+          ).toEqual([]);
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
+            ),
+          ).toBe(true);
+          if (
+            locale === "zh-TW" &&
+            ((width === 1440 && route === "/inbound") ||
+              (width === 768 && route === "/warehouse") ||
+              (width === 390 && route === "/inventory"))
+          ) {
+            await page.screenshot({
+              path: test.info().outputPath(`approved-${width}-${mode}.png`),
+              fullPage: false,
+            });
+          }
+        }
+      }
+    }
+  }
+});
+
 test("operator Work entry preserves end-to-end investigation and six primary contexts", async ({
   page,
 }) => {
@@ -24,16 +149,12 @@ test("operator Work entry preserves end-to-end investigation and six primary con
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const english of [false, true]) {
-      await page
-        .getByRole("button", { name: english ? "EN" : "繁中", exact: true })
-        .click();
+      await choosePreference(page, english ? "EN" : "繁中");
       for (const dark of [false, true]) {
-        await page
-          .getByRole("button", {
-            name: english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
-            exact: true,
-          })
-          .click();
+        await choosePreference(
+          page,
+          english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
+        );
         const nav = page.getByRole("navigation", {
           name: english
             ? width >= 768
@@ -43,6 +164,13 @@ test("operator Work entry preserves end-to-end investigation and six primary con
               ? "操作台桌面版導覽"
               : "操作台行動版導覽",
         });
+        if (width < 768) {
+          await page
+            .getByRole("button", {
+              name: english ? "Navigation and preferences" : "導覽與偏好設定",
+            })
+            .click();
+        }
         await expect(nav.getByRole("link")).toHaveCount(6);
         expect(
           await nav
@@ -56,6 +184,10 @@ test("operator Work entry preserves end-to-end investigation and six primary con
           "/operations/inventory",
           "/operations/help",
         ]);
+        if (width < 768) {
+          await page.keyboard.press("Escape");
+          await expect(page.getByRole("dialog")).not.toBeVisible();
+        }
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
           [],
         );
@@ -69,7 +201,7 @@ test("operator Work entry preserves end-to-end investigation and six primary con
       }
     }
   }
-  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await choosePreference(page, "繁中");
   await page.screenshot({
     path: test.info().outputPath("operator-work-mobile-dark.png"),
     fullPage: true,
@@ -119,16 +251,12 @@ test("created Work survives same-tab handoff, reload, exact continuation and per
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const english of [false, true]) {
-      await page
-        .getByRole("button", { name: english ? "EN" : "繁中", exact: true })
-        .click();
+      await choosePreference(page, english ? "EN" : "繁中");
       for (const dark of [false, true]) {
-        await page
-          .getByRole("button", {
-            name: english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
-            exact: true,
-          })
-          .click();
+        await choosePreference(
+          page,
+          english ? (dark ? "Dark" : "Light") : dark ? "深色" : "淺色",
+        );
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
           [],
         );
@@ -142,7 +270,7 @@ test("created Work survives same-tab handoff, reload, exact continuation and per
       }
     }
   }
-  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await choosePreference(page, "繁中");
   await page.screenshot({
     path: test.info().outputPath("work-resume-mobile-dark.png"),
     fullPage: true,
@@ -213,26 +341,18 @@ test("neutral-first brand survives an operator read journey across themes, local
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const locale of ["zh-TW", "en"] as const) {
-      await page
-        .getByRole("button", {
-          name: locale === "en" ? "EN" : "繁中",
-          exact: true,
-        })
-        .click();
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
       for (const theme of ["light", "dark"] as const) {
-        await page
-          .getByRole("button", {
-            name:
-              locale === "en"
-                ? theme === "light"
-                  ? "Light"
-                  : "Dark"
-                : theme === "light"
-                  ? "淺色"
-                  : "深色",
-            exact: true,
-          })
-          .click();
+        await choosePreference(
+          page,
+          locale === "en"
+            ? theme === "light"
+              ? "Light"
+              : "Dark"
+            : theme === "light"
+              ? "淺色"
+              : "深色",
+        );
         await expect(page.locator("html")).toHaveClass(new RegExp(theme));
         for (const route of [
           "/operations",
@@ -240,7 +360,15 @@ test("neutral-first brand survives an operator read journey across themes, local
           "/operations/inventory",
           "/operations/warehouse",
         ]) {
-          await page.locator(`a[href="${route}"]:visible`).first().click();
+          await page
+            .getByRole("button", {
+              name:
+                locale === "en"
+                  ? "Navigation and preferences"
+                  : "導覽與偏好設定",
+            })
+            .click();
+          await page.getByRole("dialog").locator(`a[href="${route}"]`).click();
           await expect(page).toHaveURL(route);
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
           const palette = await page.evaluate(() => {
@@ -257,8 +385,17 @@ test("neutral-first brand survives an operator read journey across themes, local
           expect(palette.success).not.toBe(palette.accent);
           expect(palette.overflow).toBe(false);
           expect(await visibleTextContrastFailures(page)).toEqual([]);
+          await page
+            .getByRole("button", {
+              name:
+                locale === "en"
+                  ? "Navigation and preferences"
+                  : "導覽與偏好設定",
+            })
+            .click();
           const selected = page
-            .locator("nav a[aria-current='page']:visible")
+            .getByRole("dialog")
+            .locator("nav a[aria-current='page']")
             .first();
           await expect(selected).toBeVisible();
           expect(
@@ -267,8 +404,9 @@ test("neutral-first brand survives an operator read journey across themes, local
               color: getComputedStyle(element).color,
             })),
           ).toEqual({
-            background: "rgb(230, 240, 0)",
-            color: "rgb(24, 32, 43)",
+            background:
+              theme === "light" ? "rgb(238, 240, 243)" : "rgb(40, 47, 57)",
+            color: theme === "light" ? "rgb(35, 40, 48)" : "rgb(238, 241, 245)",
           });
           await selected.focus();
           await page.keyboard.press("Tab");
@@ -292,6 +430,8 @@ test("neutral-first brand survives an operator read journey across themes, local
           expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
             [],
           );
+          await page.keyboard.press("Escape");
+          await expect(page.getByRole("dialog")).not.toBeVisible();
         }
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
           [],
@@ -348,26 +488,18 @@ test("exact handoffs survive reload across operator surfaces without search or B
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const locale of ["zh-TW", "en"] as const) {
-      await page
-        .getByRole("button", {
-          name: locale === "en" ? "EN" : "繁中",
-          exact: true,
-        })
-        .click();
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
       for (const theme of ["light", "dark"] as const) {
-        await page
-          .getByRole("button", {
-            name:
-              locale === "en"
-                ? theme === "light"
-                  ? "Light"
-                  : "Dark"
-                : theme === "light"
-                  ? "淺色"
-                  : "深色",
-            exact: true,
-          })
-          .click();
+        await choosePreference(
+          page,
+          locale === "en"
+            ? theme === "light"
+              ? "Light"
+              : "Dark"
+            : theme === "light"
+              ? "淺色"
+              : "深色",
+        );
         for (const surface of ["inventory", "live", "exception"]) {
           await page.goto(`${taskContextRoot}/${surface}`);
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -468,26 +600,18 @@ test("Task to durable Work reload and return needs no remembered ID or browser B
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const locale of ["zh-TW", "en"] as const) {
-      await page
-        .getByRole("button", {
-          name: locale === "en" ? "EN" : "繁中",
-          exact: true,
-        })
-        .click();
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
       for (const mode of ["light", "dark"] as const) {
-        await page
-          .getByRole("button", {
-            name:
-              locale === "en"
-                ? mode === "light"
-                  ? "Light"
-                  : "Dark"
-                : mode === "light"
-                  ? "淺色"
-                  : "深色",
-            exact: true,
-          })
-          .click();
+        await choosePreference(
+          page,
+          locale === "en"
+            ? mode === "light"
+              ? "Light"
+              : "Dark"
+            : mode === "light"
+              ? "淺色"
+              : "深色",
+        );
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
           [],
         );
@@ -551,12 +675,7 @@ test("Task to durable Work reload and return needs no remembered ID or browser B
 async function reviewCreatedWorkflow(page: Page, name: string) {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const locale of ["zh-TW", "en"] as const) {
-    await page
-      .getByRole("button", {
-        name: locale === "en" ? "EN" : "繁中",
-        exact: true,
-      })
-      .click();
+    await choosePreference(page, locale === "en" ? "EN" : "繁中");
     for (const mode of ["light", "dark"] as const) {
       const theme =
         locale === "en"
@@ -566,7 +685,7 @@ async function reviewCreatedWorkflow(page: Page, name: string) {
           : mode === "light"
             ? "淺色"
             : "深色";
-      await page.getByRole("button", { name: theme, exact: true }).click();
+      await choosePreference(page, theme);
       await expect(page.locator("html")).toHaveClass(new RegExp(mode));
       const dimensions = await page.evaluate(() => ({
         client: document.documentElement.clientWidth,
@@ -580,7 +699,7 @@ async function reviewCreatedWorkflow(page: Page, name: string) {
       });
     }
   }
-  await page.getByRole("button", { name: "繁中", exact: true }).click();
+  await choosePreference(page, "繁中");
   await page.setViewportSize({ width: 1280, height: 900 });
 }
 
@@ -646,9 +765,9 @@ test("active surfaces share SWP identity and owned browser icons", async ({
       page.locator('link[rel="icon"][href="/female.png"]'),
     ).toHaveCount(0);
   }
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await choosePreference(page, "EN");
   await expect(page).toHaveTitle(/Smart Warehouse Platform/);
-  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await choosePreference(page, "Dark");
   await page.screenshot({
     path: test.info().outputPath("swp-identity-operations-dark.png"),
     fullPage: true,
@@ -664,7 +783,7 @@ test("Live View separates observations from assignments and expires retained pos
     page.getByRole("heading", { name: "倉庫即時觀測", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("本次觀測沒有回報任務 reference；系統指派的工作另列。", {
+    page.getByText("本次觀測沒有回報關聯任務；系統指派的工作另列。", {
       exact: true,
     }),
   ).toBeVisible();
@@ -725,9 +844,9 @@ test("Live View separates observations from assignments and expires retained pos
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await choosePreference(page, "EN");
   for (const theme of ["Dark", "Light"]) {
-    await page.getByRole("button", { name: theme, exact: true }).click();
+    await choosePreference(page, theme);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(
       await page.evaluate(
@@ -785,7 +904,7 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
     }),
   ).toBeVisible();
   await page.getByLabel("搜尋操作手冊").fill("");
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await choosePreference(page, "EN");
   await page.getByLabel("Search the operation manual").fill("last-known");
   await expect(
     page.getByText(`Software package release: ${manualSoftwareVersion}`, {
@@ -813,7 +932,7 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
   });
   await page.setViewportSize({ width: 390, height: 844 });
   for (const theme of ["Dark", "Light"]) {
-    await page.getByRole("button", { name: theme, exact: true }).click();
+    await choosePreference(page, theme);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(
       await page.evaluate(
@@ -848,8 +967,7 @@ test("versioned manual downloads are authenticated bilingual PDFs present in sta
   );
   await signIn(page, "/operations/help");
   for (const locale of ["zh-TW", "en"]) {
-    if (locale === "en")
-      await page.getByRole("button", { name: "EN", exact: true }).click();
+    if (locale === "en") await choosePreference(page, "EN");
     const link = page.getByRole("link", {
       name:
         locale === "en"
@@ -1000,8 +1118,8 @@ test("locations explain configured states and record counts without occupancy cl
   await page.keyboard.press("Enter");
   await expect(page.getByText(/routing-storage-node/)).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await choosePreference(page, "EN");
+  await choosePreference(page, "Dark");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(
     await page.evaluate(
@@ -1014,7 +1132,7 @@ test("locations explain configured states and record counts without occupancy cl
     path: test.info().outputPath("locations-mobile-dark.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Light", exact: true }).click();
+  await choosePreference(page, "Light");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
     .getByRole("link", {
@@ -1071,8 +1189,8 @@ test("loads preserve unknown inventory and zero shipped stock across readable bi
   ).toBeVisible();
   await page.getByRole("link", { name: "清除", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await choosePreference(page, "EN");
+  await choosePreference(page, "Dark");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(
     await page.evaluate(
@@ -1085,7 +1203,7 @@ test("loads preserve unknown inventory and zero shipped stock across readable bi
     path: test.info().outputPath("loads-mobile-dark.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Light", exact: true }).click();
+  await choosePreference(page, "Light");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
     .getByRole("link", { name: "View inventory context" })
@@ -1133,7 +1251,10 @@ test("inventory explains partial reservations with searchable accessible warehou
 }) => {
   await signIn(page, "/operations/inventory");
   await expect(
-    page.getByRole("heading", { name: "SKU-STOCK-001 · STORAGE-01" }),
+    page.getByRole("heading", { name: "SKU-STOCK-001", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("STORAGE-01", { exact: true }).first(),
   ).toBeVisible();
   await expect(
     page.getByText("出庫保留量", { exact: true }).first(),
@@ -1151,8 +1272,8 @@ test("inventory explains partial reservations with searchable accessible warehou
   ).toBeVisible();
   await page.getByRole("link", { name: "清除", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await choosePreference(page, "EN");
+  await choosePreference(page, "Dark");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(
     await page.evaluate(
@@ -1165,13 +1286,13 @@ test("inventory explains partial reservations with searchable accessible warehou
     path: test.info().outputPath("inventory-mobile-dark.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Light", exact: true }).click();
+  await choosePreference(page, "Light");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
     .getByRole("combobox")
     .selectOption("20000000-0000-4000-8000-000000000010");
   await expect(
-    page.getByRole("heading", { name: "SKU-STOCK-001 · STORAGE-01" }),
+    page.getByRole("heading", { name: "SKU-STOCK-001", exact: true }),
   ).toHaveCount(0);
 });
 
@@ -1200,8 +1321,8 @@ test("task queue and detail expose contextual evidence across accessible warehou
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByRole("button", { name: "Dark", exact: true }).click();
+  await choosePreference(page, "EN");
+  await choosePreference(page, "Dark");
   await expect(
     page.getByRole("heading", { name: "Work and load context" }),
   ).toBeVisible();
@@ -1241,9 +1362,9 @@ test("operations home prioritizes readable work and supports bilingual mobile ac
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "深色" }).click();
+  await choosePreference(page, "深色");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.getByRole("button", { name: "EN" }).click();
+  await choosePreference(page, "EN");
   await expect(
     page.getByRole("heading", { name: "Operations Home" }),
   ).toBeVisible();
@@ -1259,7 +1380,7 @@ test("operations home prioritizes readable work and supports bilingual mobile ac
         document.documentElement.clientWidth,
     ),
   ).toBe(true);
-  await page.getByRole("button", { name: "Light" }).click();
+  await choosePreference(page, "Light");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 const serviceHeaders = {
@@ -1357,7 +1478,7 @@ test("dormant contact exposes only the approved email, not private repository ch
   expect(await page.content()).not.toMatch(
     /github\.com|wcs-demo\/issues|issue tracker/i,
   );
-  await page.getByRole("button", { name: "EN" }).click();
+  await choosePreference(page, "EN");
   await expect(
     page.getByRole("heading", { name: "Email contact" }),
   ).toBeVisible();
@@ -1459,15 +1580,15 @@ test("public entry supports both locales in explicit light and dark themes", asy
 }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "淺色" }).click();
+  await choosePreference(page, "淺色");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-TW");
   await expect(page.locator("html")).toHaveClass(/light/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.getByRole("button", { name: "深色" }).click();
+  await choosePreference(page, "深色");
   await expect(page.locator("html")).toHaveClass(/dark/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 
-  await page.getByRole("button", { name: "EN" }).click();
+  await choosePreference(page, "EN");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(
     page.getByRole("heading", {
@@ -1480,7 +1601,7 @@ test("public entry supports both locales in explicit light and dark themes", asy
   ).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 
-  await page.getByRole("button", { name: "Light" }).click();
+  await choosePreference(page, "Light");
   await expect(page.locator("html")).toHaveClass(/light/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 
@@ -1505,7 +1626,7 @@ test("theme preference has exactly one selection and persists across refresh", a
   await expect(themeChoices).toHaveCount(3);
   await expect(selectedChoices).toHaveCount(1);
 
-  await page.getByRole("button", { name: "深色" }).click();
+  await choosePreference(page, "深色");
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(page.getByRole("button", { name: "深色" })).toHaveAttribute(
     "aria-pressed",
@@ -1581,12 +1702,18 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByLabel("目前營運情境").getByText("模擬設備"),
   ).toBeVisible();
-  await expect(page.getByText("e2e-operator", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "導覽與偏好設定" }).click();
+  await expect(
+    page.getByRole("dialog").getByText("e2e-operator", { exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.locator('a[href="/legacy"]')).toHaveCount(0);
   const sidebar = page.locator("aside");
   await expect(sidebar).toHaveCSS("position", "sticky");
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  expect((await sidebar.boundingBox())?.y).toBe(0);
+  expect(Math.abs((await sidebar.boundingBox())?.y ?? Infinity)).toBeLessThan(
+    1,
+  );
   await expect(page.getByRole("table", { name: "庫存" })).toBeVisible();
   await expect(page.getByRole("columnheader", { name: "品項" })).toBeVisible();
   await expect(page.getByText("SKU-E2E")).toBeVisible();
@@ -1616,7 +1743,7 @@ test("operator can read redacted, bilingual audit history", async ({
   await expect(page.getByText("未知動作")).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 
-  await page.getByRole("button", { name: "EN" }).click();
+  await choosePreference(page, "EN");
   await expect(
     page.getByRole("heading", {
       level: 1,

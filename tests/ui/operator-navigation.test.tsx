@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
@@ -18,7 +24,7 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "light", setTheme: vi.fn() }),
 }));
 afterEach(cleanup);
-it("shares six operator primary destinations, keeps WCS tasks under Work and technical tools secondary", () => {
+it("shares six operator primary destinations, keeps WCS tasks under Work and technical tools secondary", async () => {
   render(
     <LocaleProvider>
       <OperationsShell current="tasks">
@@ -27,7 +33,6 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     </LocaleProvider>,
   );
   const desktop = screen.getByRole("navigation", { name: "操作台桌面版導覽" });
-  const mobile = screen.getByRole("navigation", { name: "操作台行動版導覽" });
   const destinations = [
     "/operations",
     "/operations/work",
@@ -36,7 +41,7 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     "/operations/inventory",
     "/operations/help",
   ];
-  for (const nav of [desktop, mobile]) {
+  for (const nav of [desktop]) {
     expect(
       within(nav)
         .getAllByRole("link")
@@ -57,6 +62,22 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     false,
   );
   expect(screen.getByText("模擬設備")).toBeTruthy(); // context not hidden on mobile
+  fireEvent.click(screen.getByRole("button", { name: "導覽與偏好設定" }));
+  const mobile = await screen.findByRole("navigation", {
+    name: "操作台行動版導覽",
+  });
+  expect(
+    within(mobile)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href")),
+  ).toEqual(destinations);
+  expect(
+    within(mobile)
+      .getByRole("link", { name: "工作" })
+      .getAttribute("aria-current"),
+  ).toBe("page");
+  fireEvent.click(screen.getByRole("button", { name: "關閉導覽" }));
+  expect(screen.queryByRole("dialog")).toBeNull();
 });
 it("does not add Work subnavigation to Inventory or turn templates into authorization branches", () => {
   render(

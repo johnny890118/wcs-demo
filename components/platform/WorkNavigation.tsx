@@ -7,7 +7,10 @@ export function WorkNavigation({
 }) {
   const { t } = useLocale();
   return (
-    <nav aria-label={t("workNavigation")} className="mb-5 flex flex-wrap gap-2">
+    <nav
+      aria-label={t("workNavigation")}
+      className="work-subnavigation mb-5 flex flex-wrap gap-2 border-b border-[var(--border)]"
+    >
       {(
         [
           ["work", "/operations/work", "operatorWork"],
@@ -20,7 +23,7 @@ export function WorkNavigation({
           key={key}
           href={href}
           aria-current={current === key ? "page" : undefined}
-          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ${
+          className={`ui-pressable inline-flex min-h-11 items-center px-3 py-2 text-sm font-medium ${
             current === key
               ? "ui-current-selection"
               : "text-[var(--text-muted)]"

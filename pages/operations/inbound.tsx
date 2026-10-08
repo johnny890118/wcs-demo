@@ -3,6 +3,7 @@ import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http
 import { getServerSession } from "next-auth/next";
 import { InboundWorkflowPanel } from "../../components/platform/InboundWorkflowPanel";
 import { OperationsShell } from "../../components/platform/OperationsShell";
+import { WorkNavigation } from "../../components/platform/WorkNavigation";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
@@ -25,7 +26,7 @@ export default function InboundOperationsPage({
 }: PageProps) {
   const { t } = useLocale();
   return (
-    <OperationsShell current="inbound">
+    <OperationsShell current="inbound" workNavigationAfterHeader>
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("inbound")}
@@ -37,6 +38,9 @@ export default function InboundOperationsPage({
           {t("inboundWorkflowDescription")}
         </p>
       </header>
+      <div className="mt-6">
+        <WorkNavigation current="inbound" />
+      </div>
       <div className="mt-8">
         {details ? (
           <InboundWorkflowPanel

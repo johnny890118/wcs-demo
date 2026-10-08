@@ -183,8 +183,8 @@ export function OutboundWorkflowPanel({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
+    <div className="workflow-layout grid gap-8 xl:grid-cols-[minmax(0,680px)_minmax(220px,1fr)]">
+      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("outboundRequest")}
         </p>
@@ -218,7 +218,10 @@ export function OutboundWorkflowPanel({
           }}
           className="mt-6 space-y-5"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <fieldset className="grid gap-4 sm:grid-cols-2">
+            <legend className="mb-4 text-base font-semibold">
+              {t("outboundRequestTitle")}
+            </legend>
             <label className="text-sm font-semibold">
               {t("externalReference")}
               <input
@@ -273,7 +276,7 @@ export function OutboundWorkflowPanel({
                 ))}
               </select>
             </label>
-          </div>
+          </fieldset>
           <p className="text-sm leading-6 text-[var(--text-muted)]">
             {t("outboundStockHintNotice")}
           </p>
@@ -298,7 +301,7 @@ export function OutboundWorkflowPanel({
       </section>
 
       <aside
-        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
+        className="self-start py-2 xl:pl-2"
         aria-labelledby="outbound-confirmation-title"
       >
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
