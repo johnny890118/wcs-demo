@@ -273,6 +273,12 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
+Owner update (2026-10-08): close D delivery only, including authenticated
+production journey, material UX limitations, durable evidence, exact-HEAD CI,
+both deployments and runtime smoke. Stop at the clean checkpoint for Owner
+review; do not begin theme work or S3 implementation. This supersedes the
+automatic-return-to-S3 instruction below until Owner resumes it.
+
 Owner update (2026-10-04): freshness foundation `2e90c6e` and independent brand/
 journey update `d95609b` are pushed with successful exact CI, both exact provider
 SHAs and managed/authenticated runtime checks; tree was clean before A.

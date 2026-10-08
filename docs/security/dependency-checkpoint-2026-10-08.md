@@ -28,3 +28,8 @@ integration harness. No managed database was reset. Only 15 existing legacy
 lint warnings remain. Checkpoint/exact-HEAD CI/deployment/runtime gates follow.
 Independent read-only review confirmed the dependency diff boundary and local
 native Sharp import/PNG encoding; Linux clean-install/build remains a CI gate.
+
+Checkpoint `e95b987e9c36915e927ad12ef87358d66279e429` is pushed; exact CI
+`37773947428` succeeds with verify/deployment-smoke, and Vercel Ready / Render
+Live resolve the same full SHA on 2026-10-08. No theme or S3 implementation is
+included. The subsequent evidence-only handoff has its own exact-HEAD gates.
