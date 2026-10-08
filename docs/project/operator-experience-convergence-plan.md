@@ -1,6 +1,7 @@
 # Operator Experience A–D convergence
 
-Status: Active — A–C delivered; D verified locally, delivery gates pending.
+Status: A–D implementation delivered; delivery evidence synchronization checkpoint
+in progress before returning to S3.
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -127,10 +128,16 @@ administration, scheduling or external WMS controls.
 - [x] Implement server-resolved Work list and contextual navigation.
 - [x] Verify root pagination, scope/permission and truthful partial states.
 - [x] Complete independent security, operator/Emil and full journey review.
-- [ ] Full gates, durable knowledge, checkpoint/push/exact CI/deploy/runtime/clean.
+- [x] Full gates, durable knowledge, checkpoint/push/exact CI/deploy/runtime/clean.
 
 D local gate passes 608 fast, 88 real PostgreSQL and 41 production-build browser
 tests plus public-demo denial harness; separate API build passes. ADR 0033 and
 [operator consolidation review](../engineering/operator-consolidation-review.md)
 record exact root/attention semantics, review correction and evidence limits.
-Delivery must finish before resuming the existing S3 plan.
+Implementation checkpoint `4d13cf1884e4ea1025a55f3c05b76efe9942734f` is pushed;
+exact CI `37329376012` succeeds, both providers resolve the full SHA, and managed
+smoke passes. Authenticated production read-only Work/Task/Live reload/Inventory/
+History/owned-return journey passed on 2026-10-08 without search, ID entry or
+Browser Back. No production command or full inbound/outbound execution is
+claimed. The tree was clean before this evidence-only synchronization; finish
+its verification/checkpoint/delivery before resuming the existing S3 plan.

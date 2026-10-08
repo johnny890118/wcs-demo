@@ -1,6 +1,7 @@
 # D — Operator context consolidation review
 
-2026-10-05. Full local gate passed; delivery gates pending.
+2026-10-08. Implementation checkpoint delivery verified; evidence synchronization
+checkpoint follows the same repository gates.
 
 ## Operator and Emil review
 
@@ -60,5 +61,28 @@ confirmed the equipment-context blocker resolved. Initial locator/routing-wait
 failures were corrected with exact disclosure/context waits, not skipped tests.
 Local PDF text tooling was resolved using the bundled Poppler binary path.
 
-Exact-HEAD CI and deployment/runtime outcomes remain post-checkpoint gates;
-do not infer deployment readiness from local tests.
+Implementation checkpoint `4d13cf1884e4ea1025a55f3c05b76efe9942734f` is pushed.
+Exact-HEAD CI `37329376012` succeeds. Vercel Ready and Render Live were verified
+against that full SHA; managed web/API smoke passes on 2026-10-08.
+
+Authenticated production read journey on 2026-10-08: Home → Work queue →
+inbound Work → reload → exact Task → contextual Live → reload → owned Task
+return → contextual Inventory → contextual History → owned Work return →
+Work queue. No ID entry, search or Browser Back was needed after entry. The
+same receipt/task identity survived both reloads and all contextual returns.
+The queued task is unassigned: Live explicitly reports missing resolved evidence
+instead of selecting another device; Inventory explicitly distinguishes missing
+records from zero stock. History returns the selected task's recorded events.
+No production mutation, scenario reset or equipment command was submitted.
+Production Exceptions also loaded with bounded empty attention and explicit
+non-health-clearance wording. No active alarm was available there; duplicate
+alarm identity and exception handoffs are deterministic browser evidence, not
+an invented production incident walkthrough.
+
+This is desktop, zh-TW/light authenticated production read evidence, not a
+production inbound/outbound execution proof, latency benchmark or physical
+tablet study. Both locales/themes and 1440/768/390 journeys remain supported by
+the deterministic production-build browser gate. Contextual history still exposes
+raw action labels (for example `transport_task.recover_release`); exact evidence
+linking is verified, but complete human-readable incident/command narrative
+remains a product gap for S4, not a reason to fabricate outcomes in D.

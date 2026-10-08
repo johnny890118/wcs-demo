@@ -281,7 +281,11 @@ Work spine A is delivered at `d8605d4`; B exact context handoffs are delivered a
 `7d0e93d`, with exact CI, both deployment SHAs and authenticated runtime verified.
 C job continuity/human meaning is delivered at `178ff9e`, with exact-HEAD CI,
 both provider SHAs, managed smoke and authenticated read-only resume/reload
-verified. D operator IA/end-to-end convergence is active. Continue the approved
+verified. D operator IA/end-to-end convergence is delivered at `4d13cf1`, with
+exact CI `37329376012`, both provider SHAs, managed smoke and authenticated
+production read-only contextual/reload/owned-return journey verified on
+2026-10-08. Finish the evidence synchronization checkpoint, then return to the
+existing S3 restart/persisted-access/active-cleanup direction. The completed
 Operator Experience A → B → C → D: reloadable server-resolved Work read spine,
 exact context handoffs, job continuity/human meaning, then Operator IA convergence.
 Work is the top-level user model; Task remains WCS execution. Templates are UX
