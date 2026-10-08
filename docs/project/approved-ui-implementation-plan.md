@@ -1,6 +1,6 @@
 # Approved operator UI implementation
 
-Status: In progress. S3 implementation remains paused until UI acceptance.
+Status: Implementation delivered. S3 remains paused until Owner UI acceptance.
 
 ## Authority and scope
 
@@ -66,4 +66,6 @@ implementation uncovers a load-bearing contract change.
   prioritization implemented; no domain/API/authentication changes.
 - Full local gate passes 616 fast, 88 PostgreSQL and 44 browser tests plus denial
   harness; API build and six native screenshot comparisons reviewed.
-- Checkpoint and exact CI/deployment/runtime gates remain pending. S3 stays paused.
+- Implementation `796bb97` pushed; exact Actions `37842875715` passed; matching
+  Vercel Ready/Render Live, managed smoke and authenticated deployed read journey
+  completed. Evidence-only final HEAD gates are checked at handoff. S3 stays paused.

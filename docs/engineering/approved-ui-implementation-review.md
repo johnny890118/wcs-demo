@@ -1,6 +1,6 @@
 # Approved operator UI implementation review
 
-Status: Implementation and local verification complete; exact delivery gates pending.
+Status: UI implementation delivered; Owner visual acceptance gates S3 resumption.
 
 ## Design authority
 
@@ -83,7 +83,31 @@ aligned mobile quantity baseline and tablet impact/action side-by-side grouping.
 Retained deviations from the proposal are required reference fields and visible
 warehouse/environment/source and qualified evidence notices. Long/raw History
 action names remain an existing limitation; no business capability is fabricated.
-Exact CI, providers and authenticated deployed runtime remain pending.
+
+## Exact implementation delivery
+
+Implementation checkpoint `796bb977f6f356b81c7819b3125392e242c243d4`
+(`feat(ui): implement approved operator interface`) is pushed to `origin/main`.
+Exact-HEAD Actions run `37842875715` completed successfully, including verify and
+production-like deployment-smoke jobs. Vercel deployment
+`GaZ64aLfL1MGCr41JwZMpSDbd6mE` is Ready with that source commit; Render deployment
+`dep-db405qmq1p3s73elglo0` is Live with the same full SHA. Managed smoke passed for
+the Vercel site and Render API.
+
+Authenticated deployed read walkthrough covered Home → active Task → persisted
+Work/reload → same Task → exact Inventory → exact Live → History → owned Work
+return, then outbound, global Live, Exceptions and Inventory. No production
+mutation was issued. Waiting/unassigned work retained its qualified missing
+inventory/equipment evidence rather than substituting other records. Global Live
+showed actual current AMR observation, separate assignment and safe alarm link.
+Theme/locale changes, desktop collapse and Escape/focus restoration passed.
+Browser preferences were restored to expanded/Light/zh-TW. Production screenshots
+are separate `implementation/deployed-*.png` artifacts, not the fixture matrix.
+
+The subsequent evidence-only documentation commit does not change runtime code.
+Its own exact-HEAD CI/provider/runtime state must be confirmed at final handoff;
+do not confuse implementation-checkpoint identities with a later HEAD. S3 remains
+paused for Owner acceptance of the shipped UI.
 
 Viewport automation is not physical industrial-tablet/gloved-use testing,
 long-duration operator research or WCAG certification. Deterministic fixtures

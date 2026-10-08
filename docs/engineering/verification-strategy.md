@@ -8,7 +8,10 @@ cover Axe, rendered text contrast and overflow. Adaptive shell additionally test
 visible warehouse/source context. Existing workflow/permission/expiry/warehouse/
 unknown/exact-context tests remain intact. Six native screenshots and skill-based
 security/Operator/Emil review are recorded in approved-ui-implementation-review.md;
-exact delivery gates are pending. No physical-device certification is claimed.
+implementation `796bb97`, exact Actions `37842875715`, matching Vercel Ready/Render
+Live, managed smoke and authenticated deployed read journey pass. Evidence-only
+final HEAD gates are checked separately at handoff. No physical-device certification
+is claimed; S3 remains paused for Owner UI acceptance.
 
 Current C durable Work continuation: complete gate passes 585 fast, 86 real
 PostgreSQL and 40 production-build browser tests, public-demo denial harness and
