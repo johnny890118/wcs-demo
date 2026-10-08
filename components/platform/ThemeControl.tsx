@@ -70,9 +70,9 @@ export function ThemeControl() {
           aria-pressed={selectedTheme === value}
           data-theme-preference={value}
           onClick={() => selectTheme(value)}
-          className={`ui-pressable rounded-md p-1.5 ${
+          className={`ui-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-1.5 ${
             selectedTheme === value
-              ? "bg-[var(--surface)] text-[var(--text)] shadow-sm"
+              ? "ui-current-selection"
               : "text-[var(--text-muted)]"
           }`}
         >

@@ -91,7 +91,7 @@ export function WarehouseTopologyMap({
     <section aria-labelledby="warehouse-map-title">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
             {t("warehouseMap")}
           </p>
           <h1
@@ -155,7 +155,7 @@ export function WarehouseTopologyMap({
           >
             <span className="flex items-center gap-2">
               <span
-                className="h-0.5 w-6 bg-[var(--accent-strong)]"
+                className="h-0.5 w-6 bg-[var(--success)]"
                 aria-hidden="true"
               />
               {t("availablePath")}
@@ -242,9 +242,7 @@ export function WarehouseTopologyMap({
                     y1={segment.y1}
                     x2={segment.x2}
                     y2={segment.y2}
-                    stroke={
-                      isBlocked ? "var(--danger)" : "var(--accent-strong)"
-                    }
+                    stroke={isBlocked ? "var(--danger)" : "var(--success)"}
                     strokeWidth={isBlocked ? 4 : 3}
                     strokeDasharray={isBlocked ? "10 8" : undefined}
                     strokeLinecap="round"
@@ -263,14 +261,24 @@ export function WarehouseTopologyMap({
                 return (
                   <g key={node.nodeId}>
                     {isSelected ? (
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="39"
-                        fill="none"
-                        stroke="var(--focus)"
-                        strokeWidth="4"
-                      />
+                      <>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="39"
+                          fill="none"
+                          stroke="var(--focus)"
+                          strokeWidth="4"
+                        />
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="35"
+                          fill="none"
+                          stroke="var(--accent)"
+                          strokeWidth="3"
+                        />
+                      </>
                     ) : null}
                     <circle
                       cx={x}
@@ -280,18 +288,7 @@ export function WarehouseTopologyMap({
                       stroke="var(--border-strong)"
                       strokeWidth="3"
                     />
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r="8"
-                      fill={
-                        node.kind === "storage"
-                          ? "var(--accent-strong)"
-                          : node.kind === "shipping"
-                            ? "var(--warning)"
-                            : "var(--focus)"
-                      }
-                    />
+                    <circle cx={x} cy={y} r="8" fill="var(--info)" />
                     <text
                       x={x}
                       y={y + 50}
@@ -380,7 +377,7 @@ export function WarehouseTopologyMap({
                   onClick={() => setSelectedNodeId(node.nodeId)}
                   className={`ui-pressable rounded-lg border px-2.5 py-2 text-left font-mono text-xs font-semibold ${
                     node.nodeId === effectiveSelectedNodeId
-                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                      ? "ui-current-selection"
                       : "border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text-muted)]"
                   }`}
                 >

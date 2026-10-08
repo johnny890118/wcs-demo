@@ -78,7 +78,7 @@ export function ExceptionAttention({
                 </p>
               </div>
               <Link
-                className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
                 href={item.href}
               >
                 {t("reviewOperationalEvidence")}

@@ -55,7 +55,7 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
       </p>
       <a
         href={`/api/operations/manual/${locale}`}
-        className="ui-pressable mt-3 inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+        className="ui-pressable ui-link mt-3 inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
       >
         {t("helpDownloadPdf")}
       </a>
@@ -86,7 +86,7 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
               <a
                 key={article.id}
                 href={`#${article.id}`}
-                className="ui-pressable inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
               >
                 {article.title[locale]}
               </a>
@@ -116,7 +116,7 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
                       <Link
                         key={link.href}
                         href={link.href}
-                        className="ui-pressable inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                        className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
                       >
                         {link.label[locale]}
                       </Link>

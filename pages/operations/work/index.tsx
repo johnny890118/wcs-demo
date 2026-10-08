@@ -20,7 +20,7 @@ import type { MessageKey } from "../../../src/ui/i18n/catalogs";
 import { authOptions } from "../../api/auth/[...nextauth]";
 type Props = { page: WorkQueuePage | null; query: WorkQueueQuery };
 const link =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 export default function WorkQueue({ page, query }: Props) {
   const { t, locale } = useLocale();
   const view = query.view ?? "active";

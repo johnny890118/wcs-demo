@@ -26,7 +26,7 @@ export function WarehouseContextControl({
         <span className="truncate font-bold text-[var(--text)]">
           {current.name}
         </span>
-        <span className="shrink-0 rounded-md bg-[var(--accent-soft)] px-2 py-1 font-mono font-semibold text-[var(--accent-strong)]">
+        <span className="shrink-0 rounded-md bg-[var(--surface-muted)] px-2 py-1 font-mono font-semibold text-[var(--text)]">
           {current.code}
         </span>
       </span>

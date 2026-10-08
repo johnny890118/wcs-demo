@@ -52,7 +52,7 @@ export function WorkExecutionPanel({
   const [error, setError] = useState<string | null>(null);
   const [complete, setComplete] = useState(false);
   const link =
-    "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold text-[var(--accent-strong)]";
+    "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold ui-link";
   async function execute() {
     if (
       !canExecute ||

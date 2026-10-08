@@ -15,9 +15,9 @@ export function LocaleControl() {
           type="button"
           aria-pressed={locale === option}
           onClick={() => setLocale(option)}
-          className={`ui-pressable rounded-md px-2.5 py-1.5 text-xs font-semibold ${
+          className={`ui-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-semibold ${
             locale === option
-              ? "bg-[var(--surface)] text-[var(--text)] shadow-sm"
+              ? "ui-current-selection"
               : "text-[var(--text-muted)]"
           }`}
         >

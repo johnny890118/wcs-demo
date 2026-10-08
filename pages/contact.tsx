@@ -24,7 +24,7 @@ export default function ContactPage({ siteOrigin }: PublicPageProps) {
         id="main-content"
         className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
           {t("contactEyebrow")}
         </p>
         <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-[-0.035em] sm:text-6xl">

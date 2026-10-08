@@ -273,7 +273,13 @@ Observability is cross-cutting from S1 onward. At each verified milestone, reass
 
 ## Immediate next task
 
-Owner update (2026-10-08): close D delivery only, including authenticated
+Latest Owner update (2026-10-08): D closure is delivered at `dbfb995` with exact
+CI/provider/runtime evidence. Execute an independent Theme Refinement checkpoint
+without changing IA, domain or roadmap order; after all delivery gates and a clean
+tree, automatically resume the existing S3 demo lifecycle. See
+`../engineering/theme-refinement-review.md`. This supersedes the D-only hold below.
+
+Previous Owner update (2026-10-08): close D delivery only, including authenticated
 production journey, material UX limitations, durable evidence, exact-HEAD CI,
 both deployments and runtime smoke. Stop at the clean checkpoint for Owner
 review; do not begin theme work or S3 implementation. This supersedes the

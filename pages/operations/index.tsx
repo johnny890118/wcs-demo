@@ -106,7 +106,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
     <OperationsShell>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
             {t("overview")}
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
@@ -198,7 +198,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                     </p>
                   </div>
                   <Link
-                    className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                    className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
                     href={homeInvestigationDestination(item)}
                   >
                     {t("reviewOperationalEvidence")}
@@ -236,7 +236,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                     {t(`homeNext_${task.nextStep}` as MessageKey)}
                   </p>
                   <Link
-                    className="ui-pressable mt-2 inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]"
+                    className="ui-pressable ui-link mt-2 inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
                     href={`/operations/tasks/${encodeURIComponent(
                       task.taskId,
                     )}`}
@@ -292,7 +292,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                   {label}
                 </p>
                 <Icon
-                  className="h-5 w-5 text-[var(--accent-strong)]"
+                  className="h-5 w-5 text-[var(--info)]"
                   aria-hidden="true"
                 />
               </div>

@@ -23,7 +23,7 @@ type Props = {
   exactFilters?: { id?: string; locationId?: string };
 };
 const control =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 function Loads({
   initialPage,
   search,

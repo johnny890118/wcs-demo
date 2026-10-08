@@ -18,7 +18,7 @@ import { authOptions } from "../../api/auth/[...nextauth]";
 
 type Props = { detail: TaskDetail | null; canViewAudit: boolean };
 const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 const panel =
   "mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5";
 export default function TaskDetailPage({ detail, canViewAudit }: Props) {

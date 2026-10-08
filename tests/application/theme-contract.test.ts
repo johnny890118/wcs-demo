@@ -34,6 +34,9 @@ describe("neutral-first SWP theme contract", () => {
           expect(readFileSync(path, "utf8"), path).not.toContain(
             "text-[var(--accent)]",
           );
+          expect(readFileSync(path, "utf8"), path).not.toMatch(
+            /var\(--accent-(strong|soft)\)/,
+          );
         }
       }
     }
@@ -43,7 +46,8 @@ describe("neutral-first SWP theme contract", () => {
       "components/platform/WarehouseTopologyMap.tsx",
       "utf8",
     );
-    expect(map).not.toContain('"var(--accent)"');
+    expect(map).toContain('stroke="var(--accent)"');
+    expect(map).not.toContain('fill="var(--accent)"');
   });
   it.each([":root", ".dark"])(
     "shares brand accent and preserves readable/status meaning in %s",
@@ -60,7 +64,9 @@ describe("neutral-first SWP theme contract", () => {
         for (const foreground of [
           "text",
           "text-muted",
-          "accent-strong",
+          "link",
+          "info",
+          "offline",
           "success",
           "danger",
           "warning",
@@ -73,8 +79,24 @@ describe("neutral-first SWP theme contract", () => {
         contrast(palette["on-accent"], palette.accent),
       ).toBeGreaterThanOrEqual(4.5);
       expect(
-        contrast(palette["accent-strong"], palette["accent-soft"]),
+        contrast(palette["selection-text"], palette["selection-background"]),
       ).toBeGreaterThanOrEqual(4.5);
+      expect(palette["selection-background"]).toBe(palette.accent);
+      expect(palette.warning).not.toBe(palette.accent);
+      expect(
+        contrast(palette["selection-edge"], palette["selection-background"]),
+      ).toBeGreaterThanOrEqual(3);
+      for (const background of [
+        "canvas",
+        "surface",
+        "surface-raised",
+        "surface-muted",
+      ])
+        for (const foreground of ["focus", "border-strong", "selection-edge"])
+          expect(
+            contrast(palette[foreground], palette[background]),
+            `${selector} ${foreground}/${background}`,
+          ).toBeGreaterThanOrEqual(3);
     },
   );
 });

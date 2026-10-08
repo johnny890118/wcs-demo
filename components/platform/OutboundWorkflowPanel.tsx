@@ -185,7 +185,7 @@ export function OutboundWorkflowPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("outboundRequest")}
         </p>
         <h2 className="mt-2 text-xl font-black">{t("outboundRequestTitle")}</h2>
@@ -283,7 +283,7 @@ export function OutboundWorkflowPanel({
             })}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+            className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
           >
             {t("inspectRecordedStock")} · {t("opensNewTab")}
           </Link>
@@ -301,7 +301,7 @@ export function OutboundWorkflowPanel({
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
         aria-labelledby="outbound-confirmation-title"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("confirmation")}
         </p>
         <h2
@@ -314,7 +314,7 @@ export function OutboundWorkflowPanel({
           <div className="mt-5 space-y-5">
             <Link
               href={workPath("outbound", created.outboundOrderId)}
-              className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold text-[var(--accent-strong)]"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold"
             >
               {t("openWorkContext")}
             </Link>
@@ -374,7 +374,7 @@ export function OutboundWorkflowPanel({
                     rel={
                       state === "complete" ? undefined : "noopener noreferrer"
                     }
-                    className="ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold text-[var(--accent-strong)]"
+                    className="ui-pressable ui-link inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold"
                   >
                     {t("inspectCreatedTask")} {index + 1}
                     {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
@@ -413,7 +413,7 @@ export function OutboundWorkflowPanel({
                 </div>
                 <Link
                   href="/operations/projections"
-                  className="mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                  className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                 >
                   {t("viewInventoryOutcome")}
                 </Link>
@@ -423,7 +423,7 @@ export function OutboundWorkflowPanel({
                       href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
                         created.outboundOrderId,
                       )}`}
-                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                     >
                       {t("viewOrderAuditEvidence")}
                     </Link>
@@ -433,7 +433,7 @@ export function OutboundWorkflowPanel({
                         href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
                           taskId,
                         )}`}
-                        className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                        className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                       >
                         {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
                       </Link>

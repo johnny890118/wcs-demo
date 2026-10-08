@@ -16,8 +16,8 @@ export function InventoryNavigation({
           key={surface}
           href={`/operations/${surface}`}
           aria-current={surface === current ? "page" : undefined}
-          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)] ${
-            surface === current ? "bg-[var(--accent-soft)]" : ""
+          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--text-muted)] ${
+            surface === current ? "ui-current-selection" : ""
           }`}
         >
           {t(surface)}

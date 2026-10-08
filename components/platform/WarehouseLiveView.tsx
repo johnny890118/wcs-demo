@@ -9,7 +9,7 @@ import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { SpatialReadNotice } from "./SpatialReadNotice";
 
 const contextLink =
-  "ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-semibold ui-link";
 export function WarehouseLiveView({
   view,
   projectionCurrent,
@@ -111,7 +111,7 @@ export function WarehouseLiveView({
                     }
                     className={`ui-pressable flex min-h-11 w-full flex-col gap-1 rounded-lg border p-3 text-left ${
                       item.equipmentId === selected?.equipmentId
-                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+                        ? "ui-current-selection"
                         : "border-[var(--border)]"
                     }`}
                   >

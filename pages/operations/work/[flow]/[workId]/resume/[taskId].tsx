@@ -44,7 +44,7 @@ export default function ResumeWorkPage({
       {detail ? (
         <>
           <Link
-            className="ui-pressable mt-3 inline-flex min-h-11 items-center font-semibold text-[var(--accent-strong)]"
+            className="ui-pressable ui-link mt-3 inline-flex min-h-11 items-center font-semibold"
             href={workPath(detail.task.flow, detail.originResource.id)}
           >
             {t("openWorkContext")}

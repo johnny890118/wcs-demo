@@ -30,7 +30,7 @@ type Props = {
   canExecute?: boolean;
 };
 const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 export default function WorkPage({
   detail,
   canViewAudit,
@@ -53,7 +53,7 @@ export default function WorkPage({
       <Link className={linkClass} href="/operations/work">
         {t("returnToWorkQueue")}
       </Link>
-      <p className="mt-4 font-semibold text-[var(--accent-strong)]">
+      <p className="mt-4 font-semibold text-[var(--text)]">
         {t("workCase")} · {t(work.flow)}
       </p>
       <h1 className="mt-2 break-words text-3xl font-black">

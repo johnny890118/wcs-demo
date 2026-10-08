@@ -4,46 +4,54 @@
 
 :root {
   color-scheme: light;
-  --canvas: #f5f5f4;
+  --canvas: #f3f4f6;
   --surface: #ffffff;
-  --surface-raised: #fafafa;
-  --surface-muted: #eeeeec;
-  --border: #d8d8d5;
-  --border-strong: #aeaeaa;
-  --text: #1c1c1b;
-  --text-muted: #666662;
+  --surface-raised: #f9fafb;
+  --surface-muted: #e5e7eb;
+  --border: #d1d5db;
+  --border-strong: #697586;
+  --text: #18202b;
+  --text-muted: #505b6b;
   --accent: #e6f000;
   --on-accent: #1c1c1b;
-  --accent-strong: #555900;
-  --accent-soft: #f4f6cf;
-  --warning: #995609;
-  --danger: #b33737;
+  --link: #215dc6;
+  --selection-background: #e6f000;
+  --selection-text: #18202b;
+  --selection-edge: #697586;
+  --info: #215dc6;
+  --offline: #505b6b;
+  --warning: #994600;
+  --danger: #ae2939;
   --on-danger: #ffffff;
-  --success: #28724d;
-  --focus: #3578e5;
+  --success: #186943;
+  --focus: #18202b;
   --shadow-panel: 0 1px 2px rgb(28 28 28 / 6%), 0 12px 32px rgb(28 28 28 / 6%);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .dark {
   color-scheme: dark;
-  --canvas: #141414;
-  --surface: #1c1c1c;
-  --surface-raised: #242424;
-  --surface-muted: #2c2c2a;
-  --border: #393937;
-  --border-strong: #5c5c58;
-  --text: #f0f0ed;
-  --text-muted: #a5a5a0;
+  --canvas: #10141b;
+  --surface: #1b2230;
+  --surface-raised: #242e3f;
+  --surface-muted: #29364a;
+  --border: #414d60;
+  --border-strong: #8993a3;
+  --text: #f3f6fb;
+  --text-muted: #c1cad8;
   --accent: #e6f000;
   --on-accent: #1c1c1b;
-  --accent-strong: #e6f000;
-  --accent-soft: #303218;
-  --warning: #e8a64c;
-  --danger: #ef7777;
+  --link: #9abaff;
+  --selection-background: #e6f000;
+  --selection-text: #18202b;
+  --selection-edge: #798493;
+  --info: #9abaff;
+  --offline: #c1cad8;
+  --warning: #ffc083;
+  --danger: #ff9da9;
   --on-danger: #111612;
-  --success: #73cf9f;
-  --focus: #83adff;
+  --success: #89ddb3;
+  --focus: #e6f000;
   --shadow-panel: 0 1px 2px rgb(0 0 0 / 20%), 0 16px 40px rgb(0 0 0 / 18%);
 }
 
@@ -68,17 +76,34 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--focus) 65%, transparent);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.ui-current-selection {
+  background: var(--selection-background);
+  color: var(--selection-text);
+  border-color: var(--selection-edge);
+  box-shadow: inset 0 0 0 1px var(--selection-edge);
+}
+
+.ui-link {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+#main-content input:not([type="checkbox"]):not([type="radio"]),
+#main-content select,
+#main-content textarea {
+  border-color: var(--border-strong);
 }
 
 @layer components {
   .ui-pressable {
-    transition:
-      transform 160ms var(--ease-out),
-      background-color 160ms ease,
-      border-color 160ms ease,
-      color 160ms ease;
+    /* Color roles switch atomically: interpolation can create unreadable pairs. */
+    transition: transform 160ms var(--ease-out);
   }
 
   .ui-pressable:active {
@@ -92,10 +117,7 @@ body {
   }
 
   .ui-pressable {
-    transition:
-      background-color 160ms ease,
-      border-color 160ms ease,
-      color 160ms ease;
+    transition: none;
   }
 
   .ui-pressable:active {

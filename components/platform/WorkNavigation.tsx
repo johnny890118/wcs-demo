@@ -22,7 +22,7 @@ export function WorkNavigation({
           aria-current={current === key ? "page" : undefined}
           className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ${
             current === key
-              ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
+              ? "ui-current-selection"
               : "text-[var(--text-muted)]"
           }`}
         >

@@ -89,7 +89,7 @@ export default function LoginPage({
         className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,440px)] lg:px-8"
       >
         <div className="max-w-xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent-strong)]">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
             {t("protectedArea")}
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">

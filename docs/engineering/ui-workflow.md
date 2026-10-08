@@ -8,7 +8,11 @@ Professional, calm, precise industrial operations UI. Prioritize abnormal state,
 
 Owner-approved brand accent is `#E6F000`, shared by light and dark themes within
 a neutral-first palette. Use existing theme tokens, not component-local color
-codes; contrast-safe text/soft variants may differ by theme. Green is reserved
+codes; readable link/text/status/focus roles may differ by theme. Brand action
+and current-selection fills retain the fixed core brand, with neutral text and
+contrast-safe edges. Do not reuse brand as warning or general body/link text.
+See `theme-refinement-review.md` for the role separation and evidence limits.
+Green is reserved
 for success/healthy/available semantics, not brand identity. Preserve semantic
 status distinctions, WCAG contrast and command-safety hierarchy.
 

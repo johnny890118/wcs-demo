@@ -191,7 +191,7 @@ export function InboundWorkflowPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("inboundRequest")}
         </p>
         <h2 className="mt-2 text-xl font-black">{t("inboundRequestTitle")}</h2>
@@ -339,7 +339,7 @@ export function InboundWorkflowPanel({
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
         aria-labelledby="inbound-confirmation-title"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("confirmation")}
         </p>
         <h2 id="inbound-confirmation-title" className="mt-2 text-xl font-black">
@@ -349,7 +349,7 @@ export function InboundWorkflowPanel({
           <div className="mt-5 space-y-5">
             <Link
               href={workPath("inbound", created.receiptId)}
-              className="ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold text-[var(--accent-strong)]"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold"
             >
               {t("openWorkContext")}
             </Link>
@@ -386,7 +386,7 @@ export function InboundWorkflowPanel({
               )}`}
               target={state === "complete" ? undefined : "_blank"}
               rel={state === "complete" ? undefined : "noopener noreferrer"}
-              className="ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold text-[var(--accent-strong)]"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold"
             >
               {t("inspectCreatedTask")}
               {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
@@ -433,7 +433,7 @@ export function InboundWorkflowPanel({
                 </div>
                 <Link
                   href="/operations/warehouse"
-                  className="mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                  className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                 >
                   {t("liveView")}
                 </Link>
@@ -443,7 +443,7 @@ export function InboundWorkflowPanel({
                       href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
                         completed.taskId,
                       )}`}
-                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                     >
                       {t("viewTaskAuditEvidence")}
                     </Link>
@@ -451,7 +451,7 @@ export function InboundWorkflowPanel({
                       href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
                         created.receiptId,
                       )}`}
-                      className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                     >
                       {t("viewReceiptAuditEvidence")}
                     </Link>

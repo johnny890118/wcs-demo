@@ -53,7 +53,7 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
   return (
     <OperationsShell current="audit">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("auditHistory")}
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
@@ -64,7 +64,7 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
         </p>
         {Object.keys(filters).length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-md bg-[var(--accent-soft)] px-3 py-1.5 font-mono text-[var(--accent-strong)]">
+            <span className="rounded-md bg-[var(--surface-muted)] px-3 py-1.5 font-mono text-[var(--text)]">
               {filters.correlationId ??
                 `${filters.resourceType ?? "resource"}:${
                   filters.resourceId ?? ""
@@ -72,7 +72,7 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
             </span>
             <Link
               href="/operations/audit"
-              className="font-bold text-[var(--accent-strong)] underline underline-offset-4"
+              className="ui-link font-bold underline underline-offset-4"
             >
               {t("clearAuditFilter")}
             </Link>

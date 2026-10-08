@@ -27,7 +27,7 @@ export default function InboundOperationsPage({
   return (
     <OperationsShell current="inbound">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("inbound")}
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">

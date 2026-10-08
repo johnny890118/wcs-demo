@@ -25,8 +25,8 @@ export function WarehouseNavigation({
           key={item.key}
           href={item.href}
           aria-current={current === item.key ? "page" : undefined}
-          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)] ${
-            current === item.key ? "bg-[var(--accent-soft)]" : ""
+          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--text-muted)] ${
+            current === item.key ? "ui-current-selection" : ""
           }`}
         >
           {t(item.label)}

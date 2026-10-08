@@ -175,7 +175,7 @@ export function AlarmRecoveryPanel({
         <p className="mt-3 font-bold">{t("noActionableAlarms")}</p>
         <Link
           href="/operations/tasks"
-          className="ui-pressable mt-4 inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+          className="ui-pressable ui-link mt-4 inline-flex min-h-11 items-center rounded-md text-sm font-bold"
         >
           {t("returnToTaskQueue")}
         </Link>
@@ -186,7 +186,7 @@ export function AlarmRecoveryPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(280px,0.7fr)_minmax(0,1.3fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("actionableAlarms")}
         </p>
         <label className="mt-5 block text-sm font-semibold">
@@ -256,13 +256,13 @@ export function AlarmRecoveryPanel({
               href={`/operations/tasks/${encodeURIComponent(selected.taskId)}`}
               target={state === "complete" ? undefined : "_blank"}
               rel={state === "complete" ? undefined : "noopener noreferrer"}
-              className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
             >
               {t("inspectCreatedTask")}
               {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
             </Link>
             <Link
-              className="ui-pressable inline-flex min-h-11 items-center rounded-md text-sm font-bold text-[var(--accent-strong)]"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
               href={contextPath(selected.taskId, "exception", selected.alarmId)}
             >
               {t("openExactException")}
@@ -296,7 +296,7 @@ export function AlarmRecoveryPanel({
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6"
         aria-labelledby="alarm-action-title"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("confirmation")}
         </p>
         <h2 id="alarm-action-title" className="mt-2 text-xl font-black">
@@ -342,7 +342,7 @@ export function AlarmRecoveryPanel({
             </div>
             <Link
               href={`/operations/tasks/${encodeURIComponent(completed.taskId)}`}
-              className="mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+              className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
             >
               {t("viewRecoveryOutcome")}
             </Link>
@@ -350,7 +350,7 @@ export function AlarmRecoveryPanel({
               <>
                 <Link
                   href={contextPath(selected.taskId, "history")}
-                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                  className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                 >
                   {t("viewTaskAuditEvidence")}
                 </Link>
@@ -360,7 +360,7 @@ export function AlarmRecoveryPanel({
                     "history",
                     selected.alarmId,
                   )}
-                  className="ml-4 mt-4 inline-flex text-sm font-bold text-[var(--accent-strong)] underline underline-offset-4"
+                  className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
                 >
                   {t("viewAlarmAuditEvidence")}
                 </Link>

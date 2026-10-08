@@ -20,7 +20,7 @@ type Props = {
   warehouseId: string;
 };
 const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--accent-strong)]";
+  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
   const { t, locale } = useLocale();
   const [tasks, setTasks] = useState(initialPage?.tasks ?? []);

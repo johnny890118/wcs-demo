@@ -39,15 +39,29 @@ function contrastRatio(foreground: string, background: string): number {
   return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
 }
 
+function mix(foreground: string, background: string, weight: number): string {
+  return `#${[1, 3, 5]
+    .map((offset) =>
+      Math.round(
+        Number.parseInt(foreground.slice(offset, offset + 2), 16) * weight +
+          Number.parseInt(background.slice(offset, offset + 2), 16) *
+            (1 - weight),
+      )
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
 const normalTextPairs = [
   ["text", "canvas"],
   ["text", "surface"],
   ["text-muted", "canvas"],
   ["text-muted", "surface"],
   ["text-muted", "surface-muted"],
-  ["accent-strong", "canvas"],
-  ["accent-strong", "surface"],
-  ["accent-strong", "accent-soft"],
+  ["link", "canvas"],
+  ["link", "surface"],
+  ["selection-text", "selection-background"],
   ["on-accent", "accent"],
   ["on-danger", "danger"],
   ["warning", "surface"],
@@ -59,6 +73,21 @@ describe.each([
   ["light", themeVariables(":root")],
   ["dark", themeVariables(".dark")],
 ])("%s design-token contrast", (_name, theme) => {
+  it.each([
+    ["warning", 0.08],
+    ["warning", 0.1],
+    ["success", 0.08],
+    ["danger", 0.08],
+  ] as const)(
+    "readable text on actual %s tinted panels (%s)",
+    (status, weight) => {
+      const background = mix(theme[status], theme.surface, weight);
+      for (const foreground of ["text", "text-muted", status])
+        expect(
+          contrastRatio(theme[foreground], background),
+        ).toBeGreaterThanOrEqual(4.5);
+    },
+  );
   it.each(normalTextPairs)(
     "%s on %s meets WCAG AA for normal text",
     (foreground, background) => {

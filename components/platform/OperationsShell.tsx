@@ -163,9 +163,7 @@ export function OperationsShell({
         className={
           "ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold " +
           (mobile ? "shrink-0 whitespace-nowrap " : "") +
-          (group === key
-            ? "bg-[var(--accent-soft)] text-[var(--accent-strong)]"
-            : "text-[var(--text-muted)]")
+          (group === key ? "ui-current-selection" : "text-[var(--text-muted)]")
         }
       >
         {!mobile ? (
@@ -282,7 +280,7 @@ export function OperationsShell({
               {current !== "help" ? (
                 <Link
                   href={"/operations/help?topic=" + helpTopics[current]}
-                  className="ui-pressable mb-3 inline-flex min-h-11 items-center text-sm font-semibold text-[var(--accent-strong)]"
+                  className="ui-pressable ui-link mb-3 inline-flex min-h-11 items-center text-sm font-semibold"
                 >
                   {t("helpContextual")}
                 </Link>

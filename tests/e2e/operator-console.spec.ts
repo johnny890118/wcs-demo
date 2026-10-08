@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
+import { visibleTextContrastFailures } from "./support/theme-contrast";
 import { expect, test, type Page } from "@playwright/test";
 import {
   manualSoftwareVersion,
@@ -255,6 +256,39 @@ test("neutral-first brand survives an operator read journey across themes, local
           expect(palette.accent.toLowerCase()).toBe("#e6f000");
           expect(palette.success).not.toBe(palette.accent);
           expect(palette.overflow).toBe(false);
+          expect(await visibleTextContrastFailures(page)).toEqual([]);
+          const selected = page
+            .locator("nav a[aria-current='page']:visible")
+            .first();
+          await expect(selected).toBeVisible();
+          expect(
+            await selected.evaluate((element) => ({
+              background: getComputedStyle(element).backgroundColor,
+              color: getComputedStyle(element).color,
+            })),
+          ).toEqual({
+            background: "rgb(230, 240, 0)",
+            color: "rgb(24, 32, 43)",
+          });
+          await selected.focus();
+          await page.keyboard.press("Tab");
+          await page.keyboard.press("Shift+Tab");
+          await expect(selected).toBeFocused();
+          expect(
+            await selected.evaluate(
+              (element) => getComputedStyle(element).outlineStyle,
+            ),
+          ).toBe("solid");
+          for (const label of [
+            locale === "en" ? "Theme" : "主題",
+            locale === "en" ? "Language" : "語言",
+          ]) {
+            await expect(
+              page
+                .getByRole("group", { name: label, exact: true })
+                .locator("button[aria-pressed='true']"),
+            ).toHaveCount(1);
+          }
           expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
             [],
           );
