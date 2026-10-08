@@ -1,7 +1,8 @@
 # Operator Experience A–D convergence
 
-Status: A–D implementation delivered; delivery evidence synchronization checkpoint
-in progress. Owner requires a clean handoff and no S3 implementation (2026-10-08).
+Status: Completed — A–D implementation delivery and bounded production journey
+evidence synchronized. Stop at the verified clean handoff; no S3 implementation
+without Owner continuation (2026-10-08).
 Owner-approved ordering, 2026-10-04.
 
 ## Entry and boundaries
@@ -139,6 +140,7 @@ exact CI `37329376012` succeeds, both providers resolve the full SHA, and manage
 smoke passes. Authenticated production read-only Work/Task/Live reload/Inventory/
 History/owned-return journey passed on 2026-10-08 without search, ID entry or
 Browser Back. No production command or full inbound/outbound execution is
-claimed. The tree was clean before this evidence-only synchronization; finish
-its verification/checkpoint/delivery, then stop at the clean checkpoint for Owner
-review. The 2026-10-08 Owner hold supersedes automatic continuation into S3.
+claimed. The tree was clean before this evidence-only synchronization. Its own
+exact-HEAD CI/deployment/runtime gates must pass before handoff. Stop at the clean
+checkpoint for Owner review; the 2026-10-08 Owner hold supersedes automatic S3
+continuation.
