@@ -1,3 +1,6 @@
+import { Button } from "../../components/ui/button";
+import { Input, FieldLabel } from "../../components/ui/field";
+import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
@@ -70,19 +73,19 @@ function Locations({
         method="get"
         className="mt-5 flex flex-wrap items-end gap-2"
       >
-        {exactId ? <input type="hidden" name="id" value={exactId} /> : null}
-        <label className="flex min-w-0 flex-1 flex-col gap-2 text-sm font-semibold">
+        {exactId ? <Input type="hidden" name="id" value={exactId} /> : null}
+        <FieldLabel className="flex min-w-0 flex-1 flex-col gap-2 text-sm">
           {t("locationSearch")}
-          <input
+          <Input
             name="search"
             defaultValue={search}
             maxLength={100}
-            className="min-h-11 w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 text-[var(--text)]"
+            className="w-full"
           />
-        </label>
-        <button type="submit" className={control}>
+        </FieldLabel>
+        <Button variant="secondary" type="submit" className="shrink-0">
           {t("inventorySearchAction")}
-        </button>
+        </Button>
         <Link className={control} href="/operations/locations">
           {t("inventoryClearSearch")}
         </Link>
@@ -94,11 +97,7 @@ function Locations({
       ) : null}
       {initialPage ? (
         <p className="mt-4 text-xs text-[var(--text-muted)]">
-          {t("refreshedAt")} ·{" "}
-          {new Intl.DateTimeFormat(locale, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(new Date(initialPage.generatedAt))}
+          {t("refreshedAt")} · {formatOperationalTime(initialPage.generatedAt)}
         </p>
       ) : null}
       <ul className="mt-5 space-y-4">
@@ -188,14 +187,15 @@ function Locations({
         <p className="mt-5 text-sm">{t("locationsEmpty")}</p>
       ) : null}
       {cursor ? (
-        <button
+        <Button
+          variant="secondary"
           type="button"
           className={`${control} mt-5`}
           disabled={loading}
           onClick={() => void loadMore()}
         >
           {loading ? t("loadingAudit") : t("locationsMore")}
-        </button>
+        </Button>
       ) : null}
       <p className="mt-6 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">
         {t("locationsNotice")}

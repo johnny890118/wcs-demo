@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
@@ -65,11 +66,7 @@ export default function ExactContextPage(props: Props) {
     props.alarmId && context.alarm
       ? context.alarm.equipmentId
       : task.equipmentId;
-  const time = (value: string) =>
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  const time = (value: string) => formatOperationalTime(value);
   const field = (label: MessageKey, value: string | number) => (
     <div key={label}>
       <dt className="text-sm text-[var(--text-muted)]">{t(label)}</dt>

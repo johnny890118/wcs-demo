@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import Link from "next/link";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { projectOperationsHome } from "../../src/application/operations/operations-home";
@@ -51,11 +52,7 @@ export function ExceptionAttention({
         {t("exceptionSnapshotNotice")}
       </p>
       <p className="mt-2 text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")} ·{" "}
-        {new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(details.generatedAt))}
+        {t("refreshedAt")} · {formatOperationalTime(details.generatedAt)}
       </p>
       {Object.values(home.coverage).some(Boolean) ? (
         <p className="mt-2 text-sm text-[var(--text-muted)]">

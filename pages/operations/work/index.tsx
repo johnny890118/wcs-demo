@@ -1,7 +1,9 @@
+import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
+import { PageHeading } from "../../../components/ui/workspace";
 import { workPath } from "../../../src/application/operations/work-projection";
 import { workAttention } from "../../../src/application/operations/work-continuation";
 import {
@@ -22,14 +24,14 @@ type Props = { page: WorkQueuePage | null; query: WorkQueueQuery };
 const link =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 export default function WorkQueue({ page, query }: Props) {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const view = query.view ?? "active";
   return (
     <OperationsShell current="work">
-      <h1 className="text-3xl font-black">{t("operatorWork")}</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("workQueueDescription")}
-      </p>
+      <PageHeading
+        title={t("operatorWork")}
+        description={t("workQueueDescription")}
+      />
       <nav
         aria-label={t("workQueueView")}
         className="mt-4 flex flex-wrap gap-2"
@@ -37,7 +39,7 @@ export default function WorkQueue({ page, query }: Props) {
         {(["active", "all"] as const).map((v) => (
           <Link
             key={v}
-            className={link}
+            className={`${link} ${view === v ? "ui-current-selection" : ""}`}
             aria-current={view === v ? "page" : undefined}
             href={`/operations/work?view=${v}`}
           >
@@ -52,19 +54,12 @@ export default function WorkQueue({ page, query }: Props) {
       ) : (
         <>
           <p className="mt-4 text-xs text-[var(--text-muted)]">
-            {t("refreshedAt")} ·{" "}
-            {new Intl.DateTimeFormat(locale, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            }).format(new Date(page.generatedAt))}
+            {t("refreshedAt")} · {formatOperationalTime(page.generatedAt)}
           </p>
           <ul className="mt-5 space-y-3">
             {page.works.map((w) => (
-              <li
-                key={`${w.flow}:${w.workId}`}
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-              >
-                <h2 className="break-words text-xl font-bold">
+              <li key={`${w.flow}:${w.workId}`} className="swp-record">
+                <h2 className="break-words text-lg font-semibold">
                   {w.externalReference}
                 </h2>
                 <p className="mt-2 text-sm">

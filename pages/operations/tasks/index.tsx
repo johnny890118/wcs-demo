@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
@@ -79,11 +80,7 @@ function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
       ) : null}
       {initialPage ? (
         <p className="mt-4 text-xs text-[var(--text-muted)]">
-          {t("refreshedAt")} ·{" "}
-          {new Intl.DateTimeFormat(locale, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(new Date(initialPage.generatedAt))}
+          {t("refreshedAt")} · {formatOperationalTime(initialPage.generatedAt)}
         </p>
       ) : null}
       <ul className="mt-5 space-y-3">

@@ -5,7 +5,6 @@ import "../styles/map.scss";
 import "../styles/font.css";
 import "../styles/animation.css";
 import "@/styles/engineeringMode.css";
-import { Ubuntu } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import Head from "next/head";
@@ -19,11 +18,6 @@ import {
   PRODUCT_ICON_PNG,
   PRODUCT_APP_ICON,
 } from "@/src/ui/identity/product-identity";
-
-const ubuntu = Ubuntu({
-  subsets: ["latin"],
-  weight: "400",
-});
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
@@ -84,7 +78,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
         />
         <link rel="apple-touch-icon" sizes="180x180" href={PRODUCT_APP_ICON} />
       </Head>
-      <div className={ubuntu.className}>{content}</div>
+      <div className="swp-type">{content}</div>
       <OperationalNavigationTiming enabled={surface === "operations"} />
     </>
   );

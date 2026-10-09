@@ -8,6 +8,7 @@ export const en = {
   collapseNavigation: "Collapse navigation",
   expandNavigation: "Expand navigation",
   closeNavigation: "Close navigation",
+  closePreferences: "Close preferences",
   operatorWork: "Work",
   operatorHome: "Home",
   returnToWorkQueue: "Return to Work",
@@ -176,6 +177,7 @@ export const en = {
   liveNoBoundLocation: "No readable bound station is available",
   liveInactive: "Not active in configuration",
   liveRecordedState: "Last recorded equipment state",
+  livePositionEvidence: "Position evidence and safety limits",
   livePosition_current: "Qualified current observation",
   livePosition_last_known: "Last-known observation only",
   livePosition_unknown: "Position unknown",
@@ -254,7 +256,7 @@ export const en = {
   locationsMore: "Load more locations",
   locationsRefresh: "Refresh locations",
   locationsNotice:
-    "Counts are persisted record counts, not quantity, capacity or physical occupancy. Load rows may retain shipped history. Related links search the location code as a substring, not an exact location filter. Configuration and binding do not prove movement safety. Pages are observations, not a snapshot; refresh for changes.",
+    "Counts are recorded rows, not quantity, capacity or physical occupancy. Related links use the exact location identity. Loads may retain shipped history. Configuration and bindings do not prove movement safety; refresh for changes.",
   inventoryDescription:
     "Persisted stock balances, reservations and readable load/location context for the current warehouse.",
   inventorySearch: "Search SKU, load or location",
@@ -705,6 +707,7 @@ export const zhTW: Catalog = {
   collapseNavigation: "收合導覽",
   expandNavigation: "展開導覽",
   closeNavigation: "關閉導覽",
+  closePreferences: "關閉偏好設定",
   operatorWork: "工作",
   operatorHome: "首頁",
   returnToWorkQueue: "返回工作清單",
@@ -862,6 +865,7 @@ export const zhTW: Catalog = {
   liveNoBoundLocation: "無可用的綁定庫位資訊",
   liveInactive: "設定中未啟用",
   liveRecordedState: "最後記錄的設備狀態",
+  livePositionEvidence: "位置證據與安全限制",
   livePosition_current: "合格的目前觀測",
   livePosition_last_known: "僅最後已知觀測",
   livePosition_unknown: "位置未知",
@@ -929,7 +933,7 @@ export const zhTW: Catalog = {
   locationsMore: "載入更多位置",
   locationsRefresh: "重新整理位置",
   locationsNotice:
-    "筆數來自持久化紀錄，不是數量、容量或實體佔用率；載具可能保留已出庫歷史。相關連結以位置代碼做部分比對搜尋，不是精確位置篩選。設定與綁定不能證明移動安全。分頁是個別觀測，不是快照；變更後請重新整理。",
+    "筆數是記錄筆數，不是數量、容量或實體佔用率。相關連結使用精確位置識別；載具可能保留已出庫歷史。設定與綁定不能證明移動安全，變更後請重新整理。",
   inventoryDescription:
     "目前倉庫的帳面庫存、配貨保留量，以及可閱讀的載具與位置情境。",
   inventorySearch: "搜尋 SKU、載具或位置",

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { AlarmRecoveryPanel } from "../../components/platform/AlarmRecoveryPanel";
 import { ExceptionAttention } from "../../components/platform/ExceptionAttention";
 import { OperationsShell } from "../../components/platform/OperationsShell";
+import { PageHeading } from "../../components/ui/workspace";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
@@ -27,17 +28,10 @@ export default function AlarmOperationsPage({
   const { t } = useLocale();
   return (
     <OperationsShell current="alarms">
-      <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-          {t("alarmOperations")}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-          {t("operatorExceptions")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-          {t("alarmWorkflowDescription")}
-        </p>
-      </header>
+      <PageHeading
+        title={t("operatorExceptions")}
+        description={t("alarmWorkflowDescription")}
+      />
       {details ? <ExceptionAttention details={details} /> : null}
       <div className="mt-8">
         {details ? (

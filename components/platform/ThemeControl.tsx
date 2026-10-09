@@ -25,7 +25,7 @@ function normalizeThemePreference(theme: string | undefined): ThemePreference {
     : "system";
 }
 
-export function ThemeControl() {
+export function ThemeControl({ showLabels = false }: { showLabels?: boolean }) {
   const { theme, setTheme } = useTheme();
   const { t } = useLocale();
   // Keep the server and first client render identical, then synchronize the
@@ -77,6 +77,7 @@ export function ThemeControl() {
           }`}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
+          {showLabels ? <span className="ml-2 text-sm">{t(key)}</span> : null}
         </button>
       ))}
     </div>

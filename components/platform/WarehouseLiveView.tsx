@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import Link from "next/link";
 import { contextPath } from "../../src/application/operations/exact-context";
 import type {
@@ -49,12 +50,7 @@ export function WarehouseLiveView({
           alarm.taskId === selected.observedTaskId,
       )
     : [];
-  const time = (value: string) =>
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "short",
-      timeStyle: "medium",
-      timeZone: "UTC",
-    }).format(new Date(value));
+  const time = (value: string) => formatOperationalTime(value);
   return (
     <div className="space-y-5">
       {exactEquipmentId !== undefined && !selected ? (
@@ -62,7 +58,7 @@ export function WarehouseLiveView({
       ) : null}
       <p className="text-xs text-[var(--text-muted)]">
         {t("refreshedAt")}:{" "}
-        <time dateTime={view.generatedAt}>{time(view.generatedAt)} UTC</time>
+        <time dateTime={view.generatedAt}>{time(view.generatedAt)}</time>
       </p>
       {!projectionCurrent && (
         <p
@@ -102,10 +98,10 @@ export function WarehouseLiveView({
                         ? "true"
                         : undefined
                     }
-                    className={`ui-pressable flex min-h-11 w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border p-3 text-left ${
+                    className={`ui-pressable flex min-h-11 w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-[var(--border)] p-3 text-left ${
                       item.equipmentId === selected?.equipmentId
                         ? "ui-current-selection"
-                        : "border-[var(--border)]"
+                        : ""
                     }`}
                   >
                     <span className="break-words text-sm font-semibold">
@@ -127,7 +123,7 @@ export function WarehouseLiveView({
         </section>
         <section
           aria-labelledby="live-context-heading"
-          className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+          className="min-w-0 py-4"
         >
           <h2
             id="live-context-heading"
@@ -158,17 +154,27 @@ export function WarehouseLiveView({
                   </dd>
                 </div>
               </dl>
-              <p className="text-sm leading-6 text-[var(--text-muted)]">
-                {selected.position.state === "current" &&
-                positionState(selected) !== "current"
-                  ? t("liveReason_expired")
-                  : t(`liveReason_${selected.position.reason}` as MessageKey)}
-              </p>
+              {selected.position.state === "current" &&
+              positionState(selected) === "current" ? (
+                <details className="swp-diagnostics">
+                  <summary>{t("livePositionEvidence")}</summary>
+                  <p className="text-sm leading-6">
+                    {t(`liveReason_${selected.position.reason}` as MessageKey)}
+                  </p>
+                </details>
+              ) : (
+                <p className="text-sm leading-6 text-[var(--text-muted)]">
+                  {selected.position.state === "current" &&
+                  positionState(selected) !== "current"
+                    ? t("liveReason_expired")
+                    : t(`liveReason_${selected.position.reason}` as MessageKey)}
+                </p>
+              )}
               {selected.observation && (
                 <p className="text-xs text-[var(--text-muted)]">
                   {t("observedAt")}:{" "}
                   <time dateTime={selected.observation.observedAt}>
-                    {time(selected.observation.observedAt)} UTC
+                    {time(selected.observation.observedAt)}
                   </time>
                 </p>
               )}
@@ -292,12 +298,6 @@ export function WarehouseLiveView({
           )}
         </section>
       </div>
-      <div className="border-t border-[var(--border)] pt-4">
-        <p className="mb-3 max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
-          {t("liveScopeNotice")}
-        </p>
-        <SpatialReadNotice context={view.spatialContext} />
-      </div>
       <section
         aria-labelledby="live-work-heading"
         className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
@@ -329,6 +329,12 @@ export function WarehouseLiveView({
           </p>
         )}
       </section>
+      <div className="border-t border-[var(--border)] pt-4">
+        <p className="mb-3 max-w-4xl text-sm leading-6 text-[var(--text-muted)]">
+          {t("liveScopeNotice")}
+        </p>
+        <SpatialReadNotice context={view.spatialContext} />
+      </div>
     </div>
   );
 }

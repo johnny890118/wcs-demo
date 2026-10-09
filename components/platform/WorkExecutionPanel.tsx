@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { equipmentObservationFreshAfterMs } from "../../src/application/equipment/observation-freshness";
@@ -124,11 +126,11 @@ export function WorkExecutionPanel({
       ) : null}
       {canExecute && canOfferWorkExecution(task) && !attempted ? (
         <>
-          <label className="block font-semibold">
+          <FieldLabel className="block">
             {t("equipmentLabel")}
-            <select
+            <Select
               aria-label={t("equipmentLabel")}
-              className="mt-2 min-h-11 w-full rounded-md border border-[var(--border)] bg-[var(--canvas)] p-3"
+              className="mt-2 w-full"
               value={equipmentId}
               onChange={(event) => {
                 setEquipmentId(event.target.value);
@@ -142,15 +144,15 @@ export function WorkExecutionPanel({
                   {item.equipmentId}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </FieldLabel>
           {!available.length ? (
             <p role="status">{t("workNoQualifiedEquipment")}</p>
           ) : null}
-          <label className="block font-semibold">
+          <FieldLabel className="block">
             {t("confirmationReason")}
-            <textarea
-              className="mt-2 w-full rounded-md border border-[var(--border)] bg-[var(--canvas)] p-3"
+            <Textarea
+              className="mt-2 w-full"
               rows={3}
               value={reason}
               onChange={(event) => {
@@ -160,18 +162,18 @@ export function WorkExecutionPanel({
               maxLength={500}
               disabled={pending}
             />
-          </label>
-          <label className="flex min-h-11 items-center gap-3">
-            <input
+          </FieldLabel>
+          <FieldLabel className="flex items-center gap-3">
+            <Input
               type="checkbox"
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
               disabled={pending}
             />
             {t("workConfirmExactExecution")}
-          </label>
-          <button
-            className="ui-pressable min-h-11 rounded-md bg-[var(--accent)] px-4 py-3 font-bold text-[var(--on-accent)] disabled:opacity-50"
+          </FieldLabel>
+          <Button
+            variant="danger"
             onClick={execute}
             disabled={
               pending ||
@@ -181,7 +183,7 @@ export function WorkExecutionPanel({
             }
           >
             {t(task.flow === "inbound" ? "executeInbound" : "executeOutbound")}
-          </button>
+          </Button>
         </>
       ) : !attempted ? (
         <p role="status">{t("workInspectBeforeAction")}</p>

@@ -77,6 +77,225 @@ body {
   height: 100%;
 }
 
+.swp-type {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+    "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+.swp-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.swp-action-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--action-edge);
+}
+.swp-action-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.swp-action-danger {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+.swp-action-ghost {
+  color: var(--text-muted);
+  background: transparent;
+}
+.swp-action-link {
+  color: var(--link);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.swp-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.swp-popover {
+  z-index: 60;
+  width: min(320px, calc(100vw - 24px));
+  max-height: var(--radix-popover-content-available-height);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 16px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 12%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
+    "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+.swp-popover-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.swp-popover-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.swp-preferences > section {
+  padding: 12px 0;
+}
+.swp-preferences > section + section {
+  border-top: 1px solid var(--border);
+}
+.swp-preferences h3 {
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.swp-account-name {
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.swp-tooltip {
+  z-index: 70;
+  max-width: 260px;
+  background: var(--text);
+  color: var(--canvas);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font:
+    14px/1.5 system-ui,
+    sans-serif;
+}
+.swp-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.swp-page-heading h1 {
+  margin: 0;
+}
+.swp-secondary {
+  margin-top: 6px;
+  color: var(--text-muted);
+  max-width: 72ch;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.swp-record {
+  padding: 16px 0;
+}
+.swp-record + .swp-record {
+  border-top: 1px solid var(--border);
+}
+.swp-diagnostics {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 12px;
+}
+.swp-diagnostics summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+}
+.swp-diagnostics > div {
+  padding-block: 8px;
+  overflow-wrap: anywhere;
+}
+.swp-runtime-context {
+  font-size: 12px;
+}
+.swp-runtime-context summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.operations-content details > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.operations-content details > summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+}
+.operations-content details[open] > summary::after,
+.operations-content .swp-runtime-context > summary::after {
+  transform: rotate(45deg);
+}
+.operations-content .swp-runtime-context[open] > summary::after {
+  transform: rotate(225deg);
+}
+.swp-runtime-context[open] > div {
+  padding: 8px 0;
+}
+.swp-input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.swp-input[type="checkbox"],
+.swp-input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--text);
+  flex-shrink: 0;
+}
+.swp-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.swp-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.swp-field-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+.swp-field-label:has(input[type="checkbox"]),
+.swp-field-label:has(input[type="radio"]) {
+  min-height: 44px;
+  cursor: pointer;
+}
+.swp-field-label:has(:required)::before {
+  content: "* ";
+  color: var(--danger);
+}
+.swp-required {
+  color: var(--danger);
+}
+
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
@@ -86,7 +305,6 @@ body {
   position: relative;
   background: var(--selection-background);
   color: var(--selection-text);
-  border-color: var(--selection-edge);
 }
 
 .ui-current-selection::before {
@@ -130,11 +348,6 @@ body {
 .operations-content input::placeholder {
   color: var(--text-muted);
   opacity: 1;
-}
-
-.operations-content button[class*="bg-[var(--accent)]"] {
-  min-height: 48px;
-  border: 1px solid var(--action-edge);
 }
 
 .operations-sidebar {

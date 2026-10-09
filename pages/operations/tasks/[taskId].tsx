@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
@@ -69,11 +70,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
         {t(stateHelp)}
       </p>
       <p className="mt-3 text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")} ·{" "}
-        {new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(detail.generatedAt))}
+        {t("refreshedAt")} · {formatOperationalTime(detail.generatedAt)}
       </p>
       <section className={panel} aria-labelledby="task-context">
         <h2 id="task-context" className="text-xl font-bold">

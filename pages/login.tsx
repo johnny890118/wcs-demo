@@ -1,3 +1,5 @@
+import { Button } from "../components/ui/button";
+import { FieldLabel, Input } from "../components/ui/field";
 import Head from "next/head";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
@@ -118,41 +120,42 @@ export default function LoginPage({
             </div>
           ) : null}
           <div>
-            <label htmlFor="username" className="text-sm font-bold">
+            <FieldLabel required htmlFor="username" className="text-sm">
               {t("username")}
-            </label>
-            <input
+            </FieldLabel>
+            <Input
               id="username"
               name="username"
               type="text"
               autoComplete="username"
               required
-              className="mt-2 w-full rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)]"
+              className="mt-2 w-full text-sm"
             />
           </div>
           <div className="mt-5">
-            <label htmlFor="password" className="text-sm font-bold">
+            <FieldLabel required htmlFor="password" className="text-sm">
               {t("passwordLabel")}
-            </label>
-            <input
+            </FieldLabel>
+            <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
               required
-              className="mt-2 w-full rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)]"
+              className="mt-2 w-full text-sm"
             />
           </div>
           <p role="alert" className="mt-4 min-h-6 text-sm text-[var(--danger)]">
             {error ? t("invalidCredentials") : ""}
           </p>
-          <button
+          <Button
+            variant="primary"
             type="submit"
             disabled={pending}
-            className="ui-pressable mt-2 inline-flex w-full items-center justify-center rounded-lg bg-[var(--accent)] px-5 py-3 text-sm font-bold text-[var(--on-accent)] disabled:cursor-wait disabled:opacity-60"
+            className="mt-2 inline-flex w-full items-center justify-center disabled:cursor-wait"
           >
             {pending ? t("signingIn") : t("signIn")}
-          </button>
+          </Button>
           <Link
             href="/"
             className="ui-pressable mt-5 inline-flex rounded-sm text-sm font-semibold text-[var(--text-muted)]"

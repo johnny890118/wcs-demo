@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
@@ -98,11 +99,7 @@ export default function WorkPage({
         {t("workStatusNotice")}
       </p>
       <p className="mt-3 text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")} ·{" "}
-        {new Intl.DateTimeFormat(locale, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }).format(new Date(execution.page.generatedAt))}
+        {t("refreshedAt")} · {formatOperationalTime(execution.page.generatedAt)}
       </p>
       <section
         className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"

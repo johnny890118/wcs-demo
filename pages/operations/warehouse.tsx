@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { WarehouseNavigation } from "../../components/platform/WarehouseNavigation";
 import { WarehouseLiveView } from "../../components/platform/WarehouseLiveView";
+import { Button } from "../../components/ui/button";
+import { PageHeading } from "../../components/ui/workspace";
 import {
   isOperationsLiveView,
   type OperationsLiveView,
@@ -83,17 +85,18 @@ function LiveWorkspace({ view, equipmentId }: Props) {
   return (
     <OperationsShell current="warehouse" titleKey="liveView">
       <WarehouseNavigation current="live" />
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-black tracking-tight">{t("liveView")}</h1>
-        <button
-          type="button"
-          onClick={() => void refresh()}
-          disabled={refreshing}
-          className="ui-pressable min-h-11 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold disabled:opacity-60"
-        >
-          {refreshing ? t("liveRefreshing") : t("liveRefresh")}
-        </button>
-      </div>
+      <PageHeading
+        title={t("liveView")}
+        action={
+          <Button
+            type="button"
+            onClick={() => void refresh()}
+            disabled={refreshing}
+          >
+            {refreshing ? t("liveRefreshing") : t("liveRefresh")}
+          </Button>
+        }
+      />
       {liveView ? (
         <WarehouseLiveView
           view={liveView}

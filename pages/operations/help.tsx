@@ -1,3 +1,4 @@
+import { FieldLabel, Input } from "../../components/ui/field";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
@@ -59,16 +60,16 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
       >
         {t("helpDownloadPdf")}
       </a>
-      <label className="mt-6 block max-w-xl text-sm font-semibold">
+      <FieldLabel className="mt-6 block max-w-xl text-sm">
         {t("helpSearch")}
-        <input
+        <Input
           type="search"
           value={search}
           maxLength={120}
           onChange={(event) => setSearch(event.target.value.slice(0, 120))}
-          className="mt-2 min-h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-[var(--text)]"
+          className="mt-2 w-full"
         />
-      </label>
+      </FieldLabel>
       <p role="status" className="mt-3 text-sm text-[var(--text-muted)]">
         {t("helpResults")}: {results.length}
       </p>

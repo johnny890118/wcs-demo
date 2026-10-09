@@ -12,6 +12,13 @@ responsive navigation and relocates preferences without hiding safety context.
 See [navigation acceptance correction](navigation-acceptance-fix.md). This remains
 the delivery priority; S3 does not resume before Owner UI acceptance.
 
+Latest Owner authority: previous UI checkpoints are not final visual acceptance.
+System-wide quality consolidation is now the sole active delivery scope, including
+owned accessible components, all operator surfaces and iterative real-browser
+review. See [active consolidation plan](ui-quality-consolidation-plan.md) and
+[component/surface review](../engineering/ui-quality-consolidation-review.md).
+No new product capability, IA redesign or S3 implementation is included.
+
 ## M0 — Discovery and engineering foundation
 
 Status: Complete

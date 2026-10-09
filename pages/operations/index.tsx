@@ -1,3 +1,4 @@
+import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import {
   BoltIcon,
   CircleStackIcon,
@@ -106,12 +107,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
     <OperationsShell>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            {t("overview")}
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-            {t("operationsHome")}
-          </h1>
+          <h1>{t("operationsHome")}</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
             {t("homeDescription")}
           </p>
@@ -128,10 +124,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
             <span aria-hidden="true">·</span>
             <span>
               {t("refreshedAt")} ·{" "}
-              {new Intl.DateTimeFormat(locale, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(new Date(liveSummary.generatedAt))}
+              {formatOperationalTime(liveSummary.generatedAt)}
             </span>
           </div>
         ) : null}
@@ -157,18 +150,14 @@ function OperationsHomeView({ summary, home }: PageProps) {
 
       <section
         aria-labelledby="home-attention"
-        className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+        className="mt-6 border-b border-[var(--border)] pb-6"
       >
         <h2 id="home-attention" className="text-xl font-bold">
           {t("attentionRequired")}
         </h2>
         {liveHome ? (
           <p className="mt-2 text-xs text-[var(--text-muted)]">
-            {t("refreshedAt")} ·{" "}
-            {new Intl.DateTimeFormat(locale, {
-              dateStyle: "medium",
-              timeStyle: "short",
-            }).format(new Date(liveHome.generatedAt))}
+            {t("refreshedAt")} · {formatOperationalTime(liveHome.generatedAt)}
           </p>
         ) : null}
         {!homeLive ? (
@@ -215,7 +204,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
       </section>
       <section
         aria-labelledby="home-work"
-        className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
+        className="mt-6 border-b border-[var(--border)] pb-6"
       >
         <h2 id="home-work" className="text-xl font-bold">
           {t("currentWork")}
@@ -244,7 +233,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                     {t("openTaskDetail")}
                   </Link>
                   <details className="mt-2 text-xs text-[var(--text-muted)]">
-                    <summary className="min-h-8 cursor-pointer py-2">
+                    <summary className="min-h-11 cursor-pointer py-2">
                       {t("homeTechnicalDetails")}
                     </summary>
                     <p className="break-all py-2">
@@ -285,7 +274,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
           {cards.map(({ label, value, Icon }) => (
             <article
               key={label}
-              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)]"
+              className="border-t border-[var(--border)] py-4"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-[var(--text-muted)]">
@@ -296,7 +285,7 @@ function OperationsHomeView({ summary, home }: PageProps) {
                   aria-hidden="true"
                 />
               </div>
-              <p className="mt-8 text-3xl font-black tabular-nums">{value}</p>
+              <p className="mt-3 text-3xl font-medium tabular-nums">{value}</p>
             </article>
           ))}
         </div>

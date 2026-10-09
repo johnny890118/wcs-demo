@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+import { FieldLabel, Input, Select, Textarea } from "../ui/field";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -189,8 +191,8 @@ export function InboundWorkflowPanel({
   ];
 
   return (
-    <div className="workflow-layout grid gap-8 xl:grid-cols-[minmax(0,680px)_minmax(220px,1fr)]">
-      <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
+    <div className="workflow-layout grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)]">
+      <section className="min-w-0">
         <h2 className="text-base font-semibold">{t("goodsDetails")}</h2>
 
         {!configurationReady ? (
@@ -226,40 +228,40 @@ export function InboundWorkflowPanel({
           onChange={() => {
             if (state === "idle") idempotencyKey.current = null;
           }}
-          className="mt-6 space-y-5"
+          className="mt-4 space-y-5"
         >
           <fieldset className="grid gap-4 sm:grid-cols-2">
             <legend className="sr-only">{t("goodsDetails")}</legend>
-            <label className="text-sm font-semibold">
+            <FieldLabel className="text-sm">
               {t("sku")}
-              <input
+              <Input
                 name="sku"
                 required
                 maxLength={200}
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               />
-            </label>
-            <label className="text-sm font-semibold">
+            </FieldLabel>
+            <FieldLabel className="text-sm">
               {t("quantity")}
-              <input
+              <Input
                 name="quantity"
                 type="number"
                 required
                 min="1"
                 step="1"
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               />
-            </label>
+            </FieldLabel>
           </fieldset>
           <fieldset className="grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
             <legend className="pt-5 text-base font-semibold">
               {t("movementLocations")}
             </legend>
-            <label className="text-sm font-semibold">
+            <FieldLabel className="text-sm">
               {t("sourceLocation")}
-              <select
+              <Select
                 value={sourceId}
                 onChange={(event) => {
                   const nextSourceId = event.target.value;
@@ -274,23 +276,23 @@ export function InboundWorkflowPanel({
                 }}
                 required
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               >
                 {sources.map((location) => (
                   <option key={location.locationId} value={location.locationId}>
                     {location.code}
                   </option>
                 ))}
-              </select>
-            </label>
-            <label className="text-sm font-semibold">
+              </Select>
+            </FieldLabel>
+            <FieldLabel className="text-sm">
               {t("destinationLocation")}
-              <select
+              <Select
                 value={destinationId}
                 onChange={(event) => setDestinationId(event.target.value)}
                 required
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               >
                 {destinations
                   .filter((location) => location.locationId !== sourceId)
@@ -302,41 +304,42 @@ export function InboundWorkflowPanel({
                       {location.code}
                     </option>
                   ))}
-              </select>
-            </label>
+              </Select>
+            </FieldLabel>
           </fieldset>
           <fieldset className="grid gap-4 border-t border-[var(--border)] pt-5 sm:grid-cols-2">
             <legend className="pt-5 text-base font-semibold">
               {t("requestReferences")}
             </legend>
-            <label className="text-sm font-medium">
+            <FieldLabel className="text-sm">
               {t("externalReference")}
-              <input
+              <Input
                 name="externalReference"
                 required
                 maxLength={200}
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               />
-            </label>
-            <label className="text-sm font-medium">
+            </FieldLabel>
+            <FieldLabel className="text-sm">
               {t("externalLoadId")}
-              <input
+              <Input
                 name="externalId"
                 required
                 maxLength={200}
                 disabled={!canCreate || state !== "idle"}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full"
               />
-            </label>
+            </FieldLabel>
           </fieldset>
-          <button
+          <Button
+            variant="primary"
             type="submit"
             disabled={!canCreate || !configurationReady || state !== "idle"}
-            className="ui-pressable rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-[var(--on-accent)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="disabled:cursor-not-allowed"
           >
             {state === "creating" ? t("creatingInbound") : t("createInbound")}
-          </button>
+          </Button>
         </form>
       </section>
 
@@ -471,24 +474,24 @@ export function InboundWorkflowPanel({
               </div>
             ) : canExecute ? (
               <>
-                <label className="block text-sm font-semibold">
+                <FieldLabel className="block text-sm">
                   {t("equipmentLabel")}
-                  <select
+                  <Select
                     value={equipmentId}
                     onChange={(event) => setEquipmentId(event.target.value)}
                     disabled={state === "executing"}
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                    className="mt-2 w-full"
                   >
                     {equipment.map((item) => (
                       <option key={item.equipmentId} value={item.equipmentId}>
                         {item.equipmentId} · {item.telemetry?.nodeId}
                       </option>
                     ))}
-                  </select>
-                </label>
-                <label className="block text-sm font-semibold">
+                  </Select>
+                </FieldLabel>
+                <FieldLabel className="block text-sm">
                   {t("confirmationReason")}
-                  <textarea
+                  <Textarea
                     value={confirmationReason}
                     onChange={(event) =>
                       setConfirmationReason(event.target.value)
@@ -498,11 +501,11 @@ export function InboundWorkflowPanel({
                     maxLength={500}
                     rows={3}
                     disabled={state === "executing"}
-                    className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                    className="mt-2 w-full resize-y"
                   />
-                </label>
-                <label className="flex items-start gap-3 text-sm leading-6">
-                  <input
+                </FieldLabel>
+                <FieldLabel className="flex items-start gap-3 text-sm leading-6">
+                  <Input
                     type="checkbox"
                     checked={confirmed}
                     onChange={(event) => setConfirmed(event.target.checked)}
@@ -510,8 +513,9 @@ export function InboundWorkflowPanel({
                     className="mt-1 h-4 w-4"
                   />
                   <span>{t("confirmInboundExecution")}</span>
-                </label>
-                <button
+                </FieldLabel>
+                <Button
+                  variant="danger"
                   type="button"
                   onClick={() => void executeTask()}
                   disabled={
@@ -520,12 +524,12 @@ export function InboundWorkflowPanel({
                     !equipmentId ||
                     state === "executing"
                   }
-                  className="ui-pressable w-full rounded-lg bg-[var(--danger)] px-4 py-2.5 text-sm font-bold text-[var(--on-danger)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full disabled:cursor-not-allowed"
                 >
                   {state === "executing"
                     ? t("executingInbound")
                     : t("executeInbound")}
-                </button>
+                </Button>
               </>
             ) : (
               <PermissionNotice>

@@ -1,8 +1,19 @@
+import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "../../components/ui/button";
+import {
+  DiagnosticDetails,
+  PageHeading,
+  Record,
+} from "../../components/ui/workspace";
+import {
+  auditActionLabel,
+  auditResourceLabel,
+} from "../../src/ui/audit-labels";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import {
   isAuditEventPage,
@@ -53,15 +64,10 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
   return (
     <OperationsShell current="audit">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-          {t("auditHistory")}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-          {t("accountableHistory")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-          {t("auditHistoryDescription")}
-        </p>
+        <PageHeading
+          title={t("accountableHistory")}
+          description={t("auditHistoryDescription")}
+        />
         {Object.keys(filters).length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
             <span className="rounded-md bg-[var(--surface-muted)] px-3 py-1.5 font-mono text-[var(--text)]">
@@ -96,14 +102,13 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
           </p>
         ) : null}
         {events.map((event) => (
-          <article
-            key={event.eventId}
-            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)]"
-          >
+          <Record key={event.eventId}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-bold">{event.action}</h2>
+                  <h2 className="font-semibold">
+                    {auditActionLabel(event.action, event.knownAction, locale)}
+                  </h2>
                   {!event.knownAction ? (
                     <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs font-semibold text-[var(--text-muted)]">
                       {t("unknownAuditAction")}
@@ -111,62 +116,71 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
                   ) : null}
                 </div>
                 <p className="mt-1 break-all text-sm text-[var(--text-muted)]">
-                  {event.resource.type} · {event.resource.id}
+                  {auditResourceLabel(event.resource.type, locale)}
+                </p>
+                <p className="mt-1 break-words text-sm text-[var(--text-muted)]">
+                  {t("actor")}: {event.actor.id}
                 </p>
               </div>
               <p className="flex shrink-0 items-center gap-2 text-xs text-[var(--text-muted)]">
                 <ClockIcon className="h-4 w-4" aria-hidden="true" />
-                {new Intl.DateTimeFormat(locale, {
-                  dateStyle: "medium",
-                  timeStyle: "medium",
-                }).format(new Date(event.occurredAt))}
+                {formatOperationalTime(event.occurredAt)}
               </p>
             </div>
-            <dl className="mt-4 grid gap-3 border-t border-[var(--border)] pt-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <dt className="text-[var(--text-muted)]">{t("actor")}</dt>
-                <dd className="mt-1 break-all font-mono">
-                  {event.actor.type}:{event.actor.id}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[var(--text-muted)]">{t("correlation")}</dt>
-                <dd className="mt-1 break-all font-mono">
-                  <Link
-                    className="underline underline-offset-4"
-                    href={`/operations/audit?correlationId=${encodeURIComponent(
-                      event.correlationId,
-                    )}`}
-                  >
-                    {event.correlationId}
-                  </Link>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[var(--text-muted)]">{t("eventId")}</dt>
-                <dd className="mt-1 break-all font-mono">{event.eventId}</dd>
-              </div>
-              {Object.entries(event.evidence).map(([key, value]) => (
-                <div key={key}>
-                  <dt className="text-[var(--text-muted)]">{key}</dt>
+            <DiagnosticDetails title={t("homeTechnicalDetails")}>
+              <p className="mb-3 break-all font-mono text-sm">{event.action}</p>
+              <p className="mb-3 break-all font-mono text-sm">
+                {event.resource.type}:{event.resource.id}
+              </p>
+              <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <dt className="text-[var(--text-muted)]">{t("actor")}</dt>
                   <dd className="mt-1 break-all font-mono">
-                    {Array.isArray(value) ? value.join(", ") : String(value)}
+                    {event.actor.type}:{event.actor.id}
                   </dd>
                 </div>
-              ))}
-            </dl>
-          </article>
+                <div>
+                  <dt className="text-[var(--text-muted)]">
+                    {t("correlation")}
+                  </dt>
+                  <dd className="mt-1 break-all font-mono">
+                    <Link
+                      className="underline underline-offset-4"
+                      href={`/operations/audit?correlationId=${encodeURIComponent(
+                        event.correlationId,
+                      )}`}
+                    >
+                      {event.correlationId}
+                    </Link>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--text-muted)]">{t("eventId")}</dt>
+                  <dd className="mt-1 break-all font-mono">{event.eventId}</dd>
+                </div>
+                {Object.entries(event.evidence).map(([key, value]) => (
+                  <div key={key}>
+                    <dt className="text-[var(--text-muted)]">{key}</dt>
+                    <dd className="mt-1 break-all font-mono">
+                      {Array.isArray(value) ? value.join(", ") : String(value)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </DiagnosticDetails>
+          </Record>
         ))}
       </section>
       {nextCursor ? (
-        <button
+        <Button
+          variant="primary"
           type="button"
           disabled={loading}
           onClick={() => void loadOlder()}
-          className="ui-pressable mt-6 rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-bold text-[var(--on-accent)] disabled:opacity-60"
+          className="mt-6"
         >
           {loading ? t("loadingAudit") : t("loadOlderAudit")}
-        </button>
+        </Button>
       ) : null}
     </OperationsShell>
   );

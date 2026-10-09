@@ -32,6 +32,13 @@ status distinctions, WCAG contrast and command-safety hierarchy.
 9. For every major UI change, validate an end-to-end user journey as well as individual pages: can users quickly understand state/next action and complete the work across Desktop, Industrial Tablet and Mobile layouts without losing context, memorizing IDs, re-searching the same record or relying on Browser Back? Record material friction and distinguish viewport testing from real-device evidence.
 10. Fix material findings and repeat review before declaring the UI milestone complete.
 
+Current console components live in `components/ui` and use SWP semantic tokens.
+Use the owned actions/native fields and inspected Radix Popover/Tooltip primitives
+instead of another per-page control style or blanket template initialization.
+Keep the tested mobile navigation dialog unless replacement has a demonstrated
+benefit. Shared controls must preserve native form contracts, keyboard/focus,
+contrast and truthful safety presentation. See `ui-quality-consolidation-review.md`.
+
 ## Motion rules adopted from the skill
 
 - Do not animate frequent keyboard actions.

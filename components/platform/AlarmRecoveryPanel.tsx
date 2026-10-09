@@ -1,3 +1,5 @@
+import { Button } from "../ui/button";
+import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -189,9 +191,9 @@ export function AlarmRecoveryPanel({
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("actionableAlarms")}
         </p>
-        <label className="mt-5 block text-sm font-semibold">
+        <FieldLabel className="mt-5 block text-sm">
           {t("selectAlarm")}
-          <select
+          <Select
             value={selectedAlarmId}
             onChange={(event) => {
               setSelectedAlarmId(event.target.value);
@@ -201,7 +203,7 @@ export function AlarmRecoveryPanel({
               setResolution("");
               resetConfirmation();
             }}
-            className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+            className="mt-2 w-full"
           >
             {actionable.map((alarm) => (
               <option key={alarm.alarmId} value={alarm.alarmId}>
@@ -209,8 +211,8 @@ export function AlarmRecoveryPanel({
                 {alarmState(alarm.status)}
               </option>
             ))}
-          </select>
-        </label>
+          </Select>
+        </FieldLabel>
         {selected ? (
           <dl className="mt-5 space-y-3 rounded-lg bg-[var(--surface-muted)] p-4 text-sm">
             <div>
@@ -381,9 +383,9 @@ export function AlarmRecoveryPanel({
             ) : null}
             {selected.status === "acknowledged" ? (
               <>
-                <label className="block text-sm font-semibold">
+                <FieldLabel className="block text-sm">
                   {t("recoveryStrategy")}
-                  <select
+                  <Select
                     value={strategy}
                     onChange={(event) =>
                       setStrategy(
@@ -391,13 +393,13 @@ export function AlarmRecoveryPanel({
                       )
                     }
                     disabled={!canAct || state === "recovering"}
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                    className="mt-2 w-full"
                   >
                     <option value="">{t("chooseRecoveryStrategy")}</option>
                     <option value="resume">{t("resumeTask")}</option>
                     <option value="release">{t("releaseTask")}</option>
-                  </select>
-                </label>
+                  </Select>
+                </FieldLabel>
                 <p className="text-sm leading-6 text-[var(--text-muted)]">
                   {strategy === "resume"
                     ? t("alarmResumeImpact")
@@ -405,18 +407,18 @@ export function AlarmRecoveryPanel({
                       ? t("alarmReleaseImpact")
                       : t("alarmChooseImpact")}
                 </p>
-                <label className="block text-sm font-semibold">
+                <FieldLabel className="block text-sm">
                   {t("recoveryResolution")}
-                  <textarea
+                  <Textarea
                     value={resolution}
                     onChange={(event) => setResolution(event.target.value)}
                     required
                     maxLength={500}
                     rows={3}
                     disabled={!canAct || state === "recovering"}
-                    className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                    className="mt-2 w-full resize-y"
                   />
-                </label>
+                </FieldLabel>
               </>
             ) : (
               <div className="flex gap-3 rounded-lg bg-[var(--surface-muted)] p-4">
@@ -429,9 +431,9 @@ export function AlarmRecoveryPanel({
                 </p>
               </div>
             )}
-            <label className="block text-sm font-semibold">
+            <FieldLabel className="block text-sm">
               {t("confirmationReason")}
-              <textarea
+              <Textarea
                 value={confirmationReason}
                 onChange={(event) => setConfirmationReason(event.target.value)}
                 required
@@ -439,11 +441,11 @@ export function AlarmRecoveryPanel({
                 maxLength={500}
                 rows={3}
                 disabled={!canAct || state !== "idle"}
-                className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2.5 font-normal"
+                className="mt-2 w-full resize-y"
               />
-            </label>
-            <label className="flex items-start gap-3 text-sm leading-6">
-              <input
+            </FieldLabel>
+            <FieldLabel className="flex items-start gap-3 text-sm leading-6">
+              <Input
                 type="checkbox"
                 checked={confirmed}
                 onChange={(event) => setConfirmed(event.target.checked)}
@@ -455,8 +457,9 @@ export function AlarmRecoveryPanel({
                   ? t("acknowledgeStatement")
                   : t("recoveryStatement")}
               </span>
-            </label>
-            <button
+            </FieldLabel>
+            <Button
+              variant="danger"
               type="button"
               onClick={() =>
                 void (selected.status === "active" ? acknowledge() : recover())
@@ -469,7 +472,7 @@ export function AlarmRecoveryPanel({
                 (selected.status === "acknowledged" &&
                   (!strategy || !resolution.trim()))
               }
-              className="ui-pressable w-full rounded-lg bg-[var(--danger)] px-4 py-2.5 text-sm font-bold text-[var(--on-danger)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full disabled:cursor-not-allowed"
             >
               {state === "acknowledging"
                 ? t("acknowledgingAlarm")
@@ -478,7 +481,7 @@ export function AlarmRecoveryPanel({
                   : selected.status === "active"
                     ? t("acknowledgeAlarm")
                     : t("recoverAlarm")}
-            </button>
+            </Button>
           </div>
         ) : null}
         {error ? (

@@ -1,3 +1,4 @@
+import { FieldLabel, Select } from "../ui/field";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -56,27 +57,27 @@ export function WarehouseContextControl({
 
   return (
     <div className="min-w-0">
-      <label className="flex min-w-0 items-center gap-2 font-semibold">
+      <FieldLabel className="flex min-w-0 items-center gap-2">
         <span className="sr-only">{t("warehouseContext")}</span>
-        <select
+        <Select
           aria-label={t("warehouseContext")}
           value={access.currentWarehouseId}
           disabled={pending}
           onChange={(event) => void changeWarehouse(event.target.value)}
-          className="min-h-11 min-w-0 max-w-64 rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 py-1.5 text-sm font-medium text-[var(--text)] disabled:cursor-wait disabled:opacity-60"
+          className="min-w-0 max-w-64 text-sm disabled:cursor-wait"
         >
           {access.principal.warehouseScopes.map((scope) => (
             <option key={scope.warehouseId} value={scope.warehouseId}>
               {scope.name} · {scope.code}
             </option>
           ))}
-        </select>
+        </Select>
         {pending ? (
           <span role="status" className="text-[var(--text-muted)]">
             {t("switchingWarehouse")}
           </span>
         ) : null}
-      </label>
+      </FieldLabel>
       {failed ? (
         <p role="alert" className="mt-1 text-xs text-[var(--danger)]">
           {t("warehouseSwitchFailed")}

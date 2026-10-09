@@ -3,6 +3,7 @@ import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http
 import { getServerSession } from "next-auth/next";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { WorkNavigation } from "../../components/platform/WorkNavigation";
+import { PageHeading } from "../../components/ui/workspace";
 import { OutboundWorkflowPanel } from "../../components/platform/OutboundWorkflowPanel";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
@@ -27,21 +28,11 @@ export default function OutboundOperationsPage({
   const { t } = useLocale();
   return (
     <OperationsShell current="outbound" workNavigationAfterHeader>
-      <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-          {t("outbound")}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-          {t("outboundWorkflowTitle")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-          {t("outboundWorkflowDescription")}
-        </p>
-      </header>
-      <div className="mt-6">
+      <PageHeading title={t("outboundWorkflowTitle")} />
+      <div>
         <WorkNavigation current="outbound" />
       </div>
-      <div className="mt-8">
+      <div className="mt-4">
         {details ? (
           <OutboundWorkflowPanel
             details={details}

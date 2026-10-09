@@ -22,7 +22,9 @@ async function choosePreference(page: Page, name: string) {
   const dialog = page.getByRole("dialog");
   if (operational) {
     await dialog
-      .getByRole("button", { name: /^(關閉導覽|Close navigation)$/ })
+      .getByRole("button", {
+        name: /^(關閉導覽|Close navigation|關閉偏好設定|Close preferences)$/,
+      })
       .click();
     await expect(dialog).not.toBeVisible();
   }
@@ -35,6 +37,13 @@ async function signIn(page: Page, destination: string) {
   await page.getByLabel("密碼").fill("e2e-password");
   await page.getByRole("button", { name: "登入" }).click();
   await expect(page).toHaveURL(destination);
+}
+
+async function inspectRecordedAction(page: Page, action: string) {
+  const record = page.locator("article").filter({ hasText: action });
+  await expect(record).toHaveCount(1);
+  await record.getByText(/^(技術細節|Technical details)$/).click();
+  await expect(record.getByText(action, { exact: true })).toBeVisible();
 }
 
 test("approved adaptive shell persists desktop collapse and returns menu focus", async ({
@@ -1758,6 +1767,7 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(warehouseContext.locator("option:checked")).toHaveText(
     "Deterministic Demo Warehouse · DEMO",
   );
+  await page.locator(".swp-runtime-context summary").click();
   await expect(
     page.getByLabel("目前營運情境").getByText("私人示範／訓練"),
   ).toBeVisible();
@@ -1802,7 +1812,17 @@ test("operator can read redacted, bilingual audit history", async ({
   await expect(
     page.getByRole("heading", { level: 1, name: "可歸責的營運歷程" }),
   ).toBeVisible();
-  await expect(page.getByText("transport_task.complete")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "運輸任務完成", exact: true }),
+  ).toBeVisible();
+  await page
+    .locator("article")
+    .filter({ hasText: "運輸任務完成" })
+    .getByText("技術細節", { exact: true })
+    .click();
+  await expect(
+    page.getByText("transport_task.complete", { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText("e2e-operator").first()).toBeVisible();
   await expect(page.getByText("未知動作")).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -1941,7 +1961,7 @@ test("operator creates, confirms, and executes an inbound workflow", async ({
 
   await page.getByRole("link", { name: "查看任務稽核證據" }).click();
   await expect(page).toHaveURL(/resourceType=TransportTask/);
-  await expect(page.getByText("transport_task.complete")).toBeVisible();
+  await inspectRecordedAction(page, "transport_task.complete");
 });
 
 test("inbound workflow reflows without horizontal page overflow on mobile", async ({
@@ -2004,7 +2024,7 @@ test("operator allocates, confirms, and executes an outbound workflow", async ({
   expect(accessibility.violations).toEqual([]);
 
   await page.getByRole("link", { name: "查看出庫單稽核證據" }).click();
-  await expect(page.getByText("outbound_order.allocate")).toBeVisible();
+  await inspectRecordedAction(page, "outbound_order.allocate");
 });
 
 test("outbound workflow reflows without horizontal page overflow on mobile", async ({

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { InboundWorkflowPanel } from "../../components/platform/InboundWorkflowPanel";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { WorkNavigation } from "../../components/platform/WorkNavigation";
+import { PageHeading } from "../../components/ui/workspace";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { hasUserPermission } from "../../src/application/access/operational-access";
 import { fetchOperationsDetails } from "../../src/infrastructure/http/wcs-api-client";
@@ -27,21 +28,11 @@ export default function InboundOperationsPage({
   const { t } = useLocale();
   return (
     <OperationsShell current="inbound" workNavigationAfterHeader>
-      <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-          {t("inbound")}
-        </p>
-        <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-          {t("inboundWorkflowTitle")}
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-          {t("inboundWorkflowDescription")}
-        </p>
-      </header>
-      <div className="mt-6">
+      <PageHeading title={t("inboundWorkflowTitle")} />
+      <div>
         <WorkNavigation current="inbound" />
       </div>
-      <div className="mt-8">
+      <div className="mt-4">
         {details ? (
           <InboundWorkflowPanel
             details={details}
