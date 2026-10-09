@@ -469,6 +469,44 @@ body {
   box-shadow: inset 3px 0 var(--selection-edge);
 }
 
+.swp-observation-workspace {
+  display: grid;
+  gap: var(--space-section);
+  align-items: start;
+}
+.swp-equipment-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 8px;
+}
+.swp-equipment-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 44px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  text-align: left;
+}
+.swp-observation-context {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+@media (min-width: 1100px) {
+  .swp-observation-workspace {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .swp-equipment-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .workflow-layout {
   max-width: 1120px;
 }

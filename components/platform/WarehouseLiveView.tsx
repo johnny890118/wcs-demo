@@ -75,7 +75,7 @@ export function WarehouseLiveView({
           {t("liveCoverageNotice")}
         </p>
       )}
-      <div className="space-y-5">
+      <div className="swp-observation-workspace">
         <section aria-labelledby="live-equipment-heading" className="min-w-0">
           <h2 id="live-equipment-heading" className="text-lg font-bold">
             {t("equipmentLabel")}
@@ -85,9 +85,9 @@ export function WarehouseLiveView({
               {t("liveNoEquipment")}
             </p>
           ) : (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="swp-equipment-list mt-3">
               {view.equipment.map((item) => (
-                <li key={item.equipmentId} className="min-w-0 flex-1 basis-64">
+                <li key={item.equipmentId} className="min-w-0">
                   <Link
                     href={
                       equipmentHref ??
@@ -100,7 +100,7 @@ export function WarehouseLiveView({
                         ? "true"
                         : undefined
                     }
-                    className={`ui-pressable flex min-h-11 w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-[var(--border)] p-3 text-left ${
+                    className={`ui-pressable swp-equipment-option ${
                       item.equipmentId === selected?.equipmentId
                         ? "swp-record-current"
                         : ""
@@ -125,7 +125,7 @@ export function WarehouseLiveView({
         </section>
         <section
           aria-labelledby="live-context-heading"
-          className="min-w-0 py-4"
+          className="swp-observation-context"
         >
           <h2
             id="live-context-heading"

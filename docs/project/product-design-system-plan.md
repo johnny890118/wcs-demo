@@ -111,6 +111,24 @@ internal anchor failed lint; the test now uses real Next Link, and the entire
 gate was repeated without disabling a check. This is local foundation evidence,
 not exact-HEAD CI, provider deployment proof or whole-product visual acceptance.
 
+## Live composition correction
+
+After the foundation image review, the equipment picker uses a bounded 240px
+column alongside the selected equipment evidence at wide viewports (1100px and
+above). Narrow layouts stack the same real links and evidence; this is separate
+from the global navigation breakpoint. The selected evidence has a coherent
+reading surface rather than an unbounded text area. No API, selection URL,
+freshness deadline, safety notice, observed/assigned distinction or command was
+changed. Actual Desktop light and 820 × 1180 Tablet light/dark captures retained
+the expired-observation warning rather than refreshing it into a false success.
+Read-only DOM geometry confirmed no page-level horizontal overflow at both sizes.
+
+The complete local verification was repeated after this correction: 624 fast,
+88 PostgreSQL, 45 browser tests, production build and demo-denial boundary passed.
+The entire product's final Before/After review remains open, including action
+hierarchy on records, Help/diagnostics composition, Login/Entry and overlay
+consolidation. No whole-product visual acceptance is claimed by this checkpoint.
+
 ## Required evidence before final handoff
 
 Engineering: full verify, separate API build, secret/dependency scan, unchanged
