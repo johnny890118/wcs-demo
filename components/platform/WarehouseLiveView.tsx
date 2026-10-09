@@ -102,7 +102,7 @@ export function WarehouseLiveView({
                     }
                     className={`ui-pressable flex min-h-11 w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-[var(--border)] p-3 text-left ${
                       item.equipmentId === selected?.equipmentId
-                        ? "ui-current-selection"
+                        ? "swp-record-current"
                         : ""
                     }`}
                   >

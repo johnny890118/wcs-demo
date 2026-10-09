@@ -1,3 +1,4 @@
+import { PageHeading } from "../../../../components/ui/workspace";
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import {
   auditActionLabel,
@@ -62,7 +63,7 @@ export default function ExactContextPage(props: Props) {
   if (!context)
     return (
       <OperationsShell current="tasks">
-        <h1 className="text-2xl font-bold">{t("taskDataUnavailable")}</h1>
+        <PageHeading title={t("taskDataUnavailable")} />
       </OperationsShell>
     );
   const task = context.detail.task;
@@ -111,7 +112,7 @@ export default function ExactContextPage(props: Props) {
         {task.source} → {task.destination} ·{" "}
         {t(`homeTask_${task.status}` as MessageKey)}
       </p>
-      <h1 className="mt-2 text-3xl font-black">{t(labels[surface])}</h1>
+      <PageHeading title={t(labels[surface])} />
       <nav
         aria-label={t("exactContextSurfaces")}
         className="mt-4 flex flex-wrap gap-1"

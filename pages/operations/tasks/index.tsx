@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { useState } from "react";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
+import { PageHeading } from "../../../components/ui/workspace";
 import {
   isTaskQueuePage,
   type TaskQueuePage,
@@ -54,10 +55,10 @@ function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
   }
   return (
     <>
-      <h1 className="text-3xl font-black">{t("taskQueueTitle")}</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("taskQueueDescription")}
-      </p>
+      <PageHeading
+        title={t("taskQueueTitle")}
+        description={t("taskQueueDescription")}
+      />
       <nav aria-label={t("taskQueueView")} className="mt-5 flex gap-2">
         {(["active", "all"] as const).map((option) => (
           <Link

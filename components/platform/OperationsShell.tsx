@@ -1,17 +1,17 @@
 import {
-  ArrowRightStartOnRectangleIcon,
-  MapIcon,
-  BellAlertIcon,
-  QueueListIcon,
-  ClipboardDocumentListIcon,
-  Squares2X2Icon,
-  QuestionMarkCircleIcon,
-  Bars3Icon,
-  XMarkIcon,
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon,
-  Cog6ToothIcon,
-} from "@heroicons/react/24/outline";
+  LogOut as ArrowRightStartOnRectangleIcon,
+  Map as MapIcon,
+  BellRing as BellAlertIcon,
+  List as QueueListIcon,
+  ClipboardList as ClipboardDocumentListIcon,
+  LayoutGrid as Squares2X2Icon,
+  CircleHelp as QuestionMarkCircleIcon,
+  Menu as Bars3Icon,
+  X as XMarkIcon,
+  ChevronsLeft as ChevronDoubleLeftIcon,
+  ChevronsRight as ChevronDoubleRightIcon,
+  Settings as Cog6ToothIcon,
+} from "lucide-react";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -36,6 +36,7 @@ import { OperationTargetLabels } from "./OperationTargetContext";
 import { NavigationProgress } from "./NavigationProgress";
 import { ProductMark } from "./ProductMark";
 import { WorkNavigation } from "./WorkNavigation";
+import { WorkspaceNavigation } from "../ui/workspace";
 import { Button } from "../ui/button";
 import {
   Popover,
@@ -312,9 +313,7 @@ export function OperationsShell({
           className={
             "ui-pressable flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold " +
             (mobile ? "shrink-0 whitespace-nowrap " : "") +
-            (group === key
-              ? "ui-current-selection"
-              : "text-[var(--text-muted)]")
+            (group === key ? "swp-global-current" : "text-[var(--text-muted)]")
           }
         >
           <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
@@ -531,21 +530,29 @@ export function OperationsShell({
                   {t("warehouseContextUnavailable")}
                 </p>
               ) : null}
-              {workSurfaces.includes(current) && !workNavigationAfterHeader ? (
-                <WorkNavigation
-                  current={current as "work" | "tasks" | "inbound" | "outbound"}
-                />
-              ) : null}
-              <OperationTargetLabels.Provider
-                value={{
-                  warehouse: currentWarehouse
-                    ? `${currentWarehouse.name} · ${currentWarehouse.code}`
-                    : null,
-                  source: sourceLabel,
-                }}
+              <WorkspaceNavigation.Provider
+                value={
+                  workSurfaces.includes(current) &&
+                  !workNavigationAfterHeader ? (
+                    <WorkNavigation
+                      current={
+                        current as "work" | "tasks" | "inbound" | "outbound"
+                      }
+                    />
+                  ) : null
+                }
               >
-                {children}
-              </OperationTargetLabels.Provider>
+                <OperationTargetLabels.Provider
+                  value={{
+                    warehouse: currentWarehouse
+                      ? `${currentWarehouse.name} · ${currentWarehouse.code}`
+                      : null,
+                    source: sourceLabel,
+                  }}
+                >
+                  {children}
+                </OperationTargetLabels.Provider>
+              </WorkspaceNavigation.Provider>
               <div className="mt-8 border-t border-[var(--border)] pt-4">
                 {current !== "help" ? (
                   <Link

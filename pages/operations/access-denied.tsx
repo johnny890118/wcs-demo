@@ -1,4 +1,4 @@
-import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
+import { ShieldAlert as ShieldExclamationIcon } from "lucide-react";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { ArrowRight as ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";

@@ -1,5 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
-import type { ComponentProps } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { forwardRef, type ComponentProps } from "react";
+import { cn } from "./utils";
 
 export type ActionVariant =
   | "primary"
@@ -8,22 +10,38 @@ export type ActionVariant =
   | "ghost"
   | "link";
 
-// Owned shadcn-style composition; SWP tokens own all visual roles.
-export function Button({
-  asChild = false,
-  variant = "secondary",
-  className = "",
-  ...props
-}: ComponentProps<"button"> & {
-  asChild?: boolean;
-  variant?: ActionVariant;
-}) {
+// Adapted from the official shadcn/ui Tailwind 3 registry (new-york/button).
+// Preserve SWP action aliases and the 44px industrial touch baseline.
+export const buttonVariants = cva("swp-action", {
+  variants: {
+    variant: {
+      default: "swp-action-primary",
+      primary: "swp-action-primary",
+      secondary: "swp-action-secondary",
+      outline: "swp-action-secondary",
+      destructive: "swp-action-danger",
+      danger: "swp-action-danger",
+      ghost: "swp-action-ghost",
+      link: "swp-action-link",
+    },
+    size: { default: "", icon: "swp-action-icon", lg: "swp-action-lg" },
+  },
+  defaultVariants: { variant: "secondary", size: "default" },
+});
+
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ComponentProps<"button"> &
+    VariantProps<typeof buttonVariants> & { asChild?: boolean }
+>(({ asChild = false, variant, size, className, ...props }, ref) => {
   const Component = asChild ? Slot : "button";
   return (
     <Component
+      ref={ref}
       data-slot="button"
-      className={`swp-action swp-action-${variant} ${className}`}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );
-}
+});
+Button.displayName = "Button";

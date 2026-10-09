@@ -1,5 +1,6 @@
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useMemo, useState } from "react";
+import { TriangleAlert as ExclamationTriangleIcon } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import { PageHeading } from "../ui/workspace";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
@@ -14,6 +15,7 @@ import {
 type Props = Readonly<{
   details: OperationsDetails;
   projectionCurrent?: boolean;
+  navigation?: ReactNode;
 }>;
 
 const activeTaskStatuses = new Set([
@@ -35,6 +37,7 @@ function shortLabel(value: string): string {
 export function WarehouseTopologyMap({
   details,
   projectionCurrent = true,
+  navigation,
 }: Props) {
   const { t } = useLocale();
   const topology = details.topology;
@@ -89,32 +92,24 @@ export function WarehouseTopologyMap({
 
   return (
     <section aria-labelledby="warehouse-map-title">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            {t("warehouseMap")}
-          </p>
-          <h1
-            id="warehouse-map-title"
-            className="mt-2 text-3xl font-black tracking-[-0.03em]"
-          >
-            {t("warehouseMapTitle")}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-            {t("warehouseMapDescription")}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs text-[var(--text-muted)]">
-          <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5">
-            {t("revision")} {topology.revision}
-          </span>
-          <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5">
-            {layout.mode === "configured"
-              ? t("configuredLayout")
-              : t("schematicLayout")}
-          </span>
-        </div>
-      </div>
+      <PageHeading
+        id="warehouse-map-title"
+        title={t("warehouseMapTitle")}
+        description={t("warehouseMapDescription")}
+        navigation={navigation}
+        action={
+          <div className="flex flex-wrap gap-2 text-xs text-[var(--text-muted)]">
+            <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5">
+              {t("revision")} {topology.revision}
+            </span>
+            <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5">
+              {layout.mode === "configured"
+                ? t("configuredLayout")
+                : t("schematicLayout")}
+            </span>
+          </div>
+        }
+      />
 
       <div className="mt-4">
         <SpatialReadNotice context={projectSpatialReadContext(topology)} />
@@ -377,7 +372,7 @@ export function WarehouseTopologyMap({
                   onClick={() => setSelectedNodeId(node.nodeId)}
                   className={`ui-pressable rounded-lg border px-2.5 py-2 text-left font-mono text-xs font-semibold ${
                     node.nodeId === effectiveSelectedNodeId
-                      ? "ui-current-selection"
+                      ? "swp-record-current"
                       : "border-[var(--border)] bg-[var(--surface-raised)] text-[var(--text-muted)]"
                   }`}
                 >

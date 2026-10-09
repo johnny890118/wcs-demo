@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { PageHeading } from "../../components/ui/workspace";
 import {
   cleanup,
   fireEvent,
@@ -29,7 +30,7 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
   render(
     <LocaleProvider>
       <OperationsShell current="tasks">
-        <h1>Task</h1>
+        <PageHeading title="Task" />
       </OperationsShell>
     </LocaleProvider>,
   );

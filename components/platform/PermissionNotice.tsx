@@ -1,4 +1,4 @@
-import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
+import { ShieldAlert as ShieldExclamationIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function PermissionNotice({ children }: { children: ReactNode }) {

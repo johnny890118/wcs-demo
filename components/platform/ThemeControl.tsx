@@ -1,11 +1,12 @@
 import {
-  ComputerDesktopIcon,
-  MoonIcon,
-  SunIcon,
-} from "@heroicons/react/24/outline";
+  Monitor as ComputerDesktopIcon,
+  Moon as MoonIcon,
+  Sun as SunIcon,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
+import { PreferenceGroup } from "../ui/navigation";
 
 const options = [
   { value: "light", key: "light", Icon: SunIcon },
@@ -56,11 +57,7 @@ export function ThemeControl({ showLabels = false }: { showLabels?: boolean }) {
   }
 
   return (
-    <div
-      className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-1"
-      role="group"
-      aria-label={t("theme")}
-    >
+    <PreferenceGroup label={t("theme")}>
       {options.map(({ value, key, Icon }) => (
         <button
           key={value}
@@ -70,16 +67,12 @@ export function ThemeControl({ showLabels = false }: { showLabels?: boolean }) {
           aria-pressed={selectedTheme === value}
           data-theme-preference={value}
           onClick={() => selectTheme(value)}
-          className={`ui-pressable inline-flex min-h-11 min-w-11 items-center justify-center rounded-md p-1.5 ${
-            selectedTheme === value
-              ? "ui-current-selection"
-              : "text-[var(--text-muted)]"
-          }`}
+          className="swp-preference-option"
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
           {showLabels ? <span className="ml-2 text-sm">{t(key)}</span> : null}
         </button>
       ))}
-    </div>
+    </PreferenceGroup>
   );
 }

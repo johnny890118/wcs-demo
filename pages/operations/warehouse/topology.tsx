@@ -65,7 +65,6 @@ function WarehouseView({ details }: PageProps) {
 
   return (
     <OperationsShell current="warehouse" titleKey="warehouseMapTitle">
-      <WarehouseNavigation current="topology" />
       <div className="mb-4 flex items-center justify-end gap-2 text-xs text-[var(--text-muted)]">
         <span
           className={`h-2 w-2 rounded-full ${
@@ -81,6 +80,7 @@ function WarehouseView({ details }: PageProps) {
         <WarehouseTopologyMap
           details={liveDetails}
           projectionCurrent={isLive}
+          navigation={<WarehouseNavigation current="topology" />}
         />
       ) : (
         <section

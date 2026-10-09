@@ -1,3 +1,4 @@
+import { PageHeading } from "../../../../components/ui/workspace";
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
@@ -41,7 +42,7 @@ export default function WorkPage({
   if (!detail)
     return (
       <OperationsShell current="work">
-        <h1 className="text-2xl font-bold">{t("workUnavailable")}</h1>
+        <PageHeading title={t("workUnavailable")} />
         <Link className={linkClass} href="/operations/work">
           {t("returnToWorkQueue")}
         </Link>
@@ -57,9 +58,7 @@ export default function WorkPage({
       <p className="mt-4 font-semibold text-[var(--text)]">
         {t("workCase")} · {t(work.flow)}
       </p>
-      <h1 className="mt-2 break-words text-3xl font-black">
-        {work.externalReference}
-      </h1>
+      <PageHeading title={work.externalReference} />
       <p className="mt-4 max-w-3xl font-semibold">
         {t(`workAttention_${workAttention(detail)}` as MessageKey)}
       </p>

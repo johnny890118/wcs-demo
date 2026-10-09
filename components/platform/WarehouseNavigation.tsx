@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ContextNavigation, ContextNavigationLink } from "../ui/navigation";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 export function WarehouseNavigation({
   current,
@@ -7,10 +7,7 @@ export function WarehouseNavigation({
 }) {
   const { t } = useLocale();
   return (
-    <nav
-      aria-label={t("warehouseWorkspace")}
-      className="mb-5 flex flex-wrap gap-2"
-    >
+    <ContextNavigation label={t("warehouseWorkspace")}>
       {(
         [
           { key: "live", href: "/operations/warehouse", label: "liveView" },
@@ -21,17 +18,14 @@ export function WarehouseNavigation({
           },
         ] as const
       ).map((item) => (
-        <Link
+        <ContextNavigationLink
           key={item.key}
           href={item.href}
-          aria-current={current === item.key ? "page" : undefined}
-          className={`ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold text-[var(--text-muted)] ${
-            current === item.key ? "ui-current-selection" : ""
-          }`}
+          current={current === item.key}
         >
           {t(item.label)}
-        </Link>
+        </ContextNavigationLink>
       ))}
-    </nav>
+    </ContextNavigation>
   );
 }

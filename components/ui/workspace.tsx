@@ -1,22 +1,37 @@
-import type { ComponentProps, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
+
+export const WorkspaceNavigation = createContext<ReactNode>(null);
 
 export function PageHeading({
+  id,
   title,
   description,
   action,
+  navigation,
 }: {
+  id?: string;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
+  navigation?: ReactNode;
 }) {
+  const workspaceNavigation = useContext(WorkspaceNavigation);
   return (
-    <header className="swp-page-heading">
-      <div>
-        <h1>{title}</h1>
-        {description ? <p className="swp-secondary">{description}</p> : null}
-      </div>
-      {action}
-    </header>
+    <>
+      <header className="swp-page-heading">
+        <div>
+          <h1 id={id}>{title}</h1>
+          {description ? <p className="swp-secondary">{description}</p> : null}
+        </div>
+        {action}
+      </header>
+      {navigation ?? workspaceNavigation}
+    </>
   );
 }
 

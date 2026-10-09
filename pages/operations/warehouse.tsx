@@ -84,9 +84,9 @@ function LiveWorkspace({ view, equipmentId }: Props) {
   }, [refresh]);
   return (
     <OperationsShell current="warehouse" titleKey="liveView">
-      <WarehouseNavigation current="live" />
       <PageHeading
         title={t("liveView")}
+        navigation={<WarehouseNavigation current="live" />}
         action={
           <Button
             type="button"

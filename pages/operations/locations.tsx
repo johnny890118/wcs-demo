@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { InventoryNavigation } from "../../components/platform/InventoryNavigation";
+import { PageHeading } from "../../components/ui/workspace";
 import {
   isLocationPage,
   type LocationPage,
@@ -64,7 +65,10 @@ function Locations({
   }
   return (
     <>
-      <h1 className="text-3xl font-black">{t("locations")}</h1>
+      <PageHeading
+        title={t("locations")}
+        navigation={<InventoryNavigation current="locations" />}
+      />
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
         {t("locationsDescription")}
       </p>
@@ -215,7 +219,6 @@ function Locations({
 export default function LocationsPage(props: Props) {
   return (
     <OperationsShell current="inventory" titleKey="locations">
-      <InventoryNavigation current="locations" />
       <Locations
         key={`${props.warehouseId}:${props.search}:${props.exactId ?? "all"}:${
           props.initialPage?.generatedAt ?? "none"

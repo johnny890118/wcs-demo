@@ -1,5 +1,5 @@
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { Clock as ClockIcon } from "lucide-react";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";

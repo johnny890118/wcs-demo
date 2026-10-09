@@ -2,10 +2,10 @@ import { Button } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/24/outline";
+  CircleCheck as CheckCircleIcon,
+  TriangleAlert as ExclamationTriangleIcon,
+  Info as InformationCircleIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { contextPath } from "../../src/application/operations/exact-context";
 import { useMemo, useState } from "react";

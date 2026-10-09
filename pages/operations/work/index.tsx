@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { PageHeading } from "../../../components/ui/workspace";
+import { Button } from "../../../components/ui/button";
 import { workPath } from "../../../src/application/operations/work-projection";
 import { workAttention } from "../../../src/application/operations/work-continuation";
 import {
@@ -39,7 +40,7 @@ export default function WorkQueue({ page, query }: Props) {
         {(["active", "all"] as const).map((v) => (
           <Link
             key={v}
-            className={`${link} ${view === v ? "ui-current-selection" : ""}`}
+            className={`swp-filter-option ${view === v ? "is-current" : ""}`}
             aria-current={view === v ? "page" : undefined}
             href={`/operations/work?view=${v}`}
           >
@@ -73,13 +74,12 @@ export default function WorkQueue({ page, query }: Props) {
                   {t("workCoverage")}: {w.execution.qualifiedTaskCount} /{" "}
                   {w.execution.referencedTaskCount}
                 </p>
-                <Link
-                  className={`${link} mt-2`}
-                  href={workPath(w.flow, w.workId)}
-                >
-                  {t("openWorkContext")}
-                  <span className="sr-only"> · {w.externalReference}</span>
-                </Link>
+                <Button asChild variant="secondary" className="mt-4">
+                  <Link href={workPath(w.flow, w.workId)}>
+                    {t("openWorkContext")}
+                    <span className="sr-only"> · {w.externalReference}</span>
+                  </Link>
+                </Button>
               </li>
             ))}
           </ul>

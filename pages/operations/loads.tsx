@@ -9,6 +9,7 @@ import { workPath } from "../../src/application/operations/work-projection";
 import { useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { InventoryNavigation } from "../../components/platform/InventoryNavigation";
+import { PageHeading } from "../../components/ui/workspace";
 import { hasUserPermission } from "../../src/application/access/operational-access";
 import {
   isLoadPage,
@@ -68,7 +69,10 @@ function Loads({
   }
   return (
     <>
-      <h1 className="text-3xl font-black">{t("loads")}</h1>
+      <PageHeading
+        title={t("loads")}
+        navigation={<InventoryNavigation current="loads" />}
+      />
       {Object.keys(exactFilters).length ? (
         <div className="mt-3">
           <p className="text-sm text-[var(--text-muted)]">
@@ -245,7 +249,6 @@ function Loads({
 export default function LoadsPage(props: Props) {
   return (
     <OperationsShell current="inventory" titleKey="loads">
-      <InventoryNavigation current="loads" />
       <Loads
         key={`${props.warehouseId}:${props.search}:${JSON.stringify(
           props.exactFilters ?? {},

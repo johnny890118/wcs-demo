@@ -1,10 +1,10 @@
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import {
-  BoltIcon,
-  CircleStackIcon,
-  CubeIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+  Zap as BoltIcon,
+  Database as CircleStackIcon,
+  Box as CubeIcon,
+  TriangleAlert as ExclamationTriangleIcon,
+} from "lucide-react";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";

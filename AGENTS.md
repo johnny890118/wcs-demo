@@ -6,7 +6,9 @@ Evolve this legacy prototype into a hardware-independent, commercially evolvable
 
 ## Repository map
 
-- `pages/`, `components/`, `styles/`: legacy Next.js prototype. Treat as a migration source, not the target architecture.
+- `pages/operations/`, `pages/login.tsx`, `pages/index.tsx`, `components/platform/`, `components/ui/`: formal product presentation and owned design-system code, not disposable legacy.
+- `pages/legacy/`, historical JS components and legacy-specific styles: migration/reference source; preserve characterized behavior, never treat as formal capabilities.
+- `styles/globals.css`: formal SWP semantic tokens and composed UI patterns; legacy imports in `_app` require verified isolation, not blind deletion.
 - `src/domain/`, `src/application/`, `src/infrastructure/`: new framework-independent core and adapters. Dependencies point inward; infrastructure implements application ports.
 - `tests/`: Vitest safety, domain, and simulator tests.
 - `docs/product/`: product vision, users, scope, and success criteria.
@@ -63,6 +65,14 @@ npm_config_cache=/tmp/wcs-demo-npm-cache npm ci
 ## Verification
 
 Run `npm run verify` before handing off a change. During migration, known gaps are tracked in `docs/project/gap-analysis.md`; do not hide failures by disabling checks or deleting tests.
+
+### Product design quality
+
+- Read `docs/engineering/ui-workflow.md` and `docs/engineering/design-system.md` before formal UI work. Use owned shadcn/ui primitives, Lucide named imports and SWP semantic tokens, not another local control vocabulary or template init overwrite.
+- Keep engineering quality and product design quality independent. Axe/contrast/pixel snapshots prove specific regressions, never beauty or Owner acceptance.
+- Review actual production-build images across formal pages, landscape/portrait/tablet/phone, locales/themes and adverse states; find shared composition defects, fix them, then re-review across pages and end-to-end journeys.
+- Preserve domain/auth/warehouse/command/unknown/audit truth. No invented physical map or safe/healthy/completed evidence.
+- Owner alone approves final visual quality. S3 remains paused while this UI consolidation is unaccepted.
 
 ## Git and progress persistence
 

@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import { PageHeading } from "../../../../../../components/ui/workspace";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { OperationsShell } from "../../../../../../components/platform/OperationsShell";
@@ -38,9 +39,9 @@ export default function ResumeWorkPage({
   const { t } = useLocale();
   return (
     <OperationsShell current="work" titleKey="workCase">
-      <h1 className="text-3xl font-black">
-        {detail?.task.externalReference ?? t("workUnavailable")}
-      </h1>
+      <PageHeading
+        title={detail?.task.externalReference ?? t("workUnavailable")}
+      />
       {detail ? (
         <>
           <Link

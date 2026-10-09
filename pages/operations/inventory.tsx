@@ -69,7 +69,10 @@ function Inventory({
   }
   return (
     <>
-      <PageHeading title={t("inventory")} />
+      <PageHeading
+        title={t("inventory")}
+        navigation={<InventoryNavigation current="inventory" />}
+      />
       {Object.keys(exactFilters).length ? (
         <div className="mt-3">
           <p className="text-sm text-[var(--text-muted)]">
@@ -254,7 +257,6 @@ function Inventory({
 export default function InventoryPageView(props: Props) {
   return (
     <OperationsShell current="inventory">
-      <InventoryNavigation current="inventory" />
       <Inventory
         key={`${props.warehouseId}:${props.search}:${JSON.stringify(
           props.exactFilters ?? {},

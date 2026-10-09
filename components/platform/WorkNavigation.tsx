@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ContextNavigation, ContextNavigationLink } from "../ui/navigation";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 export function WorkNavigation({
   current,
@@ -7,10 +7,7 @@ export function WorkNavigation({
 }) {
   const { t } = useLocale();
   return (
-    <nav
-      aria-label={t("workNavigation")}
-      className="work-subnavigation mb-5 flex flex-wrap gap-2 border-b border-[var(--border)]"
-    >
+    <ContextNavigation label={t("workNavigation")}>
       {(
         [
           ["work", "/operations/work", "operatorWork"],
@@ -19,19 +16,10 @@ export function WorkNavigation({
           ["tasks", "/operations/tasks", "workExecutionTasks"],
         ] as const
       ).map(([key, href, label]) => (
-        <Link
-          key={key}
-          href={href}
-          aria-current={current === key ? "page" : undefined}
-          className={`ui-pressable inline-flex min-h-11 items-center px-3 py-2 text-sm font-medium ${
-            current === key
-              ? "ui-current-selection"
-              : "text-[var(--text-muted)]"
-          }`}
-        >
+        <ContextNavigationLink key={key} href={href} current={current === key}>
           {t(label)}
-        </Link>
+        </ContextNavigationLink>
       ))}
-    </nav>
+    </ContextNavigation>
   );
 }

@@ -1,31 +1,46 @@
-import type { ComponentProps } from "react";
+import { forwardRef, type ComponentProps } from "react";
+import { cn } from "./utils";
 
-export function Input({ className = "", ...props }: ComponentProps<"input">) {
-  return (
-    <input data-slot="input" className={`swp-input ${className}`} {...props} />
-  );
-}
-export function Select({ className = "", ...props }: ComponentProps<"select">) {
-  return (
-    <select
-      data-slot="select"
-      className={`swp-input ${className}`}
-      {...props}
-    />
-  );
-}
-export function Textarea({
-  className = "",
-  ...props
-}: ComponentProps<"textarea">) {
+export const Input = forwardRef<HTMLInputElement, ComponentProps<"input">>(
+  ({ className, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        data-slot="input"
+        className={cn("swp-input", className)}
+        {...props}
+      />
+    );
+  },
+);
+Input.displayName = "Input";
+export const Select = forwardRef<HTMLSelectElement, ComponentProps<"select">>(
+  ({ className, ...props }, ref) => {
+    return (
+      <select
+        data-slot="select"
+        ref={ref}
+        className={cn("swp-input", className)}
+        {...props}
+      />
+    );
+  },
+);
+Select.displayName = "Select";
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  ComponentProps<"textarea">
+>(({ className, ...props }, ref) => {
   return (
     <textarea
       data-slot="textarea"
-      className={`swp-input ${className}`}
+      ref={ref}
+      className={cn("swp-input", className)}
       {...props}
     />
   );
-}
+});
+Textarea.displayName = "Textarea";
 export function FieldLabel({
   required = false,
   children,

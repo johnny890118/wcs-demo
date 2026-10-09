@@ -2,9 +2,9 @@ import { Button } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Input, Select, Textarea } from "../ui/field";
 import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+  CircleCheck as CheckCircleIcon,
+  TriangleAlert as ExclamationTriangleIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import {

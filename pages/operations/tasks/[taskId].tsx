@@ -1,3 +1,4 @@
+import { PageHeading } from "../../../components/ui/workspace";
 import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
@@ -27,7 +28,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
   if (!detail)
     return (
       <OperationsShell current="tasks">
-        <h1 className="text-2xl font-bold">{t("taskDataUnavailable")}</h1>
+        <PageHeading title={t("taskDataUnavailable")} />
         <Link className={linkClass} href="/operations/tasks">
           {t("returnToTaskQueue")}
         </Link>
@@ -54,9 +55,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
       <Link className={linkClass} href="/operations/tasks">
         {t("returnToTaskQueue")}
       </Link>
-      <h1 className="mt-3 break-words text-3xl font-black">
-        {task.source} → {task.destination}
-      </h1>
+      <PageHeading title={`${task.source} → ${task.destination}`} />
       <Link
         className={linkClass}
         href={workPath(task.flow, detail.originResource.id)}

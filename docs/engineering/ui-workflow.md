@@ -1,5 +1,12 @@
 # UI Design and Review Workflow
 
+Owner quality consolidation supersedes prior visually delivered claims: formal
+UI follows `design-system.md` and `../project/product-design-system-plan.md`.
+Engineering pass and Owner design acceptance are separate gates. Every major
+change needs actual cross-page image inspection, correction of common causes and
+post-change re-review, not only stored screenshots or a Skill checklist. Preserve
+the end-to-end workflow checks below. S3 remains paused until Owner acceptance.
+
 The required `emil-design-eng` skill from `emilkowalski/skills` was installed on 2026-09-17. Apply it before and after each major UI milestone, with operational safety and WCAG 2.2 AA taking precedence.
 
 ## Direction
