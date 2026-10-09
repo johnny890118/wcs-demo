@@ -177,6 +177,51 @@ An isolated managed worktree at the starting `f9a8668` supplies reproducible Bef
 captures through normal fixture login; it shares only the non-production fixture
 API. This avoids mislabelling older audit images or intermediate WIP as baseline.
 
+## Work / Task detail composition correction
+
+Work and Task detail now share the evidence-section type scale, owned secondary
+actions and title-aligned return links. Work execution rows use separators rather
+than cards nested inside another card; technical identifiers remain progressively
+disclosed. Runtime review of the first correction still found low-density request
+content filling the entire Desktop row and pushing execution below the fold.
+The second pass places request and execution evidence side by side at 1100px,
+stacking in the original reading order below that width. Real 1440px/375px dark
+captures and read-only geometry checks confirmed the layout and no page overflow.
+Normal Work → Task → same Work keyboard navigation retained exact resource paths.
+
+Both corrections ran the complete gate; the final run passed 625 fast, 88
+PostgreSQL and 46 browser tests, build and demo-denial boundary. Latest focused
+Work/resume/exact-context verification passed 24 tests (the earlier 29-test pass
+also included primitives). Review found no changed SSR authorization, warehouse
+scope, execution eligibility, required fields, mutation requests or audit gate.
+This is implementation/self-review evidence, not a claim of a human designer or
+independent security reviewer having approved it.
+
+During baseline History walkthrough, clearing an empty resource filter changed
+the URL but retained the previous client list; reload displayed the unfiltered
+fixture events. This pre-existing state-continuity defect is queued as a separate
+correction with a regression test, not silently labelled a visual improvement.
+
+## Additional visual-reference evidence
+
+The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)
+was inspected in a real browser, including its displayed board and list product
+images. The transferable principle is compact row rhythm and understated view
+selection, not copying its business stages, illustrations, marketing layout or
+assuming an authenticated Asana workflow was tested. The official Twinbru site
+was also visually inspected after rejecting optional tracking: restrained brand
+palette and clear type hierarchy are relevant, while its animated fabric scene,
+intro loader and large marketing hero are deliberately not appropriate to SWP.
+Award provenance remains separate from these live-site observations; an award
+record does not prove industrial operability or SWP design acceptance.
+
+The intermediate external comparison gallery pairs starting `f9a8668` with
+`93edfe9` for Desktop Inbound, portrait Tablet Live and Mobile Inventory in both
+themes. Browser screenshot output excludes scrollbar space and may scale the
+raster; the gallery records both CSS viewport and actual pixel dimensions rather
+than asserting a pixel-exact native comparison. These are real fixture runtime
+images, not generated proposals or production equipment evidence.
+
 ## Required evidence before final handoff
 
 Engineering: full verify, separate API build, secret/dependency scan, unchanged

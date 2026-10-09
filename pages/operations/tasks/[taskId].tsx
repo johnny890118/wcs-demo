@@ -1,4 +1,5 @@
 import { PageHeading } from "../../../components/ui/workspace";
+import { Button } from "../../../components/ui/button";
 import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
@@ -21,8 +22,7 @@ import { authOptions } from "../../api/auth/[...nextauth]";
 type Props = { detail: TaskDetail | null; canViewAudit: boolean };
 const linkClass =
   "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
-const panel =
-  "mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5";
+const panel = "swp-evidence-section mt-6";
 export default function TaskDetailPage({ detail, canViewAudit }: Props) {
   const { t, locale } = useLocale();
   if (!detail)
@@ -52,22 +52,25 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
     })}`;
   return (
     <OperationsShell current="tasks">
-      <Link className={linkClass} href="/operations/tasks">
-        {t("returnToTaskQueue")}
-      </Link>
-      <PageHeading title={`${task.source} → ${task.destination}`} />
-      <Link
-        className={linkClass}
-        href={workPath(task.flow, detail.originResource.id)}
-      >
-        {t("openWorkContext")}
-      </Link>
+      <PageHeading
+        title={`${task.source} → ${task.destination}`}
+        action={
+          <Button asChild variant="ghost">
+            <Link href="/operations/tasks">{t("returnToTaskQueue")}</Link>
+          </Button>
+        }
+      />
       <p className="mt-3 text-lg font-semibold">
         {t(`homeTask_${task.status}` as MessageKey)}
       </p>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
         {t(stateHelp)}
       </p>
+      <Button asChild variant="secondary" className="mt-3">
+        <Link href={workPath(task.flow, detail.originResource.id)}>
+          {t("openWorkContext")}
+        </Link>
+      </Button>
       <p className="mt-3 text-xs text-[var(--text-muted)]">
         {t("refreshedAt")} · {formatOperationalTime(detail.generatedAt)}
       </p>

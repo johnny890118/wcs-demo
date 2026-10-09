@@ -1,4 +1,6 @@
 import { PageHeading } from "../../../../components/ui/workspace";
+import { Button } from "../../../../components/ui/button";
+import { DiagnosticDetails } from "../../../../components/ui/workspace";
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
@@ -52,13 +54,15 @@ export default function WorkPage({
   const path = workPath(work.flow, work.workId);
   return (
     <OperationsShell current="work" titleKey="workCase">
-      <Link className={linkClass} href="/operations/work">
-        {t("returnToWorkQueue")}
-      </Link>
-      <p className="mt-4 font-semibold text-[var(--text)]">
-        {t("workCase")} · {t(work.flow)}
-      </p>
-      <PageHeading title={work.externalReference} />
+      <PageHeading
+        title={work.externalReference}
+        description={`${t("workCase")} · ${t(work.flow)}`}
+        action={
+          <Button asChild variant="ghost">
+            <Link href="/operations/work">{t("returnToWorkQueue")}</Link>
+          </Button>
+        }
+      />
       <p className="mt-4 max-w-3xl font-semibold">
         {t(`workAttention_${workAttention(detail)}` as MessageKey)}
       </p>
@@ -66,125 +70,137 @@ export default function WorkPage({
         {t("workRecordedStatus")}:{" "}
         {t(`workStatus_${work.status}` as MessageKey)}
       </p>
-      <section
-        className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-        aria-labelledby="work-request"
-      >
-        <h2 id="work-request" className="text-xl font-bold">
-          {t("workRequestContents")}
-        </h2>
-        <ul className="mt-3 space-y-2">
-          {work.contents.map((item) => (
-            <li key={item.sku} className="break-words font-semibold">
-              {item.sku} · {item.quantity}
-            </li>
-          ))}
-        </ul>
-        {work.destination ? (
-          <p className="mt-3 font-semibold">
-            {t("destinationLocation")}: {work.destination}
-          </p>
-        ) : null}
-        {!work.contents.length || work.contentsMayBeLimited ? (
-          <p className="mt-3 text-sm text-[var(--warning)]">
-            {t("workContentsLimited")}
-          </p>
-        ) : null}
-        <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
-          {t("workContentsNotice")}
-        </p>
-      </section>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("workStatusNotice")}
-      </p>
-      <p className="mt-3 text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")} · {formatOperationalTime(execution.page.generatedAt)}
-      </p>
-      <section
-        className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-        aria-labelledby="work-execution"
-      >
-        <h2 id="work-execution" className="text-xl font-bold">
-          {t("workExecution")}
-        </h2>
-        <p className="mt-3 text-sm text-[var(--text-muted)]">
-          {t("workTaskCounts")}: {execution.qualifiedTaskCount} /{" "}
-          {execution.referencedTaskCount}
-        </p>
-        {execution.qualifiedTaskCount < execution.referencedTaskCount ? (
-          <p
-            role="status"
-            className="mt-3 text-sm font-semibold text-[var(--warning)]"
+      <div className="swp-work-evidence-grid">
+        <div>
+          <section
+            className="swp-evidence-section mt-6"
+            aria-labelledby="work-request"
           >
-            {t("workIncompleteEvidence")}
+            <h2 id="work-request" className="text-xl font-bold">
+              {t("workRequestContents")}
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {work.contents.map((item) => (
+                <li key={item.sku} className="break-words font-semibold">
+                  {item.sku} · {item.quantity}
+                </li>
+              ))}
+            </ul>
+            {work.destination ? (
+              <p className="mt-3 font-semibold">
+                {t("destinationLocation")}: {work.destination}
+              </p>
+            ) : null}
+            {!work.contents.length || work.contentsMayBeLimited ? (
+              <p className="mt-3 text-sm text-[var(--warning)]">
+                {t("workContentsLimited")}
+              </p>
+            ) : null}
+            <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
+              {t("workContentsNotice")}
+            </p>
+          </section>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
+            {t("workStatusNotice")}
           </p>
-        ) : null}
-        <dl className="mt-4 flex flex-wrap gap-4">
-          {Object.entries(execution.counts)
-            .filter(([, count]) => count > 0)
-            .map(([status, count]) => (
-              <div key={status}>
-                <dt className="text-sm text-[var(--text-muted)]">
-                  {t(`homeTask_${status}` as MessageKey)}
-                </dt>
-                <dd className="mt-1 font-bold">{count}</dd>
-              </div>
-            ))}
-        </dl>
-        <p className="mt-4 text-sm leading-6 text-[var(--text-muted)]">
-          {t("workCountsNotice")}
-        </p>
-        <ul className="mt-4 space-y-3">
-          {execution.page.tasks.map((task) => (
-            <li
-              key={task.taskId}
-              className="rounded-lg border border-[var(--border)] p-4"
+          <p className="mt-3 text-xs text-[var(--text-muted)]">
+            {t("refreshedAt")} ·{" "}
+            {formatOperationalTime(execution.page.generatedAt)}
+          </p>
+        </div>
+        <section
+          className="swp-evidence-section mt-6"
+          aria-labelledby="work-execution"
+        >
+          <h2 id="work-execution" className="text-xl font-bold">
+            {t("workExecution")}
+          </h2>
+          <p className="mt-3 text-sm text-[var(--text-muted)]">
+            {t("workTaskCounts")}: {execution.qualifiedTaskCount} /{" "}
+            {execution.referencedTaskCount}
+          </p>
+          {execution.qualifiedTaskCount < execution.referencedTaskCount ? (
+            <p
+              role="status"
+              className="mt-3 text-sm font-semibold text-[var(--warning)]"
             >
-              <h3 className="break-words font-bold">
-                {task.source} → {task.destination}
-              </h3>
-              <p className="mt-2 break-words text-sm">
-                {task.sku} · {task.quantity} ·{" "}
-                {t(`homeTask_${task.status}` as MessageKey)}
-              </p>
-              <p className="mt-2 break-words text-sm text-[var(--text-muted)]">
-                {t("taskAssignedEquipment")}:{" "}
-                {task.equipmentId ?? t("unassigned")}
-              </p>
-              <Link
-                className={linkClass}
-                href={`/operations/tasks/${encodeURIComponent(task.taskId)}`}
-              >
-                {t("openTaskDetail")}
-              </Link>
-              {canExecute && canOfferWorkExecution(task) ? (
-                <Link
-                  className={linkClass}
-                  href={workResumePath(work.flow, work.workId, task.taskId)}
-                >
-                  {t("workResume")}
-                </Link>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-        {!execution.page.tasks.length ? (
-          <p className="mt-4 text-sm">{t("workNoTasks")}</p>
-        ) : null}
-        {execution.page.nextCursor ? (
-          <Link
-            className={linkClass}
-            href={`${path}?${new URLSearchParams({
-              cursor: execution.page.nextCursor,
-            })}`}
-          >
-            {t("workNextTasks")}
+              {t("workIncompleteEvidence")}
+            </p>
+          ) : null}
+          <dl className="mt-4 flex flex-wrap gap-4">
+            {Object.entries(execution.counts)
+              .filter(([, count]) => count > 0)
+              .map(([status, count]) => (
+                <div key={status}>
+                  <dt className="text-sm text-[var(--text-muted)]">
+                    {t(`homeTask_${status}` as MessageKey)}
+                  </dt>
+                  <dd className="mt-1 font-bold">{count}</dd>
+                </div>
+              ))}
+          </dl>
+          <p className="mt-4 text-sm leading-6 text-[var(--text-muted)]">
+            {t("workCountsNotice")}
+          </p>
+          <ul className="mt-4">
+            {execution.page.tasks.map((task) => (
+              <li key={task.taskId} className="swp-evidence-row">
+                <h3 className="break-words font-bold">
+                  {task.source} → {task.destination}
+                </h3>
+                <p className="mt-2 break-words text-sm">
+                  {task.sku} · {task.quantity} ·{" "}
+                  {t(`homeTask_${task.status}` as MessageKey)}
+                </p>
+                <p className="mt-2 break-words text-sm text-[var(--text-muted)]">
+                  {t("taskAssignedEquipment")}:{" "}
+                  {task.equipmentId ?? t("unassigned")}
+                </p>
+                <div className="swp-form-actions mt-3">
+                  <Button asChild variant="secondary">
+                    <Link
+                      href={`/operations/tasks/${encodeURIComponent(
+                        task.taskId,
+                      )}`}
+                    >
+                      {t("openTaskDetail")}
+                    </Link>
+                  </Button>
+                  {canExecute && canOfferWorkExecution(task) ? (
+                    <Button asChild variant="secondary">
+                      <Link
+                        href={workResumePath(
+                          work.flow,
+                          work.workId,
+                          task.taskId,
+                        )}
+                      >
+                        {t("workResume")}
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+          {!execution.page.tasks.length ? (
+            <p className="mt-4 text-sm">{t("workNoTasks")}</p>
+          ) : null}
+          {execution.page.nextCursor ? (
+            <Link
+              className={linkClass}
+              href={`${path}?${new URLSearchParams({
+                cursor: execution.page.nextCursor,
+              })}`}
+            >
+              {t("workNextTasks")}
+            </Link>
+          ) : null}
+          <Link className={linkClass} href={path}>
+            {t("workRefresh")}
           </Link>
-        ) : null}
-        <Link className={linkClass} href={path}>
-          {t("workRefresh")}
-        </Link>
-      </section>
+        </section>
+      </div>
       {canViewAudit ? (
         <Link
           className={`${linkClass} mt-6`}
@@ -201,12 +217,9 @@ export default function WorkPage({
           )}
         </Link>
       ) : null}
-      <details className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-        <summary className="min-h-11 cursor-pointer py-2 font-semibold">
-          {t("homeTechnicalDetails")}
-        </summary>
+      <DiagnosticDetails title={t("homeTechnicalDetails")}>
         <p className="mt-3 break-all text-xs">{work.workId}</p>
-      </details>
+      </DiagnosticDetails>
     </OperationsShell>
   );
 }

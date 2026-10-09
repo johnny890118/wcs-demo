@@ -523,6 +523,30 @@ body {
   align-items: center;
   gap: var(--space-field);
 }
+.swp-evidence-section {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.swp-evidence-section > h2 {
+  font-size: var(--type-section);
+  font-weight: 600;
+}
+.swp-evidence-row {
+  padding-block: 16px;
+  border-top: 1px solid var(--border);
+}
+.swp-work-evidence-grid {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .swp-work-evidence-grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+}
 .workflow-layout > section:first-child {
   padding: 24px;
   background: var(--surface);
@@ -534,7 +558,9 @@ body {
   align-self: start;
 }
 @media (max-width: 600px) {
-  .workflow-layout > section:first-child { padding: 16px; }
+  .workflow-layout > section:first-child {
+    padding: 16px;
+  }
 }
 
 .inventory-quantities > div {

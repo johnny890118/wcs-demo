@@ -55,6 +55,14 @@ it("shows business request even with unresolved execution, without audit permiss
     screen.queryByRole("link", { name: en.viewOrderAuditEvidence }),
   ).toBeNull();
   expect(screen.queryByText(en.workStatus_completed)).toBeNull();
+  expect(
+    screen
+      .getByRole("link", { name: en.returnToWorkQueue })
+      .getAttribute("href"),
+  ).toBe("/operations/work");
+  expect(screen.getByText(detail.work.workId).closest("details")?.open).toBe(
+    false,
+  );
 });
 it("gates contextual audit separately and retains a visible root refresh link", () => {
   render(<WorkPage detail={detail} canViewAudit />);
@@ -106,6 +114,9 @@ it("split outbound stays allocated with one completed task and offers only its q
   expect(screen.getByText(/Stock allocated/)).toBeTruthy();
   expect(screen.queryByText(en.workStatus_completed)).toBeNull();
   expect(screen.getAllByRole("link", { name: en.workResume })).toHaveLength(1);
+  expect(screen.getAllByRole("link", { name: en.openTaskDetail })).toHaveLength(
+    2,
+  );
   expect(
     screen.getByRole("link", { name: en.workResume }).getAttribute("href"),
   ).toContain(`/resume/${queuedId}`);
