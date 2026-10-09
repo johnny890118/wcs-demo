@@ -1,5 +1,6 @@
 import { PRODUCT_NAME } from "../identity/product-identity";
 export const en = {
+  preferencesMenu: "Preferences and account",
   navigationMenu: "Navigation and preferences",
   goodsDetails: "Goods",
   movementLocations: "Movement locations",
@@ -696,6 +697,7 @@ export type Locale = "zh-TW" | "en";
 export type Catalog = Record<MessageKey, string>;
 
 export const zhTW: Catalog = {
+  preferencesMenu: "偏好設定與帳號",
   navigationMenu: "導覽與偏好設定",
   goodsDetails: "貨物",
   movementLocations: "搬運位置",

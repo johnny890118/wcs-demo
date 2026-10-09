@@ -62,7 +62,13 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     false,
   );
   expect(screen.getByText("模擬設備")).toBeTruthy(); // context not hidden on mobile
-  fireEvent.click(screen.getByRole("button", { name: "導覽與偏好設定" }));
+  // jsdom does not apply responsive CSS; exercise the mobile header trigger
+  // explicitly. Browser tests assert only the correct trigger is visible.
+  fireEvent.click(
+    within(
+      document.querySelector(".mobile-navigation-header") as HTMLElement,
+    ).getByRole("button", { name: "導覽與偏好設定" }),
+  );
   const mobile = await screen.findByRole("navigation", {
     name: "操作台行動版導覽",
   });

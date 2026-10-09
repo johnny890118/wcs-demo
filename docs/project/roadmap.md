@@ -7,6 +7,10 @@ implemented and deployed across the shared shell and seven main surfaces at
 `796bb97`. S3 remains paused for Owner acceptance of the shipped UI; no product
 capability or milestone order change. See
 [approved UI implementation plan](approved-ui-implementation-plan.md).
+Owner final-acceptance correction removes the desktop global topbar, keeps one
+responsive navigation and relocates preferences without hiding safety context.
+See [navigation acceptance correction](navigation-acceptance-fix.md). This remains
+the delivery priority; S3 does not resume before Owner UI acceptance.
 
 ## M0 — Discovery and engineering foundation
 

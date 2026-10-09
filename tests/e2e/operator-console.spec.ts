@@ -13,7 +13,7 @@ async function choosePreference(page: Page, name: string) {
   if (!(await control.isVisible())) {
     await page
       .getByRole("button", {
-        name: /^(導覽與偏好設定|Navigation and preferences)$/,
+        name: /^(導覽與偏好設定|Navigation and preferences|偏好設定與帳號|Preferences and account)$/,
       })
       .click();
     await expect(page.getByRole("dialog")).toBeVisible();
@@ -44,6 +44,23 @@ test("approved adaptive shell persists desktop collapse and returns menu focus",
   await page.setViewportSize({ width: 1440, height: 850 });
   await page.getByRole("button", { name: "收合導覽" }).click();
   await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "76px");
+  await page.getByRole("button", { name: "偏好設定與帳號" }).click();
+  await expect(
+    page.getByRole("dialog").getByRole("group", { name: "主題", exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "76px");
+  // Inspect persisted geometry before React can hydrate; a post-hydration
+  // assertion alone would miss the expanded-first reload flash.
+  const earlyPaint = await page.context().newPage();
+  await earlyPaint.setViewportSize({ width: 1440, height: 850 });
+  await earlyPaint.route("**/_next/static/**/*.js", (route) => route.abort());
+  await earlyPaint.goto("/operations/inbound");
+  await expect(earlyPaint.locator(".operations-sidebar")).toHaveCSS(
+    "width",
+    "76px",
+  );
+  await earlyPaint.close();
   await page.reload();
   await expect(page.getByRole("button", { name: "展開導覽" })).toHaveAttribute(
     "aria-expanded",
@@ -51,9 +68,27 @@ test("approved adaptive shell persists desktop collapse and returns menu focus",
   );
   await page.getByRole("button", { name: "展開導覽" }).click();
   await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "220px");
-  for (const width of [768, 390, 375, 844]) {
+  await expect(page.locator(".mobile-navigation-header")).not.toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "導覽與偏好設定" }),
+  ).not.toBeVisible();
+  const settings = page.getByRole("button", { name: "偏好設定與帳號" });
+  await settings.click();
+  await expect(page.getByRole("dialog").getByRole("navigation")).toHaveCount(0);
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("dialog").locator(":focus")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await expect(settings).toBeFocused();
+  await choosePreference(page, "跟隨系統");
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.locator("html")).toHaveClass(/light/);
+  for (const width of [767, 768, 1023, 1024, 390, 375, 844]) {
     await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
-    const trigger = page.getByRole("button", { name: "導覽與偏好設定" });
+    const trigger = page.getByRole("button", {
+      name: width >= 1024 ? "偏好設定與帳號" : "導覽與偏好設定",
+    });
     await trigger.focus();
     await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog");
@@ -95,16 +130,20 @@ test("approved operator presentation covers seven surfaces across device locale 
     });
     for (const locale of ["zh-TW", "en"]) {
       await choosePreference(page, locale === "en" ? "EN" : "繁中");
-      for (const mode of ["light", "dark"]) {
+      for (const mode of ["light", "dark", "system"]) {
         await choosePreference(
           page,
-          locale === "en"
-            ? mode === "dark"
-              ? "Dark"
-              : "Light"
-            : mode === "dark"
-              ? "深色"
-              : "淺色",
+          mode === "system"
+            ? locale === "en"
+              ? "System"
+              : "跟隨系統"
+            : locale === "en"
+              ? mode === "dark"
+                ? "Dark"
+                : "Light"
+              : mode === "dark"
+                ? "深色"
+                : "淺色",
         );
         for (const route of routes) {
           await page.goto("/operations" + route);
@@ -126,6 +165,7 @@ test("approved operator presentation covers seven surfaces across device locale 
           ).toBe(true);
           if (
             locale === "zh-TW" &&
+            mode !== "system" &&
             ((width === 1440 && route === "/inbound") ||
               (width === 768 && route === "/warehouse") ||
               (width === 390 && route === "/inventory"))
@@ -360,15 +400,21 @@ test("neutral-first brand survives an operator read journey across themes, local
           "/operations/inventory",
           "/operations/warehouse",
         ]) {
-          await page
-            .getByRole("button", {
-              name:
-                locale === "en"
-                  ? "Navigation and preferences"
-                  : "導覽與偏好設定",
-            })
+          if (width < 768)
+            await page
+              .getByRole("button", {
+                name:
+                  locale === "en"
+                    ? "Navigation and preferences"
+                    : "導覽與偏好設定",
+              })
+              .click();
+          await (width < 768
+            ? page.getByRole("dialog")
+            : page.locator(".operations-sidebar")
+          )
+            .locator(`nav a[href="${route}"]`)
             .click();
-          await page.getByRole("dialog").locator(`a[href="${route}"]`).click();
           await expect(page).toHaveURL(route);
           await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
           const palette = await page.evaluate(() => {
@@ -385,16 +431,20 @@ test("neutral-first brand survives an operator read journey across themes, local
           expect(palette.success).not.toBe(palette.accent);
           expect(palette.overflow).toBe(false);
           expect(await visibleTextContrastFailures(page)).toEqual([]);
-          await page
-            .getByRole("button", {
-              name:
-                locale === "en"
-                  ? "Navigation and preferences"
-                  : "導覽與偏好設定",
-            })
-            .click();
-          const selected = page
-            .getByRole("dialog")
+          if (width < 768)
+            await page
+              .getByRole("button", {
+                name:
+                  locale === "en"
+                    ? "Navigation and preferences"
+                    : "導覽與偏好設定",
+              })
+              .click();
+          const selected = (
+            width < 768
+              ? page.getByRole("dialog")
+              : page.locator(".operations-sidebar")
+          )
             .locator("nav a[aria-current='page']")
             .first();
           await expect(selected).toBeVisible();
@@ -417,6 +467,12 @@ test("neutral-first brand survives an operator read journey across themes, local
               (element) => getComputedStyle(element).outlineStyle,
             ),
           ).toBe("solid");
+          if (width >= 768)
+            await page
+              .getByRole("button", {
+                name: /^(導覽與偏好設定|Navigation and preferences|偏好設定與帳號|Preferences and account)$/,
+              })
+              .click();
           for (const label of [
             locale === "en" ? "Theme" : "主題",
             locale === "en" ? "Language" : "語言",
@@ -889,7 +945,7 @@ test("contextual manual supports bilingual literal search, keyboard links and ac
   await expect(
     page.getByText(`軟體套件版本: ${manualSoftwareVersion}`, { exact: false }),
   ).toBeVisible();
-  await expect(page.locator("main section").first()).toHaveAttribute(
+  await expect(page.locator("main section[id]").first()).toHaveAttribute(
     "id",
     "live-view",
   );
@@ -1702,7 +1758,9 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByLabel("目前營運情境").getByText("模擬設備"),
   ).toBeVisible();
-  await page.getByRole("button", { name: "導覽與偏好設定" }).click();
+  await page
+    .getByRole("button", { name: /^(導覽與偏好設定|偏好設定與帳號)$/ })
+    .click();
   await expect(
     page.getByRole("dialog").getByText("e2e-operator", { exact: true }),
   ).toBeVisible();

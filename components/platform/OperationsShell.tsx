@@ -10,6 +10,7 @@ import {
   XMarkIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { signOut, useSession } from "next-auth/react";
@@ -44,11 +45,17 @@ type Surface =
 const workSurfaces = ["work", "tasks", "inbound", "outbound"];
 const navigationPreferenceKey = "swp-navigation-collapsed";
 function subscribeNavigation(listener: () => void) {
-  window.addEventListener("storage", listener);
-  window.addEventListener("swp-navigation-preference", listener);
+  const update = () => {
+    document.documentElement.dataset.swpNavigation = navigationSnapshot()
+      ? "collapsed"
+      : "expanded";
+    listener();
+  };
+  window.addEventListener("storage", update);
+  window.addEventListener("swp-navigation-preference", update);
   return () => {
-    window.removeEventListener("storage", listener);
-    window.removeEventListener("swp-navigation-preference", listener);
+    window.removeEventListener("storage", update);
+    window.removeEventListener("swp-navigation-preference", update);
   };
 }
 function navigationSnapshot() {
@@ -145,6 +152,9 @@ export function OperationsShell({
   );
   const collapsed = temporaryCollapsed ?? persistedCollapsed;
   function toggleNavigation() {
+    document.documentElement.dataset.swpNavigation = !collapsed
+      ? "collapsed"
+      : "expanded";
     try {
       localStorage.setItem(navigationPreferenceKey, String(!collapsed));
       window.dispatchEvent(new Event("swp-navigation-preference"));
@@ -269,6 +279,29 @@ export function OperationsShell({
           <div className="mt-auto border-t border-[var(--border)] pt-4">
             <button
               type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label={t("preferencesMenu")}
+              title={t("preferencesMenu")}
+              aria-expanded={menuOpen}
+              className="desktop-preferences ui-pressable min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
+            >
+              <Cog6ToothIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+              <span className="operations-nav-label">
+                {t("preferencesMenu")}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label={t("navigationMenu")}
+              title={t("navigationMenu")}
+              aria-expanded={menuOpen}
+              className="tablet-navigation ui-pressable min-h-11 w-full items-center justify-center rounded-lg text-[var(--text-muted)]"
+            >
+              <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
               onClick={() => void signOut({ callbackUrl: "/" })}
               className="ui-pressable flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
             >
@@ -281,7 +314,7 @@ export function OperationsShell({
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <header className="border-b border-[var(--border)] bg-[var(--surface)]">
+          <header className="mobile-navigation-header border-b border-[var(--border)] bg-[var(--surface)]">
             <div className="operations-topbar flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
               <Link
                 href="/operations"
@@ -302,31 +335,6 @@ export function OperationsShell({
                   {t("navigationMenu")}
                 </span>
               </button>
-              <div
-                aria-label={t("operationalContext")}
-                className="operations-runtime-context order-3 flex w-full min-w-0 flex-wrap items-center gap-2 pb-3 text-xs lg:order-none lg:w-auto lg:pb-0"
-              >
-                {access ? (
-                  <WarehouseContextControl access={access} />
-                ) : (
-                  <span>{t("warehouseContextUnavailable")}</span>
-                )}
-                {environmentLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
-                    {environmentLabel}
-                  </span>
-                ) : null}
-                {profileLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
-                    {profileLabel}
-                  </span>
-                ) : null}
-                {sourceLabel ? (
-                  <span className="rounded-md border border-[var(--border)] px-2 py-1 font-semibold text-[var(--text-muted)]">
-                    {sourceLabel}
-                  </span>
-                ) : null}
-              </div>
             </div>
           </header>
           <Dialog
@@ -342,7 +350,12 @@ export function OperationsShell({
               <DialogPanel className="w-full max-w-sm overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] p-5">
                 <div className="mb-5 flex items-center justify-between gap-3">
                   <DialogTitle className="font-semibold">
-                    {t("navigationMenu")}
+                    <span className="compact-menu-title">
+                      {t("navigationMenu")}
+                    </span>
+                    <span className="desktop-menu-title">
+                      {t("preferencesMenu")}
+                    </span>
                   </DialogTitle>
                   <button
                     type="button"
@@ -353,7 +366,10 @@ export function OperationsShell({
                     <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
-                <nav aria-label={t("mobileNavigation")} className="space-y-1">
+                <nav
+                  aria-label={t("mobileNavigation")}
+                  className="compact-menu-navigation space-y-1"
+                >
                   {navLinks(true)}
                 </nav>
                 <div className="mt-6 space-y-4 border-t border-[var(--border)] pt-5">
@@ -383,6 +399,31 @@ export function OperationsShell({
             id="main-content"
             className="operations-content px-4 py-6 sm:px-6 lg:px-10 lg:py-8"
           >
+            <section
+              aria-label={t("operationalContext")}
+              className="operations-page-context mb-5 flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2 border-b border-[var(--border)] pb-4 text-sm"
+            >
+              <div className="min-w-0">
+                {access ? (
+                  <WarehouseContextControl access={access} />
+                ) : (
+                  <span>{t("warehouseContextUnavailable")}</span>
+                )}
+              </div>
+              <div className="min-w-0 text-[var(--text-muted)]">
+                {environmentLabel ? (
+                  <p className="font-medium text-[var(--text)]">
+                    {environmentLabel}
+                  </p>
+                ) : null}
+                <p className="flex flex-wrap gap-x-3 text-xs">
+                  {profileLabel ? <span>{profileLabel}</span> : null}
+                  {sourceLabel ? (
+                    <span className="font-medium">{sourceLabel}</span>
+                  ) : null}
+                </p>
+              </div>
+            </section>
             {workSurfaces.includes(current) && !workNavigationAfterHeader ? (
               <WorkNavigation
                 current={current as "work" | "tasks" | "inbound" | "outbound"}
