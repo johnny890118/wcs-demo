@@ -1,4 +1,5 @@
 import { Button } from "../ui/button";
+import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -104,6 +105,7 @@ export function WorkExecutionPanel({
   return (
     <section className="mt-6 space-y-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
       <h2 className="text-xl font-bold">{t("reviewAndExecute")}</h2>
+      <OperationTargetContext />
       <p>
         {task.source} → {task.destination} · {task.sku} · {task.quantity}
       </p>

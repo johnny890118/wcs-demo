@@ -39,6 +39,14 @@ async function signIn(page: Page, destination: string) {
   await expect(page).toHaveURL(destination);
 }
 
+async function openWarehouseSwitch(page: Page) {
+  await page
+    .getByRole("button", { name: /^(目前倉庫|Current warehouse)$/ })
+    .filter({ visible: true })
+    .click();
+  return page.getByRole("combobox", { name: /^(目前倉庫|Current warehouse)$/ });
+}
+
 async function inspectRecordedAction(page: Page, action: string) {
   const record = page.locator("article").filter({ hasText: action });
   await expect(record).toHaveCount(1);
@@ -119,8 +127,98 @@ test("approved adaptive shell persists desktop collapse and returns menu focus",
           document.documentElement.clientWidth,
       ),
     ).toBe(true);
-    await expect(page.getByText("模擬設備")).toBeVisible();
-    await expect(page.getByLabel("目前倉庫")).toBeVisible();
+    await expect(
+      page.getByLabel("目前營運情境").getByText("模擬設備"),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByRole("button", { name: "目前倉庫", exact: true })
+        .filter({ visible: true }),
+    ).toHaveCount(1);
+  }
+});
+
+test("single-site shell chooses one navigation by usable geometry and keeps drafts", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const fixture = async (kind: string) => {
+    const result = await page.request.post(
+      "http://127.0.0.1:3101/test/access-fixture",
+      {
+        headers: { Authorization: "Bearer e2e-service-token" },
+        data: { kind },
+      },
+    );
+    expect(result.ok()).toBe(true);
+  };
+  try {
+    await fixture("single");
+    await signIn(page, "/operations/inbound");
+    await page.locator('input[name="sku"]').fill("DRAFT-KEEP");
+    for (const [width, height, sidebar] of [
+      [1440, 900, true],
+      [1180, 820, true],
+      [820, 1180, false],
+      [375, 812, false],
+      [844, 390, false],
+      [1024, 1366, false],
+      [640, 450, false],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      await expect(page.locator(".operations-sidebar")).toBeVisible({
+        visible: sidebar,
+      });
+      await expect(page.locator(".mobile-navigation-header")).toBeVisible({
+        visible: !sidebar,
+      });
+      await expect(
+        page.getByRole("button", { name: "目前倉庫", exact: true }),
+      ).toHaveCount(0);
+      expect(await page.locator(".operations-page-context").count()).toBe(0);
+      await expect(page.locator('input[name="sku"]')).toHaveValue("DRAFT-KEEP");
+      await expect(page.getByLabel("目前營運情境")).toContainText(
+        "Deterministic Demo Warehouse",
+      );
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      expect(await visibleTextContrastFailures(page)).toEqual([]);
+    }
+    await fixture("long");
+    await page.context().clearCookies();
+    await signIn(page, "/operations");
+    for (const [width, height] of [
+      [1440, 900],
+      [1180, 820],
+      [820, 1180],
+      [375, 812],
+      [844, 390],
+    ] as const) {
+      await page.setViewportSize({ width, height });
+      const selector = await openWarehouseSwitch(page);
+      await expect(selector.locator("option:checked")).toContainText(
+        "deliberately long authorized name",
+      );
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      await page.keyboard.press("Escape");
+      expect(
+        await page.evaluate(
+          () =>
+            document.documentElement.scrollWidth >
+            document.documentElement.clientWidth,
+        ),
+      ).toBe(false);
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openWarehouseSwitch(page);
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await expect(page.getByRole("combobox")).toHaveCount(0);
+    await expect(
+      page
+        .getByRole("button", { name: "目前倉庫", exact: true })
+        .filter({ visible: true }),
+    ).toBeFocused();
+  } finally {
+    await fixture("multi");
   }
 });
 
@@ -212,14 +310,14 @@ test("operator Work entry preserves end-to-end investigation and six primary con
         );
         const nav = page.getByRole("navigation", {
           name: english
-            ? width >= 768
+            ? width >= 1024
               ? "Operations desktop navigation"
               : "Operations mobile navigation"
-            : width >= 768
+            : width >= 1024
               ? "操作台桌面版導覽"
               : "操作台行動版導覽",
         });
-        if (width < 768) {
+        if (width < 1024) {
           await page
             .getByRole("button", {
               name: english ? "Navigation and preferences" : "導覽與偏好設定",
@@ -239,7 +337,7 @@ test("operator Work entry preserves end-to-end investigation and six primary con
           "/operations/inventory",
           "/operations/help",
         ]);
-        if (width < 768) {
+        if (width < 1024) {
           await page.keyboard.press("Escape");
           await expect(page.getByRole("dialog")).not.toBeVisible();
         }
@@ -415,7 +513,7 @@ test("neutral-first brand survives an operator read journey across themes, local
           "/operations/inventory",
           "/operations/warehouse",
         ]) {
-          if (width < 768)
+          if (width < 1024)
             await page
               .getByRole("button", {
                 name:
@@ -424,7 +522,7 @@ test("neutral-first brand survives an operator read journey across themes, local
                     : "導覽與偏好設定",
               })
               .click();
-          await (width < 768
+          await (width < 1024
             ? page.getByRole("dialog")
             : page.locator(".operations-sidebar")
           )
@@ -446,7 +544,7 @@ test("neutral-first brand survives an operator read journey across themes, local
           expect(palette.success).not.toBe(palette.accent);
           expect(palette.overflow).toBe(false);
           expect(await visibleTextContrastFailures(page)).toEqual([]);
-          if (width < 768)
+          if (width < 1024)
             await page
               .getByRole("button", {
                 name:
@@ -456,7 +554,7 @@ test("neutral-first brand survives an operator read journey across themes, local
               })
               .click();
           const selected = (
-            width < 768
+            width < 1024
               ? page.getByRole("dialog")
               : page.locator(".operations-sidebar")
           )
@@ -482,7 +580,7 @@ test("neutral-first brand survives an operator read journey across themes, local
               (element) => getComputedStyle(element).outlineStyle,
             ),
           ).toBe("solid");
-          if (width >= 768)
+          if (width >= 1024)
             await page
               .getByRole("button", {
                 name: /^(導覽與偏好設定|Navigation and preferences|偏好設定與帳號|Preferences and account)$/,
@@ -731,9 +829,9 @@ test("Task to durable Work reload and return needs no remembered ID or browser B
       "No resolved tasks are available on this page. This does not establish successful completion.",
     ),
   ).toBeVisible();
-  await page
-    .getByRole("combobox")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(page.getByRole("heading", { name: /404/ })).toBeVisible();
   const denied = await page.request.get(
     "/api/operations/work/inbound/30000000-0000-4000-8000-000000000001",
@@ -934,9 +1032,9 @@ test("Live View separates observations from assignments and expires retained pos
     });
   }
   await page.unroute("**/api/operations/live-view");
-  await page
-    .getByLabel("Current warehouse")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(
     page.getByText("No equipment in this scoped projection.", {
       exact: true,
@@ -1233,9 +1331,9 @@ test("locations explain configured states and record counts without occupancy cl
     .getByRole("navigation", { name: "Inventory workspace" })
     .getByRole("link", { name: "Locations", exact: true })
     .click();
-  await page
-    .getByRole("combobox")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(
     page.getByRole("heading", { name: "STORAGE-01", exact: true }),
   ).toHaveCount(0);
@@ -1309,9 +1407,9 @@ test("loads preserve unknown inventory and zero shipped stock across readable bi
     .getByRole("navigation", { name: "Inventory workspace" })
     .getByRole("link", { name: "Loads", exact: true })
     .click();
-  await page
-    .getByRole("combobox")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(
     page.getByRole("heading", { name: "PALLET-RECEIVED-001" }),
   ).toHaveCount(0);
@@ -1359,9 +1457,9 @@ test("inventory explains partial reservations with searchable accessible warehou
   });
   await choosePreference(page, "Light");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page
-    .getByRole("combobox")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(
     page.getByRole("heading", { name: "SKU-STOCK-001", exact: true }),
   ).toHaveCount(0);
@@ -1413,9 +1511,9 @@ test("task queue and detail expose contextual evidence across accessible warehou
   await page.getByRole("link", { name: "All work", exact: true }).click();
   await expect(page).toHaveURL(/view=all/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page
-    .getByRole("combobox")
-    .selectOption("20000000-0000-4000-8000-000000000010");
+  await (
+    await openWarehouseSwitch(page)
+  ).selectOption("20000000-0000-4000-8000-000000000010");
   await expect(page.getByRole("link", { name: /Open task/ })).toHaveCount(0);
 });
 
@@ -1623,10 +1721,17 @@ test("operator switches only between authorized warehouse contexts", async ({
   page,
 }) => {
   await signIn(page, "/operations");
-  const selector = page.getByRole("combobox", { name: "目前倉庫" });
+  const selector = await openWarehouseSwitch(page);
   await expect(selector).toHaveValue("10000000-0000-4000-8000-000000000001");
   await selector.selectOption("20000000-0000-4000-8000-000000000010");
-  await expect(selector).toHaveValue("20000000-0000-4000-8000-000000000010");
+  await expect(
+    page
+      .getByRole("button", { name: "目前倉庫", exact: true })
+      .filter({ visible: true }),
+  ).toContainText("Second Demo Warehouse");
+  await expect(await openWarehouseSwitch(page)).toHaveValue(
+    "20000000-0000-4000-8000-000000000010",
+  );
   await expect(page).toHaveURL("/operations");
 });
 
@@ -1760,25 +1865,26 @@ test("authenticated focused projections expose screen-reader semantics", async (
   await expect(
     page.getByRole("navigation", { name: "操作台桌面版導覽" }),
   ).toBeVisible();
-  const warehouseContext = page.getByRole("combobox", { name: "目前倉庫" });
+  const warehouseContext = await openWarehouseSwitch(page);
   await expect(warehouseContext).toHaveValue(
     "10000000-0000-4000-8000-000000000001",
   );
   await expect(warehouseContext.locator("option:checked")).toHaveText(
     "Deterministic Demo Warehouse · DEMO",
   );
-  await page.locator(".swp-runtime-context summary").click();
-  await expect(
-    page.getByLabel("目前營運情境").getByText("私人示範／訓練"),
-  ).toBeVisible();
-  await expect(
-    page.getByLabel("目前營運情境").getByText("模擬設備"),
-  ).toBeVisible();
+  await page.keyboard.press("Escape");
   await page
     .getByRole("button", { name: /^(導覽與偏好設定|偏好設定與帳號)$/ })
     .click();
   await expect(
     page.getByRole("dialog").getByText("e2e-operator", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("dialog").getByText("技術細節", { exact: true }).click();
+  await expect(
+    page.getByRole("dialog").getByText("私人示範／訓練", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("dialog").getByText("模擬設備", { exact: true }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.locator('a[href="/legacy"]')).toHaveCount(0);

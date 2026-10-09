@@ -33,6 +33,12 @@ status distinctions, WCAG contrast and command-safety hierarchy.
 10. Fix material findings and repeat review before declaring the UI milestone complete.
 
 Current console components live in `components/ui` and use SWP semantic tokens.
+Latest single-site-first navigation acceptance supersedes the fixed tablet rail
+and persistent page-context strip: Sidebar on usable wide landscape viewports,
+Topbar on portrait/narrow/short viewports, never both visible. Multiple authorized
+warehouses switch from navigation; one warehouse has no redundant general label.
+Safety targets/source remain in relevant operation components and runtime details
+are inspectable in settings. See `../project/single-warehouse-navigation-plan.md`.
 Use the owned actions/native fields and inspected Radix Popover/Tooltip primitives
 instead of another per-page control style or blanket template initialization.
 Keep the tested mobile navigation dialog unless replacement has a demonstrated

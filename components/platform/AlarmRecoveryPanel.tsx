@@ -1,4 +1,5 @@
 import { Button } from "../ui/button";
+import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import {
   CheckCircleIcon,
@@ -190,6 +191,7 @@ export function AlarmRecoveryPanel({
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(280px,0.7fr)_minmax(0,1.3fr)]">
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-panel)] sm:p-6">
+        <OperationTargetContext />
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("actionableAlarms")}
         </p>

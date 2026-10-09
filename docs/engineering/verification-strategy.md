@@ -1,5 +1,17 @@
 # Verification Strategy
 
+Latest single-site navigation acceptance retains all security gates and adds a
+45th browser journey: single/multiple/long authorized warehouse scopes, seven
+usable geometries, portrait Topbar/landscape Sidebar, retained form draft, and
+warehouse Popover rotation/focus. Seven-surface bilingual Light/Dark/System,
+rendered contrast, Axe, strict warehouse switching, persisted-session and exact
+Work journeys remain. General context chrome is intentionally removed; necessary
+target/source lives in action context and runtime details remain inspectable.
+See `docs/project/single-warehouse-navigation-plan.md` for review and delivery
+evidence, including the redacted production-credential snapshot limitation.
+Existing-session deployed reads must never be called fresh-login proof. The
+earlier counts/checkpoints below are historical, not latest delivery assertions.
+
 Current Owner-approved UI implementation: complete gate passes 616 fast, 88 real
 PostgreSQL and 44 production-build browser tests, public-demo denial harness and
 separate API build. Seven surfaces × three widths × two locales × two themes

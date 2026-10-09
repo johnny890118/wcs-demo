@@ -8,6 +8,7 @@ const generatedAt = "2026-09-18T08:00:00.000Z";
 const expectedWarehouseId = "10000000-0000-4000-8000-000000000001";
 const secondWarehouseId = "20000000-0000-4000-8000-000000000010";
 const expectedWarehouseScopes = [expectedWarehouseId, secondWarehouseId];
+let accessFixture = "multi";
 const expectedPrincipal = "legacy-demo-admin";
 const humanSession = {
   sessionId: "90000000-0000-4000-8000-000000000099",
@@ -25,7 +26,7 @@ function humanAccess(currentWarehouseId = expectedWarehouseId) {
     "alarm.recover",
   ];
   const readPermissions = ["operations.view", "audit.view"];
-  return {
+  const access = {
     principal: {
       kind: "human",
       subject: expectedPrincipal,
@@ -52,6 +53,15 @@ function humanAccess(currentWarehouseId = expectedWarehouseId) {
     },
     currentWarehouseId,
   };
+  if (accessFixture === "single")
+    access.principal.warehouseScopes = access.principal.warehouseScopes.slice(
+      0,
+      1,
+    );
+  if (accessFixture === "long")
+    access.principal.warehouseScopes[0].name =
+      "北區智慧倉儲營運案場 — Receiving, Storage and Dispatch Warehouse with a deliberately long authorized name";
+  return access;
 }
 
 function hasOperationalContext(request, permission) {
@@ -63,7 +73,10 @@ function hasOperationalContext(request, permission) {
     permissions.includes(permission) &&
     expectedWarehouseScopes.includes(request.headers["x-swp-warehouse"]) &&
     request.headers["x-swp-warehouse-scopes"] ===
-      expectedWarehouseScopes.join(",")
+      (accessFixture === "single"
+        ? [expectedWarehouseId]
+        : expectedWarehouseScopes
+      ).join(",")
   );
 }
 
@@ -450,6 +463,18 @@ const server = createServer(async (request, response) => {
   if (request.headers.authorization !== `Bearer ${token}`) {
     response.statusCode = 401;
     response.end(JSON.stringify({ error: "unauthorized" }));
+    return;
+  }
+  // Isolated browser-test fixture only; not a product API or session override.
+  if (request.method === "POST" && request.url === "/test/access-fixture") {
+    const body = await readBody(request);
+    if (!["single", "multi", "long"].includes(body.kind)) {
+      response.statusCode = 400;
+      response.end(JSON.stringify({ error: "invalid_fixture" }));
+      return;
+    }
+    accessFixture = body.kind;
+    response.end(JSON.stringify({ kind: accessFixture }));
     return;
   }
   if (

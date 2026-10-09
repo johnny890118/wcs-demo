@@ -16,7 +16,12 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Head from "next/head";
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import {
   hasUserPermission,
   isOperationalAccess,
@@ -27,6 +32,7 @@ import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { LocaleControl } from "./LocaleControl";
 import { ThemeControl } from "./ThemeControl";
 import { WarehouseContextControl } from "./WarehouseContextControl";
+import { OperationTargetLabels } from "./OperationTargetContext";
 import { NavigationProgress } from "./NavigationProgress";
 import { ProductMark } from "./ProductMark";
 import { WorkNavigation } from "./WorkNavigation";
@@ -153,6 +159,45 @@ export function OperationsShell({
   const { t } = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [warehouseMenu, setWarehouseMenu] = useState<
+    "sidebar" | "topbar" | null
+  >(null);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const layout = window.matchMedia(
+      "(min-width: 1024px) and (min-height: 600px) and (orientation: landscape)",
+    );
+    const change = () => {
+      const restoreFocus =
+        menuOpen ||
+        preferencesOpen ||
+        warehouseMenu !== null ||
+        Boolean(
+          document.activeElement?.closest(
+            layout.matches
+              ? ".mobile-navigation-header"
+              : ".operations-sidebar",
+          ),
+        );
+      if (!restoreFocus) return;
+      setMenuOpen(false);
+      setPreferencesOpen(false);
+      setWarehouseMenu(null);
+      if (restoreFocus)
+        requestAnimationFrame(() => {
+          const destination = layout.matches
+            ? document.querySelector<HTMLElement>(
+                ".operations-sidebar nav a[aria-current='page'], .operations-sidebar nav a",
+              )
+            : document.querySelector<HTMLElement>(
+                ".mobile-navigation-header button[aria-expanded]",
+              );
+          destination?.focus();
+        });
+    };
+    layout.addEventListener("change", change);
+    return () => layout.removeEventListener("change", change);
+  }, [menuOpen, preferencesOpen, warehouseMenu]);
   const [temporaryCollapsed, setTemporaryCollapsed] = useState<boolean | null>(
     null,
   );
@@ -220,8 +265,42 @@ export function OperationsShell({
         )[runtime.equipmentSource],
       )
     : null;
-  const showDeploymentProfile =
-    workSurfaces.includes(current) || current === "alarms";
+  const currentWarehouse = access?.principal.warehouseScopes.find(
+    (scope) => scope.warehouseId === access.currentWarehouseId,
+  );
+  const warehouseSwitch = (compact: boolean) =>
+    access && access.principal.warehouseScopes.length > 1 ? (
+      <Popover
+        open={warehouseMenu === (compact ? "topbar" : "sidebar")}
+        onOpenChange={(open) =>
+          setWarehouseMenu(open ? (compact ? "topbar" : "sidebar") : null)
+        }
+      >
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-label={t("warehouseContext")}
+            className="warehouse-navigation-trigger ui-pressable flex min-h-11 min-w-11 items-center gap-2 rounded-lg px-3 text-sm"
+          >
+            <MapIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
+            <span
+              className={
+                compact ? "warehouse-topbar-label" : "operations-nav-label"
+              }
+            >
+              {currentWarehouse?.name ?? t("warehouseContextUnavailable")}
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          side={compact ? "bottom" : "right"}
+          aria-label={t("warehouseContext")}
+        >
+          <h2 className="mb-3 font-semibold">{t("warehouseContext")}</h2>
+          <WarehouseContextControl access={access} />
+        </PopoverContent>
+      </Popover>
+    ) : null;
   const navLinks = (mobile: boolean) =>
     primary.map(({ key, href, label, Icon }) => (
       <Tooltip key={key} label={t(label)} disabled={mobile}>
@@ -247,6 +326,21 @@ export function OperationsShell({
     ));
   const preferences = (
     <div className="swp-preferences">
+      <section>
+        <details className="swp-diagnostics">
+          <summary>{t("homeTechnicalDetails")}</summary>
+          <div>
+            <p>
+              {currentWarehouse
+                ? `${currentWarehouse.name} · ${currentWarehouse.code}`
+                : t("warehouseContextUnavailable")}
+            </p>
+            <p>{environmentLabel ?? t("warehouseContextUnavailable")}</p>
+            <p>{profileLabel ?? t("warehouseContextUnavailable")}</p>
+            <p>{sourceLabel ?? t("warehouseContextUnavailable")}</p>
+          </div>
+        </details>
+      </section>
       <section>
         <h3>{t("locale")}</h3>
         <LocaleControl />
@@ -296,7 +390,7 @@ export function OperationsShell({
           className="operations-frame flex min-h-screen"
           data-collapsed={collapsed}
         >
-          <aside className="operations-sidebar sticky top-0 hidden h-dvh shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-3 md:flex md:flex-col">
+          <aside className="operations-sidebar sticky top-0 h-dvh shrink-0 self-start overflow-y-auto border-r border-[var(--border)] bg-[var(--surface)] p-3">
             <Link
               href="/operations"
               className="ui-pressable mb-8 flex items-center gap-3 rounded-lg p-1"
@@ -313,7 +407,7 @@ export function OperationsShell({
                 collapsed ? "expandNavigation" : "collapseNavigation",
               )}
               aria-expanded={!collapsed}
-              className="ui-pressable order-last mt-2 hidden min-h-11 items-center justify-center rounded-lg text-[var(--text-muted)] lg:flex"
+              className="ui-pressable order-last mt-2 flex min-h-11 items-center justify-center rounded-lg text-[var(--text-muted)]"
             >
               {collapsed ? (
                 <ChevronDoubleRightIcon
@@ -327,6 +421,7 @@ export function OperationsShell({
             <nav aria-label={t("desktopNavigation")} className="space-y-1">
               {navLinks(false)}
             </nav>
+            <div className="mt-4 min-w-0">{warehouseSwitch(false)}</div>
             <div className="mt-auto border-t border-[var(--border)] pt-4">
               <Popover open={preferencesOpen} onOpenChange={setPreferencesOpen}>
                 <Tooltip label={t("preferencesMenu")}>
@@ -366,16 +461,6 @@ export function OperationsShell({
                   {preferences}
                 </PopoverContent>
               </Popover>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(true)}
-                aria-label={t("navigationMenu")}
-                title={t("navigationMenu")}
-                aria-expanded={menuOpen}
-                className="tablet-navigation ui-pressable min-h-11 w-full items-center justify-center rounded-lg text-[var(--text-muted)]"
-              >
-                <Bars3Icon className="h-5 w-5" aria-hidden="true" />
-              </button>
             </div>
           </aside>
           <div className="min-w-0 flex-1">
@@ -383,11 +468,12 @@ export function OperationsShell({
               <div className="operations-topbar flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
                 <Link
                   href="/operations"
-                  className="ui-pressable flex min-h-11 items-center gap-2 md:hidden"
+                  className="ui-pressable flex min-h-11 items-center gap-2"
                 >
                   <ProductMark />
                   <span className="text-sm font-bold">SWP</span>
                 </Link>
+                {warehouseSwitch(true)}
                 <button
                   type="button"
                   onClick={() => setMenuOpen(true)}
@@ -415,12 +501,7 @@ export function OperationsShell({
                 <DialogPanel className="w-full max-w-sm overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] p-5">
                   <div className="mb-5 flex items-center justify-between gap-3">
                     <DialogTitle className="font-semibold">
-                      <span className="compact-menu-title">
-                        {t("navigationMenu")}
-                      </span>
-                      <span className="desktop-menu-title">
-                        {t("preferencesMenu")}
-                      </span>
+                      {t("navigationMenu")}
                     </DialogTitle>
                     <button
                       type="button"
@@ -445,42 +526,26 @@ export function OperationsShell({
               id="main-content"
               className="operations-content px-4 py-6 sm:px-6 lg:px-10 lg:py-8"
             >
-              <section
-                aria-label={t("operationalContext")}
-                className="operations-page-context mb-4 flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm"
-              >
-                <div className="min-w-0">
-                  {access ? (
-                    <WarehouseContextControl access={access} />
-                  ) : (
-                    <span>{t("warehouseContextUnavailable")}</span>
-                  )}
-                </div>
-                <details className="swp-runtime-context min-w-0 text-[var(--text-muted)]">
-                  <summary>
-                    <span>
-                      {sourceLabel ?? t("warehouseContextUnavailable")}
-                    </span>
-                    {environmentLabel ? <span>{environmentLabel}</span> : null}
-                    {showDeploymentProfile && profileLabel ? (
-                      <span>{profileLabel}</span>
-                    ) : null}
-                  </summary>
-                  <div>
-                    <p className="flex flex-wrap gap-x-3 text-xs">
-                      {!showDeploymentProfile && profileLabel ? (
-                        <span>{profileLabel}</span>
-                      ) : null}
-                    </p>
-                  </div>
-                </details>
-              </section>
+              {!currentWarehouse ? (
+                <p role="alert" className="mb-4 text-[var(--danger)]">
+                  {t("warehouseContextUnavailable")}
+                </p>
+              ) : null}
               {workSurfaces.includes(current) && !workNavigationAfterHeader ? (
                 <WorkNavigation
                   current={current as "work" | "tasks" | "inbound" | "outbound"}
                 />
               ) : null}
-              {children}
+              <OperationTargetLabels.Provider
+                value={{
+                  warehouse: currentWarehouse
+                    ? `${currentWarehouse.name} · ${currentWarehouse.code}`
+                    : null,
+                  source: sourceLabel,
+                }}
+              >
+                {children}
+              </OperationTargetLabels.Provider>
               <div className="mt-8 border-t border-[var(--border)] pt-4">
                 {current !== "help" ? (
                   <Link

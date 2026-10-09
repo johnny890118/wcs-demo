@@ -8,6 +8,7 @@ import type {
 import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { SpatialReadNotice } from "./SpatialReadNotice";
+import { OperationTargetContext } from "./OperationTargetContext";
 
 const contextLink =
   "ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-semibold ui-link";
@@ -53,6 +54,7 @@ export function WarehouseLiveView({
   const time = (value: string) => formatOperationalTime(value);
   return (
     <div className="space-y-5">
+      <OperationTargetContext sourceOnly />
       {exactEquipmentId !== undefined && !selected ? (
         <p role="status">{t("exactContextUnresolved")}</p>
       ) : null}

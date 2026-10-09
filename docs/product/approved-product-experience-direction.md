@@ -48,10 +48,23 @@ Three server-owned concepts remain independent:
 - equipment source: simulation, hardware, or hybrid.
 
 They are security and safety context, not cosmetic labels. Every operational
-session exposes the current warehouse, deployment profile, equipment execution
+session retains the current warehouse, deployment profile, equipment execution
 source, principal/permissions, and relevant connectivity or freshness. The
 backend validates permitted profile/source combinations; browser state and
 session claims cannot switch equipment source.
+
+Owner-approved single-site-first presentation (2026-10-09): SWP centers on the
+current site's operations, not a multi-site management dashboard. No Site domain
+is added. One authorized warehouse needs no always-on name or switcher. Multiple
+authorized warehouses have a clear switch in the active Sidebar/Topbar; invalid
+scope and switch failure remain explicit. Necessary target warehouse/source are
+shown inside creation, execution, recovery and Live interpretation; other runtime
+dimensions remain inspectable in preferences. This supersedes always-on context
+strips, not session/RBAC/warehouse authorization. Desktop and sufficiently wide
+landscape tablets use Sidebar; portrait tablets and phones in either direction
+use Topbar. Usable CSS width/height/orientation, split windows and zoom determine
+the presentation, not device detection. See
+`../project/single-warehouse-navigation-plan.md`.
 
 ## Public and private demo boundaries
 

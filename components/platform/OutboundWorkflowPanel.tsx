@@ -1,4 +1,5 @@
 import { Button } from "../ui/button";
+import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Input, Select, Textarea } from "../ui/field";
 import {
   CheckCircleIcon,
@@ -187,6 +188,7 @@ export function OutboundWorkflowPanel({
   return (
     <div className="workflow-layout grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)]">
       <section className="min-w-0">
+        <OperationTargetContext />
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
           {t("outboundRequest")}
         </p>

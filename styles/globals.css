@@ -352,6 +352,7 @@ body {
 
 .operations-sidebar {
   width: 76px;
+  display: none;
 }
 
 .work-subnavigation .ui-current-selection {
@@ -396,7 +397,11 @@ body {
   white-space: nowrap;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (min-height: 600px) and (orientation: landscape) {
+  .operations-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
   html:not([data-swp-navigation="collapsed"]) .operations-sidebar {
     width: 220px;
   }
@@ -411,29 +416,31 @@ body {
   }
 }
 
-.desktop-preferences,
-.desktop-menu-title {
-  display: none;
-}
-.tablet-navigation {
+.desktop-preferences {
   display: flex;
 }
-@media (min-width: 768px) {
+.warehouse-navigation-trigger {
+  width: 100%;
+  min-width: 0;
+}
+.warehouse-navigation-trigger span {
+  overflow-wrap: anywhere;
+}
+.operations-topbar {
+  flex-wrap: nowrap;
+}
+.operations-topbar .warehouse-navigation-trigger {
+  width: auto;
+  max-width: 55%;
+}
+.warehouse-topbar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 1024px) and (min-height: 600px) and (orientation: landscape) {
   .mobile-navigation-header {
     display: none;
-  }
-}
-@media (min-width: 1024px) {
-  .tablet-navigation,
-  .compact-menu-navigation,
-  .compact-menu-title {
-    display: none;
-  }
-  .desktop-preferences {
-    display: flex;
-  }
-  .desktop-menu-title {
-    display: inline;
   }
 }
 

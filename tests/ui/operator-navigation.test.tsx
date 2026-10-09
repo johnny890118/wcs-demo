@@ -62,7 +62,7 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
   expect(screen.getByText("歷程與技術工具").closest("details")?.open).toBe(
     false,
   );
-  expect(screen.getByText("模擬設備")).toBeTruthy(); // context not hidden on mobile
+  expect(document.querySelector(".operations-page-context")).toBeNull();
   expect(screen.queryByRole("button", { name: /^登出$/ })).toBeNull();
   // jsdom does not apply responsive CSS; exercise the mobile header trigger
   // explicitly. Browser tests assert only the correct trigger is visible.
@@ -85,6 +85,8 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
       .getAttribute("aria-current"),
   ).toBe("page");
   const logout = screen.getAllByRole("button", { name: /^登出$/ });
+  fireEvent.click(screen.getByText("技術細節", { exact: true }));
+  expect(screen.getByText("模擬設備")).toBeTruthy(); // inspectable, not always-on chrome
   expect(logout).toHaveLength(1);
   fireEvent.click(logout[0]!);
   expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/" });
@@ -101,4 +103,8 @@ it("does not add Work subnavigation to Inventory or turn templates into authoriz
   );
   expect(screen.queryByRole("navigation", { name: "工作情境導覽" })).toBeNull();
   expect(screen.queryByRole("combobox", { name: /role|角色/i })).toBeNull();
+  expect(screen.queryByRole("button", { name: /^目前倉庫$/ })).toBeNull();
+  expect(screen.getByRole("main").textContent).not.toContain(
+    testOperationalSession.access.principal.warehouseScopes[0]?.name,
+  );
 });

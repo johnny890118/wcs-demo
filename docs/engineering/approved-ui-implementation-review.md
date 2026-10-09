@@ -1,5 +1,10 @@
 # Approved operator UI implementation review
 
+Historical evidence: fixed tablet rail and always-on page context are superseded
+by the Owner-approved single-site-first navigation acceptance; see
+`../project/single-warehouse-navigation-plan.md`. Existing implementation screenshots
+are retained as historical evidence, not current geometry requirements.
+
 Status: UI implementation delivered; Owner visual acceptance gates S3 resumption.
 
 ## Design authority

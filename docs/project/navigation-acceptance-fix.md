@@ -1,5 +1,10 @@
 # Operator navigation acceptance correction
 
+Historical delivery record. The latest Owner single-site-first decision supersedes
+this record's fixed tablet rail and always-visible context strip, not its retained
+single logout, lightweight settings, keyboard or safety contracts. Current work:
+`single-warehouse-navigation-plan.md`. Do not restore old geometry from this record.
+
 Status: Navigation correction deployed at `8513730`; Owner-requested single
 logout entry is verified as the final acceptance refinement. S3 remains paused for Owner
 final visual acceptance. Exact final-HEAD gates are repeated at handoff.
