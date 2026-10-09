@@ -51,3 +51,23 @@ export function PreferenceGroup({
     </div>
   );
 }
+
+export function FilterNavigationLink({
+  href,
+  current,
+  children,
+}: {
+  href: string;
+  current: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={current ? "page" : undefined}
+      className={cn("swp-filter-option", current && "is-current")}
+    >
+      {children}
+    </Link>
+  );
+}

@@ -153,6 +153,30 @@ PostgreSQL tests and 46 browser tests, plus build and public-demo denial. Earlie
 45-test passes predated the new geometry regression and are not substituted for
 this final local run. Whole-product visual review and final gallery remain open.
 
+## Cross-page action / filter correction
+
+The runtime image review found Tasks still rendering blue, underlined filters
+without the neutral current-state treatment already used by Work. Both now use
+one URL-backed `FilterNavigationLink`; they remain real links with `aria-current`,
+not invented client-side tabs. Task record opening, refresh and pagination use
+the owned action primitive without changing destinations or request behavior.
+
+Outbound's secondary inventory link and brand submit action previously touched.
+A shared wrapping action group separates them while preserving DOM order,
+new-tab disclosure, required fields, allocation authorization and confirmation.
+Actual 1440px dark and 375px dark browser review confirmed readable separation;
+the mobile actions wrap rather than clipping or shrinking touch targets.
+
+Focused primitive/navigation tests passed (7 tests), then the complete verification
+passed: 625 fast tests, 88 PostgreSQL tests, 46 browser tests, production build,
+secret/dependency checks and public-demo denial. No API/auth/domain changes were
+included. Whole-product review remains open: nested record surfaces and contextual
+action hierarchy need review, and the final gallery is not yet delivered.
+
+An isolated managed worktree at the starting `f9a8668` supplies reproducible Before
+captures through normal fixture login; it shares only the non-production fixture
+API. This avoids mislabelling older audit images or intermediate WIP as baseline.
+
 ## Required evidence before final handoff
 
 Engineering: full verify, separate API build, secret/dependency scan, unchanged

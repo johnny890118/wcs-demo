@@ -8,6 +8,7 @@ import { Input } from "../../components/ui/field";
 import {
   ContextNavigation,
   ContextNavigationLink,
+  FilterNavigationLink,
 } from "../../components/ui/navigation";
 import {
   PageHeading,
@@ -15,6 +16,30 @@ import {
 } from "../../components/ui/workspace";
 
 afterEach(cleanup);
+
+it("uses the same URL-backed neutral filter contract for different work lists", () => {
+  render(
+    <>
+      <FilterNavigationLink href="/operations/work?view=active" current>
+        Active work
+      </FilterNavigationLink>
+      <FilterNavigationLink href="/operations/tasks?view=all" current={false}>
+        All tasks
+      </FilterNavigationLink>
+    </>,
+  );
+  const current = screen.getByRole("link", { name: "Active work" });
+  expect(current.getAttribute("href")).toBe("/operations/work?view=active");
+  expect(current.getAttribute("aria-current")).toBe("page");
+  expect(current.classList.contains("swp-filter-option")).toBe(true);
+  expect(current.classList.contains("is-current")).toBe(true);
+  expect(
+    screen
+      .getByRole("link", { name: "All tasks" })
+      .getAttribute("aria-current"),
+  ).toBeNull();
+  expect(screen.queryByRole("tab")).toBeNull();
+});
 
 it("preserves native button behavior, disabled commands and forwarded focus", () => {
   const onClick = vi.fn();

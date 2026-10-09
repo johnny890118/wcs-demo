@@ -2,6 +2,7 @@ import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
+import { FilterNavigationLink } from "../../../components/ui/navigation";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { PageHeading } from "../../../components/ui/workspace";
 import { Button } from "../../../components/ui/button";
@@ -38,14 +39,13 @@ export default function WorkQueue({ page, query }: Props) {
         className="mt-4 flex flex-wrap gap-2"
       >
         {(["active", "all"] as const).map((v) => (
-          <Link
+          <FilterNavigationLink
             key={v}
-            className={`swp-filter-option ${view === v ? "is-current" : ""}`}
-            aria-current={view === v ? "page" : undefined}
+            current={view === v}
             href={`/operations/work?view=${v}`}
           >
             {t(v === "active" ? "workQueueActive" : "workQueueAll")}
-          </Link>
+          </FilterNavigationLink>
         ))}
       </nav>
       {!page ? (

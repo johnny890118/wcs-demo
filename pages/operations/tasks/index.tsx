@@ -3,6 +3,8 @@ import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
+import { Button } from "../../../components/ui/button";
+import { FilterNavigationLink } from "../../../components/ui/navigation";
 import { useState } from "react";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { PageHeading } from "../../../components/ui/workspace";
@@ -21,8 +23,6 @@ type Props = {
   view: "active" | "all";
   warehouseId: string;
 };
-const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
 function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
   const { t, locale } = useLocale();
   const [tasks, setTasks] = useState(initialPage?.tasks ?? []);
@@ -61,14 +61,13 @@ function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
       />
       <nav aria-label={t("taskQueueView")} className="mt-5 flex gap-2">
         {(["active", "all"] as const).map((option) => (
-          <Link
+          <FilterNavigationLink
             key={option}
-            className={linkClass}
-            aria-current={view === option ? "page" : undefined}
+            current={view === option}
             href={`/operations/tasks?view=${option}`}
           >
             {t(option === "active" ? "taskActiveView" : "taskAllView")}
-          </Link>
+          </FilterNavigationLink>
         ))}
       </nav>
       {failed ? (
@@ -103,17 +102,18 @@ function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
                   {t(`homeTask_${task.status}` as MessageKey)}
                 </p>
               </div>
-              <Link
-                className={`${linkClass} self-start`}
-                href={`/operations/tasks/${encodeURIComponent(task.taskId)}`}
-              >
-                {t("openTaskDetail")}
-                <span className="sr-only">
-                  {" "}
-                  · {task.source} → {task.destination} ·{" "}
-                  {task.externalReference}
-                </span>
-              </Link>
+              <Button asChild variant="secondary" className="self-start">
+                <Link
+                  href={`/operations/tasks/${encodeURIComponent(task.taskId)}`}
+                >
+                  {t("openTaskDetail")}
+                  <span className="sr-only">
+                    {" "}
+                    · {task.source} → {task.destination} ·{" "}
+                    {task.externalReference}
+                  </span>
+                </Link>
+              </Button>
             </div>
           </li>
         ))}
@@ -124,21 +124,23 @@ function Queue({ initialPage, view }: Omit<Props, "warehouseId">) {
         </p>
       ) : null}
       {cursor ? (
-        <button
+        <Button
           type="button"
-          className={`${linkClass} mt-5`}
+          className="mt-5"
           disabled={loading}
           onClick={() => void loadMore()}
         >
           {loading ? t("loadingAudit") : t("loadMoreTasks")}
-        </button>
+        </Button>
       ) : null}
       <p className="mt-6 text-xs leading-5 text-[var(--text-muted)]">
         {t("taskQueueCurrency")}
       </p>
-      <Link href={`/operations/tasks?view=${view}`} className={linkClass}>
-        {t("refreshTaskQueue")}
-      </Link>
+      <Button asChild variant="ghost">
+        <Link href={`/operations/tasks?view=${view}`}>
+          {t("refreshTaskQueue")}
+        </Link>
+      </Button>
     </>
   );
 }

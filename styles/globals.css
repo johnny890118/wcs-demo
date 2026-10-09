@@ -517,6 +517,12 @@ body {
 .workflow-layout {
   max-width: 1120px;
 }
+.swp-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-field);
+}
 .workflow-layout > section:first-child {
   padding: 24px;
   background: var(--surface);

@@ -280,24 +280,28 @@ export function OutboundWorkflowPanel({
           <p className="text-sm leading-6 text-[var(--text-muted)]">
             {t("outboundStockHintNotice")}
           </p>
-          <Link
-            href={`/operations/inventory?${new URLSearchParams({
-              search: sku,
-            })}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
-          >
-            {t("inspectRecordedStock")} · {t("opensNewTab")}
-          </Link>
-          <Button
-            variant="primary"
-            type="submit"
-            disabled={!canCreate || !configurationReady || state !== "idle"}
-            className="disabled:cursor-not-allowed"
-          >
-            {state === "creating" ? t("creatingOutbound") : t("createOutbound")}
-          </Button>
+          <div className="swp-form-actions">
+            <Link
+              href={`/operations/inventory?${new URLSearchParams({
+                search: sku,
+              })}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
+            >
+              {t("inspectRecordedStock")} · {t("opensNewTab")}
+            </Link>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={!canCreate || !configurationReady || state !== "idle"}
+              className="disabled:cursor-not-allowed"
+            >
+              {state === "creating"
+                ? t("creatingOutbound")
+                : t("createOutbound")}
+            </Button>
+          </div>
         </form>
       </section>
 
