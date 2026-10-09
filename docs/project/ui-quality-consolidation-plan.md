@@ -86,3 +86,9 @@ Emil governs restraint, progressive disclosure, practical focus and interaction.
   findings; do not confuse scopes or force a major Tailwind/ESLint migration.
 - Implementation and local complete verification are done. Checkpoint, exact-HEAD
   CI and matching deployment/read smoke remain delivery gates, not assumed passes.
+- Functional checkpoint `fc659df` passed exact-commit Actions and matching Vercel
+  Ready / Render Live; managed smoke and authenticated read walkthrough succeeded.
+  That walkthrough found raw exact-History headings; a presentation-only follow-up
+  shares the known-action vocabulary and preserves complete redacted evidence.
+  Its final verification/CI/deployment must be checked independently. Owner visual
+  acceptance remains pending; no S3 work is started.

@@ -41,11 +41,8 @@ export function ExceptionAttention({
       })),
   ];
   return (
-    <section
-      aria-labelledby="exception-attention"
-      className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-    >
-      <h2 id="exception-attention" className="text-xl font-bold">
+    <section aria-labelledby="exception-attention" className="mt-5 pb-4">
+      <h2 id="exception-attention" className="text-lg font-semibold">
         {t("attentionRequired")}
       </h2>
       <p className="mt-2 text-sm text-[var(--text-muted)]">

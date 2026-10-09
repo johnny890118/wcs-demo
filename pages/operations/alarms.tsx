@@ -33,7 +33,7 @@ export default function AlarmOperationsPage({
         description={t("alarmWorkflowDescription")}
       />
       {details ? <ExceptionAttention details={details} /> : null}
-      <div className="mt-8">
+      <div className="mt-4">
         {details ? (
           <AlarmRecoveryPanel
             details={details}

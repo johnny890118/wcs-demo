@@ -110,11 +110,47 @@ cards and separators do not all need equally strong borders.
 - Before captures are actual baseline production UI; After captures use the local
   production build with isolated deterministic fixtures. Different data and native
   browser-chrome dimensions are labelled, not presented as pixel-matched evidence.
+- Deployed read walkthrough found raw action headings still present in exact
+  task History. The follow-up reuses the same approved vocabulary as general
+  History, keeps actor identity primary and exposes raw action/resource/event ID
+  with correlation and redacted evidence. An inbound end-to-end regression now
+  follows its actual completed fixture task into exact History and back; it does
+  not assume unrelated tasks have completion evidence.
+- Final visual review also found oversized empty-state containers on Exceptions.
+  Attention now uses an open section and the qualified no-action notice a compact
+  separator. Scope qualification, investigation links and active recovery safety
+  cards remain unchanged. The follow-up full `npm run verify` passed, including
+  all 44 browser tests and the production-build admission boundary; API build
+  also passed. Deployment acceptance remains a separate gate below.
+
+## Functional checkpoint delivery
+
+`fc659df39b2162380f60ede056fdb16442b0647f` was pushed normally to main.
+[Exact-commit Actions](https://github.com/johnny890118/wcs-demo/actions/runs/37908228572)
+completed successfully, including verify and deployment-smoke.
+[Vercel production](https://vercel.com/johnny890118s-projects/wcs-demo/EebW9LnPSLJMrYDCff1qNbepLiEX)
+is Ready with the same source SHA;
+[Render deployment](https://dashboard.render.com/web/srv-dan23mjtqb8s73aac4lg/deploys/dep-db4ap41srm7s738fi5i0)
+is Live with that same successfully deployed commit. Managed public/API smoke
+passed. Existing authenticated Chrome session was used for deployed read-only
+Work/detail/resume/task/Live/History, preferences and Inventory review; no business
+mutation or equipment command was submitted. An old downloaded credential
+snapshot was rejected in a separate login check; no credential was reset and
+existing-session evidence is not claimed as fresh credential-login acceptance.
+
+External actual comparison/evidence workspace:
+`/Users/caizhengxuan/.codex/visualizations/2026/09/17/01a0af07-426e-7743-b4ea-f895d5c35294/ui-quality-consolidation/`.
+`six-comparison.html` provides retained-baseline and final-build six combinations;
+`index.html` covers primary/details/context/settings. Production captures are
+separately named. CSS viewport sizes are not claimed as native JPEG pixel sizes.
+The final follow-up SHA, exact-HEAD CI, matching providers and refreshed History
+read proof are recorded in that workspace's delivery record after verification.
 
 ## Remaining delivery gates / limitations
 
-Commit/push/exact-HEAD CI and matching deployment/read smoke remain pending until
-their actual evidence is captured. Browser automation and contrast
+The contextual-History follow-up requires its own full verification, checkpoint,
+exact-HEAD CI and deployment/read evidence; the functional checkpoint's green run
+does not prove a later commit. Browser automation and contrast
 checks do not constitute WCAG certification, physical industrial tablet testing,
 equipment safety certification or long-duration operator research. Owner retains
 final visual acceptance. No S3 work is authorized here.

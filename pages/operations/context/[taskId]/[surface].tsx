@@ -1,4 +1,8 @@
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
+import {
+  auditActionLabel,
+  auditResourceLabel,
+} from "../../../../src/ui/audit-labels";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
@@ -273,8 +277,23 @@ export default function ExactContextPage(props: Props) {
                       key={event.eventId}
                       className="border-t border-[var(--border)] pt-4"
                     >
-                      <h2 className="font-bold">{event.action}</h2>
+                      <h2 className="font-semibold">
+                        {auditActionLabel(
+                          event.action,
+                          event.knownAction,
+                          locale,
+                        )}
+                      </h2>
+                      {!event.knownAction ? (
+                        <p className="text-sm text-[var(--text-muted)]">
+                          {t("unknownAuditAction")}
+                        </p>
+                      ) : null}
                       <p className="mt-1 text-sm">{time(event.occurredAt)}</p>
+                      <p className="mt-1 break-words text-sm text-[var(--text-muted)]">
+                        {auditResourceLabel(event.resource.type, locale)} ·{" "}
+                        {t("actor")}: {event.actor.id}
+                      </p>
                       <details>
                         <summary className="min-h-11 cursor-pointer py-3">
                           {t("homeTechnicalDetails")}
@@ -282,6 +301,9 @@ export default function ExactContextPage(props: Props) {
                         <pre className="whitespace-pre-wrap break-all text-xs">
                           {JSON.stringify(
                             {
+                              action: event.action,
+                              resource: event.resource,
+                              eventId: event.eventId,
                               actor: event.actor,
                               correlation: event.correlationId,
                               evidence: event.evidence,

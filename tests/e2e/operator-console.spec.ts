@@ -1962,6 +1962,27 @@ test("operator creates, confirms, and executes an inbound workflow", async ({
   await page.getByRole("link", { name: "查看任務稽核證據" }).click();
   await expect(page).toHaveURL(/resourceType=TransportTask/);
   await inspectRecordedAction(page, "transport_task.complete");
+  await page.goto(
+    "/operations/context/50000000-0000-4000-8000-000000000099/history",
+  );
+  await expect(
+    page.getByRole("heading", { name: "運輸任務完成", exact: true }),
+  ).toBeVisible();
+  const historyRecord = page.locator("li").filter({
+    has: page.getByRole("heading", { name: "運輸任務完成", exact: true }),
+  });
+  await expect(
+    historyRecord.locator("p").filter({ hasText: "e2e-operator" }),
+  ).toBeVisible();
+  await historyRecord.getByText("技術細節", { exact: true }).click();
+  await expect(historyRecord.locator("pre")).toContainText(
+    "transport_task.complete",
+  );
+  await expect(historyRecord.locator("pre")).toContainText("correlation");
+  await page.getByRole("link", { name: "返回這筆任務", exact: true }).click();
+  await expect(page).toHaveURL(
+    "/operations/tasks/50000000-0000-4000-8000-000000000099",
+  );
 });
 
 test("inbound workflow reflows without horizontal page overflow on mobile", async ({
@@ -2093,7 +2114,14 @@ test("operator acknowledges and releases a faulted task", async ({ page }) => {
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
   await page.getByRole("link", { name: "查看警報稽核證據" }).click();
-  await expect(page.getByText("alarm.acknowledge")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "異常已確認", exact: true }),
+  ).toBeVisible();
+  const alarmEvidence = page
+    .locator("li")
+    .filter({ hasText: "alarm.acknowledge" });
+  await alarmEvidence.getByText("技術細節", { exact: true }).click();
+  await expect(alarmEvidence.locator("pre")).toContainText("alarm.acknowledge");
 });
 
 test("alarm workflow reflows without horizontal page overflow on mobile", async ({

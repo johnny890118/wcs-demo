@@ -168,19 +168,21 @@ export function AlarmRecoveryPanel({
     return (
       <div
         role="status"
-        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-panel)]"
+        className="flex items-start gap-3 border-t border-[var(--border)] py-4"
       >
         <InformationCircleIcon
-          className="h-6 w-6 text-[var(--text-muted)]"
+          className="mt-1 h-5 w-5 shrink-0 text-[var(--text-muted)]"
           aria-hidden="true"
         />
-        <p className="mt-3 font-bold">{t("noActionableAlarms")}</p>
-        <Link
-          href="/operations/tasks"
-          className="ui-pressable ui-link mt-4 inline-flex min-h-11 items-center rounded-md text-sm font-bold"
-        >
-          {t("returnToTaskQueue")}
-        </Link>
+        <div>
+          <p className="text-sm leading-6">{t("noActionableAlarms")}</p>
+          <Link
+            href="/operations/tasks"
+            className="ui-pressable ui-link mt-2 inline-flex min-h-11 items-center rounded-md text-sm font-semibold"
+          >
+            {t("returnToTaskQueue")}
+          </Link>
+        </div>
       </div>
     );
   }
