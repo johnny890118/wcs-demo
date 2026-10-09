@@ -1,5 +1,6 @@
 import { ArrowRight as ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import { Button } from "../components/ui/button";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import { PublicPageHead } from "../components/platform/PublicPageHead";
@@ -37,19 +38,16 @@ export default function PlatformPage({
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
             {t("operations")}
           </p>
-          <h1 className="mt-5 text-4xl font-black leading-tight tracking-[-0.04em] sm:text-6xl">
-            {t("brand")}
-          </h1>
+          <h1 className="swp-entry-heading mt-5">{t("brand")}</h1>
           <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[var(--text-muted)] sm:text-lg">
             {t("productTagline")}
           </p>
-          <Link
-            href={entryHref}
-            className="ui-pressable mt-9 inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-bold text-[var(--on-accent)] shadow-sm"
-          >
-            {t("enterSystem")}
-            <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          <Button asChild variant="primary" size="lg" className="mt-9">
+            <Link href={entryHref}>
+              {t("enterSystem")}
+              <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
         </section>
       </main>
     </div>

@@ -3,6 +3,7 @@ import { withReadOnlyOperationalNavigation } from "../../src/infrastructure/http
 import { getServerSession } from "next-auth/next";
 import { useEffect, useState } from "react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
+import { PageHeading } from "../../components/ui/workspace";
 import {
   isOperationsDetails,
   type OperationsDetails,
@@ -74,31 +75,24 @@ export default function OperationsProjectionsPage({ details }: PageProps) {
 
   return (
     <OperationsShell current="projections">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-muted)]">
-            {t("projections")}
+      <PageHeading
+        title={t("projectionsTitle")}
+        description={t("projectionsDescription")}
+        action={
+          <p
+            className="flex items-center gap-2 text-xs text-[var(--text-muted)]"
+            aria-live="polite"
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                isLive ? "bg-[var(--success)]" : "bg-[var(--warning)]"
+              }`}
+              aria-hidden="true"
+            />
+            {isLive ? t("liveData") : t("staleData")}
           </p>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.03em]">
-            {t("projectionsTitle")}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-            {t("projectionsDescription")}
-          </p>
-        </div>
-        <p
-          className="flex items-center gap-2 text-xs text-[var(--text-muted)]"
-          aria-live="polite"
-        >
-          <span
-            className={`h-2 w-2 rounded-full ${
-              isLive ? "bg-[var(--success)]" : "bg-[var(--warning)]"
-            }`}
-            aria-hidden="true"
-          />
-          {isLive ? t("liveData") : t("staleData")}
-        </p>
-      </header>
+        }
+      />
 
       {!isLive ? (
         <div

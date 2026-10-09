@@ -129,6 +129,30 @@ The entire product's final Before/After review remains open, including action
 hierarchy on records, Help/diagnostics composition, Login/Entry and overlay
 consolidation. No whole-product visual acceptance is claimed by this checkpoint.
 
+## Entry / Help / diagnostic composition correction
+
+Entry now uses the owned brand action rather than an independently styled CTA.
+Login uses restrained shared entry typography and a bounded content width; Help
+and Projections use the same heading pattern as the operational workspaces.
+The downloadable manual remains a real authenticated resource link, not a
+client-side invented action. Upstream shadcn source notice is preserved only for
+adapted portions; it does not license or expose this private SWP repository.
+
+Actual 820 × 1180 login review found a 268.17px gap between the explanation and
+form despite passing existing overflow/Axe gates. The cause was stretched grid
+tracks in a minimum-height portrait layout. Grouping the tracks with
+`content-center` reduced the measured gap to 32px. A new 820px/375px browser
+regression constrains the real explanation-to-form gap, preserving credential
+field assertions. Mobile and Tablet dark screenshots were captured before
+typing fixture credentials. Normal local logout → entry → login → authenticated
+Home succeeded using only the explicit deterministic fixture identity; this is
+not fresh production login proof.
+
+Full verification after the real layout correction passed 624 fast tests, 88
+PostgreSQL tests and 46 browser tests, plus build and public-demo denial. Earlier
+45-test passes predated the new geometry regression and are not substituted for
+this final local run. Whole-product visual review and final gallery remain open.
+
 ## Required evidence before final handoff
 
 Engineering: full verify, separate API build, secret/dependency scan, unchanged

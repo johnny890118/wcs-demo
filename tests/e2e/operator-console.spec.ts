@@ -1854,6 +1854,33 @@ test("login reflows and remains accessible on mobile in all theme modes", async 
   await expect(page.locator(":focus")).toHaveAttribute("href", "#main-content");
 });
 
+test("portrait login keeps the explanation and form one continuous reading group", async ({
+  page,
+}) => {
+  for (const viewport of [
+    { width: 820, height: 1180 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/login");
+    const gap = await page
+      .getByRole("heading", { level: 1 })
+      .evaluate((heading) => {
+        const introduction = heading.parentElement!;
+        const form = document.querySelector("main form")!;
+        return (
+          form.getBoundingClientRect().top -
+          introduction.getBoundingClientRect().bottom
+        );
+      });
+    // The approved 32px composition gap must not stretch with viewport height.
+    expect(gap).toBeGreaterThanOrEqual(0);
+    expect(gap).toBeLessThanOrEqual(48);
+    await expect(page.getByLabel("使用者名稱")).toBeVisible();
+    await expect(page.getByLabel("密碼")).toBeVisible();
+  }
+});
+
 test("authenticated focused projections expose screen-reader semantics", async ({
   page,
 }) => {

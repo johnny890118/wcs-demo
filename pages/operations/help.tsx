@@ -1,4 +1,6 @@
 import { FieldLabel, Input } from "../../components/ui/field";
+import { Button } from "../../components/ui/button";
+import { PageHeading } from "../../components/ui/workspace";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
@@ -46,20 +48,14 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
       : results;
   return (
     <OperationsShell current="help">
-      <h1 className="text-3xl font-black tracking-tight">{t("helpTitle")}</h1>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-        {t("helpDescription")}
-      </p>
+      <PageHeading title={t("helpTitle")} description={t("helpDescription")} />
       <p className="mt-2 text-xs text-[var(--text-muted)]">
         {t("helpVersion")}: {manualVersion} · {t("helpSoftwareVersion")}:{" "}
         {manualSoftwareVersion}
       </p>
-      <a
-        href={`/api/operations/manual/${locale}`}
-        className="ui-pressable ui-link mt-3 inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
-      >
-        {t("helpDownloadPdf")}
-      </a>
+      <Button asChild variant="secondary" className="mt-3">
+        <a href={`/api/operations/manual/${locale}`}>{t("helpDownloadPdf")}</a>
+      </Button>
       <FieldLabel className="mt-6 block max-w-xl text-sm">
         {t("helpSearch")}
         <Input

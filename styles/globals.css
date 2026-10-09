@@ -96,6 +96,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.swp-entry-heading {
+  font-size: clamp(1.625rem, 4vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
 .swp-action {
   display: inline-flex;
   min-height: 44px;
