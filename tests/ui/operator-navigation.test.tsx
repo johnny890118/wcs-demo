@@ -7,6 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+import { signOut } from "next-auth/react";
 import { OperationsShell } from "../../components/platform/OperationsShell";
 import { LocaleProvider } from "../../src/ui/i18n/locale-provider";
 import { testOperationalSession } from "../fixtures/operational-access";
@@ -62,6 +63,7 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     false,
   );
   expect(screen.getByText("模擬設備")).toBeTruthy(); // context not hidden on mobile
+  expect(screen.queryByRole("button", { name: /^登出$/ })).toBeNull();
   // jsdom does not apply responsive CSS; exercise the mobile header trigger
   // explicitly. Browser tests assert only the correct trigger is visible.
   fireEvent.click(
@@ -82,6 +84,10 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
       .getByRole("link", { name: "工作" })
       .getAttribute("aria-current"),
   ).toBe("page");
+  const logout = screen.getAllByRole("button", { name: /^登出$/ });
+  expect(logout).toHaveLength(1);
+  fireEvent.click(logout[0]!);
+  expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/" });
   fireEvent.click(screen.getByRole("button", { name: "關閉導覽" }));
   expect(screen.queryByRole("dialog")).toBeNull();
 });

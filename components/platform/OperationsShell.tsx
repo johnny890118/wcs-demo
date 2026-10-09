@@ -300,17 +300,6 @@ export function OperationsShell({
             >
               <Bars3Icon className="h-5 w-5" aria-hidden="true" />
             </button>
-            <button
-              type="button"
-              onClick={() => void signOut({ callbackUrl: "/" })}
-              className="ui-pressable flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[var(--text-muted)]"
-            >
-              <ArrowRightStartOnRectangleIcon
-                className="h-5 w-5"
-                aria-hidden="true"
-              />
-              <span className="operations-nav-label">{t("signOut")}</span>
-            </button>
           </div>
         </aside>
         <div className="min-w-0 flex-1">

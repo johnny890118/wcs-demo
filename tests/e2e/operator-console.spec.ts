@@ -44,7 +44,13 @@ test("approved adaptive shell persists desktop collapse and returns menu focus",
   await page.setViewportSize({ width: 1440, height: 850 });
   await page.getByRole("button", { name: "收合導覽" }).click();
   await expect(page.locator(".operations-sidebar")).toHaveCSS("width", "76px");
+  await expect(
+    page.getByRole("button", { name: "登出", exact: true }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "偏好設定與帳號" }).click();
+  await expect(
+    page.getByRole("button", { name: "登出", exact: true }),
+  ).toHaveCount(1);
   await expect(
     page.getByRole("dialog").getByRole("group", { name: "主題", exact: true }),
   ).toBeVisible();

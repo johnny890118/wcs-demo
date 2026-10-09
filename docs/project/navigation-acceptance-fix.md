@@ -1,7 +1,8 @@
 # Operator navigation acceptance correction
 
-Status: Local acceptance correction verified; deployment gates pending. S3 paused
-for Owner final visual acceptance.
+Status: Navigation correction deployed at `8513730`; Owner-requested single
+logout entry is verified as the final acceptance refinement. S3 remains paused for Owner
+final visual acceptance. Exact final-HEAD gates are repeated at handoff.
 
 Baseline: clean `4ad6861`. Owner explicitly supersedes the delivered duplicate
 desktop sidebar/topbar. This is a presentation/interaction correction, not new IA,
@@ -23,6 +24,7 @@ without width animation. No new dependencies or design exploration.
 | Persisted collapse restores after hydration         | Presentation-only pre-paint bootstrap                                        | Preserve content geometry across reload                         |
 | Tablet header plus icon rail                        | Rail and on-demand full-label menu                                           | Recover vertical room for Live evidence/action                  |
 | Desktop settings require full navigation drawer     | Settings available even while collapsed                                      | Preserve work context and direct preference access              |
+| Sidebar and account panel both offer logout         | One logout inside preferences/account only                                   | Owner feedback: avoid repeated account actions                  |
 
 768 px rail leaves 692 px content for two-column Live evidence; below this,
 compact mobile header/menu replaces the rail. 1024 px allows the full 220 px
@@ -94,3 +96,34 @@ long warehouse names at narrow widths; the full selected name remains accessible
 through the unchanged control. History raw action names remain a known limitation,
 not expanded into this correction. No fake map/observation or workflow outcome.
 Deployment identities and authenticated deployed smoke are recorded after push.
+
+## Deployed correction evidence
+
+Implementation `851373050025283bc8661b4feb3d6da9fd9f8053` matches remote main.
+Exact Actions `37879196988` completed successfully (verify and deployment-smoke).
+Vercel `Aee97XkG4vKyMrGPQhitRvCwqZvH` is Production Ready with this full Source
+SHA. Render `dep-db45t7qvcj2c73csihp0` is Live and its last successfully deployed
+commit is the same SHA. Managed demo public/auth-denial/API-health smoke passed.
+
+Authenticated deployed inspection confirmed desktop settings without primary
+navigation, sidebar preferences, real environment/profile/source labels, tablet
+rail/menu and 375 px mobile menu. Escape from a focused mobile theme control
+returned focus to the menu trigger. Inventory's visible Work link resolved the
+same persisted completed receipt, its actual related task and history links;
+this read journey creates no new work or equipment commands. Native Chrome
+captures at DPR 2 preserve actual production data and are kept separately from
+isolated test screenshots. The final single-logout refinement is checked again
+after its own exact-HEAD deployment; identities are in the Owner delivery report.
+The single-logout refinement reran the entire local gate (616 fast, 88 PostgreSQL,
+44 browser, denial harness and API build). Unit/browser checks assert no sidebar
+logout and exactly one account-panel logout; its existing `callbackUrl: "/"`
+is unchanged. Design/safety diff review found no contract change.
+
+Newly observed non-navigation runtime findings: existing `styles/font.css` imports
+an external legacy font blocked by the unchanged CSP; some zh-TW read pages also
+emit React #418 text hydration errors while recovering client-side. Existing
+date presentation includes runtime-dependent Intl/time-zone formatting; the
+precise hydration source is not established by this walkthrough. Do not claim a
+zero-error console or a proven pre-existing cause. No failure of the tested
+navigation/account actions was observed, but these are retained product-quality
+findings, not silently suppressed or fixed by broadening this acceptance scope.
