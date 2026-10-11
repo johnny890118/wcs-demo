@@ -56,8 +56,10 @@ function mix(foreground: string, background: string, weight: number): string {
 const normalTextPairs = [
   ["text", "canvas"],
   ["text", "surface"],
+  ["text", "surface-raised"],
   ["text-muted", "canvas"],
   ["text-muted", "surface"],
+  ["text-muted", "surface-raised"],
   ["text-muted", "surface-muted"],
   ["link", "canvas"],
   ["link", "surface"],

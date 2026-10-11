@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { WarehouseLiveView } from "../../components/platform/WarehouseLiveView";
 import type { OperationsLiveView } from "../../src/application/operations/operations-live-view";
 import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
+import { contextPath } from "../../src/application/operations/exact-context";
 vi.mock("../../src/ui/i18n/locale-provider", () => ({
   useLocale: () => ({ locale: "en", t: (key: string) => key }),
 }));
@@ -83,4 +84,56 @@ it("does not substitute first equipment when the exact selection disappears", ()
   );
   expect(screen.getByRole("status").textContent).toBe("exactContextUnresolved");
   expect(screen.queryByText("liveReason_missing_telemetry")).toBeNull();
+});
+
+it("separates readable work status from routes without merging assigned and observed evidence", () => {
+  const task = {
+    taskId: "task/one",
+    status: "unknown",
+    source: "Long receiving station",
+    destination: "Storage station",
+    equipmentId: "one",
+    updatedAt: view.generatedAt,
+  };
+  render(
+    <WarehouseLiveView
+      view={{
+        ...view,
+        work: [task],
+        equipment: [{ ...view.equipment[0], assignedTaskIds: [task.taskId] }],
+        alarms: [
+          {
+            alarmId: "alarm/one",
+            taskId: task.taskId,
+            equipmentId: "one",
+            code: "unresolved",
+            severity: "critical",
+            status: "active",
+          },
+        ],
+      }}
+      projectionCurrent={false}
+      now={Date.parse(view.generatedAt)}
+    />,
+  );
+  const assigned = screen.getByRole("heading", { name: "liveAssignedWork" })
+    .parentElement!;
+  const reference = within(assigned).getByRole("link");
+  expect(reference.getAttribute("href")).toBe("/operations/tasks/task%2Fone");
+  expect(within(reference).getByText("homeTask_unknown").tagName).toBe("SPAN");
+  expect(
+    within(reference).getByText("Long receiving station → Storage station")
+      .tagName,
+  ).toBe("SPAN");
+  expect(screen.getByText("liveObservedUnresolved")).toBeTruthy();
+  expect(screen.getByText("liveAssignmentNotice")).toBeTruthy();
+  expect(screen.getByText("homeStaleDescription")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: "homeReason_active_alarm" })
+      .getAttribute("href"),
+  ).toBe(contextPath(task.taskId, "exception", "alarm/one"));
+  const investigation = screen.getByRole("link", { name: "liveOpenAlarms" });
+  expect(investigation.getAttribute("href")).toBe("/operations/alarms");
+  expect(investigation.getAttribute("data-slot")).toBe("button");
 });

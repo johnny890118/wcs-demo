@@ -304,6 +304,65 @@ competing with equipment evidence. Their hierarchy belongs in the next coherent
 workspace presentation correction; it is not mixed into this overlay commit.
 Whole-product visual quality and final acceptance remain open.
 
+## Live evidence/action hierarchy correction (2026-10-11)
+
+Overlay checkpoint `f8d4163d3750ee543064590acf3a706c1aedf94b` was pushed normally;
+exact-HEAD CI [38148511800](https://github.com/johnny890118/wcs-demo/actions/runs/38148511800)
+passed. Vercel Ready and Render Live/last-successful commit matched the full SHA;
+managed deployed smoke passed and the working tree was clean before this slice.
+
+Actual Tablet Dark/en walkthrough found long underlined route/status strings
+competing with equipment state, and nested bordered active-work cards repeating
+the same evidence at another level. `live-action-review-tablet-dark-en.jpg`
+records the real fixture production build, not a generated mockup. The selected
+equipment's stale/last-known qualification and the assignment/observation
+distinction remain mandatory, directly visible evidence.
+
+| Before                                             | After                                                             | Why                                                         |
+| -------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------- |
+| Route and task status in a long underlined string  | Neutral exact-destination record with separate route/status lines | Scan meaning before choosing an investigation               |
+| Alarm-workspace link competes with equipment state | Owned secondary action with the same destination                  | Distinguish a next navigation action from inline evidence   |
+| Active-work card inside another card               | Shared shallow evidence rows inside the existing record surface   | Avoid unnecessary container hierarchy without deleting work |
+
+Pro Max targeted action-hierarchy searches did not return a verified action-role
+match (heading/type and loading guidance only). The decision therefore uses its
+built-in consistency/touch/accessibility principles, existing SWP role rules and
+actual images, not a falsely attributed database recommendation. Emil review
+favors quiet, consistent pressable records, visible keyboard focus and no added
+animation for frequent investigations. No new design direction or dependency.
+
+Scope is presentation only: task/alarm destinations, scoped projection data,
+status vocabulary, selected equipment, qualified position, freshness, missing
+telemetry, unknown evidence and source boundaries are unchanged. The global work
+list is retained, not incorrectly filtered to only the selected equipment.
+Focused tests retain missing/disappeared equipment and noncurrent-empty behavior,
+and add assigned-versus-observed, unknown/stale and exact encoded link contracts.
+Production-build image review covered Desktop 1440×900 Light/zh and Dark/en,
+Tablet 820×1180 Light/zh and Dark/en, and Mobile 375×812 in both. Work references
+measured 69px high with no horizontal overflow, including the narrow action
+section. The actual Live → Task → Work → contextual Live → original Task journey
+needed no remembered ID, search or Browser Back. Source/freshness and missing
+observed-task qualification stayed visible. This is viewport/fixture evidence,
+not physical industrial-device testing or authenticated production measurement.
+
+Images use the `live-hierarchy-correction-` prefix in the external design-system
+evidence directory. Final Emil review confirmed quieter investigation references,
+consistent secondary action, preserved diagnostic disclosure and visible focus;
+no claim of human independent design approval is made. UI/security diff review
+found no API/auth/domain/session/warehouse/mutation changes.
+
+The full gate passed once, then was repeated after adding actual raised-surface
+hover text contrast pairs. Final verification includes 635 fast tests, 88 real
+PostgreSQL tests, 48 browser tests, build and public-demo denial. Separate API
+build passed. Focused Live/accessibility passed 18 tests; contrast passed 38.
+Production dependency audit and secret checks pass; the 15 existing Legacy lint
+warnings remain with no errors. This is not whole-product visual acceptance.
+
+The continuing actual Mobile Inventory review found its Work/history action
+references still use the earlier underlined control style. That cross-record
+consistency issue remains for an independent presentation pass after this
+checkpoint, not silently declared resolved by the Live change.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)

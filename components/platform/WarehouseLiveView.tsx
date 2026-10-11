@@ -1,5 +1,6 @@
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { contextPath } from "../../src/application/operations/exact-context";
 import type {
   LiveEquipment,
@@ -9,9 +10,34 @@ import type { MessageKey } from "../../src/ui/i18n/catalogs";
 import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { SpatialReadNotice } from "./SpatialReadNotice";
 import { OperationTargetContext } from "./OperationTargetContext";
+import { Button } from "../ui/button";
 
-const contextLink =
-  "ui-pressable inline-flex min-h-11 items-center break-words rounded-md text-sm font-semibold ui-link";
+// Evidence destinations are readable records, not another command or inline
+// prose link. Keep the route/status distinct without changing their truth.
+function LiveWorkReference({
+  task,
+  status,
+}: {
+  task: OperationsLiveView["work"][number];
+  status: string;
+}) {
+  return (
+    <Link
+      href={`/operations/tasks/${encodeURIComponent(task.taskId)}`}
+      className="ui-pressable swp-evidence-link"
+    >
+      <span className="min-w-0">
+        <span className="block break-words font-medium">
+          {task.source} → {task.destination}
+        </span>
+        <span className="mt-1 block break-words text-[var(--text-muted)]">
+          {status}
+        </span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+    </Link>
+  );
+}
 export function WarehouseLiveView({
   view,
   projectionCurrent,
@@ -187,15 +213,12 @@ export function WarehouseLiveView({
                       {t("liveObservedWork")}
                     </h3>
                     {observedWork ? (
-                      <Link
-                        href={`/operations/tasks/${encodeURIComponent(
-                          observedWork.taskId,
-                        )}`}
-                        className={contextLink}
-                      >
-                        {observedWork.source} → {observedWork.destination} ·{" "}
-                        {t(`homeTask_${observedWork.status}` as MessageKey)}
-                      </Link>
+                      <LiveWorkReference
+                        task={observedWork}
+                        status={t(
+                          `homeTask_${observedWork.status}` as MessageKey,
+                        )}
+                      />
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
                         {selected.observedTaskContext === "unresolved"
@@ -215,15 +238,12 @@ export function WarehouseLiveView({
                       <ul className="mt-2 space-y-2">
                         {assignedWork.map((task) => (
                           <li key={task.taskId}>
-                            <Link
-                              href={`/operations/tasks/${encodeURIComponent(
-                                task.taskId,
-                              )}`}
-                              className={contextLink}
-                            >
-                              {task.source} → {task.destination} ·{" "}
-                              {t(`homeTask_${task.status}` as MessageKey)}
-                            </Link>
+                            <LiveWorkReference
+                              task={task}
+                              status={t(
+                                `homeTask_${task.status}` as MessageKey,
+                              )}
+                            />
                           </li>
                         ))}
                       </ul>
@@ -248,13 +268,19 @@ export function WarehouseLiveView({
                               "exception",
                               alarm.alarmId,
                             )}
-                            className={contextLink}
+                            className="ui-pressable swp-evidence-link"
                           >
-                            {t(
-                              alarm.status === "active"
-                                ? "homeReason_active_alarm"
-                                : "homeReason_acknowledged_alarm",
-                            )}
+                            <span className="min-w-0 break-words">
+                              {t(
+                                alarm.status === "active"
+                                  ? "homeReason_active_alarm"
+                                  : "homeReason_acknowledged_alarm",
+                              )}
+                            </span>
+                            <ChevronRight
+                              className="h-4 w-4 shrink-0"
+                              aria-hidden="true"
+                            />
                           </Link>
                         </li>
                       ))}
@@ -264,9 +290,9 @@ export function WarehouseLiveView({
                       {t("liveNoAlarms")}
                     </p>
                   )}
-                  <Link href="/operations/alarms" className={contextLink}>
-                    {t("liveOpenAlarms")}
-                  </Link>
+                  <Button asChild variant="secondary" className="mt-3">
+                    <Link href="/operations/alarms">{t("liveOpenAlarms")}</Link>
+                  </Button>
                 </div>
               </div>
               <details className="border-t border-[var(--border)] pt-4">
@@ -300,10 +326,7 @@ export function WarehouseLiveView({
           )}
         </section>
       </div>
-      <section
-        aria-labelledby="live-work-heading"
-        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-      >
+      <section aria-labelledby="live-work-heading" className="swp-record">
         <h2 id="live-work-heading" className="text-lg font-bold">
           {t("activeWork")}
         </h2>
@@ -311,17 +334,10 @@ export function WarehouseLiveView({
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {view.work.map((task) => (
               <li key={task.taskId}>
-                <Link
-                  href={`/operations/tasks/${encodeURIComponent(task.taskId)}`}
-                  className="ui-pressable block min-h-11 rounded-lg border border-[var(--border)] p-3"
-                >
-                  <span className="break-words text-sm font-bold">
-                    {task.source} → {task.destination}
-                  </span>
-                  <span className="mt-1 block text-xs text-[var(--text-muted)]">
-                    {t(`homeTask_${task.status}` as MessageKey)}
-                  </span>
-                </Link>
+                <LiveWorkReference
+                  task={task}
+                  status={t(`homeTask_${task.status}` as MessageKey)}
+                />
               </li>
             ))}
           </ul>
