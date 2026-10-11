@@ -1,4 +1,4 @@
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { Input, FieldLabel } from "../../components/ui/field";
 import { PageHeading } from "../../components/ui/workspace";
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
@@ -26,8 +26,7 @@ type Props = {
   canViewAudit: boolean;
   exactFilters?: { loadId?: string; locationId?: string };
 };
-const control =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const control = buttonVariants({ variant: "ghost" });
 function Inventory({
   initialPage,
   search,
@@ -174,7 +173,7 @@ function Inventory({
                 </div>
               ))}
             </dl>
-            <dl className="mt-5 space-y-3 text-sm">
+            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
               {(
                 [
                   ["location", item.location],
@@ -185,10 +184,10 @@ function Inventory({
               ).map(([key, value]) => (
                 <div
                   key={key}
-                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4"
+                  className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4 sm:block"
                 >
                   <dt className="text-[var(--text-muted)]">{t(key)}</dt>
-                  <dd className="break-words font-medium">{value}</dd>
+                  <dd className="break-words font-medium sm:mt-1">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -199,23 +198,25 @@ function Inventory({
                 {t("inventoryReviewRequired")}
               </p>
             ) : null}
-            <Link
-              className={`${control} mt-3`}
-              href={workPath("inbound", item.receiptId)}
-            >
-              {t("openWorkContext")} · {item.receiptReference}
-            </Link>
-            {canViewAudit ? (
-              <Link
-                className={`${control} mt-3`}
-                href={`/operations/audit?${new URLSearchParams({
-                  resourceType: "InboundReceipt",
-                  resourceId: item.receiptId,
-                })}`}
-              >
-                {t("viewReceiptAuditEvidence")}
-              </Link>
-            ) : null}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Button asChild variant="secondary">
+                <Link href={workPath("inbound", item.receiptId)}>
+                  {t("openWorkContext")} · {item.receiptReference}
+                </Link>
+              </Button>
+              {canViewAudit ? (
+                <Button asChild variant="ghost">
+                  <Link
+                    href={`/operations/audit?${new URLSearchParams({
+                      resourceType: "InboundReceipt",
+                      resourceId: item.receiptId,
+                    })}`}
+                  >
+                    {t("viewReceiptAuditEvidence")}
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
             <details className="mt-3 text-xs text-[var(--text-muted)]">
               <summary className="min-h-11 cursor-pointer py-3">
                 {t("homeTechnicalDetails")}
@@ -232,7 +233,7 @@ function Inventory({
         <Button
           variant="secondary"
           type="button"
-          className={`${control} mt-5`}
+          className="mt-5"
           disabled={loading}
           onClick={() => void loadMore()}
         >

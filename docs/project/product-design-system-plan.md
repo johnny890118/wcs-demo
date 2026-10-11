@@ -363,6 +363,59 @@ references still use the earlier underlined control style. That cross-record
 consistency issue remains for an independent presentation pass after this
 checkpoint, not silently declared resolved by the Live change.
 
+## Inventory adaptive record correction (2026-10-11)
+
+Live checkpoint `1471fc49538779e5e95c558a825504c39d55d411` passed
+exact-HEAD CI [38149638989](https://github.com/johnny890118/wcs-demo/actions/runs/38149638989).
+Vercel Ready and Render Live/last-successful commit matched the full SHA;
+managed deployed smoke passed and the working tree was clean before this slice.
+
+Actual Desktop Light/zh and Dark/zh images found inventory labels separated from
+their values across a wide card. Mobile's paired rows were already compact.
+Work/history actions and even the owned paging button still carried legacy
+underlined control styles. This slice is limited to that inventory composition;
+cross-record action consistency elsewhere remains an independent follow-up.
+
+| Before                                                         | After                                                               | Why                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Wide label/value rows on Desktop                               | Adjacent label/value groups in a responsive two/four-column grid    | Reduce eye travel without removing evidence                      |
+| Same underlined treatment for Work, history, clear and refresh | Owned secondary Work action and quiet ghost utility/history actions | Clarify action responsibility without another control vocabulary |
+| Paging Button overridden by old link class                     | Unmodified owned secondary Button                                   | Preserve disabled/loading and touch/focus semantics              |
+
+Emil review favors proximity, deliberate hierarchy and no decorative motion.
+Pro Max outcome search and one narrower retry returned compact-label, input-label,
+truncation and unrelated guidance, not a verified label/value proximity match.
+The layout decision uses its built-in responsive/touch/consistency principles,
+SWP action rules and actual images rather than attributing a database result.
+No new dependency, palette, navigation or product capability. Full quantity
+qualification, discrepancy warning, audit permission and encoded Work/history
+destinations remain unchanged. New focused tests cover those contracts, exact
+filtered return/refresh and unavailable-versus-empty evidence.
+
+The full gate passed: 639 fast tests, 88 real PostgreSQL tests, 48 browser tests,
+production build and public-demo denial. Separate API build passed; secret and
+production dependency checks passed. Existing 15 Legacy lint warnings remain,
+with no errors. Focused inventory/contrast verification passed 42 tests.
+
+Actual production-build image review covered Desktop 1440×900 Light/zh and
+Dark/en, portrait Tablet 820×1180 in both, landscape Tablet 1180×820 Light/zh,
+and Mobile 375×812 Light/zh and Dark/en including the action area. Visible
+inventory actions measured 44px high with no horizontal overflow. Language/theme
+changes retained the inventory route; keyboard Escape returned to the menu
+trigger. Inventory → exact Work → contextual history used no remembered ID,
+search or Browser Back. The fixture has no matching receipt audit events;
+the qualified empty state was shown, not fabricated history. The existing
+cross-page browser matrix checks Axe, rendered text contrast, three theme modes,
+both locales and authorized warehouse switching. These are browser/fixture
+measurements, not physical-device or authenticated production evidence.
+
+Images use `inventory-refinement-` in the external evidence directory.
+Final skill-based review confirmed adjacent facts, quieter action priority and
+preserved touch/focus/disclosure. Source/diff security self-review found no API,
+authorization, session, warehouse, query, mutation or quantity changes; no claim
+of human or independent reviewer approval. This is not whole-product visual
+acceptance. Exact-HEAD CI and provider closure follow the checkpoint push.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)
