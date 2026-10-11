@@ -25,6 +25,7 @@ import { useLocale } from "../../src/ui/i18n/locale-provider";
 import { authOptions } from "../api/auth/[...nextauth]";
 
 type PageProps = {
+  warehouseId: string;
   initialPage: AuditEventPage | null;
   filters: {
     resourceType?: string;
@@ -36,7 +37,24 @@ type PageProps = {
 const first = (value: string | string[] | undefined) =>
   typeof value === "string" ? value : undefined;
 
-export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
+export default function AuditHistoryPage(props: PageProps) {
+  // Pagination belongs to this authorized server snapshot, not to the route
+  // component's lifetime. Retire it when scope, filters or evidence changes.
+  const snapshotKey = JSON.stringify([
+    props.warehouseId,
+    props.filters.resourceType ?? null,
+    props.filters.resourceId ?? null,
+    props.filters.correlationId ?? null,
+    props.initialPage,
+  ]);
+  return (
+    <OperationsShell current="audit">
+      <AuditHistoryContent key={snapshotKey} {...props} />
+    </OperationsShell>
+  );
+}
+
+function AuditHistoryContent({ initialPage, filters }: PageProps) {
   const { locale, t } = useLocale();
   const [events, setEvents] = useState(initialPage?.events ?? []);
   const [nextCursor, setNextCursor] = useState(initialPage?.nextCursor ?? null);
@@ -62,7 +80,7 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
   };
 
   return (
-    <OperationsShell current="audit">
+    <>
       <header>
         <PageHeading
           title={t("accountableHistory")}
@@ -182,7 +200,7 @@ export default function AuditHistoryPage({ initialPage, filters }: PageProps) {
           {loading ? t("loadingAudit") : t("loadOlderAudit")}
         </Button>
       ) : null}
-    </OperationsShell>
+    </>
   );
 }
 
@@ -217,11 +235,19 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     return {
       props: {
         session,
+        warehouseId: access.access.currentWarehouseId,
         filters,
         initialPage: await fetchAuditEvents(access.access, filters),
       },
     };
   } catch {
-    return { props: { session, filters, initialPage: null } };
+    return {
+      props: {
+        session,
+        warehouseId: access.access.currentWarehouseId,
+        filters,
+        initialPage: null,
+      },
+    };
   }
 };

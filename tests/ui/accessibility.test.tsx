@@ -330,6 +330,7 @@ describe("automated accessibility baseline", () => {
     const { container } = render(
       <LocaleProvider>
         <AuditHistoryPage
+          warehouseId="warehouse-test"
           filters={{}}
           initialPage={{
             events: [

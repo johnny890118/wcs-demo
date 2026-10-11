@@ -1938,6 +1938,23 @@ test("authenticated focused projections expose screen-reader semantics", async (
   expect(accessibility.violations).toEqual([]);
 });
 
+test("history clears contextual filters without a reload or browser back", async ({
+  page,
+}) => {
+  await signIn(
+    page,
+    "/operations/audit?resourceType=InboundReceipt&resourceId=missing-evidence",
+  );
+  await expect(page.locator("article")).toHaveCount(0);
+  await page.getByRole("link", { name: "清除篩選", exact: true }).click();
+  await expect(page).toHaveURL("/operations/audit");
+  await expect(
+    page.getByRole("heading", { name: "運輸任務完成", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("未知動作")).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+});
+
 test("operator can read redacted, bilingual audit history", async ({
   page,
 }) => {

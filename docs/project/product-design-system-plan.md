@@ -199,8 +199,47 @@ independent security reviewer having approved it.
 
 During baseline History walkthrough, clearing an empty resource filter changed
 the URL but retained the previous client list; reload displayed the unfiltered
-fixture events. This pre-existing state-continuity defect is queued as a separate
-correction with a regression test, not silently labelled a visual improvement.
+fixture events. This pre-existing state-continuity defect was handled as the
+separate correction below, not silently labelled a visual improvement.
+
+## History server-snapshot continuity correction (2026-10-11)
+
+History pagination now belongs to the authorized warehouse, canonical filters
+and redacted server snapshot. A changed context retires the previous reader;
+an identical snapshot preserves its pagination. The surrounding Shell stays
+mounted, so preference controls are not reset by a filter transition. A late
+response from a retired reader cannot append events to the new reader.
+Warehouse identity is sourced from the existing authorized SSR access, never
+from a browser-selected query. SSR `audit.view`, API authorization, warehouse
+scope, redaction and unknown-action policy are unchanged.
+
+| Before                                                             | After                                                            | Why                                                              |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Clear filter changes URL but leaves the old empty list             | URL and server-resolved evidence replace the old reader together | No reload, re-search or Browser Back to complete the handoff     |
+| Pagination state outlives its filter/warehouse                     | Pagination is scoped to the authorized server snapshot           | Prevent stale evidence and late responses crossing read contexts |
+| Language/theme change could be confused with a read-context change | Locale/theme stay outside the snapshot key                       | Preserve the current evidence while changing presentation        |
+
+Focused reader/accessibility verification passed 18 tests. Four new reader tests
+cover clear-filter, warehouse/failure, refreshed evidence and late pagination.
+A production-build browser walkthrough used a normal isolated fixture login:
+empty resource evidence → Clear filter → five readable events, without reload.
+Desktop Light/zh and 375px Mobile Dark/en were inspected; switching language and
+theme retained the URL and five events, with no horizontal overflow. Actual
+images are stored in the external comparison evidence directory as
+`history-context-correction-desktop-light-zh.jpg` and
+`history-context-correction-mobile-dark-en.jpg`. These are fixture runtime
+images, not authenticated production measurements or Owner visual acceptance.
+
+The initial complete gate stopped because Docker was not running; the existing
+Docker runtime was started and the complete gate rerun. No PostgreSQL gate was
+disabled or replaced with mocks. Delivery results are recorded after that run.
+
+The complete rerun passed: 629 fast tests, 88 real PostgreSQL tests, 47 browser
+tests, production build and demo-denial boundary. The API build passed separately;
+secret scan, formatting and production dependency audit passed. Existing 15 legacy
+lint warnings remain, with zero errors. Diff/security self-review found no changed
+session revalidation, permission checks, warehouse selection or mutation behavior.
+This is not an independent security approval or final whole-product visual acceptance.
 
 ## Additional visual-reference evidence
 
