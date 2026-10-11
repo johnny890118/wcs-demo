@@ -11,6 +11,8 @@ import { getServerSession } from "next-auth/next";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { OperationsShell } from "../../components/platform/OperationsShell";
+import { Button } from "../../components/ui/button";
+import { PageHeading } from "../../components/ui/workspace";
 import type { OperationsSummary } from "../../src/application/operations/operations-summary";
 import { type OperationsHome } from "../../src/application/operations/operations-home";
 import { isOperationsOverview } from "../../src/application/operations/operations-overview";
@@ -105,30 +107,28 @@ function OperationsHomeView({ summary, home }: PageProps) {
 
   return (
     <OperationsShell>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1>{t("operationsHome")}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-muted)]">
-            {t("homeDescription")}
-          </p>
-        </div>
-        {liveSummary ? (
-          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                isLive ? "bg-[var(--success)]" : "bg-[var(--warning)]"
-              }`}
-              aria-hidden="true"
-            />
-            <span>{isLive ? t("liveData") : t("staleData")}</span>
-            <span aria-hidden="true">·</span>
-            <span>
-              {t("refreshedAt")} ·{" "}
-              {formatOperationalTime(liveSummary.generatedAt)}
-            </span>
-          </div>
-        ) : null}
-      </div>
+      <PageHeading
+        title={t("operationsHome")}
+        description={t("homeDescription")}
+        action={
+          liveSummary ? (
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isLive ? "bg-[var(--success)]" : "bg-[var(--warning)]"
+                }`}
+                aria-hidden="true"
+              />
+              <span>{isLive ? t("liveData") : t("staleData")}</span>
+              <span aria-hidden="true">·</span>
+              <span>
+                {t("refreshedAt")} ·{" "}
+                {formatOperationalTime(liveSummary.generatedAt)}
+              </span>
+            </div>
+          ) : null
+        }
+      />
 
       {!isLive ? (
         <div
@@ -186,12 +186,15 @@ function OperationsHomeView({ summary, home }: PageProps) {
                       {item.reference}
                     </p>
                   </div>
-                  <Link
-                    className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
-                    href={homeInvestigationDestination(item)}
+                  <Button
+                    asChild
+                    variant="secondary"
+                    className="shrink-0 self-start"
                   >
-                    {t("reviewOperationalEvidence")}
-                  </Link>
+                    <Link href={homeInvestigationDestination(item)}>
+                      {t("reviewOperationalEvidence")}
+                    </Link>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -214,24 +217,29 @@ function OperationsHomeView({ summary, home }: PageProps) {
             <ul className="mt-4 divide-y divide-[var(--border)]">
               {liveHome.work.map((task) => (
                 <li key={task.taskId} className="py-4">
-                  <h3 className="break-words font-bold">
-                    {task.source} → {task.destination}
-                  </h3>
-                  <p className="mt-2 text-sm">
-                    {t(`homeTask_${task.status}` as MessageKey)} ·{" "}
-                    {task.equipmentId ?? t("unassigned")}
-                  </p>
-                  <p className="mt-1 text-sm text-[var(--text-muted)]">
-                    {t(`homeNext_${task.nextStep}` as MessageKey)}
-                  </p>
-                  <Link
-                    className="ui-pressable ui-link mt-2 inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
-                    href={`/operations/tasks/${encodeURIComponent(
-                      task.taskId,
-                    )}`}
-                  >
-                    {t("openTaskDetail")}
-                  </Link>
+                  <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="break-words font-semibold">
+                        {task.source} → {task.destination}
+                      </h3>
+                      <p className="mt-2 text-sm">
+                        {t(`homeTask_${task.status}` as MessageKey)} ·{" "}
+                        {task.equipmentId ?? t("unassigned")}
+                      </p>
+                      <p className="mt-1 text-sm text-[var(--text-muted)]">
+                        {t(`homeNext_${task.nextStep}` as MessageKey)}
+                      </p>
+                    </div>
+                    <Button asChild variant="secondary" className="shrink-0">
+                      <Link
+                        href={`/operations/tasks/${encodeURIComponent(
+                          task.taskId,
+                        )}`}
+                      >
+                        {t("openTaskDetail")}
+                      </Link>
+                    </Button>
+                  </div>
                   <details className="mt-2 text-xs text-[var(--text-muted)]">
                     <summary className="min-h-11 cursor-pointer py-2">
                       {t("homeTechnicalDetails")}
@@ -260,13 +268,9 @@ function OperationsHomeView({ summary, home }: PageProps) {
           ["/operations/outbound", "outbound"],
           ["/operations/inventory", "inventory"],
         ].map(([href, label]) => (
-          <Link
-            key={href}
-            href={href}
-            className="ui-pressable inline-flex min-h-11 items-center rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold"
-          >
-            {t(label as MessageKey)}
-          </Link>
+          <Button key={href} asChild variant="secondary">
+            <Link href={href}>{t(label as MessageKey)}</Link>
+          </Button>
         ))}
       </nav>
       <section aria-label={t("systemStatus")} className="mt-8">

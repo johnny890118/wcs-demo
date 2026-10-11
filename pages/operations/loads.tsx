@@ -1,4 +1,4 @@
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { Input, FieldLabel } from "../../components/ui/field";
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
@@ -26,8 +26,7 @@ type Props = {
   canViewAudit: boolean;
   exactFilters?: { id?: string; locationId?: string };
 };
-const control =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const control = buttonVariants({ variant: "ghost" });
 function Loads({
   initialPage,
   search,
@@ -183,31 +182,33 @@ function Loads({
                 {t("inventoryReviewRequired")}
               </p>
             ) : null}
-            <Link
-              className={`${control} mt-3`}
-              href={`/operations/inventory?${new URLSearchParams({
-                loadId: item.loadId,
-              })}`}
-            >
-              {t("loadViewInventory")}
-            </Link>
-            <Link
-              className={`${control} mt-3`}
-              href={workPath("inbound", item.receiptId)}
-            >
-              {t("openWorkContext")} · {item.receiptReference}
-            </Link>
-            {canViewAudit ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <Link
-                className={`${control} mt-3`}
-                href={`/operations/audit?${new URLSearchParams({
-                  resourceType: "InboundReceipt",
-                  resourceId: item.receiptId,
+                className={buttonVariants({ variant: "secondary" })}
+                href={`/operations/inventory?${new URLSearchParams({
+                  loadId: item.loadId,
                 })}`}
               >
-                {t("viewReceiptAuditEvidence")}
+                {t("loadViewInventory")}
               </Link>
-            ) : null}
+              <Link
+                className={control}
+                href={workPath("inbound", item.receiptId)}
+              >
+                {t("openWorkContext")} · {item.receiptReference}
+              </Link>
+              {canViewAudit ? (
+                <Link
+                  className={control}
+                  href={`/operations/audit?${new URLSearchParams({
+                    resourceType: "InboundReceipt",
+                    resourceId: item.receiptId,
+                  })}`}
+                >
+                  {t("viewReceiptAuditEvidence")}
+                </Link>
+              ) : null}
+            </div>
             <details className="mt-3 text-xs text-[var(--text-muted)]">
               <summary className="min-h-11 cursor-pointer py-3">
                 {t("homeTechnicalDetails")}
@@ -224,7 +225,7 @@ function Loads({
         <Button
           variant="secondary"
           type="button"
-          className={`${control} mt-5`}
+          className="mt-5"
           disabled={loading}
           onClick={() => void loadMore()}
         >

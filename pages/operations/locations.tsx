@@ -1,4 +1,4 @@
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { Input, FieldLabel } from "../../components/ui/field";
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
@@ -23,8 +23,7 @@ type Props = {
   warehouseId: string;
   exactId?: string;
 };
-const control =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const control = buttonVariants({ variant: "ghost" });
 function Locations({
   initialPage,
   search,
@@ -153,22 +152,24 @@ function Locations({
             <p className="mt-3 text-sm font-semibold">
               {t(item.binding ? "locationBound" : "locationUnbound")}
             </p>
-            <Link
-              className={`${control} mt-3`}
-              href={`/operations/inventory?${new URLSearchParams({
-                locationId: item.locationId,
-              })}`}
-            >
-              {t("locationSearchStock")}
-            </Link>
-            <Link
-              className={`${control} mt-3`}
-              href={`/operations/loads?${new URLSearchParams({
-                locationId: item.locationId,
-              })}`}
-            >
-              {t("locationSearchLoads")}
-            </Link>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Link
+                className={buttonVariants({ variant: "secondary" })}
+                href={`/operations/inventory?${new URLSearchParams({
+                  locationId: item.locationId,
+                })}`}
+              >
+                {t("locationSearchStock")}
+              </Link>
+              <Link
+                className={control}
+                href={`/operations/loads?${new URLSearchParams({
+                  locationId: item.locationId,
+                })}`}
+              >
+                {t("locationSearchLoads")}
+              </Link>
+            </div>
             <details className="mt-3 text-xs text-[var(--text-muted)]">
               <summary className="min-h-11 cursor-pointer py-3">
                 {t("homeTechnicalDetails")}
@@ -194,7 +195,7 @@ function Locations({
         <Button
           variant="secondary"
           type="button"
-          className={`${control} mt-5`}
+          className="mt-5"
           disabled={loading}
           onClick={() => void loadMore()}
         >

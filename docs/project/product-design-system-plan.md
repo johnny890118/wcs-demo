@@ -416,6 +416,64 @@ authorization, session, warehouse, query, mutation or quantity changes; no claim
 of human or independent reviewer approval. This is not whole-product visual
 acceptance. Exact-HEAD CI and provider closure follow the checkpoint push.
 
+## Home and inventory-context investigation actions (2026-10-11)
+
+Inventory UI checkpoint `e149625c01d4467b93c21f75d59f894172e500b9` and its
+test-only fixture correction `5678be57f774278c4b6a1e39cdbcd406d6e59fc9` were
+pushed normally. The correction uses available-state partially reserved stock,
+not a reserved-state record incorrectly carrying nonzero unreserved quantity.
+Exact-HEAD CI [38150636244](https://github.com/johnny890118/wcs-demo/actions/runs/38150636244)
+passed. Vercel Ready, Render Live/last-successful SHA and deployed managed smoke
+were confirmed; remote main matched and the working tree was clean.
+
+Actual `candidate-5678be5-home-desktop-light-zh.jpg` shows one work taking a tall
+vertical block with an underlined investigation action, despite considerable
+unused horizontal room. The adjacent Loads/Locations contexts still override
+owned paging controls with legacy link styles. This coherent correction makes
+investigation action responsibility consistent without widening product scope.
+
+| Before                                                      | After                                                                      | Why                                                              |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Home has its own heading composition                        | Shared PageHeading with the same freshness evidence                        | Consistent page rhythm without losing current/stale text         |
+| Desktop work action consumes its own line                   | Work facts and owned secondary investigation side by side; mobile stacks   | Use actual available width while retaining reading order         |
+| Load/location actions all have the same underlined emphasis | Stock investigation secondary, supporting Work/history/clear/refresh ghost | Prioritize the contextual next step without large brand surfaces |
+| Old link classes override paging buttons                    | Owned secondary paging only                                                | Retain loading, disabled, focus and touch baseline               |
+
+Emil review uses quiet proximity and consistent interaction, without new motion.
+Pro Max built-in responsive/touch/consistency rules and existing SWP semantic
+roles apply; the earlier targeted proximity search had no verified match and is
+not attributed as a database recommendation. Navigation, encoded destinations,
+scope, permissions, unknown/unavailable qualification, load balance evidence,
+location binding/count semantics and Home's bounded refresh logic are unchanged.
+Focused tests preserve those boundaries. Final focused run passed 11 tests;
+the first new test used an isolated status-text query although the actual text
+includes unassigned equipment, and was corrected to assert the full qualified
+text, not remove the unknown assertion. Full verification passed 644 fast tests,
+88 real PostgreSQL tests, 48 browser tests, production build and public-demo
+denial. Separate API build, secret and production dependency checks passed;
+15 existing Legacy lint warnings remain, with no errors.
+
+Actual Home images cover Desktop 1440×900 Light/zh and Dark/en, portrait Tablet
+820×1180 Light/zh and Mobile 375×812 in both. The same Desktop fixture's work
+section measured 281px before and 229px after, retaining all facts/disclosure.
+Loads was reviewed at Desktop Dark/en, landscape Tablet 1180×820 Light/zh and
+Mobile Light/zh; Locations at Desktop Dark/en and Mobile in both. Mobile
+location actions measured 44px high with no horizontal overflow. The actual
+Home → exact Task, Load → exact Inventory → original Load and Location → exact
+Inventory → original Location journeys used no remembered ID, fuzzy search or
+Browser Back. Locale/theme changes retained the exact location query and Escape
+returned menu focus. Images use `investigation-actions-` in the external evidence
+directory; these are production-build fixture observations, not physical-device
+testing or fresh authenticated production measurements.
+
+Final skill-based visual/interaction review confirmed hierarchy, neutral action
+responsibility and preserved disclosure. Security self-review found presentation
+changes only; no independent human review is claimed. Task/context/support
+actions elsewhere still require the cross-record consistency pass, and the
+existing Task link label “Warehouse map” still names Live imprecisely. These are
+not silently marked resolved. Exact CI/provider closure follows push;
+whole-product quality and Owner acceptance remain open.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)
