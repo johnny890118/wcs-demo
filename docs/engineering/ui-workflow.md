@@ -48,8 +48,10 @@ Safety targets/source remain in relevant operation components and runtime detail
 are inspectable in settings. See `../project/single-warehouse-navigation-plan.md`.
 Use the owned actions/native fields and inspected Radix Popover/Tooltip primitives
 instead of another per-page control style or blanket template initialization.
-Keep the tested mobile navigation dialog unless replacement has a demonstrated
-benefit. Shared controls must preserve native form contracts, keyboard/focus,
+The owned shadcn Sheet now supplies formal mobile navigation on the same supported
+Radix pathway as settings Popover/Tooltip. Keep its tested geometry, one localized
+close and modal keyboard/focus contracts; do not add a competing overlay system.
+Legacy Headless UI is preserved separately. Shared controls preserve native form contracts, keyboard/focus,
 contrast and truthful safety presentation. See `ui-quality-consolidation-review.md`.
 
 ## Motion rules adopted from the skill

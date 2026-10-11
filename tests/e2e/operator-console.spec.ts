@@ -138,6 +138,51 @@ test("approved adaptive shell persists desktop collapse and returns menu focus",
   }
 });
 
+test("owned mobile sheet traps keyboard focus and preserves the current draft", async ({
+  page,
+}) => {
+  await signIn(page, "/operations/inbound");
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole("textbox", { name: /品項/ }).fill("KEEP-SHEET-DRAFT");
+  const trigger = page.getByRole("button", {
+    name: "導覽與偏好設定",
+    exact: true,
+  });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", {
+    name: "導覽與偏好設定",
+    exact: true,
+  });
+  await expect(dialog).toHaveAttribute("data-slot", "sheet-content");
+  const close = dialog.getByRole("button", { name: "關閉導覽", exact: true });
+  await expect(close).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(
+    dialog.getByRole("button", { name: "登出", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(close).toBeFocused();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await expect(page.getByRole("textbox", { name: /品項/ })).toHaveValue(
+    "KEEP-SHEET-DRAFT",
+  );
+  await expect(page).toHaveURL("/operations/inbound");
+  await trigger.click();
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await expect(dialog).not.toBeVisible();
+  await expect(
+    page
+      .locator(".operations-sidebar")
+      .getByRole("link", { name: "工作", exact: true }),
+  ).toBeFocused();
+  await expect(page.getByRole("textbox", { name: /品項/ })).toHaveValue(
+    "KEEP-SHEET-DRAFT",
+  );
+});
+
 test("single-site shell chooses one navigation by usable geometry and keeps drafts", async ({
   page,
 }) => {

@@ -52,6 +52,13 @@ Keep touch targets >=44px in work controls; keyboard/escape/focus and 375px test
 Review actual Light/Dark × zh/en × portrait/landscape screens and long content.
 Only motion that improves feedback, honor reduced motion, no decorative animation.
 
+Formal navigation uses owned shadcn Sheet for the narrow/portrait menu, Popover
+for lightweight preferences/warehouse switching and Tooltip for collapsed labels.
+Sheet has one localized owned close control, automatic focus trapping/Escape/
+trigger return, semantic scrim/surface and safe-area panel insets. The existing
+geometry-change handler restores focus to visible navigation rather than a hidden
+trigger. Legacy Headless UI is not removed or loaded as a formal alternative.
+
 Two quality gates: engineering verification and actual cross-page composition
 review. Deterministic visual regression detects displacement/overflow/clipping/
 selection defects, not an aesthetics score. Record real Before → defect → root

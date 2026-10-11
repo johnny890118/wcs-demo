@@ -12,7 +12,6 @@ import {
   ChevronsRight as ChevronDoubleRightIcon,
   Settings as Cog6ToothIcon,
 } from "lucide-react";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Head from "next/head";
@@ -38,6 +37,13 @@ import { ProductMark } from "./ProductMark";
 import { WorkNavigation } from "./WorkNavigation";
 import { WorkspaceNavigation } from "../ui/workspace";
 import { Button } from "../ui/button";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetTitle,
+  SheetClose,
+} from "../ui/sheet";
 import {
   Popover,
   PopoverTrigger,
@@ -188,8 +194,9 @@ export function OperationsShell({
         requestAnimationFrame(() => {
           const destination = layout.matches
             ? document.querySelector<HTMLElement>(
-                ".operations-sidebar nav a[aria-current='page'], .operations-sidebar nav a",
-              )
+                ".operations-sidebar nav a[aria-current='page']",
+              ) ??
+              document.querySelector<HTMLElement>(".operations-sidebar nav a")
             : document.querySelector<HTMLElement>(
                 ".mobile-navigation-header button[aria-expanded]",
               );
@@ -463,64 +470,68 @@ export function OperationsShell({
             </div>
           </aside>
           <div className="min-w-0 flex-1">
-            <header className="mobile-navigation-header border-b border-[var(--border)] bg-[var(--surface)]">
-              <div className="operations-topbar flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
-                <Link
-                  href="/operations"
-                  className="ui-pressable flex min-h-11 items-center gap-2"
-                >
-                  <ProductMark />
-                  <span className="text-sm font-bold">SWP</span>
-                </Link>
-                {warehouseSwitch(true)}
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen(true)}
-                  aria-label={t("navigationMenu")}
-                  aria-expanded={menuOpen}
-                  className="ui-pressable order-2 ml-auto flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3"
-                >
-                  <Bars3Icon className="h-5 w-5" aria-hidden="true" />
-                  <span className="hidden text-sm font-medium lg:inline">
-                    {t("navigationMenu")}
-                  </span>
-                </button>
-              </div>
-            </header>
-            <Dialog
-              open={menuOpen}
-              onClose={setMenuOpen}
-              className="fixed inset-0 z-50"
-            >
-              <div
-                className="fixed inset-0 bg-[var(--canvas)] opacity-60"
-                aria-hidden="true"
-              />
-              <div className="fixed inset-0 flex justify-end">
-                <DialogPanel className="w-full max-w-sm overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] p-5">
-                  <div className="mb-5 flex items-center justify-between gap-3">
-                    <DialogTitle className="font-semibold">
-                      {t("navigationMenu")}
-                    </DialogTitle>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <header className="mobile-navigation-header border-b border-[var(--border)] bg-[var(--surface)]">
+                <div className="operations-topbar flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
+                  <Link
+                    href="/operations"
+                    className="ui-pressable flex min-h-11 items-center gap-2"
+                  >
+                    <ProductMark />
+                    <span className="text-sm font-bold">SWP</span>
+                  </Link>
+                  {warehouseSwitch(true)}
+                  <SheetTrigger asChild>
                     <button
                       type="button"
-                      onClick={() => setMenuOpen(false)}
+                      aria-label={t("navigationMenu")}
+                      aria-expanded={menuOpen}
+                      className="ui-pressable order-2 ml-auto flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3"
+                    >
+                      <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+                      <span className="hidden text-sm font-medium lg:inline">
+                        {t("navigationMenu")}
+                      </span>
+                    </button>
+                  </SheetTrigger>
+                </div>
+              </header>
+              <SheetContent
+                onCloseAutoFocus={(event) => {
+                  // Rotation restores focus to the visible Sidebar through the
+                  // existing layout handler, never to a now-hidden trigger.
+                  if (
+                    window.matchMedia?.(
+                      "(min-width: 1024px) and (min-height: 600px) and (orientation: landscape)",
+                    )?.matches
+                  )
+                    event.preventDefault();
+                }}
+              >
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <SheetTitle className="font-semibold">
+                    {t("navigationMenu")}
+                  </SheetTitle>
+                  <SheetClose asChild>
+                    <Button
+                      variant="ghost"
+                      type="button"
                       aria-label={t("closeNavigation")}
                       className="ui-pressable flex min-h-11 min-w-11 items-center justify-center rounded-lg"
                     >
                       <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <nav
-                    aria-label={t("mobileNavigation")}
-                    className="compact-menu-navigation space-y-1"
-                  >
-                    {navLinks(true)}
-                  </nav>
-                  {preferences}
-                </DialogPanel>
-              </div>
-            </Dialog>
+                    </Button>
+                  </SheetClose>
+                </div>
+                <nav
+                  aria-label={t("mobileNavigation")}
+                  className="compact-menu-navigation space-y-1"
+                >
+                  {navLinks(true)}
+                </nav>
+                {preferences}
+              </SheetContent>
+            </Sheet>
             <main
               id="main-content"
               className="operations-content px-4 py-6 sm:px-6 lg:px-10 lg:py-8"

@@ -36,6 +36,7 @@
   --type-meta: 0.8125rem;
   --space-section: 1.5rem;
   --space-field: 1rem;
+  --space-panel: 1.25rem;
   --radius-control: 0.5rem;
   --radius-panel: 0.75rem;
   --content-width: 1240px;
@@ -516,6 +517,27 @@ body {
 
 .workflow-layout {
   max-width: 1120px;
+}
+.swp-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--canvas);
+  opacity: 0.6;
+}
+.swp-sheet-content {
+  position: fixed;
+  inset-block: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 24rem;
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: max(var(--space-panel), env(safe-area-inset-top)) var(--space-panel)
+    max(var(--space-panel), env(safe-area-inset-bottom));
 }
 .swp-form-actions {
   display: flex;

@@ -15,6 +15,17 @@ where replacing them would risk established form/keyboard contracts without gain
 Lucide uses official named React imports; Heroicons remain only while Legacy needs
 them. No registry code or dependency script executes blindly.
 
+Sheet (2026-10-11): inspected the complete official v3 `new-york/sheet.json`
+source and Radix Dialog documentation. Owned Portal/Overlay/Content/Title/Trigger/
+Close composition uses pinned `@radix-ui/react-dialog@1.2.0`, installed from npm
+with scripts disabled. Retain SWP semantic surfaces, the right-side navigation
+geometry and one localized 44px close control; omit decorative 300–500ms animation
+and the upstream duplicate English-only close. Automatic modal focus management
+is retained; geometry changes use the existing visible-navigation restoration.
+Formal product overlays now follow the supported Radix-backed shadcn pathway.
+Headless UI remains installed for characterized Legacy components, not another
+formal product navigation implementation.
+
 ## Upstream notice — shadcn/ui portions only
 
 This notice applies only to adapted shadcn/ui source, not to SWP or this private

@@ -241,6 +241,69 @@ lint warnings remain, with zero errors. Diff/security self-review found no chang
 session revalidation, permission checks, warehouse selection or mutation behavior.
 This is not an independent security approval or final whole-product visual acceptance.
 
+## Owned navigation overlay consolidation (2026-10-11)
+
+History checkpoint `976a4e23275580ae7724c69057ea33d11832ddce` was pushed normally;
+exact-HEAD CI [38147016360](https://github.com/johnny890118/wcs-demo/actions/runs/38147016360)
+passed. Vercel Ready and Render Live/last-successful commit both matched the full
+SHA. Managed deployed smoke passed for the actual frontend/API hosts; the working
+tree was clean before starting this separate overlay slice. This is deployed
+read/boundary smoke, not production fresh-login proof.
+
+The current Owner decision favors safe consolidation to compatible shadcn owned
+components. Only the formal mobile navigation's Headless dialog is replaced by
+inspected owned Sheet composition; legacy Headless dependencies stay. This
+supersedes the earlier provisional retention decision, not the delivered layout.
+The benefit is one owned formal overlay pathway and directly tested interaction
+contracts, not a claim that replacing a package improves visual quality by itself.
+Settings remain lightweight Popover; no new permanent bar or duplicate navigation.
+
+| Before                                                | After                                                  | Why                                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Formal drawer uses a separate overlay implementation  | Owned Sheet on the same supported shadcn/Radix pathway | Centralize formal overlay styling and focus contracts without replacing Legacy |
+| Generic dialog container receives initial focus       | The one localized close control receives focus         | Keyboard users have an immediate, visible dismissal target                     |
+| Raw fixed panel padding                               | Semantic panel inset plus safe-area bounds             | Keep usable controls on small/touch layouts without decorative chrome          |
+| Rotation selector can choose Home before current Work | Explicitly prefer current destination, then fall back  | Keep focus at the visible work context                                         |
+
+Actual pre-change 820px portrait Dark/en review confirmed the baseline Escape
+return and unsent Inbound draft retention. Those are required regression gates,
+not sacrificed for standardization. The primitive does not inject another close
+button or animation, and the Shell's existing rotation handler remains authoritative.
+No auth, session, warehouse, API, command or Work-context behavior is changed.
+
+Production-build Tablet Dark/en and Mobile Light/zh review confirmed one close
+and one sign-out, 20px semantic padding, visible initial close focus, keyboard
+wrapping, Escape return and preserved Inbound draft. Rotation exposed a
+pre-existing selector-order defect: a combined CSS selector returns DOM order,
+not selector priority. The handler now queries the current destination first;
+the new browser regression requires Work focus after rotation.
+The first new browser test incorrectly searched for English `SKU` in the Chinese
+fixture and timed out. It now uses the real localized field, retaining the draft,
+focus and Axe assertions. Earlier gates also caught a raw test anchor and an
+unsupported Testing Library option; both were corrected, not suppressed.
+
+Final complete verification passed after the rotation correction: 630 fast tests,
+88 real PostgreSQL tests, 48 browser tests, production build and public-demo
+denial. API build and secret scan passed separately; production dependency audit
+has zero findings. The existing nine dev-only dependency findings and 15 Legacy
+lint warnings are unchanged. Earlier failed runs are not presented as passes.
+Focused Sheet/Shell/accessibility tests passed 17 tests; the full rerun also
+includes them. Browser gates retain single/multi/long-name scope fixtures, all
+five geometries, both locales/themes/system, draft preservation, Axe/contrast,
+Work-context journeys, commands and authorization regressions.
+
+Actual final-source images: `sheet-correction-tablet-dark-en.jpg` (820×1180) and
+`sheet-correction-mobile-light-zh.jpg` (375×812), compared with
+`before-976a4e2-navigation-tablet-dark-en.jpg`. These are native viewport captures
+of the actual fixture production build. Real keyboard/rotation walkthrough
+confirmed current Work focus and unsent draft retention. UI/security self-review
+found no API/auth/domain changes; it is not an independent security approval.
+
+The menu → Live walkthrough still found long underlined investigation links
+competing with equipment evidence. Their hierarchy belongs in the next coherent
+workspace presentation correction; it is not mixed into this overlay commit.
+Whole-product visual quality and final acceptance remain open.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)
