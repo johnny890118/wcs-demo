@@ -25,7 +25,7 @@ const page: InventoryPage = {
       quantity: 24,
       reservedQuantity: 10,
       unreservedQuantity: 14,
-      status: "reserved",
+      status: "available",
       location: "Stock",
       locationStatus: "blocked",
       loadExternalId: "PALLET-A",
@@ -44,7 +44,7 @@ it("preserves qualified quantities, discrepancy warning and exact Work/history d
     "24",
     "10",
     "14",
-    "inventoryStateReserved",
+    "inventoryStateAvailable",
     "inventoryReviewRequired",
     "inventoryQuantityNotice",
   ])
