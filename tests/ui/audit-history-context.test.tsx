@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vitest";
@@ -46,6 +47,35 @@ const page = (
   nextCursor,
 });
 
+it("prioritizes the readable resource context while keeping exact technical filters available", () => {
+  render(
+    <AuditHistoryPage
+      warehouseId="one"
+      filters={{ resourceType: "TransportTask", resourceId: "task-test" }}
+      initialPage={page("current-actor")}
+    />,
+  );
+  expect(
+    screen.getByText(`${en.filteredAuditHistory} · Transport task`),
+  ).toBeTruthy();
+  const header = screen.getByRole("group", { name: en.filteredAuditHistory });
+  const technical = within(header)
+    .getByText(/"resourceId": "task-test"/)
+    .closest("details");
+  expect(technical).toBeTruthy();
+  expect(technical?.open).toBe(false);
+  fireEvent.click(technical!.querySelector("summary")!);
+  expect(technical?.open).toBe(true);
+  expect(
+    within(header).getByText(/"resourceType": "TransportTask"/),
+  ).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: en.clearAuditFilter })
+      .getAttribute("href"),
+  ).toBe("/operations/audit");
+});
+
 it("replaces filtered evidence when clearing the URL context without a reload", () => {
   const { rerender } = render(
     <AuditHistoryPage
@@ -69,6 +99,29 @@ it("replaces filtered evidence when clearing the URL context without a reload", 
   );
   expect(screen.queryByText(en.noAuditEvents)).toBeNull();
   expect(screen.getByText("Actor: current-actor")).toBeTruthy();
+});
+
+it("retains every combined filter inside the disclosure without inventing a Work label", () => {
+  const filters = {
+    resourceType: "TransportTask",
+    resourceId: "task-test",
+    correlationId: "correlation-test",
+  };
+  render(
+    <AuditHistoryPage
+      warehouseId="one"
+      filters={filters}
+      initialPage={page("current-actor")}
+    />,
+  );
+  const header = screen.getByRole("group", { name: en.filteredAuditHistory });
+  const record = within(header).getByText(
+    /"correlationId": "correlation-test"/,
+  );
+  for (const [key, value] of Object.entries(filters)) {
+    expect(record.textContent).toContain(`"${key}": "${value}"`);
+  }
+  expect(record.closest("details")?.open).toBe(false);
 });
 
 it("retires old evidence and pagination on warehouse change or failed projection", () => {

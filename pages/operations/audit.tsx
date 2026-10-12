@@ -81,28 +81,39 @@ function AuditHistoryContent({ initialPage, filters }: PageProps) {
 
   return (
     <>
-      <header>
+      <div>
         <PageHeading
           title={t("accountableHistory")}
           description={t("auditHistoryDescription")}
         />
         {Object.keys(filters).length > 0 ? (
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-md bg-[var(--surface-muted)] px-3 py-1.5 font-mono text-[var(--text)]">
-              {filters.correlationId ??
-                `${filters.resourceType ?? "resource"}:${
-                  filters.resourceId ?? ""
-                }`}
-            </span>
-            <Link
-              href="/operations/audit"
-              className={buttonVariants({ variant: "ghost" })}
-            >
-              {t("clearAuditFilter")}
-            </Link>
+          <div
+            role="group"
+            aria-label={t("filteredAuditHistory")}
+            className="mt-4 text-sm"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-md bg-[var(--surface-muted)] px-3 py-1.5 text-[var(--text)]">
+                {t("filteredAuditHistory")}
+                {filters.resourceType
+                  ? ` · ${auditResourceLabel(filters.resourceType, locale)}`
+                  : ""}
+              </span>
+              <Link
+                href="/operations/audit"
+                className={buttonVariants({ variant: "ghost" })}
+              >
+                {t("clearAuditFilter")}
+              </Link>
+            </div>
+            <DiagnosticDetails title={t("homeTechnicalDetails")}>
+              <pre className="whitespace-pre-wrap break-all text-xs">
+                {JSON.stringify(filters, null, 2)}
+              </pre>
+            </DiagnosticDetails>
           </div>
         ) : null}
-      </header>
+      </div>
 
       {failed ? (
         <div

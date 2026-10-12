@@ -688,7 +688,7 @@ const server = createServer(async (request, response) => {
           status: "stored",
           location: "STORAGE-01",
           receiptId: "30000000-0000-4000-8000-000000000001",
-          receiptReference: "ASN-E2E-001",
+          receiptReference: task.externalReference,
           inventory: {
             quantity: 12,
             status: "available",
@@ -708,7 +708,7 @@ const server = createServer(async (request, response) => {
           loadExternalId: "PALLET-E2E-001",
           loadLocation: "STORAGE-01",
           receiptId: "30000000-0000-4000-8000-000000000001",
-          receiptReference: "ASN-E2E-001",
+          receiptReference: task.externalReference,
           updatedAt: generatedAt,
         },
         source: location("20000000-0000-4000-8000-000000000001", task.source),

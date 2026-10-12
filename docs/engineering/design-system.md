@@ -31,8 +31,11 @@ Body uses a local bilingual system stack; metadata never replaces readable label
 | Status             | Explicit readable status/qualifier plus semantic color; stale/unknown visible                  |
 
 Shared context navigation is `components/ui/navigation.tsx`. Button is CVA +
-Slot + class merging, forward refs, owned action aliases and 44px minimum. Fields
-preserve native names, required labels, submit/selection semantics and refs.
+Slot + class merging, forward refs, owned action aliases and 44px minimum width
+and height. Action/heading text reflows unpredictable labels instead of clipping
+them. History shows readable filter context while exact values remain in a native,
+keyboard-operable technical disclosure; the server query/snapshot stays unchanged.
+Fields preserve native names, required labels, submit/selection semantics and refs.
 Avoid replacing a native select with custom ARIA only for appearance; adopt the
 appropriate shadcn native select pathway when composition is ready.
 

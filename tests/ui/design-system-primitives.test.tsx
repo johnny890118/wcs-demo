@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { createRef } from "react";
+import { readFileSync } from "node:fs";
 import Link from "next/link";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
@@ -16,6 +17,15 @@ import {
 } from "../../components/ui/workspace";
 
 afterEach(cleanup);
+
+it("owns a two-dimensional industrial action floor without clipping long labels", () => {
+  const css = readFileSync("styles/globals.css", "utf8");
+  const action = css.match(/\.swp-action\s*\{([\s\S]*?)\}/)?.[1];
+  expect(action).toMatch(/min-width:\s*44px/);
+  expect(action).toMatch(/min-height:\s*44px/);
+  expect(action).toMatch(/overflow-wrap:\s*anywhere/);
+  expect(action).not.toMatch(/overflow:\s*hidden/);
+});
 
 it("uses the same URL-backed neutral filter contract for different work lists", () => {
   render(

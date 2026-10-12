@@ -598,6 +598,81 @@ limitation above is not silently resolved. Exact-HEAD CI/provider closure follow
 checkpoint push. Whole-product Owner acceptance and real fresh production
 authentication remain separate unresolved gates; S3 remains paused.
 
+## History context disclosure and control-floor refinement (2026-10-12)
+
+Exact-context/workflow checkpoint `1a5e3ccf0e6119ea76c07b40cedebc3453bc85af`
+closed with exact-HEAD CI
+[38240341895](https://github.com/johnny890118/wcs-demo/actions/runs/38240341895)
+success, [Vercel Ready](https://vercel.com/johnny890118s-projects/wcs-demo/HYpxZgcK2frtkXzLNEjRPCgmzHjn),
+[Render Live](https://dashboard.render.com/web/srv-dan23mjtqb8s73aac4lg/deploys/dep-db6btj95efls73bf9vcg),
+managed deployed smoke, exact remote main and a clean working tree.
+
+Actual `context-refinement-result-history-mobile-dark-en.jpg` shows a technical
+resource identifier occupying the primary filter surface before its readable
+event. The continuation page also still gives its return action a separate local
+link row despite the shared heading pattern. The shared action has a 44px height,
+but its explicit width floor is zero; observed product controls passed their
+target checks, while the reusable primitive should also protect shorter labels.
+
+| Before                                                | After                                                                                              | Why                                                                                 |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| History filter foregrounds type/UUID syntax           | Localized filtered-history/resource label; every exact filter field in native technical disclosure | Human-readable first without inventing a Work name or hiding diagnostic truth       |
+| Audit wraps PageHeading in another header             | One shared header plus an explicitly named filter group                                            | Avoid nested header composition and make related controls identifiable              |
+| Continuation return occupies an extra local-style row | Owned ghost action in PageHeading                                                                  | Align with the existing work-page rhythm and exact parent destination               |
+| Shared action has no nonzero width floor              | 44px minimum width and height, wrapping retained                                                   | Enforce the industrial baseline even for short content without clipping long labels |
+
+Pro Max/Emil review applies progressive disclosure, consistent action roles,
+readable hierarchy and stable touch bounds. No palette, motion, API request,
+domain state or product feature was added. All query filters remain inspectable;
+the authorized snapshot key, pagination, masking, unknown-event policy, warehouse
+scope and safety confirmation/mutation guards are untouched. Server-resolved
+parent Work destinations are unchanged. This is skill-based source/image review,
+not a claim of independent human design approval.
+
+The long-reference mock's load/inventory receipt labels now follow the baseline
+Task reference, with direct projection assertions, so that label stress evidence
+does not mix short parent labels with the long Work name. Its separately recorded
+created-origin fidelity limitation remains unresolved and is not promoted as real
+production behavior. This is test-only fixture consistency, not a new product API.
+
+Focused UI/contrast/continuation tests passed 67. A first new test hit two matching
+raw references in different legitimate disclosures; it was corrected to scope
+the named filter group rather than delete event detail or relax evidence checks.
+Native keyboard expand/collapse and clear-filter browser verification passed;
+all prior snapshot-retirement regressions remain. Final full verification passed
+653 fast tests, 88 real PostgreSQL tests, 49 browser tests, production build and
+public-demo denial. Separate API build, secret and production dependency checks
+passed; 15 existing Legacy lint warnings remain, with no errors. Source/diff
+security self-review found no API, authorization, session, warehouse, command or
+audit-state/retention/redaction changes. No independent human approval is claimed.
+
+Actual same-event History images cover 375×812 Dark/en and Light/zh, with native
+keyboard disclosure of all exact filter values, unchanged query during language/
+theme switching and the readable resource label. Desktop Light/zh was reviewed
+at 1440×900. Seven main pages were re-captured/reviewed in Desktop Light/zh;
+the current production-build matrix's six representative native PNGs were also
+reviewed individually: Inbound 1440×850, Live 768×900 and Inventory 390×844 in both
+themes/zh. The complete browser matrix checks seven pages × three geometries ×
+two locales × Light/Dark/System, alongside five-geometry navigation, 375px and
+long-label checks. These are controlled fixture/viewport observations, not real
+industrial devices or authenticated production measurements.
+
+Images use `history-disclosure-`, `final-review-` and `final-matrix-` in the
+external evidence directory. IAB observation JPEGs may exclude the scrollbar
+and rescale; report actual pixel sizes, never call them exact native comparisons.
+The preserved matrix PNGs match their CSS viewport pixels and were not rescaled.
+Final skill-based visual review found consistent quiet selection, action hierarchy,
+readable filters and retained truthful evidence; engineering pass does not grant
+Owner visual acceptance. Exact-HEAD CI/provider closure follows checkpoint push.
+
+Credential availability was independently rechecked without printing values:
+local `.env`/`.env.local` lack demo login credentials; the September 19 production
+snapshot's password is masked/placeholder. This is not a valid-credential fresh
+production login attempt and does not prove or disprove an auth regression. No
+password reset, reveal, credential export, session bypass or production mutation
+was performed. Real fresh login still requires the Owner's valid login evidence.
+S3 remains paused until Owner accepts the UI consolidation.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)

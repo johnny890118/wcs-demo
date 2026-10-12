@@ -1,5 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { PageHeading } from "../../../../../../components/ui/workspace";
+import { Button } from "../../../../../../components/ui/button";
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
 import { OperationsShell } from "../../../../../../components/platform/OperationsShell";
@@ -41,15 +42,18 @@ export default function ResumeWorkPage({
     <OperationsShell current="work" titleKey="workCase">
       <PageHeading
         title={detail?.task.externalReference ?? t("workUnavailable")}
+        action={
+          detail ? (
+            <Button asChild variant="ghost">
+              <Link href={workPath(detail.task.flow, detail.originResource.id)}>
+                {t("openWorkContext")}
+              </Link>
+            </Button>
+          ) : undefined
+        }
       />
       {detail ? (
         <>
-          <Link
-            className="ui-pressable ui-link mt-3 inline-flex min-h-11 items-center font-semibold"
-            href={workPath(detail.task.flow, detail.originResource.id)}
-          >
-            {t("openWorkContext")}
-          </Link>
           <WorkExecutionPanel
             key={`${detail.task.taskId}:${detail.generatedAt}`}
             detail={detail}

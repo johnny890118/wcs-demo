@@ -674,6 +674,14 @@ test("exact context reflows legal long Work references without losing selection,
   const root = "/operations/context/50000000-0000-4000-8000-000000000001";
   try {
     await signIn(page, `${root}/inventory`);
+    const projectedContext = await page.request.get(
+      `${scenarioApi}/api/v1/operations/context/50000000-0000-4000-8000-000000000001/inventory`,
+      { headers: serviceHeaders },
+    );
+    expect(projectedContext.ok()).toBe(true);
+    const projected = await projectedContext.json();
+    expect(projected.load.receiptReference).toBe(reference);
+    expect(projected.inventory.receiptReference).toBe(reference);
     for (const viewport of [
       { width: 1440, height: 900 },
       { width: 820, height: 1180 },
@@ -2073,6 +2081,20 @@ test("history clears contextual filters without a reload or browser back", async
     "/operations/audit?resourceType=InboundReceipt&resourceId=missing-evidence",
   );
   await expect(page.locator("article")).toHaveCount(0);
+  await expect(
+    page.getByText("已篩選的歷程 · 入庫收貨單", { exact: true }),
+  ).toBeVisible();
+  const filterDetails = page
+    .getByRole("group", { name: "已篩選的歷程", exact: true })
+    .locator("details.swp-diagnostics");
+  await expect(filterDetails.locator("pre")).not.toBeVisible();
+  await filterDetails.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(filterDetails.locator("pre")).toContainText(
+    '"resourceId": "missing-evidence"',
+  );
+  await page.keyboard.press("Enter");
+  await expect(filterDetails.locator("pre")).not.toBeVisible();
   await page.getByRole("link", { name: "清除篩選", exact: true }).click();
   await expect(page).toHaveURL("/operations/audit");
   await expect(
