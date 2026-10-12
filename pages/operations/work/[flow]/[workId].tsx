@@ -1,5 +1,5 @@
 import { PageHeading } from "../../../../components/ui/workspace";
-import { Button } from "../../../../components/ui/button";
+import { Button, buttonVariants } from "../../../../components/ui/button";
 import { DiagnosticDetails } from "../../../../components/ui/workspace";
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
@@ -33,8 +33,7 @@ type Props = {
   canViewAudit: boolean;
   canExecute?: boolean;
 };
-const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const linkClass = buttonVariants({ variant: "ghost" });
 export default function WorkPage({
   detail,
   canViewAudit,

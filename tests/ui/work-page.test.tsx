@@ -74,6 +74,11 @@ it("gates contextual audit separately and retains a visible root refresh link", 
   expect(
     screen.getByRole("link", { name: en.workRefresh }).getAttribute("href"),
   ).toBe("/operations/work/outbound/30000000-0000-4000-8000-000000000001");
+  for (const name of [en.workRefresh, en.viewOrderAuditEvidence]) {
+    const action = screen.getByRole("link", { name });
+    expect(action.className).toContain("swp-action-ghost");
+    expect(action.className).not.toContain("ui-link");
+  }
 });
 it("split outbound stays allocated with one completed task and offers only its queued sibling", () => {
   const completedId = "50000000-0000-4000-8000-000000000001";

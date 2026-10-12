@@ -1,5 +1,5 @@
 import { PageHeading } from "../../../components/ui/workspace";
-import { Button } from "../../../components/ui/button";
+import { Button, buttonVariants } from "../../../components/ui/button";
 import { formatOperationalTime } from "../../../src/ui/format-operational-time";
 import type { GetServerSideProps } from "next";
 import { withReadOnlyOperationalNavigation } from "../../../src/infrastructure/http/operational-request-context";
@@ -20,8 +20,8 @@ import { useLocale } from "../../../src/ui/i18n/locale-provider";
 import { authOptions } from "../../api/auth/[...nextauth]";
 
 type Props = { detail: TaskDetail | null; canViewAudit: boolean };
-const linkClass =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const linkClass = buttonVariants({ variant: "secondary" });
+const historyLinkClass = buttonVariants({ variant: "ghost" });
 const panel = "swp-evidence-section mt-6";
 export default function TaskDetailPage({ detail, canViewAudit }: Props) {
   const { t, locale } = useLocale();
@@ -161,7 +161,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
           {detail.route ? t("taskRecordedRouteNotice") : t("taskRoutePending")}
         </p>
         <Link className={linkClass} href={contextPath(task.taskId, "live")}>
-          {t("warehouseMap")}
+          {t("liveView")}
         </Link>
         {detail.route ? (
           <details className="mt-3 text-xs text-[var(--text-muted)]">
@@ -189,13 +189,13 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
         {canViewAudit ? (
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
-              className={linkClass}
+              className={historyLinkClass}
               href={contextPath(task.taskId, "history")}
             >
               {t("viewTaskAuditEvidence")}
             </Link>
             <Link
-              className={linkClass}
+              className={historyLinkClass}
               href={auditUrl(
                 detail.originResource.type,
                 detail.originResource.id,
@@ -209,7 +209,7 @@ export default function TaskDetailPage({ detail, canViewAudit }: Props) {
             </Link>
             {detail.alarm ? (
               <Link
-                className={linkClass}
+                className={historyLinkClass}
                 href={auditUrl("Alarm", detail.alarm.alarmId)}
               >
                 {t("viewAlarmAuditEvidence")}

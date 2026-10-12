@@ -414,7 +414,10 @@ test("operator Work entry preserves end-to-end investigation and six primary con
     .click();
   await expect(page).toHaveURL(/\/operations\/tasks\//);
   const taskURL = page.url();
-  await page.getByRole("link", { name: "倉庫地圖", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "倉庫地圖", exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: "倉庫即時觀測", exact: true }).click();
   await expect(page).toHaveURL(/\/context\/.*\/live/);
   await page.reload();
   await page.getByRole("link", { name: "返回這筆任務", exact: true }).click();

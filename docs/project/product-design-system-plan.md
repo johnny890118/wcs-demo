@@ -474,6 +474,60 @@ existing Task link label “Warehouse map” still names Live imprecisely. These
 not silently marked resolved. Exact CI/provider closure follows push;
 whole-product quality and Owner acceptance remain open.
 
+## Task and Work investigation hierarchy (2026-10-12)
+
+Home/load/location checkpoint `7ae75dad11a5b2392b0128b1014490ffe9687b8d`
+closed with exact-HEAD CI
+[38151735233](https://github.com/johnny890118/wcs-demo/actions/runs/38151735233)
+success, Vercel Ready, Render Live/last-successful SHA, managed deployed smoke,
+matching remote main and a clean working tree. No fresh production login is
+implied by those public/authorization-denial smoke checks.
+
+Actual Task images from that checkpoint showed repeated blue underlined controls
+and a “Warehouse map” label leading to the exact Live observation context. This
+small presentation-only correction continues the owned interaction roles; it
+does not redesign the product or change the server read/authorization contract.
+
+| Before                                                         | After                                               | Why                                                                              |
+| -------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Task context, Live and History share the same local link style | Context/Live investigation secondary; History ghost | Make the safe investigation entry recognizable without equal emphasis everywhere |
+| “Warehouse map” points to Live observations                    | Existing localized Live View label                  | Do not imply an unimplemented physical map                                       |
+| Work refresh/pagination/history use local underlined controls  | Shared owned ghost action variants                  | Keep supporting actions subordinate to existing Task/Resume actions              |
+
+Pro Max consistency, responsive/touch and hierarchy rules plus Emil's restrained
+interaction review informed the change; no new palette, animation or component
+vocabulary was introduced. Exact links, unknown/unavailable state, recorded-route
+limits, equipment-assignment qualification, audit permissions and safe execution
+eligibility remain unchanged. Security source/diff self-review found only
+presentation changes; this is not an independent human approval claim.
+
+Focused Task/Work/exact-context tests passed 10. Initial full verification passed
+647 fast tests and static/security checks but stopped because Docker was not
+running. After starting Docker, the browser journey still used the old map label;
+that run was interrupted, the assertion was updated to the actual Live name and
+an explicit assertion rejecting the old name was added. All exact URLs, reloads
+and return-context assertions were retained. The final full gate passed 647 fast
+tests, 88 real PostgreSQL tests, 48 browser tests, production build and public-demo
+denial. Separate API build and final format/secret checks passed; production
+dependency audit found zero vulnerabilities. The 15 existing Legacy lint warnings
+remain, with no errors. Exact-HEAD CI and provider closure follow checkpoint push.
+
+Actual production-build fixture images cover Desktop 1440×900 Light/zh and
+Dark/en; portrait Tablet 820×1180 Light/zh; landscape Tablet 1180×820 Light/zh;
+Mobile 375×812 Light/zh and Dark/en plus 844×390 landscape Light/zh. The Task
+investigation/history actions measured 44px high at 375px with no horizontal
+overflow. Locale/theme switches preserve the exact Task URL; Escape returns
+focus. Task → exact Live → original Task → Work → original Task uses explicit
+links, not remembered IDs, searches or Browser Back. Work context and safety
+qualification remain visible. Images use `task-action-refinement-` with
+`before-7ae75da-task-` baselines in the external evidence directory.
+
+The exact-context page and workflow/support panels still retain older action
+composition and require the next consistency pass. Full formal-route review,
+fresh production authentication and Owner visual acceptance remain open; S3 is
+paused. These viewport/fixture observations do not establish physical-device or
+authenticated production evidence.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)
