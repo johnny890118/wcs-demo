@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Input, Select, Textarea } from "../ui/field";
 import {
@@ -287,7 +287,7 @@ export function OutboundWorkflowPanel({
               })}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
+              className={buttonVariants({ variant: "ghost" })}
             >
               {t("inspectRecordedStock")} · {t("opensNewTab")}
             </Link>
@@ -322,7 +322,7 @@ export function OutboundWorkflowPanel({
           <div className="mt-5 space-y-5">
             <Link
               href={workPath("outbound", created.outboundOrderId)}
-              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold"
+              className={buttonVariants({ variant: "secondary" })}
             >
               {t("openWorkContext")}
             </Link>
@@ -382,7 +382,7 @@ export function OutboundWorkflowPanel({
                     rel={
                       state === "complete" ? undefined : "noopener noreferrer"
                     }
-                    className="ui-pressable ui-link inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold"
+                    className={buttonVariants({ variant: "ghost" })}
                   >
                     {t("inspectCreatedTask")} {index + 1}
                     {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
@@ -419,35 +419,37 @@ export function OutboundWorkflowPanel({
                   />
                   <p className="text-sm font-bold">{t("outboundCompleted")}</p>
                 </div>
-                <Link
-                  href="/operations/projections"
-                  className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                >
-                  {t("viewInventoryOutcome")}
-                </Link>
-                {canViewAudit ? (
-                  <>
-                    <Link
-                      href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
-                        created.outboundOrderId,
-                      )}`}
-                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                    >
-                      {t("viewOrderAuditEvidence")}
-                    </Link>
-                    {completedTaskIds.map((taskId) => (
+                <div className="swp-form-actions mt-4">
+                  <Link
+                    href="/operations/projections"
+                    className={buttonVariants({ variant: "secondary" })}
+                  >
+                    {t("viewInventoryOutcome")}
+                  </Link>
+                  {canViewAudit ? (
+                    <>
                       <Link
-                        key={taskId}
-                        href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
-                          taskId,
+                        href={`/operations/audit?resourceType=OutboundOrder&resourceId=${encodeURIComponent(
+                          created.outboundOrderId,
                         )}`}
-                        className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
+                        className={buttonVariants({ variant: "ghost" })}
                       >
-                        {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
+                        {t("viewOrderAuditEvidence")}
                       </Link>
-                    ))}
-                  </>
-                ) : null}
+                      {completedTaskIds.map((taskId) => (
+                        <Link
+                          key={taskId}
+                          href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                            taskId,
+                          )}`}
+                          className={buttonVariants({ variant: "ghost" })}
+                        >
+                          {t("viewTaskAuditEvidence")} · {taskId.slice(0, 8)}
+                        </Link>
+                      ))}
+                    </>
+                  ) : null}
+                </div>
               </div>
             ) : canExecute ? (
               <>

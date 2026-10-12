@@ -57,6 +57,9 @@ it("preserves exact alarm identity even when codes repeat and exposes unknown ta
   ]);
   expect(screen.getByText("homeReason_unknown_task")).toBeTruthy();
   expect(screen.queryByRole("button")).toBeNull();
+  for (const link of screen.getAllByRole("link")) {
+    expect(link.className).toContain("swp-action-secondary");
+  }
 });
 it("links an unassociated equipment observation exactly and qualifies empty bounded evidence", () => {
   const view = render(

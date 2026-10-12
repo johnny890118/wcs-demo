@@ -378,6 +378,12 @@ function readBody(request) {
 function scenario(name) {
   reset();
   if (name === "baseline") return true;
+  if (name === "long-reference") {
+    // Existing baseline Work/Task identity, only a legal unpredictable label.
+    details.tasks[0].externalReference = "ASN-" + "LONGREFERENCE".repeat(15);
+    refreshSummary();
+    return true;
+  }
   if (name === "inbound-completed") {
     details.tasks = [
       {

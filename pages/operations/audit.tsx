@@ -4,7 +4,7 @@ import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import {
   DiagnosticDetails,
   PageHeading,
@@ -96,7 +96,7 @@ function AuditHistoryContent({ initialPage, filters }: PageProps) {
             </span>
             <Link
               href="/operations/audit"
-              className="ui-link font-bold underline underline-offset-4"
+              className={buttonVariants({ variant: "ghost" })}
             >
               {t("clearAuditFilter")}
             </Link>

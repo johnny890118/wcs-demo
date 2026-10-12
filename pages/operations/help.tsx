@@ -1,5 +1,5 @@
 import { FieldLabel, Input } from "../../components/ui/field";
-import { Button } from "../../components/ui/button";
+import { Button, buttonVariants } from "../../components/ui/button";
 import { PageHeading } from "../../components/ui/workspace";
 import type { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth/next";
@@ -83,7 +83,7 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
               <a
                 key={article.id}
                 href={`#${article.id}`}
-                className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
+                className={buttonVariants({ variant: "ghost" })}
               >
                 {article.title[locale]}
               </a>
@@ -113,7 +113,7 @@ function HelpWorkspace({ permissions, query, topic }: Props) {
                       <Link
                         key={link.href}
                         href={link.href}
-                        className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
+                        className={buttonVariants({ variant: "secondary" })}
                       >
                         {link.label[locale]}
                       </Link>

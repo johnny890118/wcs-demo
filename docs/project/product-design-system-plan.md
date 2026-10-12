@@ -528,6 +528,76 @@ fresh production authentication and Owner visual acceptance remain open; S3 is
 paused. These viewport/fixture observations do not establish physical-device or
 authenticated production evidence.
 
+## Exact-context and workflow action consistency (2026-10-12)
+
+Task/Work checkpoint `241539df46747d4064f36ce8429979cb5193081e` closed with
+exact-HEAD CI [38237675608](https://github.com/johnny890118/wcs-demo/actions/runs/38237675608)
+success, [Vercel Ready](https://vercel.com/johnny890118s-projects/wcs-demo/2LDufUAzRBwcGnN3Ywgm49i18Sh7),
+[Render Live](https://dashboard.render.com/web/srv-dan23mjtqb8s73aac4lg/deploys/dep-db6bhl2vcj2c73ff9im0),
+managed smoke, exact remote main and a clean working tree.
+
+An actual legal 199-character reference probe at 375px exposed a context link
+1833px wide and a document scroll width of 1849px against a 360px content width.
+The isolated mock's created-context response also retains baseline origin/load
+fields, so that initial probe is layout evidence only, not a claim of correct
+created-Work handoff. The comparable Before evidence and regression now use the
+existing baseline Work/Task identity with only its reference changed; no fake
+equipment outcome or extra product API was introduced.
+
+| Before                                                                       | After                                                                                                        | Why                                                                                     |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Return actions precede the surface heading                                   | Shared heading, full readable Work reference/status, one exact-surface navigation, then handoffs             | Orient the operator before offering supporting navigation                               |
+| Seven context links share underlined action styling                          | Owned ContextNavigation with one URL-backed current selection                                                | Separate current location from action emphasis without fake ARIA tabs                   |
+| A long reference expands the return action beyond the viewport               | Reference remains readable in the heading; short visible Work action has the full contextual accessible name | Preserve identity and direct linking without clipping text or using an enormous control |
+| Exact Live adds a card around the already composed Live workspace            | Remove only that redundant outer surface                                                                     | Recover small-screen content width without hiding freshness/source/evidence             |
+| Workflow results and supporting investigation controls use small local links | Owned secondary investigation plus ghost History/help/refresh in wrapping action groups                      | Consistent 44px interaction and quieter supporting actions                              |
+
+Pro Max search `long labels wrapping overflow` returned the verified web Layout
+rule **Long Token Wrapping**: shrinkable text and `overflow-wrap: anywhere`, not
+global `break-all` or hidden overflow. The supplementary HTML/Tailwind result
+targets 4.3; SWP remains Tailwind 3 and implements compatible CSS instead of
+copying unavailable utility names or upgrading dependencies. Emil review favors
+readable hierarchy, compact action wording, stable bounds and no new animation.
+The owned action/heading rules handle long content without changing color roles.
+
+All destinations, `target`/`rel` draft-preservation behavior, field requirements,
+confirmation, mutation state, result qualification, unknown outcomes, audit
+gating, warehouse/session handling, server reads and timestamps are preserved.
+Audit's authorized snapshot reset contract is untouched. Source/diff security
+review must confirm this before checkpoint. No independent human approval is
+claimed. The existing outbound outcome still points to the technical projection
+workspace; this is retained rather than silently changing an established flow.
+
+Focused UI tests passed 37; a new production-build browser regression passed
+across 1440×900, 820×1180, 375×812 and 844×390, both locales/themes, full reference
+visibility, one selected exact surface, unchanged Work destination, Axe, actual
+text contrast, no overflow and reload/return to the original Task. An initial
+typecheck caught misuse of the contrast helper; it was fixed to call the helper
+with Page before running browser verification. Full verification passed 650 fast
+tests, 88 real PostgreSQL tests, 49 browser tests, production build and public-demo
+denial; separate API build and secret/dependency checks passed. The 15 existing
+Legacy lint warnings remain, with no errors. Final source/diff security review
+confirmed no API, authorization, session, warehouse, command or projection
+contract changes; this remains a self-review, not independent human approval.
+
+Actual same-baseline-reference images at 375px measured document width 1849px
+Before and 360px After. Native browser observations include Mobile Light/zh,
+portrait Tablet Light/zh and Dark/en, Desktop Dark/en and the isolated Inbound
+request/confirmation/result journey. Returned fixture result links measured 44px
+at Desktop and Mobile with no overflow. The exact Task audit link showed the
+fixture's matching completion event; it is not physical execution evidence.
+Locale/theme and navigation changes retained Work identity; selection, stale/
+last-known position and simulation-source qualifications remained visible.
+Images use `context-refinement-`, with the comparable baseline long-reference
+image `before-241539d-context-baseline-long-reference-mobile-light-zh.jpg`.
+
+Final Pro Max/Emil skill-based image/interaction review found quieter context
+orientation and action hierarchy with full text and truthful evidence. History's
+technical filter ID is still prominent, and the created-context mock fidelity
+limitation above is not silently resolved. Exact-HEAD CI/provider closure follows
+checkpoint push. Whole-product Owner acceptance and real fresh production
+authentication remain separate unresolved gates; S3 remains paused.
+
 ## Additional visual-reference evidence
 
 The official [Asana project views page](https://asana.com/zh-tw/features/project-management/project-views)

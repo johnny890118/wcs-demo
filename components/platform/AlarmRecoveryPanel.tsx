@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import {
@@ -179,7 +179,7 @@ export function AlarmRecoveryPanel({
           <p className="text-sm leading-6">{t("noActionableAlarms")}</p>
           <Link
             href="/operations/tasks"
-            className="ui-pressable ui-link mt-2 inline-flex min-h-11 items-center rounded-md text-sm font-semibold"
+            className={`${buttonVariants({ variant: "secondary" })} mt-2`}
           >
             {t("returnToTaskQueue")}
           </Link>
@@ -258,21 +258,29 @@ export function AlarmRecoveryPanel({
             <p className="text-sm leading-6 text-[var(--text-muted)]">
               {t("alarmContextNotice")}
             </p>
-            <Link
-              href={`/operations/tasks/${encodeURIComponent(selected.taskId)}`}
-              target={state === "complete" ? undefined : "_blank"}
-              rel={state === "complete" ? undefined : "noopener noreferrer"}
-              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
-            >
-              {t("inspectCreatedTask")}
-              {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
-            </Link>
-            <Link
-              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md text-sm font-bold"
-              href={contextPath(selected.taskId, "exception", selected.alarmId)}
-            >
-              {t("openExactException")}
-            </Link>
+            <div className="swp-form-actions">
+              <Link
+                href={`/operations/tasks/${encodeURIComponent(
+                  selected.taskId,
+                )}`}
+                target={state === "complete" ? undefined : "_blank"}
+                rel={state === "complete" ? undefined : "noopener noreferrer"}
+                className={buttonVariants({ variant: "ghost" })}
+              >
+                {t("inspectCreatedTask")}
+                {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
+              </Link>
+              <Link
+                className={buttonVariants({ variant: "secondary" })}
+                href={contextPath(
+                  selected.taskId,
+                  "exception",
+                  selected.alarmId,
+                )}
+              >
+                {t("openExactException")}
+              </Link>
+            </div>
             <details className="border-t border-[var(--border)] pt-2">
               <summary className="ui-pressable min-h-11 cursor-pointer rounded-md py-2 text-sm font-semibold">
                 {t("workflowReferences")}
@@ -346,32 +354,36 @@ export function AlarmRecoveryPanel({
                 </p>
               </div>
             </div>
-            <Link
-              href={`/operations/tasks/${encodeURIComponent(completed.taskId)}`}
-              className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-            >
-              {t("viewRecoveryOutcome")}
-            </Link>
-            {selected && canViewAudit ? (
-              <>
-                <Link
-                  href={contextPath(selected.taskId, "history")}
-                  className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                >
-                  {t("viewTaskAuditEvidence")}
-                </Link>
-                <Link
-                  href={contextPath(
-                    selected.taskId,
-                    "history",
-                    selected.alarmId,
-                  )}
-                  className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                >
-                  {t("viewAlarmAuditEvidence")}
-                </Link>
-              </>
-            ) : null}
+            <div className="swp-form-actions mt-4">
+              <Link
+                href={`/operations/tasks/${encodeURIComponent(
+                  completed.taskId,
+                )}`}
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                {t("viewRecoveryOutcome")}
+              </Link>
+              {selected && canViewAudit ? (
+                <>
+                  <Link
+                    href={contextPath(selected.taskId, "history")}
+                    className={buttonVariants({ variant: "ghost" })}
+                  >
+                    {t("viewTaskAuditEvidence")}
+                  </Link>
+                  <Link
+                    href={contextPath(
+                      selected.taskId,
+                      "history",
+                      selected.alarmId,
+                    )}
+                    className={buttonVariants({ variant: "ghost" })}
+                  >
+                    {t("viewAlarmAuditEvidence")}
+                  </Link>
+                </>
+              ) : null}
+            </div>
           </div>
         ) : selected ? (
           <div className="mt-5 space-y-5">

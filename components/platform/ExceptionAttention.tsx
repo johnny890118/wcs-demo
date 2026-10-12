@@ -1,4 +1,5 @@
 import { formatOperationalTime } from "../../src/ui/format-operational-time";
+import { buttonVariants } from "../ui/button";
 import Link from "next/link";
 import type { OperationsDetails } from "../../src/application/operations/operations-details";
 import { projectOperationsHome } from "../../src/application/operations/operations-home";
@@ -72,7 +73,7 @@ export function ExceptionAttention({
                 </p>
               </div>
               <Link
-                className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold"
+                className={buttonVariants({ variant: "secondary" })}
                 href={item.href}
               >
                 {t("reviewOperationalEvidence")}

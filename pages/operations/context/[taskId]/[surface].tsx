@@ -1,4 +1,9 @@
 import { PageHeading } from "../../../../components/ui/workspace";
+import { buttonVariants } from "../../../../components/ui/button";
+import {
+  ContextNavigation,
+  ContextNavigationLink,
+} from "../../../../components/ui/navigation";
 import { formatOperationalTime } from "../../../../src/ui/format-operational-time";
 import {
   auditActionLabel,
@@ -41,8 +46,7 @@ type Props = {
   canAcknowledge: boolean;
   canRecover: boolean;
 };
-const control =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const control = buttonVariants({ variant: "ghost" });
 const labels: Record<ContextSurface, MessageKey> = {
   load: "loads",
   inventory: "inventory",
@@ -94,46 +98,54 @@ export default function ExactContextPage(props: Props) {
                 : "tasks"
       }
     >
+      <PageHeading
+        title={t(labels[surface])}
+        description={
+          <>
+            <span className="block">{task.externalReference}</span>
+            <span className="block">
+              {task.source} → {task.destination} ·{" "}
+              {t(`homeTask_${task.status}` as MessageKey)}
+            </span>
+          </>
+        }
+        navigation={
+          <ContextNavigation label={t("exactContextSurfaces")}>
+            {contextSurfaces
+              .filter((x) => x !== "history" || props.canViewAudit)
+              .map((x) => (
+                <ContextNavigationLink
+                  key={x}
+                  current={x === surface}
+                  href={contextPath(task.taskId, x, props.alarmId ?? undefined)}
+                >
+                  {t(labels[x])}
+                </ContextNavigationLink>
+              ))}
+          </ContextNavigation>
+        }
+      />
       <nav
         aria-label={t("exactContextNavigation")}
-        className="mb-4 flex flex-wrap gap-2"
+        className="mt-3 flex flex-wrap gap-2"
       >
         <Link
-          className={control}
+          className={buttonVariants({ variant: "secondary" })}
           href={workPath(task.flow, context.detail.originResource.id)}
+          aria-label={`${t("openWorkContext")} · ${task.externalReference}`}
         >
-          {t("openWorkContext")} · {task.externalReference}
+          {t("openWorkContext")}
         </Link>
         <Link className={control} href={`/operations/tasks/${task.taskId}`}>
           {t("openTask")}
         </Link>
       </nav>
-      <p className="break-words text-sm text-[var(--text-muted)]">
-        {task.source} → {task.destination} ·{" "}
-        {t(`homeTask_${task.status}` as MessageKey)}
-      </p>
-      <PageHeading title={t(labels[surface])} />
-      <nav
-        aria-label={t("exactContextSurfaces")}
-        className="mt-4 flex flex-wrap gap-1"
-      >
-        {contextSurfaces
-          .filter((x) => x !== "history" || props.canViewAudit)
-          .map((x) => (
-            <Link
-              key={x}
-              className={control}
-              aria-current={x === surface ? "page" : undefined}
-              href={contextPath(task.taskId, x, props.alarmId ?? undefined)}
-            >
-              {t(labels[x])}
-            </Link>
-          ))}
-      </nav>
       <p className="mt-3 text-xs text-[var(--text-muted)]">
         {t("refreshedAt")} · {time(context.generatedAt)}
       </p>
-      <section className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+      <section
+        className={surface === "live" ? "mt-5" : "swp-evidence-section mt-5"}
+      >
         {surface === "load" ? (
           <>
             <h2 className="break-words text-xl font-bold">

@@ -114,6 +114,9 @@ it("does not misreport an unknown recovery result as resumed or completed", asyn
       .getByRole("link", { name: "viewRecoveryOutcome" })
       .getAttribute("href"),
   ).toBe("/operations/tasks/task-one");
+  expect(
+    screen.getByRole("link", { name: "viewRecoveryOutcome" }).className,
+  ).toContain("swp-action-secondary");
   expect(fetch).toHaveBeenCalledTimes(1);
 });
 it("exact exception handoff retains identity while session withdrawal fails the existing mutation path", async () => {

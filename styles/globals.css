@@ -106,6 +106,8 @@ body {
 
 .swp-action {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   min-height: 44px;
   align-items: center;
   justify-content: center;
@@ -123,6 +125,7 @@ body {
     background-color var(--motion-feedback) var(--ease-out),
     box-shadow var(--motion-feedback) var(--ease-out);
   white-space: normal;
+  overflow-wrap: anywhere;
 }
 .swp-action svg {
   width: 18px;
@@ -231,6 +234,11 @@ body {
 }
 .swp-page-heading h1 {
   margin: 0;
+  overflow-wrap: anywhere;
+}
+.swp-page-heading > div {
+  min-width: 0;
+  max-width: 100%;
 }
 .swp-secondary {
   margin-top: 6px;
@@ -238,6 +246,7 @@ body {
   max-width: 72ch;
   font-size: 14px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 .swp-record {
   padding: 20px;

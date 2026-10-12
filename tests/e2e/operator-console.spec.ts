@@ -666,6 +666,85 @@ test("neutral-first brand survives an operator read journey across themes, local
 
 const scenarioApi = "http://127.0.0.1:3101";
 
+test("exact context reflows legal long Work references without losing selection, scope or return", async ({
+  page,
+}) => {
+  await loadScenario(page, "long-reference");
+  const reference = "ASN-" + "LONGREFERENCE".repeat(15);
+  const root = "/operations/context/50000000-0000-4000-8000-000000000001";
+  try {
+    await signIn(page, `${root}/inventory`);
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 820, height: 1180 },
+      { width: 375, height: 812 },
+      { width: 844, height: 390 },
+    ]) {
+      await page.setViewportSize(viewport);
+      for (const locale of ["zh-TW", "en"] as const) {
+        await choosePreference(page, locale === "en" ? "EN" : "繁中");
+        for (const theme of ["light", "dark"] as const) {
+          await choosePreference(
+            page,
+            locale === "en"
+              ? theme === "light"
+                ? "Light"
+                : "Dark"
+              : theme === "light"
+                ? "淺色"
+                : "深色",
+          );
+          await expect(
+            page.getByText(reference, { exact: true }),
+          ).toBeVisible();
+          await expect(
+            page.locator(".swp-context-navigation a[aria-current='page']"),
+          ).toHaveCount(1);
+          await expect(
+            page.locator(".swp-context-navigation a[aria-current='page']"),
+          ).toHaveAttribute("href", `${root}/inventory`);
+          await expect(
+            page.getByRole("link", {
+              name: /^(開啟這筆工作|Open this work) · ASN-LONG/,
+            }),
+          ).toHaveAttribute(
+            "href",
+            "/operations/work/inbound/30000000-0000-4000-8000-000000000001",
+          );
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
+            ),
+          ).toBe(true);
+          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+            [],
+          );
+          expect(await visibleTextContrastFailures(page)).toEqual([]);
+        }
+      }
+    }
+    await page
+      .getByRole("navigation", { name: "Inspect this task's exact context" })
+      .getByRole("link", { name: "Recorded origin", exact: true })
+      .click();
+    await expect(page).toHaveURL(`${root}/source`);
+    await expect(
+      page.getByRole("navigation", { name: "Work context navigation" }),
+    ).toHaveCount(0);
+    await page.reload();
+    await page
+      .getByRole("link", { name: "Return to this task", exact: true })
+      .click();
+    await expect(page).toHaveURL(
+      "/operations/tasks/50000000-0000-4000-8000-000000000001",
+    );
+  } finally {
+    await loadScenario(page, "baseline");
+  }
+});
+
 test("exact handoffs survive reload across operator surfaces without search or Browser Back", async ({
   page,
 }) => {

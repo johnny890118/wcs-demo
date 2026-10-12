@@ -62,6 +62,9 @@ it("deduplicates recorded SKU hints without asserting raw quantities or a false 
       .getAttribute("href"),
   ).toBe("/operations/inventory?search=SKU-A");
   expect(
+    screen.getByRole("link", { name: /inspectRecordedStock/ }).className,
+  ).toContain("swp-action-ghost");
+  expect(
     screen
       .getByRole("button", { name: "createOutbound" })
       .getAttribute("disabled"),

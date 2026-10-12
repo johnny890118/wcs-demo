@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Input, Select, Textarea } from "../ui/field";
 import {
@@ -365,7 +365,7 @@ export function InboundWorkflowPanel({
           <div className="mt-5 space-y-5">
             <Link
               href={workPath("inbound", created.receiptId)}
-              className="ui-pressable ui-link inline-flex min-h-11 items-center rounded-md px-3 py-2 font-bold"
+              className={buttonVariants({ variant: "secondary" })}
             >
               {t("openWorkContext")}
             </Link>
@@ -402,7 +402,7 @@ export function InboundWorkflowPanel({
               )}`}
               target={state === "complete" ? undefined : "_blank"}
               rel={state === "complete" ? undefined : "noopener noreferrer"}
-              className="ui-pressable ui-link inline-flex min-h-11 items-center break-words rounded-md text-sm font-bold"
+              className={buttonVariants({ variant: "ghost" })}
             >
               {t("inspectCreatedTask")}
               {state !== "complete" ? ` · ${t("opensNewTab")}` : ""}
@@ -447,32 +447,34 @@ export function InboundWorkflowPanel({
                     </p>
                   </div>
                 </div>
-                <Link
-                  href="/operations/warehouse"
-                  className="ui-link mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                >
-                  {t("liveView")}
-                </Link>
-                {canViewAudit ? (
-                  <>
-                    <Link
-                      href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
-                        completed.taskId,
-                      )}`}
-                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                    >
-                      {t("viewTaskAuditEvidence")}
-                    </Link>
-                    <Link
-                      href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
-                        created.receiptId,
-                      )}`}
-                      className="ui-link ml-4 mt-4 inline-flex text-sm font-bold underline underline-offset-4"
-                    >
-                      {t("viewReceiptAuditEvidence")}
-                    </Link>
-                  </>
-                ) : null}
+                <div className="swp-form-actions mt-4">
+                  <Link
+                    href="/operations/warehouse"
+                    className={buttonVariants({ variant: "secondary" })}
+                  >
+                    {t("liveView")}
+                  </Link>
+                  {canViewAudit ? (
+                    <>
+                      <Link
+                        href={`/operations/audit?resourceType=TransportTask&resourceId=${encodeURIComponent(
+                          completed.taskId,
+                        )}`}
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        {t("viewTaskAuditEvidence")}
+                      </Link>
+                      <Link
+                        href={`/operations/audit?resourceType=InboundReceipt&resourceId=${encodeURIComponent(
+                          created.receiptId,
+                        )}`}
+                        className={buttonVariants({ variant: "ghost" })}
+                      >
+                        {t("viewReceiptAuditEvidence")}
+                      </Link>
+                    </>
+                  ) : null}
+                </div>
               </div>
             ) : canExecute ? (
               <>

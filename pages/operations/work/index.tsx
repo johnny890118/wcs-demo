@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FilterNavigationLink } from "../../../components/ui/navigation";
 import { OperationsShell } from "../../../components/platform/OperationsShell";
 import { PageHeading } from "../../../components/ui/workspace";
-import { Button } from "../../../components/ui/button";
+import { Button, buttonVariants } from "../../../components/ui/button";
 import { workPath } from "../../../src/application/operations/work-projection";
 import { workAttention } from "../../../src/application/operations/work-continuation";
 import {
@@ -23,8 +23,7 @@ import { useLocale } from "../../../src/ui/i18n/locale-provider";
 import type { MessageKey } from "../../../src/ui/i18n/catalogs";
 import { authOptions } from "../../api/auth/[...nextauth]";
 type Props = { page: WorkQueuePage | null; query: WorkQueueQuery };
-const link =
-  "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold ui-link";
+const link = buttonVariants({ variant: "ghost" });
 export default function WorkQueue({ page, query }: Props) {
   const { t } = useLocale();
   const view = query.view ?? "active";

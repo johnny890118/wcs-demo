@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { OperationTargetContext } from "./OperationTargetContext";
 import { FieldLabel, Select, Textarea, Input } from "../ui/field";
 import Link from "next/link";
@@ -54,8 +54,7 @@ export function WorkExecutionPanel({
   const [attempted, setAttempted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [complete, setComplete] = useState(false);
-  const link =
-    "ui-pressable inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold ui-link";
+  const link = buttonVariants({ variant: "ghost" });
   async function execute() {
     if (
       !canExecute ||
