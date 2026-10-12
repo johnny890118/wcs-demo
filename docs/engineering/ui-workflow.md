@@ -1,5 +1,8 @@
 # UI Design and Review Workflow
 
+Status: Current. `frontend-standard-authority.md` resolves historical conflicts;
+Owner alone accepts visual quality and explicitly resumes S3.
+
 Owner quality consolidation supersedes prior visually delivered claims: formal
 UI follows `design-system.md` and `../project/product-design-system-plan.md`.
 Engineering pass and Owner design acceptance are separate gates. Every major

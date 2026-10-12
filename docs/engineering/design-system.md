@@ -1,6 +1,7 @@
 # SWP owned design system
 
-Status: implementing the Owner-approved system; not visually accepted.
+Status: Current formal standard; engineering baseline delivered at `64025dc`,
+not visually accepted. See `frontend-standard-authority.md` for effective authority.
 See `../project/product-design-system-plan.md` for progress and remaining gates.
 
 ## Foundation and composition

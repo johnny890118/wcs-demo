@@ -1,6 +1,6 @@
 # ADR 0029 — Operator read navigation with bounded authority-scoped data
 
-Status: Foundation under verification; navigation activation requires separate
+Status: Foundation delivered at `2e90c6e`; navigation activation requires separate
 runtime integration and timing evidence. Supersedes ADR 0022's default interval,
 not its strict command/warehouse-switch or expiry contract.
 

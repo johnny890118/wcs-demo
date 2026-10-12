@@ -1,6 +1,9 @@
 # System-wide UI quality consolidation
 
-Status: Active implementation; Owner visual acceptance pending. S3 paused.
+Status: Historical / Superseded implementation plan. Engineering checkpoints
+remain evidence; Owner visual acceptance is pending and S3 is paused. Current
+work is `design-system-standardization-plan.md`; current frontend standards are
+`../engineering/frontend-standard-authority.md`.
 
 ## Authority / baseline
 
@@ -16,6 +19,10 @@ Persistent plan required. The adoption decision below is load-bearing only for
 presentation maintenance, not warehouse or security architecture.
 
 ## Component decision
+
+Historical decision below: formal Heroicons and Headless retention were later
+superseded by owned shadcn/Radix Sheet and Lucide. Legacy consumers remain.
+The old private-repository description records intent, not current GitHub visibility.
 
 Keep Next Pages Router, React 19, Tailwind 3, next-themes, Heroicons and SWP semantic
 tokens. Adopt inspected shadcn-style owned source components on Radix primitives

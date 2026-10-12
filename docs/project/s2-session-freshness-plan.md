@@ -1,5 +1,9 @@
 # S2 Human Session Freshness and Navigation Timing
 
+Disposition: Historical delivered design. The original 3600-second default below
+is superseded by ADR 0029's delivered 900-second default; strict authority and
+expiry requirements remain. See `../engineering/frontend-standard-authority.md`.
+
 Status: Engineering verification/review complete; independent slice after
 verified checkpoint `375d6f0`. Checkpoint pipeline must confirm exact remote SHA,
 CI/deployments and managed runtime before continuing S2 acceptance closure.

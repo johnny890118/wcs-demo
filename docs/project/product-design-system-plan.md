@@ -1,6 +1,10 @@
 # Product design system quality consolidation
 
-Status: active; Owner has not accepted current visual quality; S3 paused.
+Status: Historical delivery record through `64025dc`; engineering work delivered,
+Owner visual acceptance pending; S3 paused. Current bounded follow-up is
+`design-system-standardization-plan.md`, governed by
+`../engineering/frontend-standard-authority.md`. Findings below describe their
+dated checkpoint, not an instruction to repeat completed work.
 Navigation recovery checkpoint: `6ff6bf8` (full verification, 45 browser tests).
 This checkpoint is engineering recovery, not final product design approval.
 

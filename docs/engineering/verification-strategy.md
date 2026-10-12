@@ -1,5 +1,13 @@
 # Verification Strategy
 
+Current evidence authority: `final-ui-quality-review.md` records the delivered
+`64025dc` engineering baseline (653 fast / 88 PostgreSQL / 52 browser tests).
+`../project/design-system-standardization-plan.md` records the current two-stage
+follow-up. Earlier "Current" or "Latest" entries below are dated checkpoint
+history, not current counts, unresolved execution queues or permission to resume
+S3. Owner visual acceptance and valid-credential fresh production login remain
+separate gates.
+
 Latest single-site navigation acceptance retains all security gates and adds a
 45th browser journey: single/multiple/long authorized warehouse scopes, seven
 usable geometries, portrait Topbar/landscape Sidebar, retained form draft, and

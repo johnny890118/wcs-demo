@@ -1,6 +1,7 @@
 # S2 Navigation Product Quality Plan
 
-Status: Active
+Status: Historical — delivered S2 checkpoints; not an active implementation queue.
+Current UI work and pause authority: `design-system-standardization-plan.md`.
 
 Historical overview/identity checkpoints below are complete. Owner's newer
 session-freshness direction is an independent high-risk slice governed by

@@ -691,12 +691,6 @@ body {
   }
 }
 
-.ui-link {
-  color: var(--link);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
 #main-content input:not([type="checkbox"]):not([type="radio"]),
 #main-content select,
 #main-content textarea {

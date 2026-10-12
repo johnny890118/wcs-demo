@@ -1,6 +1,9 @@
 # S3 Demo Lifecycle Plan
 
-Status: Active — durable simulator-ownership slice.
+Status: Paused — delivered simulator-ownership checkpoints retained; no new S3
+implementation until explicit Owner UI acceptance and resumption. Historical
+automatic-return instructions below are superseded by
+`../engineering/frontend-standard-authority.md`.
 
 ## Entry evidence and workflow
 

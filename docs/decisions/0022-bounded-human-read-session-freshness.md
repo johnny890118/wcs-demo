@@ -1,5 +1,8 @@
 # ADR 0022 — Bounded human read-session freshness
 
+Current disposition: Accepted contract; default interval partially superseded
+by ADR 0029 (900 seconds). The original decision below remains historical evidence.
+
 Status: Accepted for implementation; supersedes ADR 0018's per-restore rule only
 for explicitly opted-in read-only Operations requests.
 

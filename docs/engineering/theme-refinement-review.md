@@ -1,6 +1,8 @@
 # Theme refinement — 2026-10-08
 
-Status: Active independent Owner-approved checkpoint after D `dbfb995`.
+Status: Historical checkpoint after D `dbfb995`; later visual direction supersedes
+its presentation choices. Current standards: `frontend-standard-authority.md`.
+No automatic S3 resumption authority remains.
 
 ## Scope and design
 

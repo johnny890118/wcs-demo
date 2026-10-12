@@ -34,7 +34,7 @@ Evolve this legacy prototype into a hardware-independent, commercially evolvable
 - Every hardware adapter must pass the shared conformance kit plus protocol/vendor tests. Stale or disconnected telemetry blocks new commands; acknowledgement loss uses the same command ID and unresolved divergence requires reconciliation.
 - Physical commissioning requires a site-specific OT threat/risk assessment, independently authoritative safety controls, broker/network hardening, failure drills, and recorded integrator/operations/security/safety approval. Repository tests never imply safety certification.
 - `zh-TW` and `en`, light and dark themes, responsive layouts, and WCAG 2.2 AA are product requirements.
-- Do not add an open-source license or expose this private repository in public UI.
+- Do not add an open-source license or promote repository links in product UI. GitHub currently reports this repository as Public; visibility and branch governance are pending Owner decision, not an authorization to publish credentials or customer data.
 - Do not commit secrets or production credentials. `.env` is local-only; maintain `.env.example` with placeholders.
 
 ## Decision governance
@@ -68,6 +68,7 @@ Run `npm run verify` before handing off a change. During migration, known gaps a
 
 ### Product design quality
 
+- Current frontend authority is `docs/engineering/frontend-standard-authority.md`: owned shadcn/ui, named Lucide React, Tailwind 3, supported Radix foundations and SWP semantic design rules. Historical plans do not override it; S3 requires explicit Owner acceptance and resumption.
 - Read `docs/engineering/ui-workflow.md` and `docs/engineering/design-system.md` before formal UI work. Use owned shadcn/ui primitives, Lucide named imports and SWP semantic tokens, not another local control vocabulary or template init overwrite.
 - Keep engineering quality and product design quality independent. Axe/contrast/pixel snapshots prove specific regressions, never beauty or Owner acceptance.
 - Review actual production-build images across formal pages, landscape/portrait/tablet/phone, locales/themes and adverse states; find shared composition defects, fix them, then re-review across pages and end-to-end journeys.

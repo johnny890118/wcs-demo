@@ -1,5 +1,9 @@
 # Operations navigation and operator workflow slice
 
+Current sequencing note: dated automatic S3 returns below are superseded. S3
+requires explicit Owner UI acceptance and resumption; see
+`../engineering/frontend-standard-authority.md`.
+
 Status: Complete — independent freshness/read-foundation checkpoint `2e90c6e`.
 Exact CI, Vercel/Render SHA and managed/authenticated runtime verified before A.
 Earlier unchecked activation items below are historical proposals, not outstanding

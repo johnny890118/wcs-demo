@@ -2,7 +2,14 @@
 
 This is a living roadmap. Priority is risk reduction plus demonstrable vertical capability, not feature count.
 
-Current delivery priority (Owner-approved 2026-10-09): final operator UI Proposal
+Current Owner authority (2026-10-13): two independent stages in
+[standards and evidence convergence](design-system-standardization-plan.md).
+Engineering baseline `64025dc` is delivered, not visually accepted. S3 remains
+paused until explicit Owner acceptance and resumption. Dated automatic-return
+instructions below are Historical / Superseded, not active execution authority.
+See [current frontend standards](../engineering/frontend-standard-authority.md).
+
+Historical delivery priority (Owner-approved 2026-10-09): final operator UI Proposal
 implemented and deployed across the shared shell and seven main surfaces at
 `796bb97`. S3 remains paused for Owner acceptance of the shipped UI; no product
 capability or milestone order change. See
@@ -12,7 +19,7 @@ responsive navigation and relocates preferences without hiding safety context.
 See [navigation acceptance correction](navigation-acceptance-fix.md). This remains
 the delivery priority; S3 does not resume before Owner UI acceptance.
 
-Latest Owner authority: previous UI checkpoints are not final visual acceptance.
+Historical consolidation authority: previous UI checkpoints are not final visual acceptance.
 System-wide quality consolidation is now the sole active delivery scope, including
 owned accessible components, all operator surfaces and iterative real-browser
 review. See [active consolidation plan](ui-quality-consolidation-plan.md) and
@@ -218,9 +225,9 @@ physical authoring and commercial readiness remain separate milestones.
 
 ## S3 — Public and Private Demo Product
 
-Status: In progress (supersedes M8B)
+Status: Paused pending explicit Owner UI acceptance and resumption (supersedes M8B).
 
-Active plan: [S3 demo lifecycle](s3-demo-lifecycle-plan.md). First slice is the
+Deferred plan: [S3 demo lifecycle](s3-demo-lifecycle-plan.md). First slice was the
 admission/expiry control ledger; provisioning reservations do not authorize
 operations. Public issuance and old browser carriers remain unavailable until
 isolated workspace/persisted-access/cleanup gates are implemented (ADR 0023).
@@ -289,6 +296,9 @@ Status: Planned
 Observability is cross-cutting from S1 onward. At each verified milestone, reassess remaining order against repository reality, dependencies, safety, user flow, and commercial maturity; record material changes.
 
 ## Immediate next task
+
+Current: execute only the bounded two-stage standardization/evidence plan above,
+then stop for Owner visual review. The dated entries below are preserved history.
 
 Latest Owner update (2026-10-08): D closure is delivered at `dbfb995` with exact
 CI/provider/runtime evidence. Execute an independent Theme Refinement checkpoint
