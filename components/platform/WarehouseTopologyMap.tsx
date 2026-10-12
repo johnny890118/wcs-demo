@@ -49,9 +49,17 @@ export function WarehouseTopologyMap({
 
   if (!topology || !layout) {
     return (
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-[var(--shadow-panel)]">
-        <h2 className="text-lg font-bold">{t("warehouseMap")}</h2>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">
+      <section aria-labelledby="warehouse-map-title">
+        <PageHeading
+          id="warehouse-map-title"
+          title={t("warehouseMapTitle")}
+          description={t("warehouseMapDescription")}
+          navigation={navigation}
+        />
+        <p
+          role="status"
+          className="swp-evidence-section mt-5 text-sm text-[var(--text-muted)]"
+        >
           {t("noTopology")}
         </p>
       </section>

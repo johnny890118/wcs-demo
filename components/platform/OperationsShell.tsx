@@ -566,12 +566,13 @@ export function OperationsShell({
               </WorkspaceNavigation.Provider>
               <div className="mt-8 border-t border-[var(--border)] pt-4">
                 {current !== "help" ? (
-                  <Link
-                    href={"/operations/help?topic=" + helpTopics[current]}
-                    className="ui-pressable ui-link mb-3 inline-flex min-h-11 items-center text-sm font-semibold"
-                  >
-                    {t("helpContextual")}
-                  </Link>
+                  <Button asChild variant="ghost" className="mb-3">
+                    <Link
+                      href={"/operations/help?topic=" + helpTopics[current]}
+                    >
+                      {t("helpContextual")}
+                    </Link>
+                  </Button>
                 ) : null}
                 <details
                   open={current === "projections" || current === "audit"}

@@ -378,6 +378,10 @@ function readBody(request) {
 function scenario(name) {
   reset();
   if (name === "baseline") return true;
+  if (name === "topology-empty") {
+    details.topology = null;
+    return true;
+  }
   if (name === "long-reference") {
     // Existing baseline Work/Task identity, only a legal unpredictable label.
     details.tasks[0].externalReference = "ASN-" + "LONGREFERENCE".repeat(15);

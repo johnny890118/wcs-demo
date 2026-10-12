@@ -695,6 +695,40 @@ images, not generated proposals or production equipment evidence.
 
 ## Required evidence before final handoff
 
+### Final systematic closure follow-up (2026-10-12)
+
+Owner requested a bounded final cross-surface review, not continuing per-page
+polish. Baseline is clean, pushed `8c68c9e1211c2f1bab8a0ad3c128fd45621f8423`;
+exact CI run 38246199609 succeeded, Vercel Ready and Render Live match that SHA,
+and deployed public/denial/health smoke passed. S3 remains paused.
+
+Work type: presentation verification and evidence-backed shared corrections.
+Risk is moderate with security-sensitive regression constraints; no domain,
+authorization, session or command contract changes are authorized. Reuse this
+persistent plan and accepted design system; a new architectural decision is not
+needed unless evidence demands a load-bearing change. Review all formal route
+families, supporting details, native disclosure/overlays and applicable adverse
+states. Extend the browser matrix beyond the seven main pages. Fix shared roots
+only when observed; preserve screenshots before any correction.
+
+Read-only GitHub governance evidence: repository visibility is public (`private:
+false`); main reports `protected: false`, protection endpoint returns 404
+"Branch not protected". This contradicts private-repository assumptions, not an
+authorization to change visibility/access. Owner must decide intended visibility
+and protection policy. No provider or GitHub settings were changed. Current
+branch protection alone does not establish whether every repository ruleset is
+absent; inspect rulesets separately before a definitive governance report.
+
+Rulesets were subsequently read with `includes_parents=true`: HTTP 200, empty
+list. No settings changed. Formal review and shared-root findings are recorded
+in `../engineering/final-ui-quality-review.md`: preserve prior delivery, correct
+empty Topology's missing heading/navigation, and align shared contextual Help
+with the owned secondary-navigation action role. New browser matrices add 324
+support/detail/context combinations and 36 applicable empty/read-failure ones,
+on top of the existing main-page and safety/journey suites. External final gallery
+preserves real Before/After, native PNGs and evidence limitations. Owner alone
+approves visual quality; fresh production login/governance remain separate gates.
+
 Engineering: full verify, separate API build, secret/dependency scan, unchanged
 security assertions, exact CI/provider SHA and safe deployed read smoke.
 Design: formal-route baseline and after review, all five viewport geometries,

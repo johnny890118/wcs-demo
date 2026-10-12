@@ -64,6 +64,14 @@ it("shares six operator primary destinations, keeps WCS tasks under Work and tec
     false,
   );
   expect(document.querySelector(".operations-page-context")).toBeNull();
+  const contextualHelp = screen.getByRole("link", {
+    name: "此工作區的操作說明",
+  });
+  expect(contextualHelp.getAttribute("href")).toBe(
+    "/operations/help?topic=daily-work",
+  );
+  expect(contextualHelp.className).toContain("swp-action-ghost");
+  expect(contextualHelp.className).not.toContain("ui-link");
   expect(screen.queryByRole("button", { name: /^登出$/ })).toBeNull();
   // jsdom does not apply responsive CSS; exercise the mobile header trigger
   // explicitly. Browser tests assert only the correct trigger is visible.

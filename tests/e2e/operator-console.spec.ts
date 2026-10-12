@@ -339,6 +339,205 @@ test("approved operator presentation covers seven surfaces across device locale 
   }
 });
 
+test("formal support and exact-context surfaces share responsive accessible presentation", async ({
+  page,
+}) => {
+  test.setTimeout(900_000);
+  await signIn(page, "/operations");
+  const taskId = "50000000-0000-4000-8000-000000000001";
+  const routes = [
+    "/operations/tasks",
+    `/operations/tasks/${taskId}`,
+    "/operations/loads",
+    "/operations/locations",
+    "/operations/audit",
+    "/operations/help",
+    "/operations/projections",
+    "/operations/warehouse/topology",
+    "/operations/access-denied",
+    "/operations/work/inbound/30000000-0000-4000-8000-000000000001",
+    `/operations/work/inbound/30000000-0000-4000-8000-000000000001/resume/${taskId}`,
+    ...[
+      "live",
+      "inventory",
+      "exception",
+      "load",
+      "source",
+      "destination",
+      "history",
+    ].map((surface) => `/operations/context/${taskId}/${surface}`),
+  ];
+  for (const width of [1440, 768, 375]) {
+    await page.setViewportSize({ width, height: width === 1440 ? 900 : 812 });
+    for (const locale of ["zh-TW", "en"]) {
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
+      for (const mode of ["light", "dark", "system"]) {
+        await choosePreference(
+          page,
+          locale === "en"
+            ? { light: "Light", dark: "Dark", system: "System" }[mode]!
+            : { light: "淺色", dark: "深色", system: "跟隨系統" }[mode]!,
+        );
+        for (const route of routes) {
+          await page.goto(route);
+          await expect(page.locator("#main-content")).toBeVisible();
+          await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+          const evidence = `${width}/${locale}/${mode}/${route}`;
+          if (route !== "/operations/help") {
+            const help = page.getByRole("link", {
+              name:
+                locale === "en"
+                  ? "Help for this workspace"
+                  : "此工作區的操作說明",
+              exact: true,
+            });
+            await expect(help).toHaveClass(/swp-action-ghost/);
+            await expect(help).toHaveAttribute(
+              "href",
+              /^\/operations\/help\?topic=/,
+            );
+            expect((await help.boundingBox())!.height).toBeGreaterThanOrEqual(
+              44,
+            );
+          }
+          expect(
+            (await new AxeBuilder({ page }).analyze()).violations,
+            evidence,
+          ).toEqual([]);
+          expect(await visibleTextContrastFailures(page), evidence).toEqual([]);
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
+            ),
+            evidence,
+          ).toBe(true);
+          await page.screenshot({
+            path: test
+              .info()
+              .outputPath(
+                `${route.replaceAll("/", "-")}-${width}-${locale}-${mode}.png`,
+              ),
+          });
+        }
+      }
+    }
+  }
+});
+
+test("empty topology preserves the formal heading and live navigation in every presentation mode", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await loadScenario(page, "topology-empty");
+  try {
+    await signIn(page, "/operations/warehouse/topology");
+    for (const width of [1440, 768, 375]) {
+      await page.setViewportSize({ width, height: 812 });
+      for (const locale of ["zh-TW", "en"]) {
+        await choosePreference(page, locale === "en" ? "EN" : "繁中");
+        for (const mode of ["light", "dark", "system"]) {
+          await choosePreference(
+            page,
+            locale === "en"
+              ? { light: "Light", dark: "Dark", system: "System" }[mode]!
+              : { light: "淺色", dark: "深色", system: "跟隨系統" }[mode]!,
+          );
+          await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+            locale === "en" ? "Topology inspector" : "拓撲檢視",
+          );
+          await expect(
+            page
+              .locator('a[href="/operations/warehouse"]')
+              .filter({ hasText: locale === "en" ? "Live" : "倉庫即時觀測" })
+              .last(),
+          ).toBeVisible();
+          await expect(page.getByRole("status")).toContainText(
+            locale === "en" ? "No active topology" : "目前沒有啟用中的拓撲",
+          );
+          expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+            [],
+          );
+          expect(await visibleTextContrastFailures(page)).toEqual([]);
+          expect(
+            await page.evaluate(
+              () =>
+                document.documentElement.scrollWidth <=
+                document.documentElement.clientWidth,
+            ),
+          ).toBe(true);
+          await page.screenshot({
+            path: test
+              .info()
+              .outputPath(`empty-topology-${width}-${locale}-${mode}.png`),
+          });
+        }
+      }
+    }
+  } finally {
+    await loadScenario(page, "baseline");
+  }
+});
+
+test("failed Live refresh retains qualified last-known evidence across all presentation modes", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await signIn(page, "/operations/warehouse");
+  await page.route("**/api/operations/live-view", (route) =>
+    route.fulfill({ status: 503, json: { code: "LIVE_VIEW_UNAVAILABLE" } }),
+  );
+  await page.getByRole("button", { name: "重新整理觀測", exact: true }).click();
+  for (const width of [1440, 768, 375]) {
+    await page.setViewportSize({ width, height: 812 });
+    for (const locale of ["zh-TW", "en"]) {
+      await choosePreference(page, locale === "en" ? "EN" : "繁中");
+      for (const mode of ["light", "dark", "system"]) {
+        await choosePreference(
+          page,
+          locale === "en"
+            ? { light: "Light", dark: "Dark", system: "System" }[mode]!
+            : { light: "淺色", dark: "深色", system: "跟隨系統" }[mode]!,
+        );
+        await expect(
+          page.getByText(
+            locale === "en"
+              ? "Current evidence expired or refresh failed. The displayed location is now last-known only."
+              : "目前證據已過期或更新失敗；畫面上的位置現在僅為最後已知。",
+            { exact: true },
+          ),
+        ).toBeVisible();
+        await expect(
+          page.getByText(
+            locale === "en"
+              ? "Qualified current observation"
+              : "合格的目前觀測",
+            { exact: true },
+          ),
+        ).toHaveCount(0);
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(
+          [],
+        );
+        expect(await visibleTextContrastFailures(page)).toEqual([]);
+        expect(
+          await page.evaluate(
+            () =>
+              document.documentElement.scrollWidth <=
+              document.documentElement.clientWidth,
+          ),
+        ).toBe(true);
+        await page.screenshot({
+          path: test
+            .info()
+            .outputPath(`failed-live-${width}-${locale}-${mode}.png`),
+          fullPage: true,
+        });
+      }
+    }
+  }
+});
+
 test("operator Work entry preserves end-to-end investigation and six primary contexts", async ({
   page,
 }) => {
