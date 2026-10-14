@@ -9,6 +9,13 @@ paused until explicit Owner acceptance and resumption. Dated automatic-return
 instructions below are Historical / Superseded, not active execution authority.
 See [current frontend standards](../engineering/frontend-standard-authority.md).
 
+Stage 1 standards/cleanup delivered at `a64c53b`, exact CI and both providers
+verified. Stage 2 bounded visual corrections and full local verification are
+recorded in [visual convergence](../engineering/bounded-visual-convergence-review.md);
+its exact checkpoint delivery gates precede Owner handoff. Stop after that bounded
+delivery. The Owner-required [old UI dependency migration](legacy-ui-library-migration-plan.md)
+is a separate future checkpoint, not a permanent Legacy exception or active S3 work.
+
 Historical delivery priority (Owner-approved 2026-10-09): final operator UI Proposal
 implemented and deployed across the shared shell and seven main surfaces at
 `796bb97`. S3 remains paused for Owner acceptance of the shipped UI; no product

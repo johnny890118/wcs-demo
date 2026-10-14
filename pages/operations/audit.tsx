@@ -124,15 +124,15 @@ function AuditHistoryContent({ initialPage, filters }: PageProps) {
         </div>
       ) : null}
 
-      <section aria-label={t("auditEvents")} className="mt-8 space-y-3">
+      <section aria-label={t("auditEvents")} className="mt-6">
         {events.length === 0 && !failed ? (
           <p className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-sm text-[var(--text-muted)]">
             {t("noAuditEvents")}
           </p>
         ) : null}
         {events.map((event) => (
-          <Record key={event.eventId}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <Record key={event.eventId} appearance="row">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-semibold">
@@ -144,19 +144,24 @@ function AuditHistoryContent({ initialPage, filters }: PageProps) {
                     </span>
                   ) : null}
                 </div>
-                <p className="mt-1 break-all text-sm text-[var(--text-muted)]">
-                  {auditResourceLabel(event.resource.type, locale)}
-                </p>
-                <p className="mt-1 break-words text-sm text-[var(--text-muted)]">
-                  {t("actor")}: {event.actor.id}
-                </p>
+                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-[var(--text-muted)]">
+                  <p>{auditResourceLabel(event.resource.type, locale)}</p>
+                  <p className="break-words">
+                    {t("actor")}: {event.actor.id}
+                  </p>
+                </div>
               </div>
               <p className="flex shrink-0 items-center gap-2 text-xs text-[var(--text-muted)]">
                 <ClockIcon className="h-4 w-4" aria-hidden="true" />
-                {formatOperationalTime(event.occurredAt)}
+                <time dateTime={event.occurredAt}>
+                  {formatOperationalTime(event.occurredAt)}
+                </time>
               </p>
             </div>
-            <DiagnosticDetails title={t("homeTechnicalDetails")}>
+            <DiagnosticDetails
+              title={t("homeTechnicalDetails")}
+              density="compact"
+            >
               <p className="mb-3 break-all font-mono text-sm">{event.action}</p>
               <p className="mb-3 break-all font-mono text-sm">
                 {event.resource.type}:{event.resource.id}

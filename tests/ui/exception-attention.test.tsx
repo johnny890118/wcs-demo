@@ -60,6 +60,16 @@ it("preserves exact alarm identity even when codes repeat and exposes unknown ta
   for (const link of screen.getAllByRole("link")) {
     expect(link.className).toContain("swp-action-secondary");
   }
+  const names = screen
+    .getAllByRole("link")
+    .map((link) => link.getAttribute("aria-label"));
+  expect(new Set(names).size).toBe(3);
+  expect(names[0]).toContain(
+    "reviewAlarmEvidence · DUPLICATE · equipment-one · alarm-one",
+  );
+  expect(names[1]).toContain("alarm-two");
+  expect(names[2]).toContain("reviewTaskEvidence");
+  expect(screen.queryByText("reviewOperationalEvidence")).toBeNull();
 });
 it("links an unassociated equipment observation exactly and qualifies empty bounded evidence", () => {
   const view = render(
@@ -80,6 +90,10 @@ it("links an unassociated equipment observation exactly and qualifies empty boun
   );
   expect(screen.getByRole("link").getAttribute("href")).toBe(
     "/operations/warehouse?equipmentId=device+with+space",
+  );
+  expect(screen.getByRole("link").textContent).toBe("reviewEquipmentEvidence");
+  expect(screen.getByRole("link").getAttribute("aria-label")).toBe(
+    "reviewEquipmentEvidence · device with space",
   );
   expect(screen.getByText("exceptionSnapshotNotice")).toBeTruthy();
   view.rerender(<ExceptionAttention details={base} />);

@@ -13,17 +13,19 @@ export function PageHeading({
   description,
   action,
   navigation,
+  density = "standard",
 }: {
   id?: string;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
   navigation?: ReactNode;
+  density?: "standard" | "compact";
 }) {
   const workspaceNavigation = useContext(WorkspaceNavigation);
   return (
     <>
-      <header className="swp-page-heading">
+      <header className="swp-page-heading" data-density={density}>
         <div>
           <h1 id={id}>{title}</h1>
           {description ? <p className="swp-secondary">{description}</p> : null}
@@ -37,20 +39,30 @@ export function PageHeading({
 
 export function Record({
   className = "",
+  appearance = "card",
   ...props
-}: ComponentProps<"article">) {
-  return <article className={`swp-record ${className}`} {...props} />;
+}: ComponentProps<"article"> & { appearance?: "card" | "row" }) {
+  return (
+    <article
+      className={`swp-record ${
+        appearance === "row" ? "swp-record-row" : ""
+      } ${className}`}
+      {...props}
+    />
+  );
 }
 
 export function DiagnosticDetails({
   title,
   children,
+  density = "standard",
 }: {
   title: ReactNode;
   children: ReactNode;
+  density?: "standard" | "compact";
 }) {
   return (
-    <details className="swp-diagnostics">
+    <details className="swp-diagnostics" data-density={density}>
       <summary>{title}</summary>
       <div>{children}</div>
     </details>

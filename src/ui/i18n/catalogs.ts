@@ -343,6 +343,9 @@ export const en = {
   homeCoverageNotice:
     "This overview has a record limit. Additional records may be omitted; absence here does not confirm the warehouse is clear.",
   reviewOperationalEvidence: "Review operational evidence",
+  reviewAlarmEvidence: "Review alarm evidence",
+  reviewTaskEvidence: "Review work evidence",
+  reviewEquipmentEvidence: "Review equipment evidence",
   homeTechnicalDetails: "Technical details",
   homeWorkNavigation: "Work areas",
   homeReason_active_alarm: "An alarm requires acknowledgement",
@@ -1014,6 +1017,9 @@ export const zhTW: Catalog = {
   homeCoverageNotice:
     "此總覽有筆數上限，可能省略其他紀錄；未出現在此處不代表整座倉庫沒有異常。",
   reviewOperationalEvidence: "檢視營運證據",
+  reviewAlarmEvidence: "檢視警報證據",
+  reviewTaskEvidence: "檢視工作證據",
+  reviewEquipmentEvidence: "檢視設備證據",
   homeTechnicalDetails: "技術細節",
   homeWorkNavigation: "作業入口",
   homeReason_active_alarm: "警報需要確認",

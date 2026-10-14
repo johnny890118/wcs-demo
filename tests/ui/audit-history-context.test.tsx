@@ -47,6 +47,39 @@ const page = (
   nextCursor,
 });
 
+it("uses a compact record without dropping time, unknown vocabulary or redacted technical evidence", () => {
+  const snapshot = page("current-actor");
+  render(
+    <AuditHistoryPage
+      warehouseId="one"
+      filters={{}}
+      initialPage={{
+        ...snapshot,
+        events: [
+          {
+            ...snapshot.events[0],
+            knownAction: false,
+            action: "future.action",
+            evidence: { reason: "[REDACTED]" },
+          },
+        ],
+      }}
+    />,
+  );
+  const record = screen.getByRole("article");
+  expect(record.className).toContain("swp-record-row");
+  expect(record.querySelector("time")?.getAttribute("dateTime")).toBe(
+    "2026-10-09T00:00:00Z",
+  );
+  expect(screen.getByText("Actor: current-actor")).toBeTruthy();
+  expect(screen.getByText(en.unknownAuditAction)).toBeTruthy();
+  const details = record.querySelector("details")!;
+  expect(details.open).toBe(false);
+  expect(details.textContent).toContain("future.action");
+  expect(details.textContent).toContain("[REDACTED]");
+  expect(details.textContent).toContain("correlation-test");
+});
+
 it("prioritizes the readable resource context while keeping exact technical filters available", () => {
   render(
     <AuditHistoryPage

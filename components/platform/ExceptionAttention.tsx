@@ -21,7 +21,9 @@ export function ExceptionAttention({
   const items = [
     ...alarms.map((alarm) => ({
       key: `alarm-${alarm.alarmId}`,
-      reference: alarm.code,
+      reference: `${alarm.code} · ${alarm.equipmentId}`,
+      identity: alarm.alarmId,
+      action: "reviewAlarmEvidence" as const,
       reason: alarm.status === "active" ? "active_alarm" : "acknowledged_alarm",
       href: contextPath(alarm.taskId, "exception", alarm.alarmId),
     })),
@@ -32,6 +34,11 @@ export function ExceptionAttention({
           item.kind === "equipment" ? item.equipmentId : item.taskId
         }`,
         reference: item.reference,
+        identity: item.kind === "task" ? item.taskId : item.equipmentId,
+        action:
+          item.kind === "task"
+            ? ("reviewTaskEvidence" as const)
+            : ("reviewEquipmentEvidence" as const),
         reason: item.reason,
         href:
           item.kind === "task" && item.taskId
@@ -75,8 +82,13 @@ export function ExceptionAttention({
               <Link
                 className={buttonVariants({ variant: "secondary" })}
                 href={item.href}
+                aria-label={`${t(item.action)} · ${item.reference}${
+                  item.identity && item.identity !== item.reference
+                    ? ` · ${item.identity}`
+                    : ""
+                }`}
               >
-                {t("reviewOperationalEvidence")}
+                {t(item.action)}
               </Link>
             </li>
           ))}

@@ -236,6 +236,9 @@ body {
   margin: 0;
   overflow-wrap: anywhere;
 }
+.swp-page-heading[data-density="compact"] {
+  margin-bottom: 12px;
+}
 .swp-page-heading > div {
   min-width: 0;
   max-width: 100%;
@@ -260,6 +263,14 @@ body {
   line-height: 1.45;
   letter-spacing: -0.015em;
 }
+.swp-record-row {
+  padding: 16px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
 .swp-diagnostics {
   color: var(--text-muted);
   font-size: 13px;
@@ -269,6 +280,18 @@ body {
   cursor: pointer;
   min-height: 44px;
   padding: 12px 0;
+}
+.swp-diagnostics[data-density="compact"] {
+  margin-top: 4px;
+}
+.swp-observation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.swp-observation-meta > p {
+  margin: 0;
 }
 .swp-diagnostics > div {
   padding-block: 8px;
@@ -433,6 +456,14 @@ body {
 .swp-context-link.is-current {
   border-bottom-color: var(--text);
   color: var(--text);
+}
+.swp-context-navigation[data-density="compact"] {
+  gap: 0;
+  margin-bottom: 12px;
+}
+.swp-context-navigation[data-density="compact"] .swp-context-link {
+  min-width: 44px;
+  padding-inline: 8px;
 }
 .swp-context-link:hover {
   color: var(--text);

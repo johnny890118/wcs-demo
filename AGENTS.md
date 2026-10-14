@@ -69,6 +69,7 @@ Run `npm run verify` before handing off a change. During migration, known gaps a
 ### Product design quality
 
 - Current frontend authority is `docs/engineering/frontend-standard-authority.md`: owned shadcn/ui, named Lucide React, Tailwind 3, supported Radix foundations and SWP semantic design rules. Historical plans do not override it; S3 requires explicit Owner acceptance and resumption.
+- Heroicons and Headless UI are temporary migration dependencies, not permanent Legacy exceptions. Safely migrate all consumers in an independent checkpoint before removing them repository-wide; do not break references or retire Legacy without Owner approval.
 - Read `docs/engineering/ui-workflow.md` and `docs/engineering/design-system.md` before formal UI work. Use owned shadcn/ui primitives, Lucide named imports and SWP semantic tokens, not another local control vocabulary or template init overwrite.
 - Keep engineering quality and product design quality independent. Axe/contrast/pixel snapshots prove specific regressions, never beauty or Owner acceptance.
 - Review actual production-build images across formal pages, landscape/portrait/tablet/phone, locales/themes and adverse states; find shared composition defects, fix them, then re-review across pages and end-to-end journeys.

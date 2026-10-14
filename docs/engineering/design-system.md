@@ -61,7 +61,17 @@ for lightweight preferences/warehouse switching and Tooltip for collapsed labels
 Sheet has one localized owned close control, automatic focus trapping/Escape/
 trigger return, semantic scrim/surface and safe-area panel insets. The existing
 geometry-change handler restores focus to visible navigation rather than a hidden
-trigger. Legacy Headless UI is not removed or loaded as a formal alternative.
+trigger. Legacy Headless UI is temporarily retained, not loaded as a formal alternative.
+Owner requires safe repository-wide Heroicons/Headless migration and removal in
+the later independent `../project/legacy-ui-library-migration-plan.md` checkpoint.
+
+Compact composition is opt-in: PageHeading/ContextNavigation compact density
+keeps 44px destinations and full labels; Record row appearance uses separators
+instead of nested cards. Compact DiagnosticDetails retains its 44px native
+summary and complete evidence. Defaults on unrelated pages do not change.
+Observation source/time may share one metadata group; different evidence sources
+or timestamps must not be conflated. Equal rendered Live/context snapshot times
+need only one visible timestamp; unavailable or distinct snapshots keep their own.
 
 Two quality gates: engineering verification and actual cross-page composition
 review. Deterministic visual regression detects displacement/overflow/clipping/

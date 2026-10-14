@@ -1,5 +1,14 @@
 # Verification Strategy
 
+Latest bounded presentation source: complete local verification passes 655 fast,
+88 real PostgreSQL and 53 browser tests plus API build and closed-public-demo
+boundary. The new serial fixture comparison preserves 48 native Before/After
+views with fixed data/clock, exact links, 44px targets, density/Axe/contrast/reflow
+checks. Existing complete surface/locale/theme/system/geometry/unknown/security
+gates are unchanged. See `bounded-visual-convergence-review.md`; exact CI/provider
+SHA and managed smoke are verified separately at handoff. Owner visual acceptance
+and valid-credential fresh production login remain independent, unapproved gates.
+
 Current evidence authority: `final-ui-quality-review.md` records the delivered
 `64025dc` engineering baseline (653 fast / 88 PostgreSQL / 52 browser tests).
 `../project/design-system-standardization-plan.md` records the current two-stage

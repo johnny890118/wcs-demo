@@ -28,7 +28,7 @@ formal product navigation implementation.
 
 ## Upstream notice — shadcn/ui portions only
 
-This notice applies only to adapted shadcn/ui source, not to SWP or this private
+This notice applies only to adapted shadcn/ui source, not to SWP or the
 repository as a whole. Source: https://github.com/shadcn-ui/ui/blob/main/LICENSE.md
 
 MIT License

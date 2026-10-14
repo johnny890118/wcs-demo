@@ -12,6 +12,7 @@ import {
 } from "../../src/infrastructure/http/wcs-api-client";
 import { testOperationalSession } from "../fixtures/operational-access";
 import type { ExactContext } from "../../src/application/operations/exact-context";
+import { projectSpatialReadContext } from "../../src/application/operations/spatial-read-context";
 vi.mock("next-auth/next", () => ({ getServerSession: vi.fn() }));
 vi.mock("../../src/infrastructure/http/wcs-api-client", () => ({
   fetchExactContext: vi.fn(),
@@ -99,6 +100,52 @@ const contextProps = {
   canAcknowledge: false,
   canRecover: false,
 };
+
+it("deduplicates only equal rendered Live snapshot times and preserves distinct or unavailable evidence", () => {
+  const live = {
+    spatialContext: projectSpatialReadContext(null),
+    generatedAt,
+    topology: null,
+    locations: [],
+    work: [],
+    alarms: [],
+    equipment: [],
+    coverage: {
+      workMayBeLimited: false,
+      equipmentMayBeLimited: false,
+      locationsMayBeLimited: false,
+      alarmsMayBeLimited: false,
+    },
+  };
+  const rendered = {
+    ...context,
+    detail: {
+      ...context.detail,
+      task: { ...context.detail.task, equipmentId: "missing" },
+    },
+    live,
+  };
+  const result = render(
+    <Page {...contextProps} surface="live" context={rendered} />,
+  );
+  expect(screen.getAllByText(/refreshedAt/)).toHaveLength(1);
+  expect(screen.getByText("exactContextUnresolved")).toBeTruthy();
+  result.rerender(
+    <Page
+      {...contextProps}
+      surface="live"
+      context={{
+        ...rendered,
+        live: { ...live, generatedAt: "2026-10-12T00:01:00Z" },
+      }}
+    />,
+  );
+  expect(screen.getAllByText(/refreshedAt/)).toHaveLength(2);
+  result.rerender(
+    <Page {...contextProps} surface="live" context={{ ...context, live }} />,
+  );
+  expect(screen.getAllByText(/refreshedAt/)).toHaveLength(1);
+});
 
 it("gives the exact surface one selected navigation and a readable full reference before handoffs", () => {
   render(<Page {...contextProps} surface="inventory" />);

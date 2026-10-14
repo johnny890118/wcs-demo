@@ -80,14 +80,16 @@ export function WarehouseLiveView({
   const time = (value: string) => formatOperationalTime(value);
   return (
     <div className="space-y-5">
-      <OperationTargetContext sourceOnly />
+      <div className="swp-observation-meta">
+        <OperationTargetContext sourceOnly />
+        <p className="text-xs text-[var(--text-muted)]">
+          {t("refreshedAt")}:{" "}
+          <time dateTime={view.generatedAt}>{time(view.generatedAt)}</time>
+        </p>
+      </div>
       {exactEquipmentId !== undefined && !selected ? (
         <p role="status">{t("exactContextUnresolved")}</p>
       ) : null}
-      <p className="text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")}:{" "}
-        <time dateTime={view.generatedAt}>{time(view.generatedAt)}</time>
-      </p>
       {!projectionCurrent && (
         <p
           role="status"

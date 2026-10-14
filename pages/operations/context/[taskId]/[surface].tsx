@@ -99,6 +99,7 @@ export default function ExactContextPage(props: Props) {
       }
     >
       <PageHeading
+        density="compact"
         title={t(labels[surface])}
         description={
           <>
@@ -110,7 +111,10 @@ export default function ExactContextPage(props: Props) {
           </>
         }
         navigation={
-          <ContextNavigation label={t("exactContextSurfaces")}>
+          <ContextNavigation
+            label={t("exactContextSurfaces")}
+            density="compact"
+          >
             {contextSurfaces
               .filter((x) => x !== "history" || props.canViewAudit)
               .map((x) => (
@@ -119,7 +123,7 @@ export default function ExactContextPage(props: Props) {
                   current={x === surface}
                   href={contextPath(task.taskId, x, props.alarmId ?? undefined)}
                 >
-                  {t(labels[x])}
+                  {t(x === "live" ? "operatorLive" : labels[x])}
                 </ContextNavigationLink>
               ))}
           </ContextNavigation>
@@ -127,7 +131,7 @@ export default function ExactContextPage(props: Props) {
       />
       <nav
         aria-label={t("exactContextNavigation")}
-        className="mt-3 flex flex-wrap gap-2"
+        className="flex flex-wrap gap-2"
       >
         <Link
           className={buttonVariants({ variant: "secondary" })}
@@ -140,11 +144,20 @@ export default function ExactContextPage(props: Props) {
           {t("openTask")}
         </Link>
       </nav>
-      <p className="mt-3 text-xs text-[var(--text-muted)]">
-        {t("refreshedAt")} · {time(context.generatedAt)}
-      </p>
+      {/* Collapse only identical snapshot times when the Live evidence below
+          actually renders. Distinct context/observation times remain visible. */}
+      {!(
+        surface === "live" &&
+        context.live &&
+        liveEquipmentId &&
+        context.generatedAt === context.live.generatedAt
+      ) ? (
+        <p className="mt-2 text-xs text-[var(--text-muted)]">
+          {t("refreshedAt")} · {time(context.generatedAt)}
+        </p>
+      ) : null}
       <section
-        className={surface === "live" ? "mt-5" : "swp-evidence-section mt-5"}
+        className={surface === "live" ? "mt-4" : "swp-evidence-section mt-4"}
       >
         {surface === "load" ? (
           <>

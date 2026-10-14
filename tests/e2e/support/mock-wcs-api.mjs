@@ -313,6 +313,7 @@ const auditEvents = [
 
 let summary = structuredClone(baseSummary);
 let details = structuredClone(baseDetails);
+let visualSnapshot = false;
 function fixtureTaskId(task) {
   return /^[0-9a-f-]{36}$/i.test(task.taskId)
     ? task.taskId
@@ -338,6 +339,7 @@ function fixtureQueue() {
 }
 
 function reset() {
+  visualSnapshot = false;
   summary = structuredClone(baseSummary);
   details = structuredClone(baseDetails);
 }
@@ -377,6 +379,13 @@ function readBody(request) {
 
 function scenario(name) {
   reset();
+  // Dedicated screenshot fixture: identical evidence time before/after UI edits.
+  // Ordinary scenarios retain their real-time refresh behavior.
+  if (name === "visual-baseline" || name === "visual-faulted") {
+    const ready = scenario(name.slice("visual-".length));
+    visualSnapshot = ready;
+    return ready;
+  }
   if (name === "baseline") return true;
   if (name === "topology-empty") {
     details.topology = null;
@@ -1288,7 +1297,9 @@ const server = createServer(async (request, response) => {
   }
   if (request.url === "/api/v1/operations/details") {
     const snapshot = structuredClone(details);
-    snapshot.generatedAt = new Date().toISOString();
+    snapshot.generatedAt = visualSnapshot
+      ? generatedAt
+      : new Date().toISOString();
     for (const item of snapshot.equipment)
       if (item.telemetry?.freshness === "current") {
         item.telemetry.receivedAt = snapshot.generatedAt;

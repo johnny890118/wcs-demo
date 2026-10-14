@@ -7,12 +7,18 @@ import { cn } from "./utils";
 export function ContextNavigation({
   label,
   children,
+  density = "standard",
 }: {
   label: string;
   children: ReactNode;
+  density?: "standard" | "compact";
 }) {
   return (
-    <nav aria-label={label} className="swp-context-navigation">
+    <nav
+      aria-label={label}
+      className="swp-context-navigation"
+      data-density={density}
+    >
       {children}
     </nav>
   );
