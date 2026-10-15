@@ -36,6 +36,10 @@ export function LegacyDialog({
           onPointerCancel={() => {
             backdropPress.current = false;
           }}
+          onPointerUp={(event) => {
+            backdropPress.current &&=
+              event.target === event.currentTarget && event.button === 0;
+          }}
           onClick={(event) => {
             if (backdropPress.current && event.target === event.currentTarget)
               onClose();
@@ -44,6 +48,9 @@ export function LegacyDialog({
         >
           <DialogContent
             aria-describedby={undefined}
+            // A pointer-down alone is not a completed backdrop click. Let the
+            // qualified Overlay press/release handle outside dismissal.
+            onPointerDownOutside={(event) => event.preventDefault()}
             className="relative max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-gray-900 text-left shadow-xl focus:outline-none"
             onOpenAutoFocus={(event) => {
               returnFocus.current =

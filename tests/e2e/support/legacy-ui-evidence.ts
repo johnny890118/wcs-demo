@@ -236,6 +236,13 @@ test("migrated disclosure and dialogs keep keyboard focus, dismissal, draft and 
   await page.mouse.move(3, 3);
   await page.mouse.up();
   await expect(dialog).toBeVisible();
+  // A backdrop-to-form drag must not become an ancestor-targeted click close.
+  await page.mouse.move(3, 3);
+  await page.mouse.down();
+  await expect(dialog).toBeVisible();
+  await page.mouse.move(field!.x + 8, field!.y + 8);
+  await page.mouse.up();
+  await expect(dialog).toBeVisible();
   await page.mouse.click(3, 3, { button: "right" });
   await expect(dialog).toBeVisible();
   await page.mouse.click(3, 3);

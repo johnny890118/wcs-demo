@@ -73,6 +73,14 @@ Installed Radix 1.2 registers Overlay as a dismissable surface, so a real browse
 test exposed missing backdrop dismissal in the first composition. The Legacy
 overlay now qualifies a primary click that both starts and ends on the backdrop;
 inside-to-outside drag, right-click and pointer cancellation do not dismiss.
+Final adversarial review additionally reproduced the reverse backdrop-to-form
+drag: a browser click can target the common ancestor even though pointer-up was
+inside the form, and the primitive may also eagerly dismiss on pointer-down.
+Pointer-up qualification alone was insufficient in the real browser. The
+follow-up prevents primitive pointer-down dismissal and qualifies the complete
+backdrop press/release instead, without history rewriting. Both drag directions
+keep the dialog open; only a primary press/release on the backdrop delegates
+dismissal. Escape/focus trapping still belong to Radix.
 Dismissal still delegates to the owner's callback, including refusal on the
 unauthenticated engineering page. This fixes behavior, not the test expectation.
 Source review also compares TypeScript-scanned tokens (ignoring only comments
@@ -117,6 +125,14 @@ transitive packages (15 total), adds none and changes no retained package versio
 The lockfile has no direct/nested reference to either retired library. Chart.js,
 Axios, classnames and the existing Radix versions are retained. A durable test
 checks manifest/lock absence, executable source absence and preserved route files.
+
+Removed orphan packages are `@floating-ui/react`, `@internationalized/date`,
+`@internationalized/number`, `@internationalized/string`, `@react-aria/focus`,
+`@react-aria/interactions`, `@react-types/shared`, `@tanstack/react-virtual`,
+`@tanstack/virtual-core`, `react-aria`, `react-stately`, `tabbable` and
+`use-sync-external-store`. No application/script source imports these transitives;
+the retained Floating UI dependencies belong to valid Radix consumers. No
+retained package version changed.
 
 Local manual PDF verification initially failed because `pdftotext` was absent
 from the shell PATH. The complete gate is rerun with `PDFTOTEXT_BIN` pointing to
