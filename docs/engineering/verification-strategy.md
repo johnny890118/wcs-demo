@@ -1,5 +1,15 @@
 # Verification Strategy
 
+Latest independent repository-wide old UI library migration: complete verify
+exits 0 with 659 fast, 88 real PostgreSQL and 60 production-build browser tests,
+production build, closed-demo/zero-upstream boundary and separate API build.
+Six pre-migration characterization journeys and seven post-migration journeys
+cover Legacy Dialog/disclosure/focus/keyboard/mobile/local dispatch/login/logout,
+with package/source/generated absence proofs. No checks are weakened, no
+auth/domain/API/operational behavior or S3 resumption is authorized. See
+`legacy-ui-library-migration-review.md` for exact scope, intermediate corrections,
+remaining Legacy limitations and external exact-SHA delivery evidence.
+
 Latest bounded presentation source: complete local verification passes 655 fast,
 88 real PostgreSQL and 53 browser tests plus API build and closed-public-demo
 boundary. The new serial fixture comparison preserves 48 native Before/After

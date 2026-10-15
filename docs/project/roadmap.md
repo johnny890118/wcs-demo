@@ -14,7 +14,11 @@ verified. Stage 2 bounded visual corrections and full local verification are
 recorded in [visual convergence](../engineering/bounded-visual-convergence-review.md);
 its exact checkpoint delivery gates precede Owner handoff. Stop after that bounded
 delivery. The Owner-required [old UI dependency migration](legacy-ui-library-migration-plan.md)
-is a separate future checkpoint, not a permanent Legacy exception or active S3 work.
+is separately Owner-authorized after `197148c`, not active S3 work. Its
+repository-wide implementation/removal and full local verification are complete
+(659 fast / 88 PostgreSQL / 60 browser tests plus API build). See its migration
+review and handoff for exact CI/provider release evidence; no automatic S3
+resumption or Owner visual acceptance follows dependency removal.
 
 Historical delivery priority (Owner-approved 2026-10-09): final operator UI Proposal
 implemented and deployed across the shared shell and seven main surfaces at

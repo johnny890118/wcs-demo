@@ -1,8 +1,4 @@
-import {
-  ArrowsRightLeftIcon,
-  CheckBadgeIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowRightLeft, BadgeCheck, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import { PublicHeader } from "../components/platform/PublicHeader";
@@ -16,17 +12,17 @@ export default function AboutPage({ siteOrigin }: PublicPageProps) {
   const { t } = useLocale();
   const principles = [
     {
-      Icon: ArrowsRightLeftIcon,
+      Icon: ArrowRightLeft,
       title: t("aboutModelTitle"),
       body: t("aboutModelBody"),
     },
     {
-      Icon: CheckBadgeIcon,
+      Icon: BadgeCheck,
       title: t("aboutEvidenceTitle"),
       body: t("aboutEvidenceBody"),
     },
     {
-      Icon: ShieldCheckIcon,
+      Icon: ShieldCheck,
       title: t("aboutSafetyTitle"),
       body: t("aboutSafetyBody"),
     },

@@ -31,8 +31,6 @@
     "verify": "npm run format:check && npm run security:secrets && npm run icons:check && npm run manual:check && npm run security:dependencies && npm run lint && npm run typecheck && npm run test && npm run test:postgres && npm run test:e2e && npm run test:demo-boundary"
   },
   "dependencies": {
-    "@headlessui/react": "^2.2.10",
-    "@heroicons/react": "^2.2.0",
     "@nestjs/common": "^12.0.3",
     "@nestjs/core": "^12.0.3",
     "@nestjs/platform-express": "^12.0.3",

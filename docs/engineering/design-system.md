@@ -61,9 +61,10 @@ for lightweight preferences/warehouse switching and Tooltip for collapsed labels
 Sheet has one localized owned close control, automatic focus trapping/Escape/
 trigger return, semantic scrim/surface and safe-area panel insets. The existing
 geometry-change handler restores focus to visible navigation rather than a hidden
-trigger. Legacy Headless UI is temporarily retained, not loaded as a formal alternative.
-Owner requires safe repository-wide Heroicons/Headless migration and removal in
-the later independent `../project/legacy-ui-library-migration-plan.md` checkpoint.
+trigger. The independent repository-wide migration replaces Legacy Headless with
+an owned Radix Dialog composition and its icons/About icons with named Lucide.
+Neither retired library remains installed. See `legacy-ui-library-migration-review.md`;
+this does not make historical Legacy content a formal operational capability.
 
 Compact composition is opt-in: PageHeading/ContextNavigation compact density
 keeps 44px destinations and full labels; Record row appearance uses separators

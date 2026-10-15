@@ -17,12 +17,11 @@ interaction and status rules are the single presentation authority. Fixed brand
 `#E6F000`, bilingual themes, industrial touch and WCAG 2.2 AA targets remain.
 No framework/auth migration or automatic template overwrite is authorized.
 
-Owner supplement: Heroicons and Headless UI must ultimately leave the entire
-repository after safe consumer migration, including Legacy and dormant sources.
-Current retention is temporary, never a permanent exception. Complete the current
-bounded delivery first; the independent migration plan is
-`../project/legacy-ui-library-migration-plan.md`. No route/function retirement is
-authorized by dependency standardization.
+Owner supplement is implemented by the independent repository-wide migration:
+Heroicons and Headless UI have no remaining source or package consumers, including
+Legacy and dormant About. Do not reintroduce them. See
+`legacy-ui-library-migration-review.md` for retained behavior and release gates.
+No route/function retirement is authorized by dependency standardization.
 
 ## Document disposition
 
@@ -67,9 +66,9 @@ rather than change security code in presentation cleanup.
   No other selection rule is removed without consumer evidence.
 - No `app/` source exists; radial/conic custom utilities have no consumers.
   Pages/components scanning remains, including Legacy.
-- Heroicons/Headless UI remain for Legacy and dormant About; Chart.js, Axios and
-  classnames remain for existing consumers. Do not pretend the dormant About
-  source is a migrated formal system page, or break reference functionality to
-  achieve a package-count target. New formal UI must use the current standard.
+- Historical stage-1 retention of Heroicons/Headless ended with the independent
+  migration. Legacy and dormant About now use Lucide/owned Radix compositions;
+  About is still not an active system page. Chart.js, Axios and classnames remain
+  for existing consumers. Never break reference functionality for package count.
 
 See `../project/design-system-standardization-plan.md` for staged delivery evidence.

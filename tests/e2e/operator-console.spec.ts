@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import "./support/bounded-ui-evidence";
+import "./support/legacy-ui-evidence";
 import { readFileSync } from "node:fs";
 import { visibleTextContrastFailures } from "./support/theme-contrast";
 import { expect, test, type Page } from "@playwright/test";

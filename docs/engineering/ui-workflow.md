@@ -54,8 +54,8 @@ instead of another per-page control style or blanket template initialization.
 The owned shadcn Sheet now supplies formal mobile navigation on the same supported
 Radix pathway as settings Popover/Tooltip. Keep its tested geometry, one localized
 close and modal keyboard/focus contracts; do not add a competing overlay system.
-Legacy Headless UI is temporarily preserved for safe migration, not a permanent
-exception; see `../project/legacy-ui-library-migration-plan.md`. Shared controls preserve native form contracts, keyboard/focus,
+Legacy Headless UI and Heroicons have been migrated and removed repository-wide;
+see `legacy-ui-library-migration-review.md`. Do not reintroduce them. Shared controls preserve native form contracts, keyboard/focus,
 contrast and truthful safety presentation. See `ui-quality-consolidation-review.md`.
 
 ## Motion rules adopted from the skill

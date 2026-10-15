@@ -12,8 +12,9 @@ semantics. Existing Popover/Tooltip use the same supported Radix architecture,
 collision bounds and focus behavior. No extra independent Radix system is added.
 Real URL navigation stays links, not fake ARIA tabs. Native choices are retained
 where replacing them would risk established form/keyboard contracts without gain.
-Lucide uses official named React imports; Heroicons remain only while Legacy needs
-them. No registry code or dependency script executes blindly.
+Lucide uses official named React imports. The independent repository-wide Legacy
+migration removes Heroicons/Headless entirely; no registry code or dependency
+script executes blindly.
 
 Sheet (2026-10-11): inspected the complete official v3 `new-york/sheet.json`
 source and Radix Dialog documentation. Owned Portal/Overlay/Content/Title/Trigger/
@@ -23,8 +24,11 @@ geometry and one localized 44px close control; omit decorative 300–500ms anima
 and the upstream duplicate English-only close. Automatic modal focus management
 is retained; geometry changes use the existing visible-navigation restoration.
 Formal product overlays now follow the supported Radix-backed shadcn pathway.
-Headless UI remains installed for characterized Legacy components, not another
-formal product navigation implementation.
+The historical temporary Headless installation ended with the independent
+Legacy migration. Owned Dialog (`dialog.tsx`) exports the same installed Radix
+foundation as Sheet without copying upstream decorative styles. The Legacy
+composition preserves controlled initial/return focus and explicitly qualifies
+backdrop clicks for Radix 1.2's registered overlay surface; no third framework.
 
 ## Upstream notice — shadcn/ui portions only
 
